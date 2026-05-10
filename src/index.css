@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #000000;
+    --text-primary: #FFFFFF;
+    --text-secondary: #D1D5DB;
+    --accent: #FF007A;
+    --font-display: 'Orbitron', sans-serif;
+    --font-sans: 'Inter', sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--text-primary);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: var(--bg-primary);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent);
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply max-w-7xl mx-auto px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-24 lg:py-32;
+  }
+
+  .heading-xl {
+    font-family: var(--font-display);
+    color: var(--text-primary);
+    @apply text-5xl md:text-6xl lg:text-7xl font-black uppercase leading-[1.1];
+    letter-spacing: 0.05em;
+  }
+
+  .heading-lg {
+    font-family: var(--font-display);
+    color: var(--text-primary);
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold uppercase leading-[1.15];
+    letter-spacing: 0.05em;
+  }
+
+  .heading-md {
+    font-family: var(--font-display);
+    color: var(--text-primary);
+    @apply text-2xl md:text-3xl font-semibold uppercase leading-[1.2];
+    letter-spacing: 0.05em;
+  }
+
+  .body-text {
+    font-family: var(--font-sans);
+    color: var(--text-secondary);
+    @apply text-base md:text-lg font-light leading-relaxed;
+  }
+
+  .btn-primary {
+    font-family: var(--font-display);
+    background-color: var(--accent);
+    color: var(--text-primary);
+    @apply inline-flex items-center gap-2 px-8 py-4 font-semibold
+           rounded-none uppercase tracking-widest text-sm
+           transition-all duration-300 hover:opacity-90
+           active:scale-95;
+  }
+
+  .btn-outline {
+    font-family: var(--font-display);
+    border-color: var(--accent);
+    color: var(--accent);
+    @apply inline-flex items-center gap-2 px-8 py-4 border-2 font-semibold
+           rounded-none uppercase tracking-widest text-sm
+           transition-all duration-300 hover:opacity-90
+           active:scale-95;
+  }
+
+  .btn-outline:hover {
+    background-color: var(--accent);
+    color: var(--text-primary);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--text-primary);
+    color: var(--bg-primary);
+  }
+
+  .card-dark {
+    @apply border rounded-none p-8
+           transition-all duration-500;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .card-dark:hover {
+    border-color: var(--accent);
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ========================================
+   Swiper Coverflow — Custom Styling
+   ======================================== */
+
+.works-swiper {
+  padding: 20px 0 60px !important;
+  overflow: visible !important;
+}
+
+.works-swiper .swiper-slide {
+  width: 400px;
+  max-width: 90vw;
+  opacity: 0.4;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.works-swiper .swiper-slide-active {
+  opacity: 1;
+}
+
+.works-swiper .swiper-slide-prev,
+.works-swiper .swiper-slide-next {
+  opacity: 0.6;
+}
+
+.works-swiper .swiper-slide-shadow-left,
+.works-swiper .swiper-slide-shadow-right {
+  background: linear-gradient(to right, rgba(0,0,0,0.6), transparent) !important;
+}
+
+.works-swiper .swiper-slide-shadow-right {
+  background: linear-gradient(to left, rgba(0,0,0,0.6), transparent) !important;
+}
+
+.works-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.works-swiper .swiper-pagination-bullet-active {
+  background-color: var(--accent);
+  width: 24px;
+  border-radius: 4px;
+}
+
+.works-swiper .swiper-button-next,
+.works-swiper .swiper-button-prev {
+  display: none !important;
+}
