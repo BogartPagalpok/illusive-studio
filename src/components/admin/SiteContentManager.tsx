@@ -46,7 +46,7 @@ const SEED_DATA = [
   { section: 'footer', key: 'hook_heading', value: "Want to elevate your visual identity? Let's collaborate." },
   { section: 'footer', key: 'hook_desc', value: "From brand systems to digital art — I bring ideas to life with precision and passion." },
   { section: 'footer', key: 'email', value: 'yhanlhester@gmail.com' },
-  { section: 'footer', key: 'phone', value: '524437988' },
+  { section: 'footer', key: 'phone', value: '+639524437988' },
   { section: 'footer', key: 'instagram', value: 'https://www.instagram.com/ilucifer0911/' },
   { section: 'footer', key: 'github', value: 'https://github.com/BogartPagalpok' },
   { section: 'footer', key: 'facebook', value: 'https://www.facebook.com/LordOfTheFlies911' },
