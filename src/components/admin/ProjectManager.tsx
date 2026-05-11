@@ -58,6 +58,9 @@ export default function ProjectManager() {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
+    const folderTitle = prompt("Enter a shared Title for this bulk upload (e.g. Zamba Coffee App):");
+    if (!folderTitle) return;
+
     setBulkUploading(true);
     setProgress({ current: 0, total: files.length });
 
@@ -80,9 +83,9 @@ export default function ProjectManager() {
           .getPublicUrl(fileName);
 
         newProjects.push({
-          title: file.name.split('.')[0].replace(/[_-]/g, ' '),
+          title: folderTitle, // Uses the shared title for grouping
           category: 'Graphic Design',
-          description: `Bulk uploaded from ${file.name}`,
+          description: `Bulk uploaded assets for ${folderTitle}`,
           image_url: urlData.publicUrl,
           featured: true,
           tools: [],
@@ -97,7 +100,7 @@ export default function ProjectManager() {
 
       if (insertError) throw insertError;
 
-      alert(`Successfully uploaded ${files.length} projects`);
+      alert(`Successfully uploaded ${files.length} images to ${folderTitle}`);
       fetchProjects();
     } catch (error: any) {
       console.error('Bulk upload failed:', error);
@@ -113,7 +116,8 @@ export default function ProjectManager() {
     try {
       const projectData = {
         ...editingProject,
-        tools: Array.isArray(editingProject.tools) ? editingProject.tools : [],
+        tools: Array.isArray(editingProject.tools) ? editingProject.tools : 
+               (typeof editingProject.tools === 'string' ? (editingProject.tools as string).split(',').map(t => t.trim()) : []),
       };
       
       let error;
@@ -175,7 +179,7 @@ export default function ProjectManager() {
       {bulkUploading && (
         <div className="card-dark border-accent/20">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-xs font-heading font-bold tracking-widest uppercase text-white">Uploading Assets...</span>
+            <span className="text-xs font-heading font-bold tracking-widest uppercase text-white">Uploading Folder...</span>
             <span className="text-xs font-heading font-bold text-accent">{progress.current} / {progress.total}</span>
           </div>
           <div className="h-1 w-full bg-white/10 overflow-hidden">
@@ -192,49 +196,76 @@ export default function ProjectManager() {
         <div className="card-dark border-white/10 p-8 space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="font-heading font-bold uppercase tracking-widest text-white">
-              {editingProject.id ? 'Edit Project' : 'Create Project'}
+              {editingProject.id ? 'Edit Details' : 'Create Project'}
             </h3>
             <button onClick={() => setEditingProject(null)} className="text-white/40 hover:text-white transition-colors">
               <X size={20} />
             </button>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-heading font-bold uppercase tracking-widest text-white/50 mb-2 text-white">Title</label>
+                <label className="label-admin">Title</label>
                 <input 
                   value={editingProject.title} 
                   onChange={e => setEditingProject({...editingProject, title: e.target.value})}
-                  className="w-full bg-white/[0.03] border border-white/10 p-3 text-white focus:outline-none focus:border-accent/50"
+                  className="input-admin"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-bold uppercase tracking-widest text-white/50 mb-2 text-white">Category</label>
+                <label className="label-admin">Category</label>
                 <input 
                   value={editingProject.category} 
                   onChange={e => setEditingProject({...editingProject, category: e.target.value})}
-                  className="w-full bg-white/[0.03] border border-white/10 p-3 text-white focus:outline-none focus:border-accent/50"
+                  className="input-admin"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-bold uppercase tracking-widest text-white/50 mb-2 text-white">Image URL</label>
+                <label className="label-admin">Tools (comma separated)</label>
+                <input 
+                  value={Array.isArray(editingProject.tools) ? editingProject.tools.join(', ') : editingProject.tools} 
+                  onChange={e => setEditingProject({...editingProject, tools: e.target.value.split(',').map(t => t.trim())})}
+                  placeholder="Photoshop, Illustrator, Canva"
+                  className="input-admin"
+                />
+              </div>
+              <div>
+                <label className="label-admin">Image URL</label>
                 <input 
                   value={editingProject.image_url} 
                   onChange={e => setEditingProject({...editingProject, image_url: e.target.value})}
-                  className="w-full bg-white/[0.03] border border-white/10 p-3 text-white focus:outline-none focus:border-accent/50 text-xs"
+                  className="input-admin text-xs"
                 />
               </div>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-heading font-bold uppercase tracking-widest text-white/50 mb-2 text-white">Description</label>
+                <label className="label-admin">Description (Overview)</label>
                 <textarea 
                   value={editingProject.description} 
                   onChange={e => setEditingProject({...editingProject, description: e.target.value})}
-                  rows={4}
-                  className="w-full bg-white/[0.03] border border-white/10 p-3 text-white focus:outline-none focus:border-accent/50 resize-none"
+                  rows={3}
+                  className="input-admin resize-none"
+                />
+              </div>
+              <div>
+                <label className="label-admin">The Process</label>
+                <textarea 
+                  value={editingProject.process} 
+                  onChange={e => setEditingProject({...editingProject, process: e.target.value})}
+                  rows={3}
+                  className="input-admin resize-none"
+                />
+              </div>
+              <div>
+                <label className="label-admin">Results</label>
+                <textarea 
+                  value={editingProject.results} 
+                  onChange={e => setEditingProject({...editingProject, results: e.target.value})}
+                  rows={2}
+                  className="input-admin resize-none"
                 />
               </div>
             </div>
@@ -243,7 +274,7 @@ export default function ProjectManager() {
           <div className="flex justify-end pt-4">
             <button onClick={handleSave} className="btn-primary px-10 py-3 flex items-center gap-2">
               <Save size={18} />
-              Save Project
+              Save Changes
             </button>
           </div>
         </div>
@@ -252,23 +283,22 @@ export default function ProjectManager() {
       <div className="grid gap-4">
         {projects.map(project => (
           <div key={project.id} className="card-dark border-white/5 p-4 group hover:border-accent/20 transition-all flex items-center gap-6">
-            <div className="w-20 h-20 bg-white/5 border border-white/10 overflow-hidden flex-shrink-0">
-              {project.image_url ? (
-                <img src={project.image_url} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center opacity-20"><ImageIcon size={24} /></div>
-              )}
+            <div className="w-16 h-16 bg-white/5 border border-white/10 overflow-hidden flex-shrink-0">
+              <img src={project.image_url || ''} className="w-full h-full object-cover" alt="" />
             </div>
             
             <div className="flex-1 min-w-0">
               <h4 className="text-white font-bold tracking-widest uppercase truncate mb-1">{project.title}</h4>
-              <p className="text-[10px] text-accent uppercase tracking-widest font-black mb-2">{project.category}</p>
-              <p className="text-white/40 text-xs line-clamp-1">{project.description}</p>
+              <p className="text-[10px] text-accent uppercase tracking-widest font-black">{project.category}</p>
             </div>
 
             <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onClick={() => setEditingProject(project)} className="p-2 text-white/40 hover:text-white transition-colors"><Save size={18} /></button>
-              <button onClick={() => project.id && handleDelete(project.id)} className="p-2 text-white/40 hover:text-accent transition-colors"><Trash2 size={18} /></button>
+              <button onClick={() => setEditingProject(project)} className="p-2 text-white/40 hover:text-white transition-colors">
+                <Plus size={18} />
+              </button>
+              <button onClick={() => project.id && handleDelete(project.id)} className="p-2 text-white/40 hover:text-accent transition-colors">
+                <Trash2 size={18} />
+              </button>
             </div>
           </div>
         ))}
