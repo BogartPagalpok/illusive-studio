@@ -26,7 +26,7 @@ const defaultContent: FooterContent = {
   hook_heading: "Want to elevate your visual identity? Let's collaborate.",
   hook_desc: "From brand systems to digital art — I bring ideas to life with precision and passion.",
   email: 'yhanlhester@gmail.com',
-  phone: '524437988',
+  phone: '+639524437988',
   instagram: 'https://www.instagram.com/ilucifer0911/',
   github: 'https://github.com/BogartPagalpok',
   facebook: 'https://www.facebook.com/LordOfTheFlies911',
