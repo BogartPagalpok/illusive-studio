@@ -6,7 +6,15 @@ export default defineConfig({
   base: '/', 
   build: {
     outDir: 'dist',
-    // Standardizing helps Vercel's crawler find the assets
-    chunkSizeWarningLimit: 1000,
-  }
+    assetsDir: '', // This keeps JS/CSS in the root of 'dist'
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Simple naming to ensure Vercel can't miss the files
+        entryFileNames: '[name]-[hash].js',
+        chunkFileNames: '[name]-[hash].js',
+        assetFileNames: '[name]-[hash].[ext]',
+      },
+    },
+  },
 });
