@@ -1,21 +1,17 @@
+// vite.config.ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: '/', // Ensure this is a leading slash
   build: {
-    // This removes the warning by raising the limit to 1MB
-    chunkSizeWarningLimit: 1000,
+    outDir: 'dist',
+    assetsDir: 'assets',
+    // This helps prevent the "index-By5dJxsy.js" mismatch after new deploys
     rollupOptions: {
       output: {
-        // This splits your heavy libraries into a separate file 
-        // so the main site loads faster
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        },
+        manualChunks: undefined,
       },
     },
   },
