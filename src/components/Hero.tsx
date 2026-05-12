@@ -58,26 +58,38 @@ export default function Hero() {
     fetchContent();
   }, []);
 
+  // GSAP SCROLL FIX
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
 
     const ctx = gsap.context(() => { 
+      // We apply the animation with immediateRender: false so it doesn't 
+      // override Framer Motion's initial page-load animation.
       gsap.to(overlay, { 
-        yPercent: -100, // Reduced from -150 to keep it from flying away too fast on mobile
+        yPercent: -100, 
         opacity: 0, 
-        ease: 'none', 
+        ease: 'none',
+        immediateRender: false, // <-- CRITICAL FIX: Lets Framer Motion finish first
         scrollTrigger: { 
           trigger: sectionRef.current, 
           start: 'top top', 
-          // Adjust end distance for mobile vs desktop
           end: window.innerWidth < 768 ? '+=100%' : '+=150%', 
           scrub: 0.5, 
         }, 
       }); 
     });
 
-    return () => ctx.revert();
+    // Listen for theme changes so GSAP recalculates heights
+    const handleThemeChange = () => {
+      setTimeout(() => ScrollTrigger.refresh(), 150);
+    };
+    window.addEventListener('storage', handleThemeChange);
+
+    return () => {
+      ctx.revert();
+      window.removeEventListener('storage', handleThemeChange);
+    };
   }, []);
 
   return (
