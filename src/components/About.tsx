@@ -94,14 +94,14 @@ export default function About() {
   }, []);
 
   return (
-    <section id="about" ref={sectionRef} className="section-padding bg-black relative overflow-hidden">
+    <section id="about" ref={sectionRef} className="section-padding bg-transparent relative overflow-hidden">
       {/* Floating 3D Identities */}
       <FloatingCube type="Canva" size={100} top="5%" right="10%" blur="4px" delay={0.3} duration={7} />
       <FloatingCube type="Ps" size={70} bottom="15%" left="10%" blur="1px" delay={1.2} duration={5} />
 
       {/* Parallax depth layer */}
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/[0.05] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
       </div>
 
       <div ref={ref} className="section-container relative">
@@ -114,7 +114,7 @@ export default function About() {
           <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
             {content.subtitle}
           </p>
-          <h2 className="text-white font-bold tracking-tighter heading-lg">
+          <h2 className="text-[var(--text-primary)] font-bold tracking-tighter heading-lg">
             {content.heading.split(' ').map((word, i, arr) => (
               <span key={i}>
                 {word === '&' ? <span className="text-accent">&</span> : word}
@@ -132,8 +132,8 @@ export default function About() {
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <div className="card-dark group hover:border-accent/20 transition-all duration-500">
-              <h3 className="text-white font-bold tracking-tighter text-2xl mb-8 leading-tight">
+            <div className="card-dark group">
+              <h3 className="text-[var(--text-primary)] font-bold tracking-tighter text-2xl mb-8 leading-tight">
                 {content.subheading.includes('.') ? (
                   <>
                     {content.subheading.split('.')[0]}. <span className="text-accent">{content.subheading.split('.')[1].trim()}</span>
@@ -142,10 +142,10 @@ export default function About() {
                   content.subheading
                 )}
               </h3>
-              <div className="space-y-6 text-zinc-400 leading-relaxed text-lg font-light">
+              <div className="space-y-6 text-[var(--text-secondary)] leading-relaxed text-lg font-light">
                 <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-accent first-letter:mr-3 first-letter:float-left">{content.description_line1}</p>
                 <p>{content.description_line2}</p>
-                <p className="italic text-white/60">{content.description_line3}</p>
+                <p className="italic opacity-60" style={{ color: 'var(--text-primary)' }}>{content.description_line3}</p>
               </div>
             </div>
           </motion.div>
@@ -157,7 +157,7 @@ export default function About() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="space-y-10"
           >
-            <h3 className="text-white font-bold tracking-tighter text-2xl uppercase">
+            <h3 className="text-[var(--text-primary)] font-bold tracking-tighter text-2xl uppercase">
               Skills <span className="text-accent">&</span> Proficiency
             </h3>
 
@@ -165,7 +165,7 @@ export default function About() {
               {skills.map((skill, i) => (
                 <div key={skill.name} className="relative">
                   <div className="flex justify-between items-end mb-3">
-                    <span className="text-[10px] font-heading font-black tracking-[0.2em] uppercase text-white/50">
+                    <span className="text-[10px] font-heading font-black tracking-[0.2em] uppercase text-[var(--text-primary)] opacity-50">
                       {skill.name}
                     </span>
                     <span className="text-sm font-heading font-black text-accent drop-shadow-[0_0_8px_var(--accent)]">
@@ -174,15 +174,16 @@ export default function About() {
                   </div>
                   
                   {/* Neon Glass Bar Container */}
-                  <div className="h-[6px] w-full bg-white/5 rounded-full overflow-hidden border border-white/10 relative">
+                  <div className="h-[6px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--text-primary)]/10 relative">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={isVisible ? { width: `${skill.level}%` } : {}}
                       transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: 'circOut' }}
-                      className="h-full bg-gradient-to-r from-accent/20 to-accent relative rounded-full"
+                      style={{ backgroundColor: 'var(--accent)' }}
+                      className="h-full relative rounded-full"
                     >
-                      {/* Glow Head at the end of the bar */}
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-accent rounded-full blur-[6px] opacity-80" />
+                      {/* Glow Head */}
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full blur-[6px] opacity-80" style={{ backgroundColor: 'var(--accent)' }} />
                       <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_#fff]" />
                     </motion.div>
                   </div>
