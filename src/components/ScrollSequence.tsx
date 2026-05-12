@@ -1,5 +1,9 @@
 import { useEffect, useRef, useCallback, ReactNode } from 'react';
 import { supabase, SCROLL_SEQUENCE_BUCKET } from '../lib/supabase';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface ScrollSequenceProps {
   frameCount?: number;
@@ -20,25 +24,24 @@ export default function ScrollSequence({
   const containerRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastDrawnFrameRef = useRef<number>(0);
+  const firstFrameDrawnRef = useRef<boolean>(false);
 
   const drawFrame = useCallback((index: number) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return false;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return false;
 
     const img = imagesRef.current[index];
-    if (!img || !img.complete || img.naturalWidth === 0) return;
+    if (!img || !img.complete || img.naturalWidth === 0) return false;
 
-    // Set canvas strictly to the image's native resolution
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
-
-    // Draw the image cleanly at 1:1 scale
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0);
     
     lastDrawnFrameRef.current = index;
+    return true;
   }, []);
 
   useEffect(() => {
@@ -56,8 +59,9 @@ export default function ScrollSequence({
         img.src = urlData.publicUrl;
         img.onload = () => {
           if (cancelled) return resolve();
-          if (i === 0) {
-            drawFrame(0);
+          if (!firstFrameDrawnRef.current) {
+            drawFrame(i);
+            firstFrameDrawnRef.current = true;
           }
           resolve();
         };
@@ -67,10 +71,7 @@ export default function ScrollSequence({
     };
 
     const loadAll = async () => {
-      // Load first frame immediately
       await loadFrame(0);
-      
-      // Load remaining frames progressively
       for (let i = 1; i < frameCount; i++) {
         if (cancelled) break;
         await loadFrame(i);
@@ -82,48 +83,64 @@ export default function ScrollSequence({
   }, [frameCount, filePrefix, fileExtension, drawFrame]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const container = containerRef.current;
-      if (!container || imagesRef.current.length === 0) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-      const scrollHeight = container.offsetHeight - window.innerHeight;
-      const scrolled = -container.getBoundingClientRect().top;
-      const progress = Math.max(0, Math.min(1, scrolled / scrollHeight));
-      
-      // Double the virtual timeline (e.g., 288 frames * 2 = 576 virtual frames) 
-      const totalVirtualFrames = frameCount * 2; 
-      
-      const virtualFrameIndex = Math.min( 
-        Math.floor(progress * totalVirtualFrames), 
-        totalVirtualFrames - 1 
-      ); 
+    const frameObj = { frame: 0 };
 
-      // Map virtual index to actual image array (Play forward, then reverse) 
-      const frameIndex = virtualFrameIndex < frameCount 
-        ? virtualFrameIndex 
-        : (totalVirtualFrames - 1) - virtualFrameIndex; 
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: container,
+          start: "top top",
+          // This dictates the exact scroll distance before unpinning (e.g., 400% of the screen)
+          end: `+=${scrollLength * 100}%`, 
+          scrub: 0.5,
+          pin: true, // GSAP handles freezing the section
+          anticipatePin: 1
+        }
+      });
 
-      if (!drawFrame(frameIndex)) {
-        drawFrame(lastDrawnFrameRef.current);
-      }
-    };
+      // 1. Play Forward (Takes exactly the first 50% of the scroll)
+      tl.to(frameObj, {
+        frame: frameCount - 1,
+        snap: "frame",
+        ease: "none",
+        duration: 1,
+        onUpdate: () => {
+          if (!drawFrame(frameObj.frame)) {
+            drawFrame(lastDrawnFrameRef.current);
+          }
+        }
+      })
+      // 2. Play Reverse (Takes exactly the remaining 50% of the scroll)
+      .to(frameObj, {
+        frame: 0,
+        snap: "frame",
+        ease: "none",
+        duration: 1, 
+        onUpdate: () => {
+          if (!drawFrame(frameObj.frame)) {
+            drawFrame(lastDrawnFrameRef.current);
+          }
+        }
+      });
+    });
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [drawFrame, frameCount]);
+    return () => ctx.revert();
+  }, [frameCount, drawFrame, scrollLength]);
 
   return (
-    <div ref={containerRef} className="relative w-full bg-black z-0" style={{ height: `${scrollLength * 100}vh` }}>
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+    // FIX: Removed the manual height style and sticky classes. GSAP takes full control here.
+    <div ref={containerRef} className="relative w-full bg-black z-0">
+      <div className="h-screen w-full overflow-hidden relative">
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" />
         
-        {/* Theme Overlay */}
         <div 
           className="absolute inset-0 pointer-events-none transition-colors duration-500 z-[1]" 
           style={{ backgroundColor: 'var(--accent)', mixBlendMode: 'color', opacity: 0.35 }} 
         />
         
-        {/* Bottom Gradient Mask - Adapts to theme background */} 
         <div 
           className="absolute inset-x-0 bottom-0 h-48 md:h-64 pointer-events-none z-[2]" 
           style={{ 
@@ -131,7 +148,6 @@ export default function ScrollSequence({
           }} 
         /> 
         
-        {/* The Hero Text Content */}
         <div className="absolute inset-0 z-10 pointer-events-none">
           {children}
         </div>
