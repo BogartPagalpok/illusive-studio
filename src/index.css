@@ -1,26 +1,26 @@
 /* --- MODERN GRADIENT BUTTONS --- */
   .btn-primary {
     font-family: var(--font-display);
-    @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold flex items-center justify-center gap-3
+    @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold
            uppercase tracking-[0.2em] text-[10px]
-           transition-all duration-300;
-    /* Hardcoded gradient to bypass variable inheritance issues */
-    background: linear-gradient(135deg, var(--accent) 0%, #3B00FF 100%);
+           transition-all duration-300 flex items-center justify-center gap-3;
+    /* Hardcoded gradient bypasses variable inheritance issues */
+    background: linear-gradient(135deg, #FF007A 0%, #3B00FF 100%);
     color: #FFFFFF;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 122, 0.2);
     border: none;
   }
 
   .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px -5px var(--accent);
+    box-shadow: 0 10px 25px -5px #FF007A;
     filter: brightness(1.2);
   }
 
   /* --- CONTACT FORM INPUTS --- */
   .input-field {
-    @apply w-full bg-black/50 border border-white/10 rounded-xl px-6 py-4
-           text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--accent)]
-           transition-colors duration-300 backdrop-blur-md;
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4
+           text-white placeholder:text-white/30 focus:outline-none focus:border-[#FF007A]
+           transition-all duration-300 backdrop-blur-md;
     font-family: var(--font-sans);
   }
