@@ -61,25 +61,24 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
   useEffect(() => {
     const ctx = gsap.context(() => {
       if (watermarkRef.current) {
-        // Vertical Drift linked to scroll
-        gsap.fromTo(watermarkRef.current, { y: 20 }, {
-          y: -20,
-          ease: 'none',
+        // Playful drift animation
+        gsap.to(watermarkRef.current, {
+          x: 40,
+          duration: 6,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut"
+        });
+
+        // Suble scroll reaction
+        gsap.fromTo(watermarkRef.current, { y: 10 }, {
+          y: -10,
           scrollTrigger: {
             trigger: footerRef.current,
             start: 'top bottom',
             end: 'bottom bottom',
             scrub: 1,
           },
-        });
-
-        // Horizontal playful float
-        gsap.to(watermarkRef.current, {
-          x: 30,
-          duration: 5,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut"
         });
       }
     });
@@ -104,21 +103,24 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* THE PLAYFUL WATERMARK: Positioned specifically in your circled area */}
+          {/* THE CIRCLE AREA WATERMARK: Sitting exactly above the divider line */}
           <div 
             ref={watermarkRef} 
-            className="absolute bottom-20 left-0 w-full z-0 flex items-center justify-center pointer-events-none select-none"
+            className="absolute bottom-[80px] left-0 w-full z-0 flex items-center justify-center pointer-events-none select-none"
           >
             <h2 
-              className="text-[12vw] font-heading font-black tracking-[0.2em] uppercase opacity-[0.08]" 
-              style={{ color: '#ffffff', filter: 'blur(1px)' }}
+              className="text-[10vw] font-heading font-black tracking-[0.4em] uppercase opacity-[0.06]" 
+              style={{ 
+                color: '#ffffff', 
+                filter: 'blur(1px)',
+                lineHeight: 1
+              }}
             >
               IAN LESTER
             </h2>
           </div>
 
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
-            {/* Col 1: Hook */}
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles size={16} className="text-accent" />
@@ -126,28 +128,18 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
               </div>
               <h3 className="text-2xl font-heading font-bold uppercase mb-4" style={{ color: '#ffffff' }}>{content.hook_heading}</h3>
               <p className="text-sm mb-8 max-w-sm leading-relaxed" style={{ color: '#efefef', opacity: 0.8 }}>{content.hook_desc}</p>
-              <button 
-                onClick={() => scrollToSection('contact')} 
-                className="btn-primary text-[10px] px-8 py-4 uppercase tracking-widest font-bold"
-                style={{ background: 'var(--accent)', color: '#000000' }}
-              >
-                Book a Call
-              </button>
+              <button onClick={() => scrollToSection('contact')} className="btn-primary text-[10px] px-8 py-4 uppercase tracking-widest font-bold" style={{ background: 'var(--accent)', color: '#000000' }}>Book a Call</button>
             </div>
 
-            {/* Col 2: Navigation */}
             <div>
                <h4 className="text-[10px] uppercase tracking-widest mb-6 font-bold" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Navigation</h4>
                <ul className="space-y-4 text-sm">
                  {['Home', 'Services', 'Works', 'About'].map(item => (
-                   <li key={item}>
-                     <button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors" style={{ color: '#efefef' }}>{item}</button>
-                   </li>
+                   <li key={item}><button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors" style={{ color: '#efefef' }}>{item}</button></li>
                  ))}
                </ul>
             </div>
 
-            {/* Col 3: Contact */}
             <div>
                <h4 className="text-[10px] uppercase tracking-widest mb-6 font-bold" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Contact</h4>
                <ul className="space-y-4 text-sm" style={{ color: '#efefef' }}>
@@ -156,7 +148,6 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
                </ul>
             </div>
 
-            {/* Col 4: Connect */}
             <div>
                <h4 className="text-[10px] uppercase tracking-widest mb-6 font-bold" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Connect</h4>
                <ul className="space-y-4 text-sm">
@@ -167,21 +158,9 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             </div>
           </div>
 
-          {/* Copyright Bar */}
           <div className="relative z-10 mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest">
-            <button 
-              style={{ color: 'rgba(255, 255, 255, 0.3)' }}
-              onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}
-            >
-              {content.copyright}
-            </button>
-            <button 
-              onClick={() => window.scrollTo({top:0, behavior:'smooth'})} 
-              className="hover:text-accent transition-colors"
-              style={{ color: 'rgba(255, 255, 255, 0.3)' }}
-            >
-              Back to Top ↑
-            </button>
+            <button style={{ color: 'rgba(255, 255, 255, 0.3)' }} onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{content.copyright}</button>
+            <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Back to Top ↑</button>
           </div>
         </div>
       </div>
