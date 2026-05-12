@@ -4,8 +4,8 @@ import { ArrowLeft, Palette, Check } from 'lucide-react';
 import MessageManager from '../components/admin/MessageManager';
 import SiteContentManager from '../components/admin/SiteContentManager';
 import ProjectManager from '../components/admin/ProjectManager';
+import { supabase } from '../lib/supabase';
 
-// Defined with exact gradients to power the rich UI visualizer
 const THEMES = [
   { id: 'void', name: 'Void', tagline: 'Deep Web3 Purple', accent: '#9D00FF', bgPrimary: '#030305', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(157, 0, 255, 0.15) 0%, rgba(3, 3, 5, 0) 70%)' },
   { id: 'light', name: 'Clean', tagline: 'App Interface', accent: '#FF3366', bgPrimary: '#F0F0F3', bgGradient: 'none' },
@@ -32,7 +32,6 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   });
 
   const applyThemeToDOM = (themeId: string) => {
-    // Injecting into both documentElement and body forces the CSS to re-evaluate instantly
     document.documentElement.setAttribute('data-theme', themeId);
     document.body.setAttribute('data-theme', themeId);
   };
@@ -47,11 +46,28 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const handleThemeSelect = (theme: typeof THEMES[0]) => {
+  const handleThemeSelect = async (theme: typeof THEMES[0]) => {
+    // 1. Update UI and Local Storage immediately
     applyThemeToDOM(theme.id);
     localStorage.setItem('portfolio-theme', theme.id);
     setActiveThemeId(theme.id);
-    showMessage(`Theme applied: ${theme.name}`);
+
+    // 2. Sync to Supabase for other devices
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { error } = await supabase
+          .from('user_profiles')
+          .update({ theme_preference: theme.id })
+          .eq('id', session.user.id);
+        
+        if (error) throw error;
+      }
+      showMessage(`Theme synchronized: ${theme.name}`);
+    } catch (err) {
+      console.warn('Sync failed, saved locally only.');
+      showMessage(`Saved locally: ${theme.name}`);
+    }
   };
 
   const tabs = [
@@ -97,7 +113,6 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       )}
 
       <div className="section-container py-12">
-        {/* Navigation Tabs */}
         <div className="flex gap-2 mb-12 overflow-x-auto pb-4">
           {tabs.map((t) => (
             <button
@@ -115,12 +130,10 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           ))}
         </div>
 
-        {/* Content Tabs */}
         {tab === 'content' && <SiteContentManager />}
         {tab === 'projects' && <ProjectManager />}
         {tab === 'messages' && <MessageManager />}
 
-        {/* Theme Tab (Atmosphere Engine) */}
         {tab === 'theme' && (
           <div className="space-y-12">
             <div className="flex items-center gap-6">
@@ -165,12 +178,10 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                     {theme.tagline}
                   </p>
 
-                  {/* Rich UI Visualizer: Previews the actual gradient, frosted glass, and 3D button */}
                   <div 
                     className="w-full h-28 rounded-xl mt-6 relative overflow-hidden border border-white/5 transition-transform duration-500 group-hover:scale-[1.02]"
                     style={{ backgroundColor: theme.bgPrimary, backgroundImage: theme.bgGradient }}
                   >
-                    {/* Frosted Glass Card Simulation */}
                     <div 
                       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[65%] rounded-lg border flex items-center justify-center shadow-2xl" 
                       style={{ 
@@ -180,7 +191,6 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                         WebkitBackdropFilter: 'blur(8px)'
                       }}
                     >
-                      {/* Gradient Button Simulation */}
                       <div 
                         className="w-[50%] h-[35%] rounded-md" 
                         style={{ 
