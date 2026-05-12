@@ -9,21 +9,35 @@ import { supabase } from './lib/supabase';
 import { loadSavedTheme } from './lib/themes';
 import { motion } from 'framer-motion';
 
+// PERFORMANCE OPTIMIZED GRADIENT
 function AtmosphereGradient() {
   return (
     <div className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none bg-[#020204]">
       <motion.div 
-        animate={{ x: ['-5%', '5%', '-5%'], y: ['-2%', '2%', '-2%'] }}
+        animate={{
+          x: ['-5%', '5%', '-5%'],
+          y: ['-2%', '2%', '-2%'],
+        }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full opacity-30 blur-[80px] will-change-transform"
-        style={{ background: 'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)', filter: 'saturate(1.5)' }}
+        style={{ 
+          background: 'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)',
+          filter: 'saturate(1.5)'
+        }}
       />
+
       <motion.div 
-        animate={{ x: ['5%', '-5%', '5%'], y: ['2%', '-2%', '2%'] }}
+        animate={{
+          x: ['5%', '-5%', '5%'],
+          y: ['2%', '-2%', '2%'],
+        }}
         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
         className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full opacity-20 blur-[70px] will-change-transform"
-        style={{ background: 'radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--accent), #4000ff 40%) 0%, transparent 70%)' }}
+        style={{ 
+          background: 'radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--accent), #4000ff 40%) 0%, transparent 70%)',
+        }}
       />
+
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.85)_100%)]" />
     </div>
   );
@@ -43,40 +57,37 @@ function App() {
         .single();
 
       if (!error && data?.theme_preference) {
-        const newTheme = data.theme_preference;
-        document.documentElement.setAttribute('data-theme', newTheme);
-        // Standardized key to match portfolio utility
-        localStorage.setItem('portfolio-theme', newTheme);
+        document.documentElement.setAttribute('data-theme', data.theme_preference);
+        localStorage.setItem('theme', data.theme_preference);
       }
     } catch (err) {
-      console.warn('Sync failed');
+      console.warn('Background theme sync failed.');
     }
   };
 
   useEffect(() => {
+    // 1. Instant local load
     loadSavedTheme();
 
     const initAuthAndTheme = async () => {
-      // Emergency timeout: Don't get stuck in loading loop if Supabase is slow
-      const timeout = setTimeout(() => setLoading(false), 2000);
-
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-
-      if (session?.user) {
-        await syncUserTheme(session.user.id);
-      }
       
-      clearTimeout(timeout);
+      // 2. Stop loading immediately after session check
       setLoading(false);
+
+      // 3. Sync theme in background (Non-blocking)
+      if (session?.user) {
+        syncUserTheme(session.user.id);
+      }
     };
 
     initAuthAndTheme();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session?.user) {
-        await syncUserTheme(session.user.id);
+        syncUserTheme(session.user.id);
       }
     });
 
@@ -101,6 +112,15 @@ function App() {
     );
   }
 
+  if (isAdmin) {
+    return (
+      <main className="min-h-screen bg-transparent relative">
+        <AtmosphereGradient />
+        <AdminDashboard onLogout={() => setIsAdmin(false)} />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen relative overflow-x-hidden bg-transparent">
       <AtmosphereGradient />
@@ -108,7 +128,6 @@ function App() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/" element={<HomePage onAdminAuth={() => setIsAdmin(true)} />} />
-        {isAdmin && <Route path="/admin" element={<AdminDashboard onLogout={() => setIsAdmin(false)} />} />}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </main>
