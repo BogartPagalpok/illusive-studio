@@ -59,7 +59,6 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
     <footer className="relative bg-transparent overflow-visible mt-10">
       <div className="section-container relative pb-12">
         
-        {/* COMPACT GLASS CARD */}
         <div 
           className="relative z-10 p-8 md:p-12 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
           style={{ 
@@ -68,19 +67,19 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* THE OVERLAY WATERMARK: Justified right, matched opacity */}
+          {/* THE WATERMARK: Matched to 60% opacity and right-aligned to hit the flare line edge */}
           <h2 
-            className="absolute bottom-[72px] right-8 md:right-12 text-7xl md:text-9xl lg:text-[10vw] font-heading font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
+            className="absolute bottom-[68px] right-8 md:right-12 text-6xl md:text-8xl lg:text-9xl font-heading font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
             style={{ 
-              opacity: 0.8,
-              marginRight: '-0.04em'
+              opacity: 0.6,
+              transform: 'translateX(0.04em)' 
             }}
           >
             IAN LESTER
           </h2>
 
           {/* TOP GRID */}
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-start mb-20 md:mb-24">
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-start mb-16 md:mb-20">
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles size={14} className="text-accent" />
@@ -94,7 +93,7 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             <div className="hidden lg:block" />
 
             <div>
-               <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white">Navigation</h4>
+               <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white font-heading">Navigation</h4>
                <ul className="space-y-2 text-[11px] text-white/80">
                  {['Home', 'Services', 'Works', 'About'].map(item => (
                    <li key={item}><button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors">{item}</button></li>
@@ -103,7 +102,7 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             </div>
 
             <div>
-               <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white">Contact</h4>
+               <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white font-heading">Contact</h4>
                <ul className="space-y-2 text-[11px] text-white/80">
                  <li className="flex items-center gap-2"><Mail size={12} className="text-accent" /> {content.email}</li>
                  <li className="flex items-center gap-2"><Phone size={12} className="text-accent" /> {content.phone}</li>
@@ -111,8 +110,8 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             </div>
 
             <div>
-               <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white">Connect</h4>
-               <ul className="space-y-2 text-[11px] text-white/80">
+               <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white font-heading">Connect</h4>
+               <ul className="space-y-2 text-[11px] text-white/80 font-medium">
                  <li><a href={content.instagram} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors"><Instagram size={12} /> Instagram</a></li>
                  <li><a href={content.github} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors"><Github size={12} /> GitHub</a></li>
                  <li><a href={content.facebook} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors"><Facebook size={12} /> Facebook</a></li>
@@ -120,8 +119,11 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             </div>
           </div>
             
-          {/* THE FLARE LINE: Matched opacity (80%) */}
-          <div className="relative z-10 mt-2 pt-6 border-t border-white flex justify-between items-center text-[9px] uppercase tracking-widest font-bold text-white" style={{ borderColor: 'rgba(255, 255, 255, 0.8)', opacity: 0.8 }}>
+          {/* FLARE LINE: Matched to 60% opacity */}
+          <div 
+            className="relative z-10 mt-2 pt-6 border-t flex justify-between items-center text-[9px] uppercase tracking-widest font-bold text-white" 
+            style={{ borderColor: 'rgba(255, 255, 255, 0.6)', opacity: 0.6 }}
+          >
             <button onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{content.copyright}</button>
             <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors">Back to Top ↑</button>
           </div>
