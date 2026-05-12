@@ -126,12 +126,13 @@ export default function About() {
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            {/* CLEAN GLASS CARD: Neutral background to stop purple tinting */}
-            <div className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-3xl"
+            {/* MASTER GLASSMOPRHISM TEMPLATE */}
+            <div className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
                  style={{ 
-                   backgroundColor: 'rgba(15, 15, 15, 0.7)', 
-                   borderColor: 'rgba(255, 255, 255, 0.1)',
-                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' 
+                   backgroundColor: 'rgba(255, 255, 255, 0.03)', 
+                   borderColor: 'rgba(255, 255, 255, 0.12)',
+                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+                   WebkitBackdropFilter: 'blur(32px) saturate(180%)'
                  }}>
               <h3 className="font-bold tracking-tighter text-2xl mb-8 leading-tight" style={{ color: '#ffffff' }}>
                 {content.subheading.includes('.') ? (
@@ -142,10 +143,10 @@ export default function About() {
                   content.subheading
                 )}
               </h3>
-              <div className="space-y-6 text-lg font-light" style={{ color: '#e4e4e7' }}>
+              <div className="space-y-6 text-lg font-light" style={{ color: '#efefef' }}>
                 <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-accent first-letter:mr-3 first-letter:float-left">{content.description_line1}</p>
                 <p>{content.description_line2}</p>
-                <p className="italic" style={{ color: '#ffffff' }}>{content.description_line3}</p>
+                <p className="italic" style={{ color: '#ffffff', opacity: 0.9 }}>{content.description_line3}</p>
               </div>
             </div>
           </motion.div>
@@ -164,14 +165,19 @@ export default function About() {
               {skills.map((skill, i) => (
                 <div key={skill.name} className="relative">
                   <div className="flex justify-between items-end mb-3">
-                    <span className="text-[10px] font-heading font-black tracking-[0.2em] uppercase" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                    <span className="text-[10px] font-heading font-black tracking-[0.2em] uppercase" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                       {skill.name}
                     </span>
                     <span className="text-sm font-heading font-black text-accent drop-shadow-[0_0_8px_var(--accent)]">
                       {skill.level}%
                     </span>
                   </div>
-                  <div className="h-[8px] w-full rounded-full overflow-hidden border relative" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+                  <div className="h-[8px] w-full rounded-full overflow-hidden border relative" 
+                       style={{ 
+                         backgroundColor: 'rgba(255, 255, 255, 0.05)', 
+                         borderColor: 'rgba(255, 255, 255, 0.1)',
+                         backdropFilter: 'blur(8px)'
+                       }}>
                     <motion.div
                       initial={{ width: 0 }}
                       animate={isVisible ? { width: `${skill.level}%` } : {}}
