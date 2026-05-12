@@ -1,213 +1,193 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Send } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { supabase } from '../lib/supabase';
 import FloatingCube from './FloatingCube';
 
-interface ContactContent {
+gsap.registerPlugin(ScrollTrigger);
+
+const skills = [
+  { name: 'Photoshop', level: 95 },
+  { name: 'Digital Painting', level: 90 },
+  { name: 'Adobe Lightroom', level: 88 },
+  { name: 'Traditional Arts', level: 85 },
+  { name: 'Photography', level: 92 },
+  { name: 'Canva', level: 90 },
+  { name: 'Videography', level: 80 },
+  { name: 'Typography', level: 87 },
+];
+
+interface AboutContent {
   subtitle: string;
   heading: string;
-  description: string;
+  subheading: string;
+  description_line1: string;
+  description_line2: string;
+  description_line3: string;
+  skills_heading: string;
 }
 
-const defaultContent: ContactContent = {
-  subtitle: "Let's Connect",
-  heading: 'Get in Touch',
-  description: "Have a project in mind or need a creative partner? I'd love to hear from you.",
+const defaultContent: AboutContent = {
+  subtitle: 'Who I Am',
+  heading: 'About & Skills',
+  subheading: 'Creative mind. Reliable hands.',
+  description_line1: "I'm Ian Lester Eclevia — a graphic designer, photographer, and virtual assistant who believes that great design is where timeless elegance meets modern trends.",
+  description_line2: "With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories that don't just look beautiful — they communicate, connect, and convert.",
+  description_line3: "Beyond design, I bring the same dedication to virtual assistance — organized, proactive, and committed to making your operations run seamlessly.",
+  skills_heading: 'Skills & Proficiency',
 };
 
-export default function Contact() {
+export default function About() {
   const { ref, isVisible } = useScrollReveal();
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [content, setContent] = useState<ContactContent>(defaultContent);
-  const [user, setUser] = useState<any>(null);
+  const [content, setContent] = useState<AboutContent>(defaultContent);
+  const sectionRef = useRef<HTMLElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user?.email) {
-        setForm(prev => ({ ...prev, email: session.user.email || '' }));
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user?.email) {
-        setForm(prev => ({ ...prev, email: session.user.email || '' }));
-      }
-    });
-
     const fetchContent = async () => {
       try {
         const { data, error } = await supabase
           .from('site_content')
           .select('key, value')
-          .eq('section', 'contact');
+          .eq('section', 'about');
 
         if (!error && data && data.length > 0) {
           const mapped = { ...defaultContent };
           for (const row of data) {
-            const key = row.key as keyof ContactContent;
+            const key = row.key.toLowerCase() as keyof AboutContent;
             if (key in mapped) mapped[key] = row.value;
           }
           setContent(mapped);
         }
       } catch {
-        // Fallback to defaults
+        // Fallback
       }
     };
-
     fetchContent();
-    return () => subscription.unsubscribe();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-    setSending(true);
-    try {
-      const { error } = await supabase.from('contact_messages').insert([
-        { 
-          name: form.name, 
-          email: form.email, 
-          message: form.message,
-          user_id: user.id 
+  useEffect(() => {
+    const section = sectionRef.current;
+    const bg = bgRef.current;
+    if (!section || !bg) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(bg, { yPercent: 0 }, {
+        yPercent: -20,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
         },
-      ]);
-      if (error) throw error;
-      setSent(true);
-      setForm(prev => ({ ...prev, name: '', message: '' }));
-      setTimeout(() => setSent(false), 4000);
-    } catch (e: any) {
-      console.error('Error sending message:', e.message);
-      alert('Failed to send message. Please try again.');
-    }
-    setSending(false);
-  };
+      });
+    });
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section id="contact" className="section-padding relative overflow-visible z-30 bg-transparent">
-      {/* 1. ATMOSPHERE FIX: Forced overflow-visible and z-index to bring the section to front */}
-      
-      <FloatingCube type="Canva" size={80} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
-      <FloatingCube type="Id" size={120} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
+    <section ref={sectionRef} className="relative section-padding overflow-visible z-40 bg-transparent">
+      {/* ANCHOR FIX: Dedicated hidden div for the Navbar to find */}
+      <div id="about" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
+
+      {/* Floating 3D Identities */}
+      <FloatingCube type="Canva" size={100} top="5%" right="10%" blur="4px" delay={0.3} duration={7} />
+      <FloatingCube type="Ps" size={70} bottom="15%" left="10%" blur="1px" delay={1.2} duration={5} />
+
+      <div ref={bgRef} className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
+      </div>
 
       <div ref={ref} className="section-container relative">
-        <div className="grid lg:grid-cols-2 gap-16 items-start max-w-5xl mx-auto">
-          {/* Left — Messaging */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-20"
+        >
+          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
+            {content.subtitle}
+          </p>
+          <h2 className="text-[var(--text-primary)] font-bold tracking-tighter heading-lg">
+            {content.heading.split(' ').map((word, i, arr) => (
+              <span key={i}>
+                {word === '&' ? <span className="text-accent">&</span> : word}
+                {i < arr.length - 1 ? ' ' : ''}
+              </span>
+            ))}
+          </h2>
+          <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
+        </motion.div>
+
+        <div className="grid lg:grid-cols-2 gap-20 items-start">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            initial={{ opacity: 0, x: -30 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="lg:sticky lg:top-32"
           >
-            <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
-              {content.subtitle}
-            </p>
-            <h2 className="heading-lg text-[var(--text-primary)]">
-              {content.heading.split(' ').length > 1 ? (
-                <>
-                  {content.heading.split(' ').slice(0, -1).join(' ')}{' '}
-                  <span className="text-accent">{content.heading.split(' ').slice(-1)}</span>
-                </>
-              ) : (
-                content.heading
-              )}
-            </h2>
-            <p className="mt-6 mb-8 text-[var(--text-secondary)] leading-relaxed">
-              {content.description}
-            </p>
-            <div className="w-16 h-0.5 bg-accent" />
+            {/* GLASS CARD FIX: Forced colors to override legacy CSS */}
+            <div className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-3xl"
+                 style={{ 
+                   backgroundColor: 'rgba(10, 10, 12, 0.6)', 
+                   borderColor: 'rgba(255, 255, 255, 0.08)',
+                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' 
+                 }}>
+              <h3 className="font-bold tracking-tighter text-2xl mb-8 leading-tight" style={{ color: 'var(--text-primary)' }}>
+                {content.subheading.includes('.') ? (
+                  <>
+                    {content.subheading.split('.')[0]}. <span className="text-accent">{content.subheading.split('.')[1].trim()}</span>
+                  </>
+                ) : (
+                  content.subheading
+                )}
+              </h3>
+              <div className="space-y-6 text-lg font-light" style={{ color: 'var(--text-secondary)' }}>
+                <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-accent first-letter:mr-3 first-letter:float-left">{content.description_line1}</p>
+                <p>{content.description_line2}</p>
+                <p className="italic" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>{content.description_line3}</p>
+              </div>
+            </div>
           </motion.div>
 
-          {/* Right — Form with Heavy Glassmorphism */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            initial={{ opacity: 0, x: 30 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-3xl"
-            style={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.01)',
-              background: 'rgba(10, 10, 12, 0.5)',
-              borderColor: 'rgba(255, 255, 255, 0.05)',
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.9)'
-            }}
+            className="space-y-10"
           >
-            <div className="flex flex-col gap-1 mb-6">
-              <p className="text-[10px] text-[var(--text-primary)] opacity-30 uppercase tracking-[0.2em]">Secure Channel</p>
-              {user && (
-                <p className="text-xs text-accent uppercase tracking-widest font-black">
-                  Authenticated: {user.email}
-                </p>
-              )}
+            <h3 className="text-[var(--text-primary)] font-bold tracking-tighter text-2xl uppercase">
+              Skills <span className="text-accent">&</span> Proficiency
+            </h3>
+
+            <div className="space-y-8">
+              {skills.map((skill, i) => (
+                <div key={skill.name} className="relative">
+                  <div className="flex justify-between items-end mb-3">
+                    <span className="text-[10px] font-heading font-black tracking-[0.2em] uppercase opacity-60" style={{ color: 'var(--text-primary)' }}>
+                      {skill.name}
+                    </span>
+                    <span className="text-sm font-heading font-black text-accent drop-shadow-[0_0_8px_var(--accent)]">
+                      {skill.level}%
+                    </span>
+                  </div>
+                  <div className="h-[8px] w-full rounded-full overflow-hidden border relative" style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={isVisible ? { width: `${skill.level}%` } : {}}
+                      transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: 'circOut' }}
+                      style={{ backgroundColor: 'var(--accent)' }}
+                      className="h-full relative rounded-full"
+                    >
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full blur-[6px] opacity-80" style={{ backgroundColor: 'var(--accent)' }} />
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_#fff]" />
+                    </motion.div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-[var(--text-secondary)]">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="input-field"
-                  placeholder="Your name"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-[var(--text-secondary)]">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={form.email}
-                  readOnly
-                  className="input-field opacity-60 cursor-not-allowed"
-                  placeholder="your@email.com"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-[var(--text-secondary)]">
-                  Message
-                </label>
-                <textarea
-                  required
-                  rows={5}
-                  value={form.message}
-                  onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="input-field resize-none custom-scrollbar"
-                  placeholder="Tell me about your project..."
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={sending}
-                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: 'var(--accent)', backgroundImage: 'none' }}
-              >
-                {sending ? (
-                  <span className="flex items-center justify-center gap-3">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    <span>Sending...</span>
-                  </span>
-                ) : sent ? (
-                  <span className="flex items-center justify-center">Message Sent!</span>
-                ) : (
-                  <span className="flex items-center justify-center gap-3">
-                    <Send size={16} className="-mt-0.5" />
-                    <span>Send Message</span>
-                  </span>
-                )}
-              </button>
-            </form>
           </motion.div>
         </div>
       </div>
