@@ -157,7 +157,7 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   
   root.style.setProperty('--bg-primary', theme.bgPrimary);
   root.style.setProperty('--bg-secondary', theme.bgSecondary);
-  root.style.setProperty('--bg-gradient', theme.bgGradient); // Apply the new gradient
+  root.style.setProperty('--bg-gradient', theme.bgGradient);
   root.style.setProperty('--text-primary', theme.textPrimary);
   root.style.setProperty('--text-secondary', theme.textSecondary);
   root.style.setProperty('--accent', theme.accent);
@@ -169,39 +169,52 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
 
   localStorage.setItem('portfolio-theme', theme.id);
 
-  // CRITICAL FIX: Refresh ScrollTrigger after layout/font change
+  // Trigger the global storage event so useScrollReveal knows to reset animations
+  window.dispatchEvent(new Event('storage'));
+
+  // Refresh ScrollTrigger after layout/font change
   setTimeout(() => {
     ScrollTrigger.refresh();
   }, 150);
 
   if (syncToCloud) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase
-        .from('user_preferences')
-        .upsert({ id: user.id, theme_id: theme.id, updated_at: new Date() });
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (user && !authError) {
+        await supabase
+          .from('user_preferences')
+          .upsert({ id: user.id, theme_id: theme.id, updated_at: new Date() });
+      }
+    } catch (error) {
+      console.warn("Theme cloud sync failed, continuing locally.", error);
     }
   }
 }
 
 export async function loadSavedTheme() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    const { data } = await supabase
-      .from('user_preferences')
-      .select('theme_id')
-      .eq('id', user.id)
-      .single();
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (data?.theme_id) {
-      const theme = themePresets.find((t) => t.id === data.theme_id);
-      if (theme) {
-        applyTheme(theme, false);
-        return;
+    if (user && !authError) {
+      const { data } = await supabase
+        .from('user_preferences')
+        .select('theme_id')
+        .eq('id', user.id)
+        .maybeSingle(); // FIX: Changed from .single() to .maybeSingle() to prevent 406 Error
+      
+      if (data?.theme_id) {
+        const theme = themePresets.find((t) => t.id === data.theme_id);
+        if (theme) {
+          applyTheme(theme, false);
+          return;
+        }
       }
     }
+  } catch (error) {
+    console.warn("Supabase sync skipped or failed. Loading from local storage.");
   }
 
+  // Fallback to local storage if cloud fails or user is not logged in
   const savedId = localStorage.getItem('portfolio-theme');
   const theme = themePresets.find((t) => t.id === (savedId || 'cyber-gaming'));
   if (theme) applyTheme(theme, false);
