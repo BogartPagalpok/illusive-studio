@@ -26,13 +26,12 @@ export default function Navbar() {
     const onScroll = () => {
       setScrolled(window.scrollY > 50);
       
-      // Intersection Observer logic to highlight active section
       const sections = ['services', 'works', 'about', 'contact'];
       const current = sections.find(section => {
         const el = document.getElementById(section);
         if (el) {
           const rect = el.getBoundingClientRect();
-          return rect.top <= 100 && rect.bottom >= 100;
+          return rect.top <= 150 && rect.bottom >= 150;
         }
         return false;
       });
@@ -49,21 +48,21 @@ export default function Navbar() {
           .eq('section', 'navbar');
 
         if (!error && data && data.length > 0) {
-          const mapped = { ...content };
+          const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
           data.forEach(row => {
             if (row.key === 'logo_text') mapped.logo_text = row.value;
             if (row.key === 'cta_text') mapped.cta_text = row.value;
           });
           setContent(mapped);
         }
-      } catch {
-        // Use defaults
+      } catch (e) {
+        console.error('Navbar fetch failed');
       }
     };
 
     fetchContent();
     return () => window.removeEventListener('scroll', onScroll);
-  }, [content]);
+  }, []); // Removed 'content' from here to prevent infinite loop crashes
 
   const handleNavClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
@@ -73,39 +72,26 @@ export default function Navbar() {
   };
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? 'py-3' // Shrinks on scroll for a more compact feel
-          : 'py-6'
-      }`}
-    >
-      {/* The Floating Glass Container */}
-      <div 
-        className={`mx-auto max-w-7xl px-6 lg:px-8 transition-all duration-500 rounded-full border ${
-          scrolled 
-          ? 'bg-black/40 backdrop-blur-2xl border-white/10 shadow-2xl py-2' 
-          : 'bg-transparent border-transparent py-0'
-        }`}
-      >
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-3' : 'py-6'}`}>
+      <div className={`mx-auto max-w-7xl px-6 lg:px-8 transition-all duration-500 rounded-full border ${
+          scrolled ? 'bg-black/40 backdrop-blur-2xl border-white/10 shadow-2xl py-2' : 'bg-transparent border-transparent py-0'
+        }`}>
         <div className="flex items-center justify-between h-16">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="group relative font-heading font-black text-xl tracking-wider uppercase transition-all"
             style={{ color: 'var(--text-primary)' }}
           >
-            {content.logo_text.includes('.') ? (
+            {content.logo_text && content.logo_text.includes('.') ? (
               <>
                 {content.logo_text.split('.')[0]}<span className="text-accent group-hover:animate-pulse">.</span>{content.logo_text.split('.')[1]}
               </>
             ) : (
-              content.logo_text
+              content.logo_text || 'IAN.LESTER'
             )}
-            {/* Logo underline glow on hover */}
             <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full" />
           </button>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-2">
             {navLinks.map((link) => {
               const isActive = activeSection === link.href.replace('#', '');
@@ -119,11 +105,7 @@ export default function Navbar() {
                   }`}
                 >
                   <span className="relative z-10">{link.label}</span>
-                  
-                  {/* Hover Capsule Effect */}
-                  <span className={`absolute inset-0 rounded-full bg-white/5 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100`} />
-                  
-                  {/* Active Underline */}
+                  <span className="absolute inset-0 rounded-full bg-white/5 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100" />
                   {isActive && (
                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-accent rounded-full shadow-[0_0_10px_var(--accent)]" />
                   )}
@@ -131,19 +113,17 @@ export default function Navbar() {
               );
             })}
             
-            {/* Upgraded Hire Me Button */}
             <div className="ml-4 pl-4 border-l border-white/10">
               <a
                 href="#contact"
                 onClick={(e) => handleNavClick(e, '#contact')}
-                className="btn-primary flex items-center justify-center py-2.5 px-8 rounded-full text-[10px] shadow-[0_0_20px_rgba(255,0,122,0.2)] hover:shadow-[0_0_30px_rgba(255,0,122,0.4)]"
+                className="btn-primary flex items-center justify-center py-2.5 px-8 rounded-full text-[10px]"
               >
                 {content.cta_text}
               </a>
             </div>
           </div>
 
-          {/* Mobile toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10"
@@ -154,16 +134,11 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu - Upgraded */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-40 bg-black/95 backdrop-blur-2xl flex items-center justify-center">
-          <button 
-            onClick={() => setMobileOpen(false)} 
-            className="absolute top-8 right-8 text-white/40 hover:text-white"
-          >
+          <button onClick={() => setMobileOpen(false)} className="absolute top-8 right-8 text-white/40 hover:text-white">
             <X size={32} />
           </button>
-          
           <div className="flex flex-col gap-10 text-center">
             {navLinks.map((link) => (
               <a
@@ -175,11 +150,7 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-            <a
-              href="#contact"
-              onClick={(e) => handleNavClick(e, '#contact')}
-              className="btn-primary text-sm py-4 px-12 rounded-full"
-            >
+            <a href="#contact" onClick={(e) => handleNavClick(e, '#contact')} className="btn-primary text-sm py-4 px-12 rounded-full">
               {content.cta_text}
             </a>
           </div>
