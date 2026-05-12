@@ -109,8 +109,9 @@ export default function SelectedWorks() {
   };
 
   return (
-    <section id="works" ref={sectionRef} className="section-padding relative overflow-hidden bg-transparent min-h-screen">
-      {/* FIXED: Removed bg-black. Now bg-transparent so global theme shows. */}
+    <section ref={sectionRef} className="section-padding relative overflow-visible z-40 bg-transparent min-h-screen">
+      {/* ANCHOR FIX: Dedicated hidden div for the Navbar to find */}
+      <div id="works" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
       
       <FloatingCube type="Lr" size={90} top="15%" left="8%" blur="2px" delay={0.2} duration={6} />
       <FloatingCube type="CapCut" size={110} bottom="10%" right="5%" blur="3px" delay={0.8} duration={8} />
@@ -146,13 +147,20 @@ export default function SelectedWorks() {
           >
             {projects.map((project, idx) => (
               <SwiperSlide key={`${project.id}-${idx}`} className="!h-[500px] md:!h-[600px]">
-                <div className="h-full w-full bg-[var(--text-primary)]/[0.03] border border-[var(--text-primary)]/10 overflow-hidden group relative">
+                {/* GLASS CARD: Swiper Item */}
+                <div 
+                  className="h-full w-full rounded-3xl border overflow-hidden group relative backdrop-blur-md"
+                  style={{ 
+                    backgroundColor: 'rgba(10, 10, 12, 0.4)', 
+                    borderColor: 'rgba(255, 255, 255, 0.05)' 
+                  }}
+                >
                   <img 
                     src={project.image_url} 
                     className="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all duration-700" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                  <div className="absolute bottom-0 left-0 p-6 w-full">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                  <div className="absolute bottom-0 left-0 p-8 w-full">
                     <p className="text-accent text-[10px] tracking-widest uppercase mb-2">{project.category}</p>
                     <h3 className="text-white font-bold text-xl uppercase mb-4 leading-tight">{project.title}</h3>
                     <button 
@@ -172,15 +180,18 @@ export default function SelectedWorks() {
       <AnimatePresence>
         {selectedProject && (
           <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setSelectedProject(null)} />
+            <div className="absolute inset-0 bg-black/90 backdrop-blur-2xl" onClick={() => setSelectedProject(null)} />
             
-            <motion.div className="relative w-full max-w-6xl h-[90vh] border overflow-hidden flex flex-col md:flex-row shadow-2xl"
-                        style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--text-secondary)' }}>
+            {/* GLASS CARD: Modal Body */}
+            <motion.div 
+              className="relative w-full max-w-6xl h-[90vh] border rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-2xl"
+              style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'rgba(255, 255, 255, 0.1)' }}
+            >
               <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-50 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                 <X size={30} />
               </button>
 
-              <div className="w-full md:w-3/5 h-1/2 md:h-full relative flex items-center justify-center group" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+              <div className="w-full md:w-3/5 h-1/2 md:h-full relative flex items-center justify-center group" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
                 <img
                   src={selectedProject.all_images ? selectedProject.all_images[currentImageIndex] : selectedProject.image_url}
                   className="max-w-full max-h-full object-contain"
@@ -219,7 +230,11 @@ export default function SelectedWorks() {
                       <h4 className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: 'var(--text-secondary)' }}>Tools</h4>
                       <div className="flex flex-wrap gap-2">
                         {(Array.isArray(selectedProject.tools) ? selectedProject.tools : []).map(tool => (
-                          <span key={tool} className="text-[9px] border px-2 py-1 uppercase" style={{ color: 'var(--text-secondary)', borderColor: 'var(--text-secondary)' }}>
+                          <span 
+                            key={tool} 
+                            className="text-[9px] border px-2 py-1 uppercase rounded-sm" 
+                            style={{ color: 'var(--text-secondary)', borderColor: 'rgba(255,255,255,0.1)' }}
+                          >
                             {tool}
                           </span>
                         ))}
