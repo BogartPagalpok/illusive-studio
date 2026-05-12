@@ -67,7 +67,7 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* WATERMARK: Positioned 20px above the line, 60% Opacity */}
+          {/* WATERMARK: Positioned 10px above the line, 60% Opacity */}
           <h2 
             className="absolute bottom-[88px] right-8 md:right-12 text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
             style={{ 
