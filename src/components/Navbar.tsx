@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Menu, X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+// FIX: Removed curly braces from supabase import
+import supabase from '../lib/supabase'; 
 
 const navLinks = [
   { label: 'Services', href: '#services' },
@@ -15,10 +16,8 @@ export default function Navbar() {
   const [activeSection, setActiveSection] = useState('');
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
 
-  // Use useCallback to keep the function stable and prevent re-render loops
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 50);
-    
     const sections = ['services', 'works', 'about', 'contact'];
     const current = sections.find(section => {
       const el = document.getElementById(section);
@@ -35,13 +34,16 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     
     const fetchContent = async () => {
+      // Safety check: only run if supabase exists
+      if (!supabase) return;
+
       try {
         const { data, error } = await supabase
           .from('site_content')
           .select('key, value')
           .eq('section', 'navbar');
 
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
           data.forEach(row => {
             if (row.key === 'logo_text') mapped.logo_text = row.value;
@@ -50,36 +52,20 @@ export default function Navbar() {
           setContent(mapped);
         }
       } catch (err) {
-        console.error('Navbar load error');
+        console.warn('Navbar background sync ignored');
       }
     };
 
     fetchContent();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]); // Added stable callback
+  }, [handleScroll]);
 
   const handleNavClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
     const id = href.replace('#', '');
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
     setMobileOpen(false);
-  };
-
-  // Safe Logo Splitting Logic
-  const renderLogo = () => {
-    const text = content?.logo_text || 'IAN.LESTER';
-    if (text.includes('.')) {
-      const parts = text.split('.');
-      return (
-        <>
-          {parts[0]}<span className="text-accent">.</span>{parts[1]}
-        </>
-      );
-    }
-    return text;
   };
 
   return (
@@ -92,7 +78,11 @@ export default function Navbar() {
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="group relative font-heading font-black text-xl tracking-wider uppercase transition-all text-white"
           >
-            {renderLogo()}
+            {content?.logo_text?.includes('.') ? (
+              <>
+                {content.logo_text.split('.')[0]}<span className="text-accent">.</span>{content.logo_text.split('.')[1]}
+              </>
+            ) : (content?.logo_text || 'IAN.LESTER')}
             <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full" />
           </button>
 
@@ -135,32 +125,6 @@ export default function Navbar() {
           </button>
         </div>
       </div>
-
-      {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-40 bg-black/95 backdrop-blur-2xl flex items-center justify-center">
-          <button onClick={() => setMobileOpen(false)} className="absolute top-8 right-8 text-white/40 hover:text-white">
-            <X size={32} />
-          </button>
-          <div className="flex flex-col gap-10 text-center">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="text-2xl font-heading font-black tracking-[0.3em] uppercase text-white/60 hover:text-accent transition-all"
-              >
-                {link.label}
-              </a>
-            ))}
-            <button 
-              onClick={(e) => handleNavClick(e as any, '#contact')}
-              className="btn-primary text-sm py-4 px-12 rounded-full uppercase font-bold"
-            >
-              {content?.cta_text || 'Hire Me'}
-            </button>
-          </div>
-        </div>
-      )}
     </nav>
   );
 }
