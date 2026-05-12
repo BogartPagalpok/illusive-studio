@@ -89,7 +89,9 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="section-padding bg-black relative overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+    <section id="contact" className="section-padding bg-transparent relative overflow-hidden">
+      {/* FIXED: Background and border stripped to allow global theme gradient */}
+      
       <FloatingCube type="Canva" size={80} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
       <FloatingCube type="Id" size={120} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
 
@@ -105,7 +107,8 @@ export default function Contact() {
             <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
               {content.subtitle}
             </p>
-            <h2 className="heading-lg">
+            {/* FIXED: Text color dynamic */}
+            <h2 className="heading-lg text-[var(--text-primary)]">
               {content.heading.split(' ').length > 1 ? (
                 <>
                   {content.heading.split(' ').slice(0, -1).join(' ')}{' '}
@@ -115,7 +118,7 @@ export default function Contact() {
                 content.heading
               )}
             </h2>
-            <p className="body-text mt-6 mb-8">
+            <p className="mt-6 mb-8 text-[var(--text-secondary)]">
               {content.description}
             </p>
             <div className="w-16 h-0.5 bg-accent" />
@@ -128,7 +131,7 @@ export default function Contact() {
             transition={{ duration: 0.7, delay: 0.3 }}
           >
             <div className="flex flex-col gap-1 mb-6">
-              <p className="text-[10px] text-white/30 uppercase tracking-[0.2em]">Secure Channel</p>
+              <p className="text-[10px] text-[var(--text-primary)] opacity-30 uppercase tracking-[0.2em]">Secure Channel</p>
               {user && (
                 <p className="text-xs text-accent uppercase tracking-widest font-black">
                   Authenticated: {user.email}
@@ -137,10 +140,9 @@ export default function Contact() {
             </div>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-white/40">
+                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-[var(--text-secondary)]">
                   Name
                 </label>
-                {/* APPLIED INPUT FIELD CLASS */}
                 <input
                   type="text"
                   required
@@ -151,10 +153,9 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-white/40">
+                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-[var(--text-secondary)]">
                   Email
                 </label>
-                {/* APPLIED INPUT FIELD CLASS */}
                 <input
                   type="email"
                   required
@@ -165,10 +166,9 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-white/40">
+                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-[var(--text-secondary)]">
                   Message
                 </label>
-                {/* APPLIED INPUT FIELD CLASS */}
                 <textarea
                   required
                   rows={5}
@@ -182,6 +182,7 @@ export default function Contact() {
                 type="submit"
                 disabled={sending}
                 className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: 'var(--accent)', backgroundImage: 'none' }}
               >
                 {sending ? (
                   <span className="flex items-center justify-center gap-3">
@@ -194,7 +195,6 @@ export default function Contact() {
                 ) : sent ? (
                   <span className="flex items-center justify-center">Message Sent!</span>
                 ) : (
-                  // STRICT FLEX ALIGNMENT FOR ICON AND TEXT
                   <span className="flex items-center justify-center gap-3">
                     <Send size={16} className="-mt-0.5" />
                     <span>Send Message</span>
