@@ -19,5 +19,6 @@ export const supabase = createClient(
   }
 );
 
+// RESTORED BUCKET EXPORTS
 export const SCROLL_SEQUENCE_BUCKET = 'hero-sequence';
 export const PORTFOLIO_BUCKET = 'media';
