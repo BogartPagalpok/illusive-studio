@@ -1,10 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Mail, Phone, Instagram, Github, Facebook, Sparkles } from 'lucide-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { supabase } from '../lib/supabase';
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface FooterProps {
   onAdminTrigger: () => void;
@@ -35,7 +31,6 @@ const defaultContent: FooterContent = {
 export default function Footer({ onAdminTrigger }: FooterProps) {
   const [content, setContent] = useState<FooterContent>(defaultContent);
   const clickCountRef = useRef(0);
-  const footerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -61,28 +56,39 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
   };
 
   return (
-    <footer ref={footerRef} className="relative bg-transparent overflow-visible mt-10">
+    <footer className="relative bg-transparent overflow-visible mt-10">
       <div className="section-container relative pb-12">
         
-        {/* COMPACT FOOTER CARD */}
+        {/* COMPACT GLASS CARD */}
         <div 
-          className="relative z-10 p-8 md:p-10 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
+          className="relative z-10 p-8 md:p-12 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
           style={{ 
             backgroundColor: 'rgba(255, 255, 255, 0.02)', 
-            borderColor: 'rgba(255, 255, 255, 0.08)',
+            borderColor: 'rgba(255, 255, 255, 0.12)',
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* TOP GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-start">
+          {/* THE OVERLAY WATERMARK: Absolute positioned to ignore grid constraints */}
+          <h2 
+            className="absolute bottom-[75px] right-8 md:right-12 text-6xl md:text-8xl lg:text-9xl font-heading font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
+            style={{ 
+              opacity: 0.9,
+              marginRight: '-0.04em'
+            }}
+          >
+            IAN LESTER
+          </h2>
+
+          {/* TOP GRID (Content is now relative z-10 to sit above overlay if needed) */}
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-start mb-20 md:mb-24">
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles size={14} className="text-accent" />
                 <span className="text-[10px] uppercase tracking-widest text-accent font-bold">Let's Talk</span>
               </div>
-              <h3 className="text-xl font-heading font-black uppercase mb-3 leading-tight text-white">{content.hook_heading}</h3>
+              <h3 className="text-2xl font-heading font-black uppercase mb-3 leading-tight text-white">{content.hook_heading}</h3>
               <p className="text-[11px] mb-5 max-w-sm leading-relaxed text-white/60">{content.hook_desc}</p>
-              <button onClick={() => scrollToSection('contact')} className="btn-primary text-[10px] px-5 py-2.5 uppercase tracking-widest font-bold" style={{ background: 'var(--accent)', color: '#000000' }}>Book a Call</button>
+              <button onClick={() => scrollToSection('contact')} className="btn-primary text-[10px] px-6 py-3 uppercase tracking-widest font-bold" style={{ background: 'var(--accent)', color: '#000000' }}>Book a Call</button>
             </div>
 
             <div>
@@ -111,19 +117,9 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
                </ul>
             </div>
           </div>
-
-          {/* THE SPECIFIC PLACEMENT: Right-Justified, Small Name in the Gap */}
-          <div className="flex justify-end mt-4 h-12 items-center">
-            <h2 
-              className="text-4xl md:text-5xl font-heading font-black tracking-tighter uppercase leading-none opacity-90 text-white" 
-              style={{ marginRight: '-0.02em' }}
-            >
-              IAN LESTER
-            </h2>
-          </div>
             
-          {/* BOTTOM COPYRIGHT DIVIDER */}
-          <div className="mt-2 pt-6 border-t border-white/5 flex justify-between items-center text-[9px] uppercase tracking-widest opacity-30 font-bold text-white">
+          {/* THE FLARE LINE: Clear divider sitting underneath the overlay name */}
+          <div className="relative z-10 mt-2 pt-6 border-t border-white/20 flex justify-between items-center text-[9px] uppercase tracking-widest opacity-60 font-bold text-white">
             <button onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{content.copyright}</button>
             <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors">Back to Top ↑</button>
           </div>
