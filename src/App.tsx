@@ -6,7 +6,8 @@ import Login from './pages/Login';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
-import { loadSavedTheme } from './lib/themes';
+import { loadSavedTheme, applyTheme } from './lib/themes';
+import type { ThemeName } from './lib/themes';
 import { motion } from 'framer-motion';
 
 // PERFORMANCE OPTIMIZED GRADIENT
@@ -57,8 +58,8 @@ function App() {
         .single();
 
       if (!error && data?.theme_preference) {
-        document.documentElement.setAttribute('data-theme', data.theme_preference);
-        localStorage.setItem('theme', data.theme_preference);
+        // applyTheme handles CSS variables, data-theme attribute, and localStorage
+        applyTheme(data.theme_preference as ThemeName);
       }
     } catch (err) {
       console.warn('Background theme sync failed.');
@@ -66,7 +67,7 @@ function App() {
   };
 
   useEffect(() => {
-    // 1. Instant local load
+    // 1. Instant local load (zero-latency)
     loadSavedTheme();
 
     const initAuthAndTheme = async () => {
@@ -98,7 +99,10 @@ function App() {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
         <AtmosphereGradient />
-        <span className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full" />
+        <span 
+          className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full" 
+          style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }}
+        />
       </div>
     );
   }
