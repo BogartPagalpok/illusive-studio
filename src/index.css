@@ -7,26 +7,30 @@
     --bg-primary: #080808;
     --text-primary: #FFFFFF;
     --accent: #D4FF00;
-    --font-main: "Inter", sans-serif;
   }
 
+  /* RX-78-2 / Light Theme Override */
   [data-theme='light'] {
     --bg-primary: #F5F5F7;
     --text-primary: #000000;
     --accent: #FF3B30;
   }
 
-  body {
+  /* 1. FIX THE OVER-STRETCH: Locks everything to the screen width */
+  html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    font-family: var(--font-main);
-    overflow-x: hidden; /* Fixes the over-stretch/side-scroll */
+    margin: 0;
+    padding: 0;
   }
 
-  /* Fixes the canvas stretching bug globally */
+  /* 2. FIX THE CANVAS: Stop it from stretching out of proportion */
   canvas {
     position: fixed !important;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 100vw !important;
     height: 100vh !important;
     object-fit: cover !important;
@@ -35,21 +39,20 @@
 }
 
 @layer components {
-  /* THE FIX: Top padding to stop navbar overlap + Max width to stop edge stretching */
-  .section-layout {
-    @apply relative w-full pt-32 pb-24 px-6 max-w-7xl mx-auto flex flex-col items-center;
+  /* 3. FIX THE MARGINS & CONTRAST: Use this class on your sections */
+  .themed-section {
+    @apply relative w-full pt-32 pb-24 px-6 max-w-7xl mx-auto;
+    background-color: var(--bg-primary);
+    color: var(--text-primary); /* Text flips black/white automatically */
   }
 
-  /* UNIVERSAL GRADIENT: Works for every theme automatically */
+  /* 4. UNIVERSAL GRADIENT: One rule that works for ALL theme colors */
   .btn-primary {
-    @apply relative overflow-hidden rounded-xl px-8 py-3 font-bold uppercase tracking-widest text-[10px];
+    @apply relative overflow-hidden rounded-xl px-8 py-3 font-bold uppercase tracking-widest text-[10px] 
+           flex items-center justify-center transition-all duration-300;
+    /* Mixes the theme's accent with black to create the gradient shade */
     background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent), black 25%) 100%);
-    color: white; /* Contrast fix for buttons */
+    color: white; 
     border: none;
-  }
-
-  /* VERTICAL CENTERING UTILITY */
-  .flex-center {
-    @apply flex items-center justify-center;
   }
 }
