@@ -19,6 +19,7 @@ export const supabase = createClient(
   }
 );
 
-// RESTORED BUCKET EXPORTS
+// Configurable bucket name for scroll sequence frames
 export const SCROLL_SEQUENCE_BUCKET = 'hero-sequence';
+// Configurable bucket name for portfolio media
 export const PORTFOLIO_BUCKET = 'media';
