@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Menu, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -9,36 +9,30 @@ const navLinks = [
   { label: 'Contact', href: '#contact' },
 ];
 
-function scrollToId(id: string) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth' });
-  }
-}
-
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
 
-  useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 50);
-      
-      const sections = ['services', 'works', 'about', 'contact'];
-      const current = sections.find(section => {
-        const el = document.getElementById(section);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          return rect.top <= 150 && rect.bottom >= 150;
-        }
-        return false;
-      });
-      if (current) setActiveSection(current);
-    };
+  // Use useCallback to keep the function stable and prevent re-render loops
+  const handleScroll = useCallback(() => {
+    setScrolled(window.scrollY > 50);
+    
+    const sections = ['services', 'works', 'about', 'contact'];
+    const current = sections.find(section => {
+      const el = document.getElementById(section);
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        return rect.top <= 150 && rect.bottom >= 150;
+      }
+      return false;
+    });
+    if (current) setActiveSection(current);
+  }, []);
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
     const fetchContent = async () => {
       try {
@@ -55,20 +49,37 @@ export default function Navbar() {
           });
           setContent(mapped);
         }
-      } catch (e) {
-        console.error('Navbar fetch failed');
+      } catch (err) {
+        console.error('Navbar load error');
       }
     };
 
     fetchContent();
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []); // Removed 'content' from here to prevent infinite loop crashes
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]); // Added stable callback
 
   const handleNavClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
     const id = href.replace('#', '');
-    scrollToId(id);
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
     setMobileOpen(false);
+  };
+
+  // Safe Logo Splitting Logic
+  const renderLogo = () => {
+    const text = content?.logo_text || 'IAN.LESTER';
+    if (text.includes('.')) {
+      const parts = text.split('.');
+      return (
+        <>
+          {parts[0]}<span className="text-accent">.</span>{parts[1]}
+        </>
+      );
+    }
+    return text;
   };
 
   return (
@@ -79,16 +90,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="group relative font-heading font-black text-xl tracking-wider uppercase transition-all"
-            style={{ color: 'var(--text-primary)' }}
+            className="group relative font-heading font-black text-xl tracking-wider uppercase transition-all text-white"
           >
-            {content.logo_text && content.logo_text.includes('.') ? (
-              <>
-                {content.logo_text.split('.')[0]}<span className="text-accent group-hover:animate-pulse">.</span>{content.logo_text.split('.')[1]}
-              </>
-            ) : (
-              content.logo_text || 'IAN.LESTER'
-            )}
+            {renderLogo()}
             <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full" />
           </button>
 
@@ -114,20 +118,18 @@ export default function Navbar() {
             })}
             
             <div className="ml-4 pl-4 border-l border-white/10">
-              <a
-                href="#contact"
-                onClick={(e) => handleNavClick(e, '#contact')}
-                className="btn-primary flex items-center justify-center py-2.5 px-8 rounded-full text-[10px]"
+              <button
+                onClick={(e) => handleNavClick(e as any, '#contact')}
+                className="btn-primary py-2.5 px-8 rounded-full text-[10px] uppercase font-bold"
               >
-                {content.cta_text}
-              </a>
+                {content?.cta_text || 'Hire Me'}
+              </button>
             </div>
           </div>
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10"
-            style={{ color: 'var(--text-primary)' }}
+            className="md:hidden w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-white"
           >
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -150,9 +152,12 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-            <a href="#contact" onClick={(e) => handleNavClick(e, '#contact')} className="btn-primary text-sm py-4 px-12 rounded-full">
-              {content.cta_text}
-            </a>
+            <button 
+              onClick={(e) => handleNavClick(e as any, '#contact')}
+              className="btn-primary text-sm py-4 px-12 rounded-full uppercase font-bold"
+            >
+              {content?.cta_text || 'Hire Me'}
+            </button>
           </div>
         </div>
       )}
