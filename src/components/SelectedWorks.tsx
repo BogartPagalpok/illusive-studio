@@ -75,7 +75,6 @@ export default function SelectedWorks() {
         if (projectData) {
           const grouped: Record<string, Project> = {};
           projectData.forEach((item) => {
-            // Grouping by title to treat bulk uploads as folders
             const cleanTitle = item.title.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").trim();
             if (!grouped[cleanTitle]) {
               grouped[cleanTitle] = { 
@@ -110,15 +109,15 @@ export default function SelectedWorks() {
   };
 
   return (
-    {/* FIXED: Removed bg-black. Now bg-transparent so global theme shows. */}
     <section id="works" ref={sectionRef} className="section-padding relative overflow-hidden bg-transparent min-h-screen">
+      {/* FIXED: Removed bg-black. Now bg-transparent so global theme shows. */}
+      
       <FloatingCube type="Lr" size={90} top="15%" left="8%" blur="2px" delay={0.2} duration={6} />
       <FloatingCube type="CapCut" size={110} bottom="10%" right="5%" blur="3px" delay={0.8} duration={8} />
 
       <div ref={ref} className="section-container relative z-20">
         <motion.div className="text-center mb-12">
           <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">{content.subtitle}</p>
-          {/* FIXED: Dynamic text variables */}
           <h2 className="text-[var(--text-primary)] font-bold tracking-tighter heading-lg uppercase">{content.heading}</h2>
           <p className="mt-4 text-[var(--text-secondary)] text-base max-w-2xl mx-auto">{content.description}</p>
         </motion.div>
@@ -152,7 +151,6 @@ export default function SelectedWorks() {
                     src={project.image_url} 
                     className="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all duration-700" 
                   />
-                  {/* Keep the black gradient here for image contrast */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 p-6 w-full">
                     <p className="text-accent text-[10px] tracking-widest uppercase mb-2">{project.category}</p>
@@ -174,17 +172,14 @@ export default function SelectedWorks() {
       <AnimatePresence>
         {selectedProject && (
           <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Modal Backdrop */}
             <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setSelectedProject(null)} />
             
-            {/* FIXED: Modal body set to bg-primary so it perfectly matches the active theme */}
             <motion.div className="relative w-full max-w-6xl h-[90vh] border overflow-hidden flex flex-col md:flex-row shadow-2xl"
                         style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--text-secondary)' }}>
               <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-50 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                 <X size={30} />
               </button>
 
-              {/* Image Container */}
               <div className="w-full md:w-3/5 h-1/2 md:h-full relative flex items-center justify-center group" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                 <img
                   src={selectedProject.all_images ? selectedProject.all_images[currentImageIndex] : selectedProject.image_url}
@@ -202,7 +197,6 @@ export default function SelectedWorks() {
                 )}
               </div>
 
-              {/* Text Container */}
               <div className="w-full md:w-2/5 p-8 md:p-12 overflow-y-auto custom-scrollbar">
                 <p className="text-accent text-xs tracking-widest uppercase mb-2">{selectedProject.category}</p>
                 <h2 className="font-bold text-3xl uppercase mb-8" style={{ color: 'var(--text-primary)' }}>{selectedProject.title}</h2>
