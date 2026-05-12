@@ -184,12 +184,15 @@ export default function Services() {
           {servicesData.map((service, index) => {
             const Icon = service.icon;
             return (
-              <motion.div key={index} variants={itemVariants} className="card-dark group border-white/5 hover:border-accent/30 transition-colors">
-                <div className="w-14 h-14 rounded-none flex items-center justify-center mb-6 transition-all border border-accent/30 bg-accent/5 group-hover:bg-accent/10">
-                  <Icon size={28} className="text-accent drop-shadow-[0_0_10px_rgba(255,0,122,0.3)]" />
+              <motion.div key={index} variants={itemVariants} className="card-dark group">
+                
+                {/* UPGRADED ICON WRAPPER: Removed rounded-none, added smooth scaling and color inversion on hover */}
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 bg-white/5 border border-white/10 group-hover:scale-110 group-hover:bg-accent group-hover:border-accent group-hover:shadow-[0_0_20px_var(--accent)]">
+                  <Icon size={28} className="text-accent transition-colors duration-500 group-hover:text-[var(--accent-contrast)] drop-shadow-md" />
                 </div>
-                <h3 className="text-white font-bold tracking-tighter heading-md mb-3 text-xl">{service.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">{service.description}</p>
+                
+                <h3 className="text-white font-bold tracking-tighter heading-md mb-3 text-xl transition-colors duration-300 group-hover:text-accent">{service.title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed group-hover:text-zinc-300 transition-colors duration-300">{service.description}</p>
               </motion.div>
             );
           })}
