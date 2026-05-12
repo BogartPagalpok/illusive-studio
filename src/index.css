@@ -99,13 +99,19 @@
   }
 
   body {
-    background-color: var(--bg-primary);
-    background-image: var(--bg-gradient);
-    background-attachment: fixed;
+    /* FIXED: Added !important to brute-force the gradient over any standard Tailwind body classes */
+    background-color: var(--bg-primary) !important;
+    background-image: var(--bg-gradient) !important;
+    background-attachment: fixed !important;
     color: var(--text-secondary);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+  }
+
+  /* FIXED: Ensures the React root container doesn't accidentally block the body background */
+  #root, #__next {
+    background-color: transparent !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -154,7 +160,6 @@
     @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold flex items-center justify-center gap-3
            uppercase tracking-[0.2em] text-[10px]
            transition-all duration-300;
-    /* FIXED: 40% mix + !important for high-contrast deep gradients on all themes */
     background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent), black 40%) 100%) !important;
     color: var(--accent-contrast);
     box-shadow: 0 4px 15px color-mix(in srgb, var(--accent), transparent 80%);
