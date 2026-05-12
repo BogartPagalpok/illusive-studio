@@ -67,9 +67,9 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* WATERMARK: Positioned 10px above the line, 60% Opacity */}
+          {/* WATERMARK: Exact 10px Gap above the line, Size reduced by 2 units, 60% Opacity */}
           <h2 
-            className="absolute bottom-[88px] right-8 md:right-12 text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
+            className="absolute bottom-[78px] right-8 md:right-12 text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
             style={{ 
               opacity: 0.6,
               transform: 'translateX(0.04em)' 
@@ -78,7 +78,7 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             IAN LESTER
           </h2>
 
-          {/* GRID STRUCTURE */}
+          {/* GRID STRUCTURE: Restored to original sizes */}
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 items-start mb-16 md:mb-20">
             {/* Hook */}
             <div className="lg:col-span-2">
