@@ -133,7 +133,6 @@ export default function Services() {
   }, []);
 
   return (
-    {/* FIXED: Removed bg-black. Now bg-transparent so the global body gradient flows through. */}
     <section id="services" ref={sectionRef} className="section-padding bg-transparent relative overflow-hidden">
       {/* Floating 3D Identities */}
       <FloatingCube type="Ps" size={120} top="10%" right="5%" blur="4px" delay={0.5} duration={7} />
@@ -141,7 +140,6 @@ export default function Services() {
 
       {/* Parallax depth layer */}
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
-        {/* FIXED: Changed from white to accent color so the subtle top glow matches the active theme */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
         <div className="absolute top-20 -left-32 text-[14vw] font-heading font-black tracking-widest uppercase select-none whitespace-nowrap text-[var(--text-primary)] opacity-5">
         </div>
@@ -159,7 +157,6 @@ export default function Services() {
           <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
             {content.subtitle}
           </p>
-          {/* FIXED: text-white changed to use theme variable */}
           <h2 className="text-[var(--text-primary)] font-bold tracking-tighter heading-lg">
             {content.heading.split(' ').map((word, i, arr) => (
               <span key={i}>
@@ -186,7 +183,6 @@ export default function Services() {
                   <Icon size={28} className="text-accent transition-colors duration-500 group-hover:text-[var(--accent-contrast)] drop-shadow-md" />
                 </div>
                 
-                {/* FIXED: Changed text-white and text-zinc-400 to dynamic theme variables */}
                 <h3 className="text-[var(--text-primary)] font-bold tracking-tighter heading-md mb-3 text-xl transition-colors duration-300 group-hover:text-accent">
                   {service.title}
                 </h3>
