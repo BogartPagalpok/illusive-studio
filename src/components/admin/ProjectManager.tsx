@@ -149,19 +149,30 @@ export default function ProjectManager() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-8 relative">
+      {/* Soft Pastel/Neon Mesh Gradient Backgrounds */}
+      <div 
+        className="absolute top-[-10%] left-[-10%] w-[60%] h-[600px] pointer-events-none z-0 rounded-full mix-blend-screen"
+        style={{ backgroundColor: 'var(--accent)', filter: 'blur(140px)', opacity: 0.15 }}
+      />
+      <div 
+        className="absolute bottom-[20%] right-[-10%] w-[50%] h-[500px] pointer-events-none z-0 rounded-full mix-blend-screen"
+        style={{ backgroundColor: 'var(--accent)', filter: 'blur(120px)', opacity: 0.1 }}
+      />
+
+      <div className="flex justify-between items-center relative z-10">
         <h2 className="text-xl font-heading font-bold tracking-widest uppercase text-white">Portfolio Manager</h2>
         <button 
           onClick={() => { setEditingProject(EMPTY_PROJECT); setSelectedFiles([]); }} 
           className="btn-primary flex items-center gap-2"
+          style={{ background: 'var(--accent)', backgroundImage: 'none' }}
         >
           <Plus size={16} /> New Entry
         </button>
       </div>
 
       {editingProject && (
-        <div className="card-dark border-white/10 p-8 space-y-8">
+        <div className="card-dark border-white/10 p-8 space-y-8 relative z-10">
           <div className="flex justify-between items-center border-b border-white/5 pb-6">
             <h3 className="font-heading font-black uppercase tracking-[0.2em] text-white text-sm">
               {editingProject.id ? 'Modify Details' : `New Entry ${selectedFiles.length > 1 ? `(${selectedFiles.length} files)` : ''}`}
@@ -215,6 +226,7 @@ export default function ProjectManager() {
             onClick={handleSave} 
             disabled={isSaving}
             className="btn-primary w-full py-5 text-xs flex flex-col items-center gap-1"
+            style={{ background: 'var(--accent)', backgroundImage: 'none' }}
           >
             {isSaving ? (
               <>
@@ -228,7 +240,7 @@ export default function ProjectManager() {
         </div>
       )}
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 relative z-10">
         {projects.map(project => (
           <div key={project.id} className="card-dark border-white/5 p-4 group hover:border-accent/30 transition-all flex items-center justify-between">
             <div className="flex items-center gap-6">
