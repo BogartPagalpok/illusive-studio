@@ -89,7 +89,9 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="section-padding bg-transparent relative overflow-hidden">
+    <section id="contact" className="section-padding relative overflow-visible z-30 bg-transparent">
+      {/* 1. ATMOSPHERE FIX: Forced overflow-visible and z-index to bring the section to front */}
+      
       <FloatingCube type="Canva" size={80} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
       <FloatingCube type="Id" size={120} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
 
@@ -105,7 +107,6 @@ export default function Contact() {
             <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
               {content.subtitle}
             </p>
-            {/* FIXED: Dynamic title color linked to theme */}
             <h2 className="heading-lg text-[var(--text-primary)]">
               {content.heading.split(' ').length > 1 ? (
                 <>
@@ -116,23 +117,23 @@ export default function Contact() {
                 content.heading
               )}
             </h2>
-            {/* FIXED: Removed text-zinc; now text-secondary */}
             <p className="mt-6 mb-8 text-[var(--text-secondary)] leading-relaxed">
               {content.description}
             </p>
             <div className="w-16 h-0.5 bg-accent" />
           </motion.div>
 
-          {/* Right — Form */}
+          {/* Right — Form with Heavy Glassmorphism */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="p-10 rounded-2xl border backdrop-blur-2xl transition-all duration-500"
+            className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-3xl"
             style={{ 
               backgroundColor: 'rgba(255, 255, 255, 0.01)',
+              background: 'rgba(10, 10, 12, 0.5)',
               borderColor: 'rgba(255, 255, 255, 0.05)',
-              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.8)'
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.9)'
             }}
           >
             <div className="flex flex-col gap-1 mb-6">
