@@ -21,16 +21,24 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
   };
 
   return (
-    <div className="relative min-h-screen w-full selection:bg-accent selection:text-white">
+    {/* FIXED: Mapped text selection to variables so it stays readable in light/dark modes */}
+    <div className="relative min-h-screen w-full selection:bg-[var(--accent)] selection:text-[var(--accent-contrast)]">
+      
       {/* 1. ATMOSPHERE LAYER: Noise and Global Glow */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         {/* Subtle Grain Texture */}
         <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" 
              style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/stardust.png")` }} />
         
-        {/* Global Ambient Glow that follows the theme */}
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-accent/5 blur-[120px]" />
-        <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] rounded-full bg-accent/10 blur-[100px]" />
+        {/* FIXED: Switched to inline styles so the opacity doesn't break Tailwind's hex compilation */}
+        <div 
+          className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px]" 
+          style={{ backgroundColor: 'var(--accent)', opacity: 0.05 }} 
+        />
+        <div 
+          className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] rounded-full blur-[100px]" 
+          style={{ backgroundColor: 'var(--accent)', opacity: 0.1 }} 
+        />
       </div>
 
       <Navbar />
@@ -41,7 +49,11 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
         
         {/* Transitions between sections are softened with backdrop-blur layers */}
         <section className="relative">
-          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black to-transparent z-20 pointer-events-none" />
+          {/* FIXED: Stripped 'from-black' and replaced with dynamic theme background variable */}
+          <div 
+            className="absolute inset-x-0 top-0 h-32 z-20 pointer-events-none" 
+            style={{ backgroundImage: 'linear-gradient(to bottom, var(--bg-primary), transparent)' }}
+          />
           <Services />
         </section>
 
@@ -58,7 +70,6 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
 
       <Footer onAdminTrigger={handleAdminTrigger} />
 
-      {/* TYPO FIXED HERE */}
       <AdminModal
         isOpen={adminModalOpen}
         onClose={() => setAdminModalOpen(false)}
