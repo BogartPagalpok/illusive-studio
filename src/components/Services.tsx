@@ -90,7 +90,6 @@ export default function Services() {
             if (key === 'subtitle') mappedContent.subtitle = row.value;
             if (key === 'heading') mappedContent.heading = row.value;
 
-            // Handle service1_title, service1_desc, etc.
             for (let i = 1; i <= 6; i++) {
               if (key === `service${i}_title`) mappedServices[i - 1].title = row.value;
               if (key === `service${i}_desc`) mappedServices[i - 1].description = row.value;
@@ -134,23 +133,19 @@ export default function Services() {
   }, []);
 
   return (
-    <section id="services" ref={sectionRef} className="section-padding bg-black relative overflow-hidden">
+    {/* FIXED: Removed bg-black. Now bg-transparent so the global body gradient flows through. */}
+    <section id="services" ref={sectionRef} className="section-padding bg-transparent relative overflow-hidden">
       {/* Floating 3D Identities */}
       <FloatingCube type="Ps" size={120} top="10%" right="5%" blur="4px" delay={0.5} duration={7} />
       <FloatingCube type="Ai" size={60} bottom="20%" left="5%" blur="1px" delay={1.5} duration={5} />
 
       {/* Parallax depth layer */}
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent" />
-        <div
-          className="absolute top-20 -left-32 text-[14vw] font-heading font-black tracking-widest uppercase select-none whitespace-nowrap text-white/[0.03]"
-        >
-          
+        {/* FIXED: Changed from white to accent color so the subtle top glow matches the active theme */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
+        <div className="absolute top-20 -left-32 text-[14vw] font-heading font-black tracking-widest uppercase select-none whitespace-nowrap text-[var(--text-primary)] opacity-5">
         </div>
-        <div
-          className="absolute bottom-10 right-0 text-[8vw] font-heading font-black tracking-widest uppercase select-none whitespace-nowrap text-white/[0.03]"
-        >
-          
+        <div className="absolute bottom-10 right-0 text-[8vw] font-heading font-black tracking-widest uppercase select-none whitespace-nowrap text-[var(--text-primary)] opacity-5">
         </div>
       </div>
 
@@ -164,7 +159,8 @@ export default function Services() {
           <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
             {content.subtitle}
           </p>
-          <h2 className="text-white font-bold tracking-tighter heading-lg">
+          {/* FIXED: text-white changed to use theme variable */}
+          <h2 className="text-[var(--text-primary)] font-bold tracking-tighter heading-lg">
             {content.heading.split(' ').map((word, i, arr) => (
               <span key={i}>
                 {word === '&' ? <span className="text-accent">&</span> : word}
@@ -186,13 +182,17 @@ export default function Services() {
             return (
               <motion.div key={index} variants={itemVariants} className="card-dark group">
                 
-                {/* UPGRADED ICON WRAPPER: Removed rounded-none, added smooth scaling and color inversion on hover */}
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 bg-white/5 border border-white/10 group-hover:scale-110 group-hover:bg-accent group-hover:border-accent group-hover:shadow-[0_0_20px_var(--accent)]">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 bg-[var(--text-primary)]/5 border border-[var(--text-primary)]/10 group-hover:scale-110 group-hover:bg-accent group-hover:border-accent group-hover:shadow-[0_0_20px_var(--accent)]">
                   <Icon size={28} className="text-accent transition-colors duration-500 group-hover:text-[var(--accent-contrast)] drop-shadow-md" />
                 </div>
                 
-                <h3 className="text-white font-bold tracking-tighter heading-md mb-3 text-xl transition-colors duration-300 group-hover:text-accent">{service.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed group-hover:text-zinc-300 transition-colors duration-300">{service.description}</p>
+                {/* FIXED: Changed text-white and text-zinc-400 to dynamic theme variables */}
+                <h3 className="text-[var(--text-primary)] font-bold tracking-tighter heading-md mb-3 text-xl transition-colors duration-300 group-hover:text-accent">
+                  {service.title}
+                </h3>
+                <p className="text-[var(--text-secondary)] text-sm leading-relaxed group-hover:text-[var(--text-primary)] transition-colors duration-300">
+                  {service.description}
+                </p>
               </motion.div>
             );
           })}
