@@ -1,17 +1,24 @@
-// vite.config.ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/', // Ensure this is a leading slash
+  // Ensure the base path is correct for Vercel routing
+  base: '/', 
   build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
-    // This helps prevent the "index-By5dJxsy.js" mismatch after new deploys
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        // Standardize entry file names to prevent hash mismatch errors
+        entryFileNames: `assets/[name]-[hash].js`,
+        chunkFileNames: `assets/[name]-[hash].js`,
+        assetFileNames: `assets/[name]-[hash].[ext]`,
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
       },
     },
   },
