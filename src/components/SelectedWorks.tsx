@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Pagination, Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
@@ -27,7 +27,7 @@ interface Project {
   results: string;
   image_url: string;
   featured: boolean;
-  all_images?: string[]; // Grouped images for the gallery
+  all_images?: string[]; 
 }
 
 interface WorksContent {
@@ -42,14 +42,12 @@ const defaultContent: WorksContent = {
   description: 'Quality over quantity — each project represents a deep commitment to craft, strategy, and visual storytelling.',
 };
 
-const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800';
-
 export default function SelectedWorks() {
   const { ref, isVisible } = useScrollReveal();
   const [projects, setProjects] = useState<Project[]>([]);
   const [content, setContent] = useState<WorksContent>(defaultContent);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); // For Modal Gallery
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
@@ -58,7 +56,6 @@ export default function SelectedWorks() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch Site Content
         const { data: contentData } = await supabase.from('site_content').select('key, value').eq('section', 'works');
         if (contentData) {
           const mapped = { ...defaultContent };
@@ -69,7 +66,6 @@ export default function SelectedWorks() {
           setContent(mapped);
         }
 
-        // Fetch All Featured Projects
         const { data: projectData } = await supabase
           .from('portfolio_projects')
           .select('*')
@@ -77,23 +73,23 @@ export default function SelectedWorks() {
           .order('created_at', { ascending: false });
 
         if (projectData) {
-          // GROUPING LOGIC: Group rows by Title to treat bulk uploads as "Folders"
           const grouped: Record<string, Project> = {};
           projectData.forEach((item) => {
-            if (!grouped[item.title]) {
-              grouped[item.title] = { 
+            // Grouping by title to treat bulk uploads as folders
+            const cleanTitle = item.title.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").trim();
+            if (!grouped[cleanTitle]) {
+              grouped[cleanTitle] = { 
                 ...item, 
-                all_images: [item.image_url],
-                // Clean up title if it's just a filename
-                title: item.title.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").trim() || 'Untitled Project'
+                title: cleanTitle,
+                all_images: [item.image_url] 
               };
             } else {
-              grouped[item.title].all_images?.push(item.image_url);
+              grouped[cleanTitle].all_images?.push(item.image_url);
             }
           });
 
-          // Limit to Top 5 unique projects
-          setProjects(Object.values(grouped).slice(0, 5));
+          // Removed .slice(0, 5) to allow 100+ projects
+          setProjects(Object.values(grouped));
         }
       } catch (e) {
         console.error('Error fetching projects:', e);
@@ -102,7 +98,6 @@ export default function SelectedWorks() {
     fetchData();
   }, []);
 
-  // Modal Gallery Handlers
   const nextImage = () => {
     if (selectedProject?.all_images) {
       setCurrentImageIndex((prev) => (prev + 1) % selectedProject.all_images!.length);
@@ -127,21 +122,34 @@ export default function SelectedWorks() {
           <p className="mt-4 text-zinc-400 text-base max-w-2xl mx-auto">{content.description}</p>
         </motion.div>
 
-        {/* Carousel Limited to 5 Items */}
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative w-full max-w-[100vw] px-4">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
             effect={'coverflow'}
             grabCursor={true}
             centeredSlides={true}
-            slidesPerView={'auto'}
-            coverflowEffect={{ rotate: 0, stretch: 0, depth: 150, modifier: 2, slideShadows: false }}
+            loop={true} // Infinite Scroll Enabled
+            
+            // BREAKPOINTS: Shows max 5 items on screen at once
+            breakpoints={{
+              320: { slidesPerView: 1.2, spaceBetween: 20 },
+              768: { slidesPerView: 3, spaceBetween: 30 },
+              1200: { slidesPerView: 5, spaceBetween: 40 },
+            }}
+
+            coverflowEffect={{ 
+              rotate: 0, 
+              stretch: 0, 
+              depth: 100, 
+              modifier: 2.5, 
+              slideShadows: false 
+            }}
             modules={[EffectCoverflow, Pagination, Navigation]}
             className="works-swiper !pb-12"
           >
-            {projects.map((project) => (
-              <SwiperSlide key={project.id} className="!w-[300px] md:!w-[400px]">
-                <div className="h-[450px] md:h-[550px] bg-white/[0.03] border border-white/10 overflow-hidden group relative">
+            {projects.map((project, idx) => (
+              <SwiperSlide key={`${project.id}-${idx}`} className="!h-[500px] md:!h-[600px]">
+                <div className="h-full w-full bg-white/[0.03] border border-white/10 overflow-hidden group relative">
                   <img 
                     src={project.image_url} 
                     className="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all duration-700" 
@@ -149,7 +157,7 @@ export default function SelectedWorks() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 p-6 w-full">
                     <p className="text-accent text-[10px] tracking-widest uppercase mb-2">{project.category}</p>
-                    <h3 className="text-white font-bold text-xl uppercase mb-4">{project.title}</h3>
+                    <h3 className="text-white font-bold text-xl uppercase mb-4 leading-tight">{project.title}</h3>
                     <button 
                       onClick={() => { setSelectedProject(project); setCurrentImageIndex(0); }}
                       className="text-white text-[10px] tracking-widest uppercase border-b border-accent pb-1 hover:text-accent transition-colors"
@@ -164,7 +172,6 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Project Details Modal */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -173,14 +180,12 @@ export default function SelectedWorks() {
             <motion.div className="relative w-full max-w-6xl h-[90vh] bg-zinc-950 border border-white/10 overflow-hidden flex flex-col md:flex-row">
               <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-50 p-2 text-white/50 hover:text-white"><X size={30} /></button>
 
-              {/* GALLERY SECTION (Left) */}
               <div className="w-full md:w-3/5 h-1/2 md:h-full bg-black relative flex items-center justify-center group">
                 <img
                   src={selectedProject.all_images ? selectedProject.all_images[currentImageIndex] : selectedProject.image_url}
-                  className="max-w-full max-h-full object-contain" // FIX: Shows full image, no cropping
+                  className="max-w-full max-h-full object-contain"
                 />
                 
-                {/* Image Navigation */}
                 {selectedProject.all_images && selectedProject.all_images.length > 1 && (
                   <>
                     <button onClick={prevImage} className="absolute left-4 p-2 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"><ChevronLeft size={30} /></button>
@@ -192,7 +197,6 @@ export default function SelectedWorks() {
                 )}
               </div>
 
-              {/* DETAILS SECTION (Right) */}
               <div className="w-full md:w-2/5 p-8 md:p-12 overflow-y-auto custom-scrollbar">
                 <p className="text-accent text-xs tracking-widest uppercase mb-2">{selectedProject.category}</p>
                 <h2 className="text-white font-bold text-3xl uppercase mb-8">{selectedProject.title}</h2>
@@ -203,7 +207,6 @@ export default function SelectedWorks() {
                     <p className="text-zinc-400 text-sm leading-relaxed">{selectedProject.description}</p>
                   </div>
                   
-                  {/* These fields will now show because we grouped the data */}
                   {selectedProject.process && (
                     <div>
                       <h4 className="text-[10px] text-white/30 uppercase tracking-[0.3em] mb-3">Process</h4>
