@@ -8,10 +8,10 @@ export interface ThemePreset {
   id: string;
   name: string;
   tagline: string;
-  bgPrimary: string;    // 60%
-  bgSecondary: string;  // 30%
-  accent: string;       // 10%
-  bgGradient: string;   // Atmosphere / Glow
+  bgPrimary: string;
+  bgSecondary: string;
+  accent: string;
+  bgGradient: string;
   textPrimary: string;
   textSecondary: string;
   fontDisplay: string;
@@ -167,55 +167,46 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   const accentContrast = getContrastYIQ(theme.accent);
   root.style.setProperty('--accent-contrast', accentContrast === 'white' ? '#FFFFFF' : '#000000');
 
-  localStorage.setItem('portfolio-theme', theme.id);
-
-  // Trigger the global storage event so useScrollReveal knows to reset animations
+  // Trigger animations to recalculate
   window.dispatchEvent(new Event('storage'));
-
-  // Refresh ScrollTrigger after layout/font change
-  setTimeout(() => {
-    ScrollTrigger.refresh();
-  }, 150);
+  setTimeout(() => { ScrollTrigger.refresh(); }, 150);
 
   if (syncToCloud) {
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (user && !authError) {
-        await supabase
-          .from('user_preferences')
-          .upsert({ id: user.id, theme_id: theme.id, updated_at: new Date() });
-      }
-    } catch (error) {
-      console.warn("Theme cloud sync failed, continuing locally.", error);
+      // FIX: Save the theme choice GLOBALLY so all clients see it
+      const { error } = await supabase
+        .from('site_content')
+        .upsert({ section: 'global', key: 'active_theme', value: theme.id }, { onConflict: 'section,key' });
+        
+      if (error) console.error("Error saving global theme:", error.message);
+    } catch (err) {
+      console.warn("Theme cloud sync failed.");
     }
   }
 }
 
 export async function loadSavedTheme() {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // FIX: Any visitor (client) will fetch the active theme from the global table
+    // Notice there is no "getUser()" check here. It's public.
+    const { data, error } = await supabase
+      .from('site_content')
+      .select('value')
+      .match({ section: 'global', key: 'active_theme' })
+      .maybeSingle();
     
-    if (user && !authError) {
-      const { data } = await supabase
-        .from('user_preferences')
-        .select('theme_id')
-        .eq('id', user.id)
-        .maybeSingle(); // FIX: Changed from .single() to .maybeSingle() to prevent 406 Error
-      
-      if (data?.theme_id) {
-        const theme = themePresets.find((t) => t.id === data.theme_id);
-        if (theme) {
-          applyTheme(theme, false);
-          return;
-        }
+    if (!error && data?.value) {
+      const theme = themePresets.find((t) => t.id === data.value);
+      if (theme) {
+        applyTheme(theme, false);
+        return;
       }
     }
   } catch (error) {
-    console.warn("Supabase sync skipped or failed. Loading from local storage.");
+    console.warn("Failed to load global theme.");
   }
 
-  // Fallback to local storage if cloud fails or user is not logged in
-  const savedId = localStorage.getItem('portfolio-theme');
-  const theme = themePresets.find((t) => t.id === (savedId || 'cyber-gaming'));
-  if (theme) applyTheme(theme, false);
+  // Absolute fallback if the database connection fails completely
+  const defaultTheme = themePresets.find((t) => t.id === 'cyber-gaming');
+  if (defaultTheme) applyTheme(defaultTheme, false);
 }
