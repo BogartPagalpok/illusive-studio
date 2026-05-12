@@ -10,7 +10,7 @@ import { loadSavedTheme, applyTheme } from './lib/themes';
 import type { ThemeName } from './lib/themes';
 import { motion } from 'framer-motion';
 
-// UI COMPONENT (Stays in .tsx file to prevent build errors)
+// UI COMPONENT: Must stay in a .tsx file to prevent esbuild errors
 function AtmosphereGradient() {
   return (
     <div className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none bg-[#020204]">
@@ -60,7 +60,7 @@ function App() {
   };
 
   useEffect(() => {
-    loadSavedTheme(); // Instant paint
+    loadSavedTheme(); // Instant paint from localStorage
 
     const initAuth = async () => {
       const timeout = setTimeout(() => setLoading(false), 2500);
@@ -102,6 +102,7 @@ function App() {
     );
   }
 
+  // Admin routing logic: Must stay outside Routes for your view swap
   if (isAdmin) {
     return (
       <main className="min-h-screen bg-transparent relative">
@@ -123,4 +124,5 @@ function App() {
     </main>
   );
 }
+
 export default App;
