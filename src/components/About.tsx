@@ -90,10 +90,8 @@ export default function About() {
 
   return (
     <section ref={sectionRef} className="relative section-padding overflow-visible z-40 bg-transparent">
-      {/* ANCHOR FIX: Dedicated hidden div for the Navbar to find */}
       <div id="about" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
 
-      {/* Floating 3D Identities */}
       <FloatingCube type="Canva" size={100} top="5%" right="10%" blur="4px" delay={0.3} duration={7} />
       <FloatingCube type="Ps" size={70} bottom="15%" left="10%" blur="1px" delay={1.2} duration={5} />
 
@@ -111,7 +109,7 @@ export default function About() {
           <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
             {content.subtitle}
           </p>
-          <h2 className="text-[var(--text-primary)] font-bold tracking-tighter heading-lg">
+          <h2 className="font-bold tracking-tighter heading-lg" style={{ color: '#ffffff' }}>
             {content.heading.split(' ').map((word, i, arr) => (
               <span key={i}>
                 {word === '&' ? <span className="text-accent">&</span> : word}
@@ -128,14 +126,14 @@ export default function About() {
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            {/* GLASS CARD FIX: Forced colors to override legacy CSS */}
+            {/* CLEAN GLASS CARD: Neutral background to stop purple tinting */}
             <div className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-3xl"
                  style={{ 
-                   backgroundColor: 'rgba(10, 10, 12, 0.6)', 
-                   borderColor: 'rgba(255, 255, 255, 0.08)',
+                   backgroundColor: 'rgba(15, 15, 15, 0.7)', 
+                   borderColor: 'rgba(255, 255, 255, 0.1)',
                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' 
                  }}>
-              <h3 className="font-bold tracking-tighter text-2xl mb-8 leading-tight" style={{ color: 'var(--text-primary)' }}>
+              <h3 className="font-bold tracking-tighter text-2xl mb-8 leading-tight" style={{ color: '#ffffff' }}>
                 {content.subheading.includes('.') ? (
                   <>
                     {content.subheading.split('.')[0]}. <span className="text-accent">{content.subheading.split('.')[1].trim()}</span>
@@ -144,10 +142,10 @@ export default function About() {
                   content.subheading
                 )}
               </h3>
-              <div className="space-y-6 text-lg font-light" style={{ color: 'var(--text-secondary)' }}>
+              <div className="space-y-6 text-lg font-light" style={{ color: '#e4e4e7' }}>
                 <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-accent first-letter:mr-3 first-letter:float-left">{content.description_line1}</p>
                 <p>{content.description_line2}</p>
-                <p className="italic" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>{content.description_line3}</p>
+                <p className="italic" style={{ color: '#ffffff' }}>{content.description_line3}</p>
               </div>
             </div>
           </motion.div>
@@ -158,7 +156,7 @@ export default function About() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="space-y-10"
           >
-            <h3 className="text-[var(--text-primary)] font-bold tracking-tighter text-2xl uppercase">
+            <h3 className="font-bold tracking-tighter text-2xl uppercase" style={{ color: '#ffffff' }}>
               Skills <span className="text-accent">&</span> Proficiency
             </h3>
 
@@ -166,14 +164,14 @@ export default function About() {
               {skills.map((skill, i) => (
                 <div key={skill.name} className="relative">
                   <div className="flex justify-between items-end mb-3">
-                    <span className="text-[10px] font-heading font-black tracking-[0.2em] uppercase opacity-60" style={{ color: 'var(--text-primary)' }}>
+                    <span className="text-[10px] font-heading font-black tracking-[0.2em] uppercase" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                       {skill.name}
                     </span>
                     <span className="text-sm font-heading font-black text-accent drop-shadow-[0_0_8px_var(--accent)]">
                       {skill.level}%
                     </span>
                   </div>
-                  <div className="h-[8px] w-full rounded-full overflow-hidden border relative" style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+                  <div className="h-[8px] w-full rounded-full overflow-hidden border relative" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
                     <motion.div
                       initial={{ width: 0 }}
                       animate={isVisible ? { width: `${skill.level}%` } : {}}
