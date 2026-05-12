@@ -61,8 +61,9 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
   useEffect(() => {
     const ctx = gsap.context(() => {
       if (watermarkRef.current) {
-        gsap.fromTo(watermarkRef.current, { yPercent: 10 }, {
-          yPercent: -10,
+        // Vertical Drift linked to scroll
+        gsap.fromTo(watermarkRef.current, { y: 20 }, {
+          y: -20,
           ease: 'none',
           scrollTrigger: {
             trigger: footerRef.current,
@@ -70,6 +71,15 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             end: 'bottom bottom',
             scrub: 1,
           },
+        });
+
+        // Horizontal playful float
+        gsap.to(watermarkRef.current, {
+          x: 30,
+          duration: 5,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut"
         });
       }
     });
@@ -82,24 +92,32 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
 
   return (
     <footer ref={footerRef} className="relative bg-transparent overflow-visible mt-20">
-      {/* WATERMARK */}
-      <div ref={watermarkRef} className="absolute inset-0 flex items-start justify-center pointer-events-none select-none overflow-hidden">
-        <h2 className="text-[12vw] font-heading font-black tracking-widest uppercase opacity-[0.03]" style={{ color: '#ffffff' }}>IAN LESTER</h2>
-      </div>
-
-      <div className="section-container relative z-10 pb-12">
+      <div className="section-container relative pb-12">
+        
         {/* MASTER GLASS CARD CONTAINER */}
         <div 
-          className="p-10 md:p-16 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
+          className="relative z-10 p-10 md:p-16 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] saturate-[180%] overflow-hidden"
           style={{ 
             backgroundColor: 'rgba(255, 255, 255, 0.03)', 
-            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderColor: 'rgba(255, 255, 255, 0.12)',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
-            
+          {/* THE PLAYFUL WATERMARK: Positioned specifically in your circled area */}
+          <div 
+            ref={watermarkRef} 
+            className="absolute bottom-20 left-0 w-full z-0 flex items-center justify-center pointer-events-none select-none"
+          >
+            <h2 
+              className="text-[12vw] font-heading font-black tracking-[0.2em] uppercase opacity-[0.08]" 
+              style={{ color: '#ffffff', filter: 'blur(1px)' }}
+            >
+              IAN LESTER
+            </h2>
+          </div>
+
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
             {/* Col 1: Hook */}
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2 mb-4">
@@ -123,13 +141,7 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
                <ul className="space-y-4 text-sm">
                  {['Home', 'Services', 'Works', 'About'].map(item => (
                    <li key={item}>
-                     <button 
-                       onClick={() => scrollToSection(item.toLowerCase())} 
-                       className="hover:text-accent transition-colors"
-                       style={{ color: '#efefef' }}
-                     >
-                       {item}
-                     </button>
+                     <button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors" style={{ color: '#efefef' }}>{item}</button>
                    </li>
                  ))}
                </ul>
@@ -156,7 +168,7 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
           </div>
 
           {/* Copyright Bar */}
-          <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest">
+          <div className="relative z-10 mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest">
             <button 
               style={{ color: 'rgba(255, 255, 255, 0.3)' }}
               onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}
