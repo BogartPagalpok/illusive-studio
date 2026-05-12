@@ -58,11 +58,12 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
 
       <Footer onAdminTrigger={handleAdminTrigger} />
 
+      {/* TYPO FIXED HERE */}
       <AdminModal
         isOpen={adminModalOpen}
         onClose={() => setAdminModalOpen(false)}
         onSuccess={handleAdminSuccess}
-      } />
+      />
     </div>
   );
 }
