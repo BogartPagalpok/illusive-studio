@@ -46,8 +46,8 @@ export default function Hero() {
   const textY = useTransform(scrollYProgress, [0, 0.2], ['0%', '-20%']);
   
   // Parallax movement for the HUD elements
-  const hudY1 = useTransform(scrollYProgress, [0, 1], ['0%', '200%']);
-  const hudY2 = useTransform(scrollYProgress, [0, 1], ['0%', '-200%']);
+  const hudY1 = useTransform(scrollYProgress, [0, 1], ['-50%', '100%']);
+  const hudY2 = useTransform(scrollYProgress, [0, 1], ['-50%', '-200%']);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -72,7 +72,7 @@ export default function Hero() {
     fetchContent();
   }, []);
 
-  // GSAP SCROLL FIX - Restored your long delay
+  // GSAP SCROLL FIX
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
@@ -86,7 +86,6 @@ export default function Hero() {
         scrollTrigger: { 
           trigger: sectionRef.current, 
           start: 'top top', 
-          // Restored your original pacing
           end: window.innerWidth < 768 ? '+=100%' : '+=150%', 
           scrub: 0.5, 
         }, 
@@ -106,7 +105,6 @@ export default function Hero() {
 
   return (
     <section ref={sectionRef} id="hero" className="w-full bg-black overflow-hidden relative">
-      {/* Restored your long scrollLength */}
       <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 4 : 6}>
         
         <div className="hidden md:block">
@@ -114,49 +112,53 @@ export default function Hero() {
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
         </div>
 
-        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center">
+        {/* CRITICAL FIX: pt-[100px] ensures the content completely clears the fixed navbar.
+          pb-24 ensures the scroll button has room.
+        */}
+        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center pt-[100px] pb-24">
           
-          <div className="absolute inset-0 bg-black/40 pointer-events-none z-0" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/90 pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-black/50 pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/90 pointer-events-none z-0" />
           
-          {/* ----- SUBTLE TECH/INDUSTRIAL HUD FLAVOR ----- */}
+          {/* ----- TECH/INDUSTRIAL HUD FLAVOR ----- */}
           <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden hidden md:block">
-            {/* Left side tracking line */}
+            {/* Left side tracking line - Centered Vertically */}
             <motion.div 
               style={{ y: hudY1 }}
-              className="absolute left-10 top-1/4 w-px h-64 bg-gradient-to-b from-transparent via-accent/50 to-transparent"
+              className="absolute left-8 lg:left-16 top-1/2 w-px h-64 bg-gradient-to-b from-transparent via-white/30 to-transparent"
             />
-            {/* Right side data text */}
+            {/* Right side data text - Centered Vertically and brightened */}
             <motion.div 
               style={{ y: hudY2 }}
-              className="absolute right-10 top-1/3 flex flex-col gap-2 text-right text-[9px] font-heading font-black tracking-[0.3em] uppercase text-white/20"
+              className="absolute right-8 lg:right-16 top-1/2 flex flex-col gap-3 text-right text-[10px] font-heading font-black tracking-[0.3em] uppercase text-white/40"
             >
-              <span>SEQ.REC // 288.FR</span>
+              <span className="text-white/60">SEQ.REC // 288.FR</span>
               <span>SCROLL_RATE: ACTIVE</span>
-              <span className="text-accent/40">SYS_OPTIMIZED</span>
+              <span className="text-accent/60">SYS_OPTIMIZED</span>
             </motion.div>
           </div>
           {/* ------------------------------------------- */}
 
-          {/* MAIN TEXT CONTAINER - Fades out on scroll */}
+          {/* MAIN TEXT CONTAINER */}
           <motion.div 
             style={{ opacity: textOpacity, y: textY }}
-            className="relative z-10 w-full max-w-5xl flex flex-col items-center text-center px-6 pt-10 pb-32"
+            className="relative z-10 w-full max-w-4xl flex flex-col items-center text-center px-6"
           >
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-[10px] md:text-sm font-heading tracking-[0.3em] uppercase mb-4 text-white/80"
+              className="text-[10px] md:text-xs font-heading tracking-[0.4em] uppercase mb-6 md:mb-8 text-white/70"
             >
               {content.subtitle}
             </motion.p>
 
+            {/* Scaled down from text-8xl to text-6xl/7xl to prevent vertical crushing */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-white font-bold tracking-tighter leading-[0.9] uppercase"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-bold tracking-tighter leading-[1] uppercase"
             >
               {content.heading_line1}
               <br />
@@ -169,7 +171,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="mt-6 sm:mt-8 text-xs sm:text-sm md:text-lg max-w-xl mx-auto leading-relaxed text-white/70 px-4"
+              className="mt-6 md:mt-8 text-xs md:text-base max-w-lg mx-auto leading-relaxed text-white/70 px-4"
             >
               {content.description}
             </motion.p>
@@ -178,7 +180,7 @@ export default function Hero() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 1 }}
-              className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-4 pointer-events-auto"
+              className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-4 pointer-events-auto"
             >
               <a href="#works" onClick={(e) => scrollToId(e, 'works')} className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em]">
                 View Works
@@ -189,18 +191,18 @@ export default function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* FIXED SCROLL INDICATOR: Remains visible during the long scroll */}
+          {/* FIXED SCROLL INDICATOR */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.3 }}
-            className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 pointer-events-auto z-20"
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-auto z-20"
           >
             <button
               onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
               className="flex flex-col items-center gap-2 text-white/40 hover:text-accent transition-colors duration-300"
             >
-              <span className="text-[8px] sm:text-[10px] font-heading font-black tracking-[0.3em] uppercase">Scroll</span>
+              <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase">Scroll</span>
               <ArrowDown size={16} className="animate-bounce" />
             </button>
           </motion.div>
