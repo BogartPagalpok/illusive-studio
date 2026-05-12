@@ -89,8 +89,9 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="section-padding bg-transparent relative overflow-hidden">
-      {/* FIXED: Background and border stripped to allow global theme gradient */}
+    <section className="section-padding relative overflow-visible z-30 bg-transparent">
+      {/* ANCHOR FIX */}
+      <div id="contact" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
       
       <FloatingCube type="Canva" size={80} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
       <FloatingCube type="Id" size={120} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
@@ -107,7 +108,6 @@ export default function Contact() {
             <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
               {content.subtitle}
             </p>
-            {/* FIXED: Text color dynamic */}
             <h2 className="heading-lg text-[var(--text-primary)]">
               {content.heading.split(' ').length > 1 ? (
                 <>
@@ -118,20 +118,26 @@ export default function Contact() {
                 content.heading
               )}
             </h2>
-            <p className="mt-6 mb-8 text-[var(--text-secondary)]">
+            <p className="mt-6 mb-8 text-[var(--text-secondary)] leading-relaxed">
               {content.description}
             </p>
             <div className="w-16 h-0.5 bg-accent" />
           </motion.div>
 
-          {/* Right — Form */}
+          {/* Right — Form with Heavy Glassmorphism */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
+            className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-3xl"
+            style={{ 
+              backgroundColor: 'rgba(10, 10, 12, 0.4)',
+              borderColor: 'rgba(255, 255, 255, 0.08)',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.9)'
+            }}
           >
             <div className="flex flex-col gap-1 mb-6">
-              <p className="text-[10px] text-[var(--text-primary)] opacity-30 uppercase tracking-[0.2em]">Secure Channel</p>
+              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>Secure Channel</p>
               {user && (
                 <p className="text-xs text-accent uppercase tracking-widest font-black">
                   Authenticated: {user.email}
@@ -140,7 +146,7 @@ export default function Contact() {
             </div>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-[var(--text-secondary)]">
+                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Name
                 </label>
                 <input
@@ -153,7 +159,7 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-[var(--text-secondary)]">
+                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Email
                 </label>
                 <input
@@ -166,7 +172,7 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-[var(--text-secondary)]">
+                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Message
                 </label>
                 <textarea
