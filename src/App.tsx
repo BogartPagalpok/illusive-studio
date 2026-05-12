@@ -6,26 +6,38 @@ import Login from './pages/Login';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
-import { loadSavedTheme, applyTheme } from './lib/themes';
-import type { ThemeName } from './lib/themes';
+import { loadSavedTheme } from './lib/themes';
 import { motion } from 'framer-motion';
 
-// UI COMPONENT: Must stay in a .tsx file to prevent esbuild errors
+// PERFORMANCE OPTIMIZED GRADIENT
 function AtmosphereGradient() {
   return (
     <div className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none bg-[#020204]">
       <motion.div 
-        animate={{ x: ['-5%', '5%', '-5%'], y: ['-2%', '2%', '-2%'] }}
+        animate={{
+          x: ['-5%', '5%', '-5%'],
+          y: ['-2%', '2%', '-2%'],
+        }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full opacity-30 blur-[80px] will-change-transform"
-        style={{ background: 'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)', filter: 'saturate(1.5)' }}
+        style={{ 
+          background: 'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)',
+          filter: 'saturate(1.5)'
+        }}
       />
+
       <motion.div 
-        animate={{ x: ['5%', '-5%', '5%'], y: ['2%', '-2%', '2%'] }}
+        animate={{
+          x: ['5%', '-5%', '5%'],
+          y: ['2%', '-2%', '2%'],
+        }}
         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
         className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full opacity-20 blur-[70px] will-change-transform"
-        style={{ background: 'radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--accent), #4000ff 40%) 0%, transparent 70%)' }}
+        style={{ 
+          background: 'radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--accent), #4000ff 40%) 0%, transparent 70%)',
+        }}
       />
+
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.85)_100%)]" />
     </div>
   );
@@ -44,41 +56,39 @@ function App() {
         .eq('id', userId)
         .single();
 
-      if (error) return;
-
-      if (data?.theme_preference) {
-        applyTheme(data.theme_preference as ThemeName);
-      } else {
-        const localTheme = localStorage.getItem('portfolio-theme');
-        if (localTheme) {
-          await supabase.from('user_profiles').update({ theme_preference: localTheme }).eq('id', userId);
-        }
+      if (!error && data?.theme_preference) {
+        document.documentElement.setAttribute('data-theme', data.theme_preference);
+        localStorage.setItem('theme', data.theme_preference);
       }
     } catch (err) {
-      console.warn('Sync failed');
+      console.warn('Background theme sync failed.');
     }
   };
 
   useEffect(() => {
-    loadSavedTheme(); // Instant paint from localStorage
+    // 1. Instant local load
+    loadSavedTheme();
 
-    const initAuth = async () => {
-      const timeout = setTimeout(() => setLoading(false), 2500);
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-        if (session?.user) await syncUserTheme(session.user.id);
-      } finally {
-        clearTimeout(timeout);
-        setLoading(false);
+    const initAuthAndTheme = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      
+      // 2. Stop loading immediately after session check
+      setLoading(false);
+
+      // 3. Sync theme in background (Non-blocking)
+      if (session?.user) {
+        syncUserTheme(session.user.id);
       }
     };
 
-    initAuth();
+    initAuthAndTheme();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session?.user) await syncUserTheme(session.user.id);
+      if (session?.user) {
+        syncUserTheme(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -102,7 +112,6 @@ function App() {
     );
   }
 
-  // Admin routing logic: Must stay outside Routes for your view swap
   if (isAdmin) {
     return (
       <main className="min-h-screen bg-transparent relative">
