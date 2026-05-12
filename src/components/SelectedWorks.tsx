@@ -50,7 +50,6 @@ export default function SelectedWorks() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   
   const sectionRef = useRef<HTMLElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null);
   const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
@@ -110,7 +109,6 @@ export default function SelectedWorks() {
 
   return (
     <section ref={sectionRef} className="section-padding relative overflow-visible z-40 bg-transparent min-h-screen">
-      {/* ANCHOR FIX: Dedicated hidden div for the Navbar to find */}
       <div id="works" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
       
       <FloatingCube type="Lr" size={90} top="15%" left="8%" blur="2px" delay={0.2} duration={6} />
@@ -119,8 +117,8 @@ export default function SelectedWorks() {
       <div ref={ref} className="section-container relative z-20">
         <motion.div className="text-center mb-12">
           <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">{content.subtitle}</p>
-          <h2 className="text-[var(--text-primary)] font-bold tracking-tighter heading-lg uppercase">{content.heading}</h2>
-          <p className="mt-4 text-[var(--text-secondary)] text-base max-w-2xl mx-auto">{content.description}</p>
+          <h2 className="font-bold tracking-tighter heading-lg uppercase" style={{ color: '#ffffff' }}>{content.heading}</h2>
+          <p className="mt-4 text-base max-w-2xl mx-auto" style={{ color: '#efefef' }}>{content.description}</p>
         </motion.div>
 
         <div className="relative w-full max-w-[100vw] px-4">
@@ -147,12 +145,13 @@ export default function SelectedWorks() {
           >
             {projects.map((project, idx) => (
               <SwiperSlide key={`${project.id}-${idx}`} className="!h-[500px] md:!h-[600px]">
-                {/* GLASS CARD: Swiper Item */}
                 <div 
-                  className="h-full w-full rounded-3xl border overflow-hidden group relative backdrop-blur-md"
+                  className="h-full w-full rounded-3xl border overflow-hidden group relative backdrop-blur-[32px] saturate-[180%]"
                   style={{ 
-                    backgroundColor: 'rgba(10, 10, 12, 0.4)', 
-                    borderColor: 'rgba(255, 255, 255, 0.05)' 
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)', 
+                    borderColor: 'rgba(255, 255, 255, 0.12)',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+                    WebkitBackdropFilter: 'blur(32px) saturate(180%)'
                   }}
                 >
                   <img 
@@ -162,7 +161,7 @@ export default function SelectedWorks() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                   <div className="absolute bottom-0 left-0 p-8 w-full">
                     <p className="text-accent text-[10px] tracking-widest uppercase mb-2">{project.category}</p>
-                    <h3 className="text-white font-bold text-xl uppercase mb-4 leading-tight">{project.title}</h3>
+                    <h3 className="font-bold text-xl uppercase mb-4 leading-tight" style={{ color: '#ffffff' }}>{project.title}</h3>
                     <button 
                       onClick={() => { setSelectedProject(project); setCurrentImageIndex(0); }}
                       className="text-white text-[10px] tracking-widest uppercase border-b border-accent pb-1 hover:text-accent transition-colors"
@@ -182,12 +181,15 @@ export default function SelectedWorks() {
           <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/90 backdrop-blur-2xl" onClick={() => setSelectedProject(null)} />
             
-            {/* GLASS CARD: Modal Body */}
             <motion.div 
-              className="relative w-full max-w-6xl h-[90vh] border rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-2xl"
-              style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'rgba(255, 255, 255, 0.1)' }}
+              className="relative w-full max-w-6xl h-[90vh] border rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-2xl backdrop-blur-[32px] saturate-[180%]"
+              style={{ 
+                backgroundColor: 'rgba(15, 15, 15, 0.8)', 
+                borderColor: 'rgba(255, 255, 255, 0.15)',
+                WebkitBackdropFilter: 'blur(32px) saturate(180%)'
+              }}
             >
-              <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-50 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+              <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-50 p-2 text-[#ffffff] hover:text-accent transition-colors">
                 <X size={30} />
               </button>
 
@@ -210,30 +212,30 @@ export default function SelectedWorks() {
 
               <div className="w-full md:w-2/5 p-8 md:p-12 overflow-y-auto custom-scrollbar">
                 <p className="text-accent text-xs tracking-widest uppercase mb-2">{selectedProject.category}</p>
-                <h2 className="font-bold text-3xl uppercase mb-8" style={{ color: 'var(--text-primary)' }}>{selectedProject.title}</h2>
+                <h2 className="font-bold text-3xl uppercase mb-8" style={{ color: '#ffffff' }}>{selectedProject.title}</h2>
 
                 <div className="space-y-8">
                   <div>
-                    <h4 className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: 'var(--text-secondary)' }}>Overview</h4>
-                    <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{selectedProject.description}</p>
+                    <h4 className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Overview</h4>
+                    <p className="text-sm leading-relaxed" style={{ color: '#efefef' }}>{selectedProject.description}</p>
                   </div>
                   
                   {selectedProject.process && (
                     <div>
-                      <h4 className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: 'var(--text-secondary)' }}>Process</h4>
-                      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{selectedProject.process}</p>
+                      <h4 className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Process</h4>
+                      <p className="text-sm leading-relaxed" style={{ color: '#efefef' }}>{selectedProject.process}</p>
                     </div>
                   )}
 
                   <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <h4 className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: 'var(--text-secondary)' }}>Tools</h4>
+                      <h4 className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Tools</h4>
                       <div className="flex flex-wrap gap-2">
                         {(Array.isArray(selectedProject.tools) ? selectedProject.tools : []).map(tool => (
                           <span 
                             key={tool} 
                             className="text-[9px] border px-2 py-1 uppercase rounded-sm" 
-                            style={{ color: 'var(--text-secondary)', borderColor: 'rgba(255,255,255,0.1)' }}
+                            style={{ color: '#efefef', borderColor: 'rgba(255, 255, 255, 0.2)' }}
                           >
                             {tool}
                           </span>
@@ -241,8 +243,8 @@ export default function SelectedWorks() {
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: 'var(--text-secondary)' }}>Results</h4>
-                      <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{selectedProject.results}</p>
+                      <h4 className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Results</h4>
+                      <p className="text-[11px] leading-relaxed" style={{ color: '#efefef' }}>{selectedProject.results}</p>
                     </div>
                   </div>
                 </div>
