@@ -60,24 +60,13 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
   useEffect(() => {
     const ctx = gsap.context(() => {
       if (watermarkRef.current) {
-        // Playful drift animation - subtle and horizontal
+        // Floating drift animation
         gsap.to(watermarkRef.current, {
-          x: 50,
-          duration: 8,
+          x: -15,
+          duration: 4,
           repeat: -1,
           yoyo: true,
           ease: "sine.inOut"
-        });
-
-        // Slight lift as you reach the very bottom
-        gsap.fromTo(watermarkRef.current, { y: 15 }, {
-          y: -5,
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: 'top bottom',
-            end: 'bottom bottom',
-            scrub: 1,
-          },
         });
       }
     });
@@ -92,7 +81,6 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
     <footer ref={footerRef} className="relative bg-transparent overflow-visible mt-20">
       <div className="section-container relative pb-12">
         
-        {/* MASTER GLASS CARD CONTAINER */}
         <div 
           className="relative z-10 p-10 md:p-16 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] saturate-[180%] overflow-hidden"
           style={{ 
@@ -102,18 +90,19 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* THE WATERMARK: Fixed to sit exactly in the gap above the divider line */}
+          {/* CLIPPED GLASS WATERMARK: Justified Right in the gap */}
           <div 
             ref={watermarkRef} 
-            className="absolute bottom-0 left-0 w-full h-[180px] z-0 flex items-center justify-center pointer-events-none select-none"
+            className="absolute bottom-[90px] right-12 z-0 pointer-events-none select-none"
           >
             <h2 
-              className="text-[12vw] font-heading font-black tracking-[0.1em] uppercase opacity-[0.05]" 
+              className="text-4xl md:text-5xl font-heading font-black tracking-tighter uppercase" 
               style={{ 
-                color: '#ffffff', 
-                filter: 'blur(1.5px)',
-                lineHeight: 0.8,
-                marginTop: '40px' // Adjusts the vertical "centering" within the gap
+                color: 'transparent',
+                WebkitTextStroke: '1px rgba(255, 255, 255, 0.15)',
+                background: 'linear-gradient(to right, rgba(255,255,255,0.2), transparent)',
+                WebkitBackgroundClip: 'text',
+                opacity: 0.8
               }}
             >
               IAN LESTER
@@ -158,7 +147,6 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             </div>
           </div>
 
-          {/* Copyright Bar */}
           <div className="relative z-10 mt-24 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest">
             <button style={{ color: 'rgba(255, 255, 255, 0.3)' }} onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{content.copyright}</button>
             <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Back to Top ↑</button>
