@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, RefreshCw, Database } from 'lucide-react';
+import { Save, RefreshCw, Database, CheckCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface SiteContent {
@@ -58,7 +58,7 @@ const SEED_DATA = [
 export default function SiteContentManager() {
   const [contents, setContents] = useState<SiteContent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savingId, setSavingId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     fetchContent();
@@ -81,26 +81,29 @@ export default function SiteContentManager() {
     }
   };
 
-  const handleSave = async (item: SiteContent) => {
-    setSavingId(item.id);
+  const handleMasterSave = async () => {
+    setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('site_content')
-        .update({ value: item.value })
-        .match({ section: item.section, key: item.key });
+      // Execute all updates in parallel
+      const updatePromises = contents.map((item) =>
+        supabase
+          .from('site_content')
+          .update({ value: item.value })
+          .match({ section: item.section, key: item.key })
+      );
 
-      if (error) throw error;
-      alert('Content updated successfully');
-      
-      // Force page reload after a short delay to sync changes to the main site
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      const results = await Promise.all(updatePromises);
+      const hasError = results.some((res) => res.error);
+
+      if (hasError) throw new Error('One or more fields failed to save.');
+
+      alert('All changes saved successfully! Refreshing data...');
+      fetchContent();
     } catch (error: any) {
-      console.error('Error saving content:', error);
+      console.error('Save error:', error);
       alert(`Save failed: ${error.message}`);
     } finally {
-      setSavingId(null);
+      setIsSaving(false);
     }
   };
 
@@ -108,7 +111,6 @@ export default function SiteContentManager() {
     if (!confirm('Seed default content? This will only add missing entries.')) return;
     setLoading(true);
     try {
-      // Upsert based on section, key constraint
       const { error } = await supabase
         .from('site_content')
         .upsert(SEED_DATA, { onConflict: 'section,key' });
@@ -132,44 +134,39 @@ export default function SiteContentManager() {
     );
   }
 
-  // Predefined section order
-  const SECTION_ORDER = ['HERO', 'SERVICES', 'WORKS', 'ABOUT', 'CONTACT', 'FOOTER'];
+  const SECTION_ORDER = ['NAVBAR', 'HERO', 'SERVICES', 'WORKS', 'ABOUT', 'CONTACT', 'FOOTER'];
   
   const sections = Array.from(new Set(contents.map(c => c.section.toUpperCase())))
     .sort((a, b) => {
       const indexA = SECTION_ORDER.indexOf(a);
       const indexB = SECTION_ORDER.indexOf(b);
       if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-      if (indexA !== -1) return -1;
-      if (indexB !== -1) return 1;
       return a.localeCompare(b);
     });
 
   return (
-    <div className="space-y-12 pb-20">
-      <div className="flex justify-between items-center">
+    <div className="space-y-12 pb-32 relative">
+      {/* MASTER SAVE BAR - STICKY AT TOP */}
+      <div className="sticky top-0 z-[100] bg-black/80 backdrop-blur-xl border-b border-white/10 py-6 -mx-4 px-4 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
-          <h2 className="text-xl font-heading font-bold tracking-widest uppercase text-white mb-2">
-            Content Editor
-          </h2>
-          <p className="text-xs text-white/40 font-body uppercase tracking-[0.2em]">
-            Manage site-wide text and configurations
-          </p>
+          <h2 className="text-xl font-heading font-bold tracking-widest uppercase text-white">Content Editor</h2>
+          <p className="text-[10px] text-accent uppercase tracking-widest font-black">Unsaved changes will be lost on refresh</p>
         </div>
-        <div className="flex gap-4">
-          <button
-            onClick={fetchContent}
-            className="btn-outline flex items-center gap-2 py-2 px-4 text-xs"
-          >
-            <RefreshCw size={14} />
-            Refresh
-          </button>
+        
+        <div className="flex gap-3">
           <button
             onClick={seedDefaultContent}
-            className="btn-primary flex items-center gap-2 py-2 px-4 text-xs"
+            className="btn-outline flex items-center gap-2 py-2.5 px-5 text-[10px] uppercase tracking-widest"
           >
-            <Database size={14} />
-            Seed Missing Keys
+            <Database size={14} /> Seed Data
+          </button>
+          <button
+            onClick={handleMasterSave}
+            disabled={isSaving}
+            className="btn-primary flex items-center gap-2 py-2.5 px-8 text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(255,0,122,0.3)]"
+          >
+            {isSaving ? <RefreshCw className="animate-spin" size={14} /> : <CheckCircle size={14} />}
+            {isSaving ? 'Saving...' : 'Save All Changes'}
           </button>
         </div>
       </div>
@@ -177,48 +174,29 @@ export default function SiteContentManager() {
       {sections.map((sectionName) => (
         <div key={sectionName} className="space-y-6">
           <div className="flex items-center gap-4">
-            <h3 className="text-sm font-heading font-black tracking-[0.3em] uppercase text-accent">
+            <h3 className="text-sm font-heading font-black tracking-[0.4em] uppercase text-accent/80">
               {sectionName}
             </h3>
-            <div className="flex-1 h-px bg-white/10" />
+            <div className="flex-1 h-px bg-white/5" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {contents
               .filter(c => c.section.toUpperCase() === sectionName)
               .map((item) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="card-dark border-white/5 p-5 hover:border-white/10 transition-colors"
-                >
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-white/30">
-                      {item.key.replace(/_/g, ' ')}
-                    </span>
-                    <button
-                      onClick={() => handleSave(item)}
-                      disabled={savingId === item.id}
-                      className="p-2 bg-white/5 text-accent hover:bg-accent hover:text-white transition-all disabled:opacity-50"
-                      title="Save Changes"
-                    >
-                      {savingId === item.id ? (
-                        <RefreshCw className="animate-spin" size={14} />
-                      ) : (
-                        <Save size={14} />
-                      )}
-                    </button>
-                  </div>
+                <div key={item.id} className="card-dark border-white/5 p-6 bg-zinc-950/40">
+                  <label className="text-[9px] font-heading font-bold tracking-[0.25em] uppercase text-white/30 block mb-4">
+                    {item.key.replace(/_/g, ' ')}
+                  </label>
 
-                  {item.value.length > 60 || item.key.includes('description') || item.key.includes('desc') ? (
+                  {item.value.length > 80 || item.key.includes('description') || item.key.includes('desc') || item.key.includes('line') ? (
                     <textarea
                       value={item.value}
                       onChange={(e) => {
                         setContents(contents.map(c => c.id === item.id ? { ...c, value: e.target.value } : c));
                       }}
                       rows={4}
-                      className="w-full bg-white/[0.02] border border-white/10 p-3 text-white font-body focus:outline-none focus:border-accent/50 transition-colors resize-none text-sm leading-relaxed"
+                      className="w-full bg-white/[0.03] border border-white/10 p-4 text-white font-body focus:outline-none focus:border-accent/40 transition-all resize-none text-sm leading-relaxed"
                     />
                   ) : (
                     <input
@@ -227,10 +205,10 @@ export default function SiteContentManager() {
                       onChange={(e) => {
                         setContents(contents.map(c => c.id === item.id ? { ...c, value: e.target.value } : c));
                       }}
-                      className="w-full bg-white/[0.02] border border-white/10 p-3 text-white font-body focus:outline-none focus:border-accent/50 transition-colors text-sm"
+                      className="w-full bg-white/[0.03] border border-white/10 p-4 text-white font-body focus:outline-none focus:border-accent/40 transition-all text-sm"
                     />
                   )}
-                </motion.div>
+                </div>
               ))}
           </div>
         </div>
