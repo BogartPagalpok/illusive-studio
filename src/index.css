@@ -4,10 +4,15 @@
 
 @layer base {
   :root {
+    /* DEFAULT THEME (RX-78 Vibe) */
     --bg-primary: #000000;
+    --bg-secondary: rgba(255, 255, 255, 0.05); /* 30% Surface */
+    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 0, 122, 0.15) 0%, rgba(0,0,0,0) 70%);
     --text-primary: #FFFFFF;
     --text-secondary: #D1D5DB;
     --accent: #FF007A;
+    --accent-contrast: #FFFFFF; /* Dynamic text color for buttons */
+    --secondary-contrast: #FFFFFF;
     --font-display: 'Orbitron', sans-serif;
     --font-sans: 'Inter', sans-serif;
   }
@@ -18,24 +23,28 @@
 
   body {
     background-color: var(--bg-primary);
+    background-image: var(--bg-gradient);
+    background-attachment: fixed;
     color: var(--text-secondary);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     color: var(--text-primary);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
   }
 
+  /* Custom Selection Color based on Theme */
   ::selection {
     background-color: var(--accent);
-    color: var(--text-primary);
+    color: var(--accent-contrast);
   }
 
+  /* Modern Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -45,8 +54,9 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -63,125 +73,84 @@
     @apply py-24 lg:py-32;
   }
 
-  .heading-xl {
-    font-family: var(--font-display);
-    color: var(--text-primary);
-    @apply text-5xl md:text-6xl lg:text-7xl font-black uppercase leading-[1.1];
-    letter-spacing: 0.05em;
-  }
-
-  .heading-lg {
-    font-family: var(--font-display);
-    color: var(--text-primary);
-    @apply text-3xl md:text-4xl lg:text-5xl font-bold uppercase leading-[1.15];
-    letter-spacing: 0.05em;
-  }
-
-  .heading-md {
-    font-family: var(--font-display);
-    color: var(--text-primary);
-    @apply text-2xl md:text-3xl font-semibold uppercase leading-[1.2];
-    letter-spacing: 0.05em;
-  }
-
-  .body-text {
-    font-family: var(--font-sans);
-    color: var(--text-secondary);
-    @apply text-base md:text-lg font-light leading-relaxed;
-  }
-
+  /* MASTER BUTTON - Using the 10% Accent Color */
   .btn-primary {
     font-family: var(--font-display);
     background-color: var(--accent);
-    color: var(--text-primary);
-    @apply inline-flex items-center gap-2 px-8 py-4 font-semibold
-           rounded-none uppercase tracking-widest text-sm
-           transition-all duration-300 hover:opacity-90
-           active:scale-95;
+    color: var(--accent-contrast); /* Switches between Black/White automatically */
+    @apply inline-flex items-center gap-2 px-8 py-4 font-bold
+           rounded-none uppercase tracking-[0.2em] text-[10px]
+           transition-all duration-500 hover:opacity-90
+           active:scale-95 shadow-[0_0_20px_rgba(0,0,0,0.3)];
   }
 
   .btn-outline {
     font-family: var(--font-display);
-    border-color: var(--accent);
+    border: 1px solid var(--accent);
     color: var(--accent);
-    @apply inline-flex items-center gap-2 px-8 py-4 border-2 font-semibold
-           rounded-none uppercase tracking-widest text-sm
-           transition-all duration-300 hover:opacity-90
-           active:scale-95;
+    @apply inline-flex items-center gap-2 px-8 py-4 font-bold
+           rounded-none uppercase tracking-[0.2em] text-[10px]
+           transition-all duration-500 hover:bg-accent hover:text-[var(--accent-contrast)];
   }
 
-  .btn-outline:hover {
-    background-color: var(--accent);
-    color: var(--text-primary);
-  }
-
-  .btn-primary:hover {
-    background-color: var(--text-primary);
-    color: var(--bg-primary);
-  }
-
+  /* GLASSMORPHISM CARD - Using the 30% Secondary Color */
   .card-dark {
-    @apply border rounded-none p-8
-           transition-all duration-500;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--bg-secondary);
+    color: var(--secondary-contrast);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    @apply p-8 transition-all duration-700 relative overflow-hidden;
   }
 
   .card-dark:hover {
     border-color: var(--accent);
-    background-color: rgba(255, 255, 255, 0.1);
+    @apply shadow-[0_0_30px_rgba(0,0,0,0.4)];
+  }
+
+  /* Typography Utilities */
+  .heading-xl {
+    @apply text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tighter;
+  }
+
+  .heading-lg {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold uppercase leading-none tracking-tight;
+  }
+
+  .text-accent {
+    color: var(--accent);
   }
 }
 
 /* ========================================
-   Swiper Coverflow — Custom Styling
+   Swiper Fixes & Modern Transitions
    ======================================== */
 
 .works-swiper {
-  padding: 20px 0 60px !important;
-  overflow: visible !important;
+  padding: 40px 0 80px !important;
 }
 
-.works-swiper .swiper-slide {
-  width: 400px;
-  max-width: 90vw;
-  opacity: 0.4;
-  transition: opacity 0.5s ease, transform 0.5s ease;
+/* Ensure mobile screens (Zamba) show fully */
+.works-swiper .swiper-slide img {
+  @apply object-cover transition-transform duration-700;
 }
 
-.works-swiper .swiper-slide-active {
-  opacity: 1;
-}
-
-.works-swiper .swiper-slide-prev,
-.works-swiper .swiper-slide-next {
-  opacity: 0.6;
-}
-
-.works-swiper .swiper-slide-shadow-left,
-.works-swiper .swiper-slide-shadow-right {
-  background: linear-gradient(to right, rgba(0,0,0,0.6), transparent) !important;
-}
-
-.works-swiper .swiper-slide-shadow-right {
-  background: linear-gradient(to left, rgba(0,0,0,0.6), transparent) !important;
+.works-swiper .swiper-slide-active img {
+  @apply scale-105;
 }
 
 .works-swiper .swiper-pagination-bullet {
-  width: 8px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  opacity: 1;
-  transition: all 0.3s ease;
+  @apply w-1 h-1 bg-white/20 opacity-100 rounded-none transition-all duration-500;
 }
 
 .works-swiper .swiper-pagination-bullet-active {
-  background-color: var(--accent);
-  width: 24px;
-  border-radius: 4px;
+  @apply bg-[var(--accent)] w-12 h-1;
 }
 
-.works-swiper .swiper-button-next,
-.works-swiper .swiper-button-prev {
-  display: none !important;
+/* Custom Scrollbar for Admin Textareas */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--accent);
 }
