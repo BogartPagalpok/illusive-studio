@@ -8,33 +8,26 @@
     --bg-primary: #080808;
     --bg-secondary: #111112;
     --bg-surface: #1a1a1c;
-    
-    /* ACCENTS: Hyper Lime & Electric Indigo */
-    --accent: #D4FF00; 
+    --accent: #D4FF00; /* Hyper Lime */
     --accent-glow: rgba(212, 255, 0, 0.3);
-    
-    /* TEXT COLORS */
     --text-primary: #FFFFFF;
     --text-secondary: #88888E;
     --text-muted: #444446;
-    
-    /* CONTRAST AUTO-ADJUSTER */
-    /* This ensures text on buttons is always readable */
     --text-on-accent: #000000; 
 
     /* MODERN SYSTEM STACK (No Google Fonts) */
-    /* Mimics high-end grotesque fonts using local system assets */
-    --font-display: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+    --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-sans: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", sans-serif;
   }
 
-  /* LIGHT THEME OVERRIDE (For that RX-78-2 Vibe) */
+  /* AUTOMATIC LIGHT THEME CONTRAST */
   [data-theme='light'] {
     --bg-primary: #F5F5F7;
     --bg-secondary: #FFFFFF;
     --bg-surface: #E5E5E7;
     --text-primary: #000000;
     --text-secondary: #444446;
+    --text-muted: #88888E;
     --accent: #0062FF; /* RX-78 Blue */
     --text-on-accent: #FFFFFF;
   }
@@ -44,44 +37,35 @@
     color: var(--text-secondary);
     font-family: var(--font-sans);
     letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, .font-heading {
     font-family: var(--font-display);
     color: var(--text-primary);
     font-weight: 800;
-    letter-spacing: -0.04em; /* Tight tracking for that premium look */
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
   }
 }
 
 @layer components {
-  /* --- REFINED GRADIENT BUTTONS --- */
   .btn-primary {
     @apply relative overflow-hidden rounded-lg px-8 py-4 font-bold flex items-center justify-center gap-3
            uppercase tracking-[0.15em] text-[10px] transition-all duration-500;
-    /* Sophisticated subtle gradient */
     background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent), black 15%) 100%);
     color: var(--text-on-accent);
-    border: 1px solid rgba(0,0,0,0.1);
   }
 
   .btn-primary:hover {
     @apply -translate-y-1;
     box-shadow: 0 15px 30px -10px var(--accent-glow);
-    filter: saturate(1.2);
   }
 
-  /* --- AUTOMATIC CONTRAST INPUTS --- */
   .input-field {
-    @apply w-full bg-secondary border border-muted/20 rounded-lg px-6 py-4
-           transition-all duration-300;
+    @apply w-full bg-transparent border rounded-lg px-6 py-4 transition-all duration-300;
     background-color: var(--bg-surface);
+    border-color: rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
-  }
-  
-  .input-field:focus {
-    @apply outline-none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 1px var(--accent);
   }
 }
