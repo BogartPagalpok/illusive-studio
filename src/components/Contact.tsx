@@ -108,7 +108,7 @@ export default function Contact() {
             <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
               {content.subtitle}
             </p>
-            <h2 className="heading-lg text-[var(--text-primary)]">
+            <h2 className="heading-lg" style={{ color: '#ffffff' }}>
               {content.heading.split(' ').length > 1 ? (
                 <>
                   {content.heading.split(' ').slice(0, -1).join(' ')}{' '}
@@ -118,26 +118,27 @@ export default function Contact() {
                 content.heading
               )}
             </h2>
-            <p className="mt-6 mb-8 text-[var(--text-secondary)] leading-relaxed">
+            <p className="mt-6 mb-8 leading-relaxed" style={{ color: '#efefef' }}>
               {content.description}
             </p>
             <div className="w-16 h-0.5 bg-accent" />
           </motion.div>
 
-          {/* Right — Form with Heavy Glassmorphism */}
+          {/* Right — Form with Refined Glassmorphism */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-3xl"
+            className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
             style={{ 
-              backgroundColor: 'rgba(10, 10, 12, 0.4)',
-              borderColor: 'rgba(255, 255, 255, 0.08)',
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.9)'
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              borderColor: 'rgba(255, 255, 255, 0.12)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+              WebkitBackdropFilter: 'blur(32px) saturate(180%)'
             }}
           >
             <div className="flex flex-col gap-1 mb-6">
-              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-primary)', opacity: 0.3 }}>Secure Channel</p>
+              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>Secure Channel</p>
               {user && (
                 <p className="text-xs text-accent uppercase tracking-widest font-black">
                   Authenticated: {user.email}
@@ -146,7 +147,7 @@ export default function Contact() {
             </div>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'var(--text-secondary)' }}>
+                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                   Name
                 </label>
                 <input
@@ -159,7 +160,7 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'var(--text-secondary)' }}>
+                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                   Email
                 </label>
                 <input
@@ -172,7 +173,7 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'var(--text-secondary)' }}>
+                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                   Message
                 </label>
                 <textarea
@@ -188,7 +189,7 @@ export default function Contact() {
                 type="submit"
                 disabled={sending}
                 className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: 'var(--accent)', backgroundImage: 'none' }}
+                style={{ background: 'var(--accent)', backgroundImage: 'none', color: 'black' }}
               >
                 {sending ? (
                   <span className="flex items-center justify-center gap-3">
