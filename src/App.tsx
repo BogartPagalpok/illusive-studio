@@ -6,10 +6,11 @@ import Login from './pages/Login';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
-import { loadSavedTheme, applyTheme } from './lib/themes'; // Added applyTheme
+import { loadSavedTheme, applyTheme } from './lib/themes';
 import type { ThemeName } from './lib/themes';
 import { motion } from 'framer-motion';
 
+// UI COMPONENT (Stays in .tsx file to prevent build errors)
 function AtmosphereGradient() {
   return (
     <div className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none bg-[#020204]">
@@ -46,49 +47,38 @@ function App() {
       if (error) return;
 
       if (data?.theme_preference) {
-        const newTheme = data.theme_preference as ThemeName;
-        // Fix: Use applyTheme to update CSS variables + Attribute + Storage
-        applyTheme(newTheme);
+        applyTheme(data.theme_preference as ThemeName);
       } else {
         const localTheme = localStorage.getItem('portfolio-theme');
         if (localTheme) {
-          await supabase
-            .from('user_profiles')
-            .update({ theme_preference: localTheme })
-            .eq('id', userId);
+          await supabase.from('user_profiles').update({ theme_preference: localTheme }).eq('id', userId);
         }
       }
     } catch (err) {
-      console.warn('Theme sync failed:', err);
+      console.warn('Sync failed');
     }
   };
 
   useEffect(() => {
-    loadSavedTheme();
+    loadSavedTheme(); // Instant paint
 
-    const initAuthAndTheme = async () => {
+    const initAuth = async () => {
       const timeout = setTimeout(() => setLoading(false), 2500);
-
       try {
         const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
-
-        if (session?.user) {
-          await syncUserTheme(session.user.id);
-        }
+        if (session?.user) await syncUserTheme(session.user.id);
       } finally {
         clearTimeout(timeout);
         setLoading(false);
       }
     };
 
-    initAuthAndTheme();
+    initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
-      if (session?.user) {
-        await syncUserTheme(session.user.id);
-      }
+      if (session?.user) await syncUserTheme(session.user.id);
     });
 
     return () => subscription.unsubscribe();
@@ -112,7 +102,6 @@ function App() {
     );
   }
 
-  // Admin routing logic: Must stay outside Routes for your view swap
   if (isAdmin) {
     return (
       <main className="min-h-screen bg-transparent relative">
