@@ -55,7 +55,6 @@ export default function ProjectManager() {
     }
   };
 
-  // Shared function to handle file uploads to storage
   const uploadToStorage = async (file: File) => {
     const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
     const { error: uploadError } = await supabase.storage
@@ -113,6 +112,8 @@ export default function ProjectManager() {
     } finally {
       setBulkUploading(false);
       setProgress({ current: 0, total: 0 });
+      // Reset input value so same files can be selected again if needed
+      e.target.value = '';
     }
   };
 
@@ -180,12 +181,13 @@ export default function ProjectManager() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-xl font-heading font-bold tracking-widest uppercase text-white">Portfolio Manager</h2>
         <div className="flex gap-3">
-          <label className="btn-outline flex items-center gap-2 cursor-pointer">
-            <Upload size={16} /> Bulk Upload
+          {/* BULK UPLOAD BUTTON: Forced Multiple attribute */}
+          <label className="btn-outline flex items-center gap-2 cursor-pointer py-3 px-6 text-[10px]">
+            <Upload size={14} /> Bulk Upload
             <input type="file" multiple accept="image/*" onChange={handleBulkUpload} className="hidden" disabled={bulkUploading} />
           </label>
           <button onClick={() => setEditingProject(EMPTY_PROJECT)} className="btn-primary flex items-center gap-2">
-            <Plus size={16} /> New Project
+            <Plus size={14} /> New Project
           </button>
         </div>
       </div>
@@ -193,87 +195,92 @@ export default function ProjectManager() {
       {bulkUploading && (
         <div className="card-dark border-accent/20">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-xs font-heading font-bold uppercase text-white">Uploading Folder...</span>
-            <span className="text-xs font-heading font-bold text-accent">{progress.current} / {progress.total}</span>
+            <span className="text-[10px] font-heading font-black uppercase text-white tracking-widest">Uploading Sequence...</span>
+            <span className="text-[10px] font-heading font-black text-accent">{progress.current} / {progress.total}</span>
           </div>
-          <div className="h-1 w-full bg-white/10 overflow-hidden">
-            <motion.div className="h-full bg-accent" initial={{ width: 0 }} animate={{ width: `${(progress.current / progress.total) * 100}%` }} />
+          <div className="h-1 w-full bg-white/5 overflow-hidden rounded-full">
+            <motion.div 
+              className="h-full" 
+              style={{ backgroundColor: 'var(--accent)', boxShadow: '0 0 10px var(--accent)' }}
+              initial={{ width: 0 }} 
+              animate={{ width: `${(progress.current / progress.total) * 100}%` }} 
+            />
           </div>
         </div>
       )}
 
       {editingProject && (
-        <div className="card-dark border-white/10 p-8 space-y-6">
+        <div className="card-dark border-white/10 p-8 space-y-8">
           <div className="flex justify-between items-center">
-            <h3 className="font-heading font-bold uppercase tracking-widest text-white">
-              {editingProject.id ? 'Edit Details' : 'Create Project'}
+            <h3 className="font-heading font-black uppercase tracking-[0.2em] text-white text-sm">
+              {editingProject.id ? 'Modify Data' : 'New Entry'}
             </h3>
-            <button onClick={() => setEditingProject(null)} className="text-white/40 hover:text-white"><X size={20} /></button>
+            <button onClick={() => setEditingProject(null)} className="text-white/20 hover:text-white transition-colors"><X size={20} /></button>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-10">
+            <div className="space-y-6">
               <div>
-                <label className="label-admin">Title</label>
-                <input value={editingProject.title} onChange={e => setEditingProject({...editingProject, title: e.target.value})} className="input-admin" />
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Title</label>
+                <input value={editingProject.title} onChange={e => setEditingProject({...editingProject, title: e.target.value})} className="input-field" placeholder="Project Name" />
               </div>
               <div>
-                <label className="label-admin">Category</label>
-                <input value={editingProject.category} onChange={e => setEditingProject({...editingProject, category: e.target.value})} className="input-admin" />
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Category</label>
+                <input value={editingProject.category} onChange={e => setEditingProject({...editingProject, category: e.target.value})} className="input-field" placeholder="e.g. Branding" />
               </div>
               <div>
-                <label className="label-admin">Image Asset</label>
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Image Source</label>
                 <div className="flex gap-2">
-                  <input value={editingProject.image_url} readOnly className="input-admin flex-1 text-xs opacity-50" placeholder="Auto-fills on upload..." />
-                  <label className="btn-outline p-3 cursor-pointer">
-                    {uploadingSingle ? <RefreshCw className="animate-spin" size={16} /> : <Upload size={16} />}
+                  <input value={editingProject.image_url} readOnly className="input-field flex-1 opacity-50 text-[10px]" placeholder="Auto-fills on upload..." />
+                  <label className="btn-outline p-4 cursor-pointer">
+                    {uploadingSingle ? <RefreshCw className="animate-spin" size={14} /> : <Upload size={14} />}
                     <input type="file" accept="image/*" onChange={handleSingleFileUpload} className="hidden" disabled={uploadingSingle} />
                   </label>
                 </div>
               </div>
               <div>
-                <label className="label-admin">Tools (comma separated)</label>
-                <input value={Array.isArray(editingProject.tools) ? editingProject.tools.join(', ') : editingProject.tools} onChange={e => setEditingProject({...editingProject, tools: e.target.value.split(',').map(t => t.trim())})} className="input-admin" />
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Stack (comma separated)</label>
+                <input value={Array.isArray(editingProject.tools) ? editingProject.tools.join(', ') : editingProject.tools} onChange={e => setEditingProject({...editingProject, tools: e.target.value.split(',').map(t => t.trim())})} className="input-field" placeholder="Photoshop, Figma, React" />
               </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <label className="label-admin">Overview</label>
-                <textarea value={editingProject.description} onChange={e => setEditingProject({...editingProject, description: e.target.value})} rows={3} className="input-admin resize-none" />
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Context / Description</label>
+                <textarea value={editingProject.description} onChange={e => setEditingProject({...editingProject, description: e.target.value})} rows={3} className="input-field resize-none custom-scrollbar" placeholder="Project background..." />
               </div>
               <div>
-                <label className="label-admin">Process</label>
-                <textarea value={editingProject.process} onChange={e => setEditingProject({...editingProject, process: e.target.value})} rows={3} className="input-admin resize-none" />
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Creative Process</label>
+                <textarea value={editingProject.process} onChange={e => setEditingProject({...editingProject, process: e.target.value})} rows={3} className="input-field resize-none custom-scrollbar" placeholder="Steps taken..." />
               </div>
               <div>
-                <label className="label-admin">Results</label>
-                <textarea value={editingProject.results} onChange={e => setEditingProject({...editingProject, results: e.target.value})} rows={2} className="input-admin resize-none" />
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Final Output</label>
+                <textarea value={editingProject.results} onChange={e => setEditingProject({...editingProject, results: e.target.value})} rows={2} className="input-field resize-none custom-scrollbar" placeholder="Impact/Results..." />
               </div>
             </div>
           </div>
 
-          <button onClick={handleSave} className="btn-primary w-full py-4 flex items-center justify-center gap-2">
-            <Save size={18} /> Save Project Changes
+          <button onClick={handleSave} className="btn-primary w-full py-4 text-xs">
+            <Save size={16} /> Update Central Database
           </button>
         </div>
       )}
 
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         {projects.map(project => (
-          <div key={project.id} className="card-dark border-white/5 p-4 group hover:border-accent/20 transition-all flex items-center justify-between">
+          <div key={project.id} className="card-dark border-white/5 p-4 group hover:border-accent/30 transition-all flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <div className="w-16 h-16 bg-white/5 border border-white/10 overflow-hidden flex-shrink-0">
-                <img src={project.image_url || ''} className="w-full h-full object-cover" />
+              <div className="w-16 h-16 bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 rounded-lg">
+                <img src={project.image_url || ''} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
               </div>
               <div>
-                <h4 className="text-white font-bold tracking-widest uppercase mb-1">{project.title}</h4>
-                <p className="text-[10px] text-accent uppercase tracking-widest font-black">{project.category}</p>
+                <h4 className="text-white font-bold tracking-widest uppercase text-xs mb-1">{project.title}</h4>
+                <p className="text-[9px] text-accent uppercase tracking-[0.2em] font-black">{project.category}</p>
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setEditingProject(project)} className="p-2 text-white/40 hover:text-white transition-colors"><Pencil size={18} /></button>
-              <button onClick={() => project.id && handleDelete(project.id)} className="p-2 text-white/40 hover:text-accent transition-colors"><Trash2 size={18} /></button>
+              <button onClick={() => setEditingProject(project)} className="p-3 text-white/20 hover:text-white transition-colors bg-white/5 rounded-lg"><Pencil size={16} /></button>
+              <button onClick={() => project.id && handleDelete(project.id)} className="p-3 text-white/20 hover:text-accent transition-colors bg-white/5 rounded-lg"><Trash2 size={16} /></button>
             </div>
           </div>
         ))}
