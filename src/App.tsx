@@ -6,7 +6,8 @@ import Login from './pages/Login';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
-import { loadSavedTheme } from './lib/themes';
+import { loadSavedTheme, applyTheme } from './lib/themes';
+import type { ThemeName } from './lib/themes';
 import { motion } from 'framer-motion';
 
 // PERFORMANCE OPTIMIZED GRADIENT
@@ -57,37 +58,34 @@ function App() {
         .single();
 
       if (!error && data?.theme_preference) {
-        document.documentElement.setAttribute('data-theme', data.theme_preference);
-        localStorage.setItem('theme', data.theme_preference);
+        // Essential fix: uses applyTheme to update CSS variables globally
+        applyTheme(data.theme_preference as ThemeName);
       }
     } catch (err) {
-      console.warn('Background theme sync failed.');
+      console.warn('Profile fetch failed, defaulting to local theme.');
     }
   };
 
   useEffect(() => {
-    // 1. Instant local load
+    // Initial local load for instant UI feel
     loadSavedTheme();
 
     const initAuthAndTheme = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-      
-      // 2. Stop loading immediately after session check
-      setLoading(false);
 
-      // 3. Sync theme in background (Non-blocking)
       if (session?.user) {
-        syncUserTheme(session.user.id);
+        await syncUserTheme(session.user.id);
       }
+      setLoading(false);
     };
 
     initAuthAndTheme();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (session?.user) {
-        syncUserTheme(session.user.id);
+        await syncUserTheme(session.user.id);
       }
     });
 
