@@ -61,12 +61,12 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
     const ctx = gsap.context(() => {
       if (watermarkRef.current) {
         gsap.fromTo(watermarkRef.current, 
-          { x: 30, opacity: 0 }, 
+          { x: 20, opacity: 0 }, 
           { 
             x: 0, 
-            opacity: 1, 
-            duration: 1.2, 
-            ease: "power3.out",
+            opacity: 0.9, 
+            duration: 1, 
+            ease: "power2.out",
             scrollTrigger: {
               trigger: footerRef.current,
               start: "top 95%",
@@ -86,8 +86,9 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
     <footer ref={footerRef} className="relative bg-transparent overflow-visible mt-20">
       <div className="section-container relative pb-12">
         
+        {/* COMPACT GLASS CARD */}
         <div 
-          className="relative z-10 p-10 md:p-16 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] saturate-[180%] overflow-hidden flex flex-col justify-between min-h-[550px]"
+          className="relative z-10 p-10 md:p-12 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] saturate-[180%] overflow-hidden"
           style={{ 
             backgroundColor: 'rgba(255, 255, 255, 0.02)', 
             borderColor: 'rgba(255, 255, 255, 0.08)',
@@ -95,23 +96,21 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* TOP SECTION */}
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+          {/* TOP SECTION: Information Grid */}
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 items-start">
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2 mb-4">
-                <Sparkles size={16} className="text-accent" />
+                <Sparkles size={14} className="text-accent" />
                 <span className="text-[10px] uppercase tracking-widest text-accent font-bold font-heading">Let's Talk</span>
               </div>
-              <h3 className="text-4xl font-heading font-black uppercase mb-4 leading-tight" style={{ color: '#ffffff' }}>{content.hook_heading}</h3>
-              <p className="text-base mb-8 max-w-sm leading-relaxed" style={{ color: '#efefef', opacity: 0.6 }}>{content.hook_desc}</p>
-              <button onClick={() => scrollToSection('contact')} className="btn-primary text-[10px] px-8 py-4 uppercase tracking-widest font-bold" style={{ background: 'var(--accent)', color: '#000000' }}>Book a Call</button>
+              <h3 className="text-2xl font-heading font-black uppercase mb-3 leading-tight" style={{ color: '#ffffff' }}>{content.hook_heading}</h3>
+              <p className="text-xs mb-6 max-w-sm leading-relaxed" style={{ color: '#efefef', opacity: 0.6 }}>{content.hook_desc}</p>
+              <button onClick={() => scrollToSection('contact')} className="btn-primary text-[10px] px-6 py-3 uppercase tracking-widest font-bold" style={{ background: 'var(--accent)', color: '#000000' }}>Book a Call</button>
             </div>
 
-            <div className="hidden lg:block" /> {/* Spacer */}
-
             <div>
-               <h4 className="text-[10px] uppercase tracking-widest mb-6 font-bold opacity-30 font-heading" style={{ color: '#ffffff' }}>Navigation</h4>
-               <ul className="space-y-4 text-sm font-medium">
+               <h4 className="text-[9px] uppercase tracking-widest mb-5 font-bold opacity-30 font-heading" style={{ color: '#ffffff' }}>Navigation</h4>
+               <ul className="space-y-3 text-xs font-medium">
                  {['Home', 'Services', 'Works', 'About'].map(item => (
                    <li key={item}><button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors" style={{ color: '#efefef' }}>{item}</button></li>
                  ))}
@@ -119,33 +118,42 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             </div>
 
             <div>
-               <h4 className="text-[10px] uppercase tracking-widest mb-6 font-bold opacity-30 font-heading" style={{ color: '#ffffff' }}>Contact</h4>
-               <ul className="space-y-4 text-sm font-medium" style={{ color: '#efefef' }}>
-                 <li className="flex items-center gap-3"><Mail size={14} className="text-accent" /> {content.email}</li>
-                 <li className="flex items-center gap-3"><Phone size={14} className="text-accent" /> {content.phone}</li>
+               <h4 className="text-[9px] uppercase tracking-widest mb-5 font-bold opacity-30 font-heading" style={{ color: '#ffffff' }}>Contact</h4>
+               <ul className="space-y-3 text-xs font-medium" style={{ color: '#efefef' }}>
+                 <li className="flex items-center gap-3"><Mail size={12} className="text-accent" /> {content.email}</li>
+                 <li className="flex items-center gap-3"><Phone size={12} className="text-accent" /> {content.phone}</li>
+               </ul>
+            </div>
+
+            <div>
+               <h4 className="text-[9px] uppercase tracking-widest mb-5 font-bold opacity-30 font-heading" style={{ color: '#ffffff' }}>Connect</h4>
+               <ul className="space-y-3 text-xs font-medium">
+                 <li><a href={content.instagram} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors" style={{ color: '#efefef' }}><Instagram size={12} /> Instagram</a></li>
+                 <li><a href={content.github} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors" style={{ color: '#efefef' }}><Github size={12} /> GitHub</a></li>
+                 <li><a href={content.facebook} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors" style={{ color: '#efefef' }}><Facebook size={12} /> Facebook</a></li>
                </ul>
             </div>
           </div>
 
-          {/* BOTTOM SECTION: Fits exactly in the circled gap */}
-          <div className="relative mt-auto flex flex-col items-end pt-12">
-            {/* The name is now properly scaled and right-justified */}
+          {/* JUSTIFIED RIGHT WATERMARK: Fits the exact gap above the copyright bar */}
+          <div className="relative mt-8 flex justify-end items-end h-20">
             <h2 
               ref={watermarkRef}
-              className="text-6xl md:text-8xl lg:text-[7vw] font-heading font-black tracking-tighter uppercase leading-none pointer-events-none select-none" 
+              className="text-5xl md:text-7xl font-heading font-black tracking-tighter uppercase leading-none pointer-events-none select-none" 
               style={{ 
                 color: '#ffffff',
                 opacity: 0.85,
+                marginRight: '-0.02em'
               }}
             >
               IAN LESTER
             </h2>
+          </div>
             
-            {/* Copyright divider sitting right under the name */}
-            <div className="w-full mt-6 pt-6 border-t border-white/5 flex justify-between items-center text-[10px] uppercase tracking-widest opacity-40 font-heading font-bold">
-              <button onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{content.copyright}</button>
-              <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors">Back to Top ↑</button>
-            </div>
+          {/* COMPACT BOTTOM BAR */}
+          <div className="relative z-10 mt-4 pt-6 border-t border-white/5 flex justify-between items-center text-[9px] uppercase tracking-widest opacity-40 font-heading font-bold">
+            <button onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{content.copyright}</button>
+            <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors">Back to Top ↑</button>
           </div>
 
         </div>
