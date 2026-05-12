@@ -7,6 +7,7 @@
     --bg-primary: #080808;
     --text-primary: #FFFFFF;
     --accent: #D4FF00;
+    --font-main: "Inter", sans-serif;
   }
 
   [data-theme='light'] {
@@ -15,20 +16,17 @@
     --accent: #FF3B30;
   }
 
-  /* LOCK SCREEN WIDTH - Prevents the "expanded out of screen" bug */
-  html, body {
-    max-width: 100vw;
-    overflow-x: hidden;
+  body {
     background-color: var(--bg-primary);
-    margin: 0;
-    padding: 0;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    overflow-x: hidden; /* Fixes the over-stretch/side-scroll */
   }
 
-  /* PREVENT CANVAS STRETCHING */
+  /* Fixes the canvas stretching bug globally */
   canvas {
     position: fixed !important;
-    top: 0;
-    left: 0;
+    top: 0; left: 0;
     width: 100vw !important;
     height: 100vh !important;
     object-fit: cover !important;
@@ -37,21 +35,21 @@
 }
 
 @layer components {
-  /* THE FIX: Added pt-24 (top padding) to account for your fixed navbar */
-  .themed-section {
-    @apply relative w-full px-6 py-24 md:py-32 flex flex-col items-center;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+  /* THE FIX: Top padding to stop navbar overlap + Max width to stop edge stretching */
+  .section-layout {
+    @apply relative w-full pt-32 pb-24 px-6 max-w-7xl mx-auto flex flex-col items-center;
   }
 
-  .section-container {
-    @apply w-full max-w-6xl mx-auto;
-  }
-
-  /* REFINED GRADIENT BUTTON */
+  /* UNIVERSAL GRADIENT: Works for every theme automatically */
   .btn-primary {
-    @apply px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all duration-300;
+    @apply relative overflow-hidden rounded-xl px-8 py-3 font-bold uppercase tracking-widest text-[10px];
     background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent), black 25%) 100%);
-    color: white; /* Force white text for better contrast on gradients */
+    color: white; /* Contrast fix for buttons */
+    border: none;
+  }
+
+  /* VERTICAL CENTERING UTILITY */
+  .flex-center {
+    @apply flex items-center justify-center;
   }
 }
