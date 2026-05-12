@@ -19,7 +19,7 @@
   }
 
   /* 2. LIGHT: CLEAN (App Interface / Cyber Pink) */
-  [data-theme='light'] {
+  [data-theme='light'], body[data-theme='light'] {
     --bg-primary: #F0F0F3;
     --bg-secondary: #FFFFFF;
     --bg-gradient: none;
@@ -31,7 +31,7 @@
   }
 
   /* 3. MAGMA: AGGRESSIVE (Industrial Cyberpunk Orange) */
-  [data-theme='magma'] {
+  [data-theme='magma'], body[data-theme='magma'] {
     --bg-primary: #050303;
     --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 69, 0, 0.12) 0%, rgba(5, 3, 3, 0) 70%);
     --accent: #FF4500;
@@ -39,7 +39,7 @@
   }
 
   /* 4. TOXIC: TECHWEAR (Acid Lime) */
-  [data-theme='toxic'] {
+  [data-theme='toxic'], body[data-theme='toxic'] {
     --bg-primary: #030503;
     --bg-gradient: radial-gradient(circle at 50% -20%, rgba(57, 255, 20, 0.12) 0%, rgba(3, 5, 3, 0) 70%);
     --accent: #D4FF00;
@@ -47,7 +47,7 @@
   }
 
   /* 5. OCEAN: CRYPTO (Deep Sea Cyan) */
-  [data-theme='ocean'] {
+  [data-theme='ocean'], body[data-theme='ocean'] {
     --bg-primary: #010609;
     --bg-gradient: radial-gradient(circle at 50% -20%, rgba(0, 255, 255, 0.12) 0%, rgba(1, 6, 9, 0) 70%);
     --accent: #00FFFF;
@@ -55,7 +55,7 @@
   }
 
   /* 6. GOLD: LUXURY (Metallic NFT Gold) */
-  [data-theme='gold'] {
+  [data-theme='gold'], body[data-theme='gold'] {
     --bg-primary: #050402;
     --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 215, 0, 0.12) 0%, rgba(5, 4, 2, 0) 70%);
     --accent: #FFD700;
@@ -63,7 +63,7 @@
   }
 
   /* 7. SYNTH: RETROWAVE (Hot Pink) */
-  [data-theme='synth'] {
+  [data-theme='synth'], body[data-theme='synth'] {
     --bg-primary: #070205;
     --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 0, 128, 0.15) 0%, rgba(7, 2, 5, 0) 70%);
     --accent: #FF0080;
@@ -71,7 +71,7 @@
   }
 
   /* 8. GLITCH: HACKER (Crimson Red) */
-  [data-theme='glitch'] {
+  [data-theme='glitch'], body[data-theme='glitch'] {
     --bg-primary: #050000;
     --bg-gradient: radial-gradient(circle at 50% -20%, rgba(220, 20, 60, 0.15) 0%, rgba(5, 0, 0, 0) 70%);
     --accent: #DC143C;
@@ -79,7 +79,7 @@
   }
 
   /* 9. ICE: FROST (Arctic Blue) */
-  [data-theme='ice'] {
+  [data-theme='ice'], body[data-theme='ice'] {
     --bg-primary: #020508;
     --bg-gradient: radial-gradient(circle at 50% -20%, rgba(135, 206, 250, 0.12) 0%, rgba(2, 5, 8, 0) 70%);
     --accent: #87CEFA;
@@ -87,7 +87,7 @@
   }
 
   /* 10. BRUTAL: MONOCHROME (Pure High Contrast) */
-  [data-theme='brutal'] {
+  [data-theme='brutal'], body[data-theme='brutal'] {
     --bg-primary: #000000;
     --bg-gradient: none;
     --accent: #FFFFFF;
