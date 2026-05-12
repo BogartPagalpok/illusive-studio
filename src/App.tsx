@@ -48,7 +48,6 @@ function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Reusable sync function to prevent code duplication
   const syncUserTheme = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -62,30 +61,33 @@ function App() {
         localStorage.setItem('theme', data.theme_preference);
       }
     } catch (err) {
-      console.warn('Theme sync failed.');
+      console.warn('Background theme sync failed.');
     }
   };
 
   useEffect(() => {
+    // 1. Instant local load
     loadSavedTheme();
 
     const initAuthAndTheme = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-
-      if (session?.user) {
-        await syncUserTheme(session.user.id);
-      }
+      
+      // 2. Stop loading immediately after session check
       setLoading(false);
+
+      // 3. Sync theme in background (Non-blocking)
+      if (session?.user) {
+        syncUserTheme(session.user.id);
+      }
     };
 
     initAuthAndTheme();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      // SYNC ON AUTH CHANGE: Fixes the issue where theme doesn't update on login/session refresh
       if (session?.user) {
-        await syncUserTheme(session.user.id);
+        syncUserTheme(session.user.id);
       }
     });
 
