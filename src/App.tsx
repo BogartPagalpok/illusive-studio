@@ -6,7 +6,8 @@ import Login from './pages/Login';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
-import { loadSavedTheme } from './lib/themes';
+import { loadSavedTheme, applyTheme } from './lib/themes';
+import type { ThemeName } from './lib/themes';
 import { motion } from 'framer-motion';
 
 function AtmosphereGradient() {
@@ -33,59 +34,37 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [theme, setTheme] = useState<string | null>(null);
-
-  // Centralized theme application
-  const applyTheme = (themeName: string) => {
-    if (!themeName) return;
-    document.documentElement.setAttribute('data-theme', themeName);
-    localStorage.setItem('portfolio-theme', themeName);
-    setTheme(themeName);
-  };
 
   const syncUserTheme = async (userId: string) => {
     try {
-      console.log('[Theme Sync] Fetching for user:', userId);
       const { data, error } = await supabase
         .from('user_profiles')
         .select('theme_preference')
         .eq('id', userId)
         .single();
 
-      if (error) {
-        console.error('[Theme Sync] Supabase error:', error.message);
-        return;
+      if (!error && data?.theme_preference) {
+        applyTheme(data.theme_preference as ThemeName);
       }
-
-      // Fallback to 'default' if null/missing
-      const newTheme = data?.theme_preference || 'default';
-      console.log('[Theme Sync] Applying:', newTheme);
-      applyTheme(newTheme);
     } catch (err) {
-      console.error('[Theme Sync] Unexpected error:', err);
+      console.warn('Theme sync failed.');
     }
   };
 
   useEffect(() => {
-    // 1. Load local theme immediately
-    const localTheme = loadSavedTheme();
-    if (localTheme) applyTheme(localTheme);
+    loadSavedTheme();
 
-    const initAuthAndTheme = async () => {
-      const timeout = setTimeout(() => setLoading(false), 2000);
-
+    const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
+      setLoading(false);
 
       if (session?.user) {
-        await syncUserTheme(session.user.id);
+        syncUserTheme(session.user.id);
       }
-
-      clearTimeout(timeout);
-      setLoading(false);
     };
 
-    initAuthAndTheme();
+    initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
@@ -106,6 +85,7 @@ function App() {
     );
   }
 
+  // 1. GUEST VIEW: If no session, show Login
   if (!session) {
     return (
       <main className="min-h-screen bg-transparent relative">
@@ -115,6 +95,18 @@ function App() {
     );
   }
 
+  // 2. ADMIN VIEW: Short-circuit logic restored.
+  // This must stay outside of <Routes> because it swaps the entire layout.
+  if (isAdmin) {
+    return (
+      <main className="min-h-screen bg-transparent relative">
+        <AtmosphereGradient />
+        <AdminDashboard onLogout={() => setIsAdmin(false)} />
+      </main>
+    );
+  }
+
+  // 3. USER VIEW: Standard routing for HomePage, Terms, and Privacy
   return (
     <main className="min-h-screen relative overflow-x-hidden bg-transparent">
       <AtmosphereGradient />
@@ -122,7 +114,6 @@ function App() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/" element={<HomePage onAdminAuth={() => setIsAdmin(true)} />} />
-        {isAdmin && <Route path="/admin" element={<AdminDashboard onLogout={() => setIsAdmin(false)} />} />}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </main>
