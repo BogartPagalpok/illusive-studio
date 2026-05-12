@@ -35,19 +35,16 @@ export default function Hero() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Scroll Tracking for the HUD and text fade
+  // Scroll Tracking for text fade
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end start'],
   });
 
-  // Fade out the main text quickly as they start scrolling
-  const textOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const textY = useTransform(scrollYProgress, [0, 0.2], ['0%', '-20%']);
-  
-  // Parallax movement for the HUD elements
-  const hudY1 = useTransform(scrollYProgress, [0, 1], ['-50%', '100%']);
-  const hudY2 = useTransform(scrollYProgress, [0, 1], ['-50%', '-200%']);
+  // Fades the text out quickly (between 0% and 15% of the scroll) 
+  // so you get that long, clean look at the face background
+  const textOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const textY = useTransform(scrollYProgress, [0, 0.15], ['0%', '-20%']);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -72,7 +69,7 @@ export default function Hero() {
     fetchContent();
   }, []);
 
-  // GSAP SCROLL FIX
+  // GSAP SCROLL FIX (Kept your long scroll pacing)
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
@@ -112,32 +109,10 @@ export default function Hero() {
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
         </div>
 
-        {/* CRITICAL FIX: pt-[100px] ensures the content completely clears the fixed navbar.
-          pb-24 ensures the scroll button has room.
-        */}
-        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center pt-[100px] pb-24">
+        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center pt-[80px]">
           
-          <div className="absolute inset-0 bg-black/50 pointer-events-none z-0" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/90 pointer-events-none z-0" />
-          
-          {/* ----- TECH/INDUSTRIAL HUD FLAVOR ----- */}
-          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden hidden md:block">
-            {/* Left side tracking line - Centered Vertically */}
-            <motion.div 
-              style={{ y: hudY1 }}
-              className="absolute left-8 lg:left-16 top-1/2 w-px h-64 bg-gradient-to-b from-transparent via-white/30 to-transparent"
-            />
-            {/* Right side data text - Centered Vertically and brightened */}
-            <motion.div 
-              style={{ y: hudY2 }}
-              className="absolute right-8 lg:right-16 top-1/2 flex flex-col gap-3 text-right text-[10px] font-heading font-black tracking-[0.3em] uppercase text-white/40"
-            >
-              <span className="text-white/60">SEQ.REC // 288.FR</span>
-              <span>SCROLL_RATE: ACTIVE</span>
-              <span className="text-accent/60">SYS_OPTIMIZED</span>
-            </motion.div>
-          </div>
-          {/* ------------------------------------------- */}
+          <div className="absolute inset-0 bg-black/40 pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none z-0" />
 
           {/* MAIN TEXT CONTAINER */}
           <motion.div 
@@ -153,7 +128,6 @@ export default function Hero() {
               {content.subtitle}
             </motion.p>
 
-            {/* Scaled down from text-8xl to text-6xl/7xl to prevent vertical crushing */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -191,12 +165,12 @@ export default function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* FIXED SCROLL INDICATOR */}
+          {/* FIXED SCROLL INDICATOR: Guaranteed true center using left-0 right-0 flex justify-center */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.3 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-auto z-20"
+            className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-auto z-20"
           >
             <button
               onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
