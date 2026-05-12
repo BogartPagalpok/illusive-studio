@@ -7,7 +7,7 @@ interface FooterProps {
 }
 
 interface FooterContent {
-  hook_heading: string;
+  hook_heading: string; 
   hook_desc: string;
   email: string;
   phone: string;
@@ -67,20 +67,19 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* WATERMARK: Exact 10px Gap above the line, Size reduced by 2 units, 60% Opacity */}
+          {/* WATERMARK: Exact 15px Gap above the line, Fixed Right Alignment */}
           <h2 
-            className="absolute bottom-[78px] right-8 md:right-12 text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
+            className="absolute bottom-[83px] right-8 md:right-12 text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
             style={{ 
               opacity: 0.6,
-              transform: 'translateX(0.04em)' 
+              textAlign: 'right'
             }}
           >
             IAN LESTER
           </h2>
 
-          {/* GRID STRUCTURE: Restored to original sizes */}
+          {/* GRID STRUCTURE */}
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 items-start mb-16 md:mb-20">
-            {/* Hook */}
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles size={14} className="text-accent" />
@@ -91,7 +90,6 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
               <button onClick={() => scrollToSection('contact')} className="btn-primary text-[10px] px-6 py-3 uppercase tracking-widest font-bold" style={{ background: 'var(--accent)', color: '#000000' }}>Book a Call</button>
             </div>
 
-            {/* Navigation */}
             <div>
                <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white">Navigation</h4>
                <ul className="space-y-2 text-[11px] text-white/80">
@@ -101,7 +99,6 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
                </ul>
             </div>
 
-            {/* Contact & Connect Unified */}
             <div>
                <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white">Contact</h4>
                <ul className="space-y-4 text-[11px] text-white/80">
