@@ -6,23 +6,37 @@
   :root {
     /* DEFAULT THEME */
     --bg-primary: #000000;
-    --bg-secondary: rgba(255, 255, 255, 0.05); /* 30% Surface */
+    --bg-secondary: rgba(255, 255, 255, 0.05);
     --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 0, 122, 0.15) 0%, rgba(0,0,0,0) 70%);
     --text-primary: #FFFFFF;
     --text-secondary: #D1D5DB;
     --accent: #FF007A;
-    --accent-contrast: #FFFFFF; /* Dynamic text color for buttons */
+    --accent-contrast: #FFFFFF;
     --secondary-contrast: #FFFFFF;
     --font-display: 'Orbitron', sans-serif;
     --font-sans: 'Inter', sans-serif;
   }
 
-  html {
+  /* FIX: Light Theme Contrast Override */
+  [data-theme='light'] {
+    --bg-primary: #F5F5F7;
+    --bg-secondary: #FFFFFF;
+    --bg-gradient: none;
+    --text-primary: #000000;
+    --text-secondary: #444446;
+    --accent: #0062FF; /* RX-78 Blue */
+    --accent-contrast: #FFFFFF;
+  }
+
+  /* FIX: Stop horizontal over-stretch */
+  html, body {
     scroll-behavior: smooth;
+    max-width: 100vw;
+    overflow-x: hidden;
+    background-color: var(--bg-primary);
   }
 
   body {
-    background-color: var(--bg-primary);
     background-image: var(--bg-gradient);
     background-attachment: fixed;
     color: var(--text-secondary);
@@ -31,64 +45,44 @@
     min-height: 100vh;
   }
 
+  /* FIX: Stop canvas image from stretching */
+  canvas {
+    position: fixed !important;
+    top: 0; left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    object-fit: cover !important;
+    z-index: -1;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
-
-  /* Custom Selection Color based on Theme */
-  ::selection {
-    background-color: var(--accent);
-    color: var(--accent-contrast);
-  }
-
-  /* Modern Scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background-color: var(--bg-primary);
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 0px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--accent);
-  }
 }
 
 @layer components {
+  /* FIX: Added top padding (pt-32) to prevent Navbar overlap */
   .section-container {
-    @apply max-w-7xl mx-auto px-6 lg:px-8;
+    @apply max-w-7xl mx-auto px-6 lg:px-8 pt-32 pb-24 relative z-10;
   }
 
-  .section-padding {
-    @apply py-24 lg:py-32;
-  }
-
-  /* --- MODERN GRADIENT BUTTONS --- */
+  /* DYNAMIC GRADIENT BUTTON: Uses the current theme's accent */
   .btn-primary {
     font-family: var(--font-display);
     @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold flex items-center justify-center gap-3
            uppercase tracking-[0.2em] text-[10px]
            transition-all duration-300;
-    /* Hardcoded gradient bypasses variable inheritance issues */
-    background: linear-gradient(135deg, #FF007A 0%, #3B00FF 100%);
-    color: #FFFFFF;
-    box-shadow: 0 4px 15px rgba(255, 0, 122, 0.2);
+    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent), black 30%) 100%);
+    color: var(--accent-contrast);
     border: none;
   }
 
   .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px -5px #FF007A;
+    box-shadow: 0 10px 25px -5px var(--accent);
     filter: brightness(1.2);
   }
 
@@ -101,103 +95,28 @@
     background: rgba(255, 255, 255, 0.03);
   }
 
-  .btn-outline:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent);
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-  }
-
-  /* --- CONTACT FORM INPUTS --- */
   .input-field {
     @apply w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4
-           text-white placeholder:text-white/30 focus:outline-none focus:border-[#FF007A]
            transition-all duration-300 backdrop-blur-md;
+    color: var(--text-primary);
     font-family: var(--font-sans);
   }
+  
+  .input-field:focus {
+    @apply outline-none border-[var(--accent)];
+  }
 
-  /* --- MODERN GLASSMORPHISM CARDS --- */
   .card-dark {
     @apply p-8 rounded-2xl relative overflow-hidden transition-all duration-500;
     background-color: var(--bg-secondary);
-    color: var(--secondary-contrast);
+    color: var(--text-primary);
     backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   }
 
-  /* Hover Animation for Cards */
-  .card-dark:hover {
-    transform: translateY(-8px);
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px var(--accent);
-  }
-
-  /* Internal subtle gradient glow that appears on hover */
-  .card-dark::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(circle at top right, var(--accent), transparent 60%);
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .card-dark:hover::before {
-    opacity: 0.08; 
-  }
-
-  .card-dark > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Typography Utilities */
-  .heading-xl {
-    @apply text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tighter;
-  }
-
-  .heading-lg {
-    @apply text-3xl md:text-4xl lg:text-5xl font-bold uppercase leading-none tracking-tight;
-  }
-
-  .text-accent {
-    color: var(--accent);
-  }
+  .text-accent { color: var(--accent); }
 }
 
-/* ========================================
-   Swiper Fixes & Modern Transitions
-   ======================================== */
-
-.works-swiper {
-  padding: 40px 0 80px !important;
-}
-
-/* Ensure mobile screens show fully */
-.works-swiper .swiper-slide img {
-  @apply object-cover transition-transform duration-700;
-}
-
-.works-swiper .swiper-slide-active img {
-  @apply scale-105;
-}
-
-.works-swiper .swiper-pagination-bullet {
-  @apply w-1 h-1 bg-white/20 opacity-100 rounded-none transition-all duration-500;
-}
-
-.works-swiper .swiper-pagination-bullet-active {
-  @apply bg-[var(--accent)] w-12 h-1;
-}
-
-/* Custom Scrollbar for Admin Textareas */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--accent);
-}
+/* Swiper Fixes */
+.works-swiper { padding: 40px 0 80px !important; }
+.works-swiper .swiper-pagination-bullet-active { @apply bg-[var(--accent)] w-12 h-1; }
