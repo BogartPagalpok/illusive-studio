@@ -4,7 +4,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase environment variables are missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.');
+  console.warn('Supabase environment variables are missing.');
 }
 
 export const supabase = createClient(
@@ -19,7 +19,6 @@ export const supabase = createClient(
   }
 );
 
-// Configurable bucket name for scroll sequence frames
+// RESTORED: These must exist for ScrollSequence.tsx to compile
 export const SCROLL_SEQUENCE_BUCKET = 'hero-sequence';
-// Configurable bucket name for portfolio media
 export const PORTFOLIO_BUCKET = 'media';
