@@ -84,7 +84,6 @@ export default function SiteContentManager() {
   const handleMasterSave = async () => {
     setIsSaving(true);
     try {
-      // Execute all updates in parallel
       const updatePromises = contents.map((item) =>
         supabase
           .from('site_content')
@@ -97,7 +96,7 @@ export default function SiteContentManager() {
 
       if (hasError) throw new Error('One or more fields failed to save.');
 
-      alert('All changes saved successfully! Refreshing data...');
+      alert('All changes saved successfully!');
       fetchContent();
     } catch (error: any) {
       console.error('Save error:', error);
@@ -146,46 +145,46 @@ export default function SiteContentManager() {
 
   return (
     <div className="space-y-12 pb-32 relative">
-      {/* MASTER SAVE BAR - STICKY AT TOP */}
-      <div className="sticky top-0 z-[100] bg-black/80 backdrop-blur-xl border-b border-white/10 py-6 -mx-4 px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      {/* HEADER BAR */}
+      <div className="sticky top-0 z-[100] bg-black/40 backdrop-blur-2xl border-b border-white/10 py-6 -mx-4 px-6 flex flex-col md:flex-row justify-between items-center gap-4 rounded-b-2xl">
         <div>
-          <h2 className="text-xl font-heading font-bold tracking-widest uppercase text-white">Content Editor</h2>
-          <p className="text-[10px] text-accent uppercase tracking-widest font-black">Unsaved changes will be lost on refresh</p>
+          <h2 className="text-xl font-display font-bold tracking-widest uppercase text-white">System Content</h2>
+          <p className="text-[10px] text-accent uppercase tracking-[0.3em] font-black">Live Production Editor</p>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           <button
             onClick={seedDefaultContent}
-            className="btn-outline flex items-center gap-2 py-2.5 px-5 text-[10px] uppercase tracking-widest"
+            className="btn-outline flex items-center gap-2 py-3 px-6 rounded-xl border-white/10 hover:border-white/30"
           >
-            <Database size={14} /> Seed Data
+            <Database size={14} /> <span className="text-[10px] uppercase tracking-widest">Restore Defaults</span>
           </button>
           <button
             onClick={handleMasterSave}
             disabled={isSaving}
-            className="btn-primary flex items-center gap-2 py-2.5 px-8 text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(255,0,122,0.3)]"
+            className="btn-primary flex items-center gap-2 py-3 px-10 rounded-xl"
           >
             {isSaving ? <RefreshCw className="animate-spin" size={14} /> : <CheckCircle size={14} />}
-            {isSaving ? 'Saving...' : 'Save All Changes'}
+            <span className="text-[10px] uppercase tracking-widest">{isSaving ? 'Syncing...' : 'Deploy Changes'}</span>
           </button>
         </div>
       </div>
 
       {sections.map((sectionName) => (
-        <div key={sectionName} className="space-y-6">
-          <div className="flex items-center gap-4">
-            <h3 className="text-sm font-heading font-black tracking-[0.4em] uppercase text-accent/80">
+        <div key={sectionName} className="space-y-8">
+          <div className="flex items-center gap-6">
+            <h3 className="text-xs font-display font-black tracking-[0.5em] uppercase text-accent/60">
               {sectionName}
             </h3>
-            <div className="flex-1 h-px bg-white/5" />
+            <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {contents
               .filter(c => c.section.toUpperCase() === sectionName)
               .map((item) => (
-                <div key={item.id} className="card-dark border-white/5 p-6 bg-zinc-950/40">
-                  <label className="text-[9px] font-heading font-bold tracking-[0.25em] uppercase text-white/30 block mb-4">
+                <div key={item.id} className="card-dark group p-8 rounded-2xl bg-white/[0.02] border-white/5 hover:bg-white/[0.04]">
+                  <label className="text-[10px] font-display font-bold tracking-[0.2em] uppercase text-white/40 block mb-5 group-hover:text-accent transition-colors">
                     {item.key.replace(/_/g, ' ')}
                   </label>
 
@@ -196,7 +195,7 @@ export default function SiteContentManager() {
                         setContents(contents.map(c => c.id === item.id ? { ...c, value: e.target.value } : c));
                       }}
                       rows={4}
-                      className="w-full bg-white/[0.03] border border-white/10 p-4 text-white font-body focus:outline-none focus:border-accent/40 transition-all resize-none text-sm leading-relaxed"
+                      className="w-full bg-black/40 border border-white/10 rounded-xl p-5 text-white font-sans focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all resize-none text-sm leading-relaxed"
                     />
                   ) : (
                     <input
@@ -205,7 +204,7 @@ export default function SiteContentManager() {
                       onChange={(e) => {
                         setContents(contents.map(c => c.id === item.id ? { ...c, value: e.target.value } : c));
                       }}
-                      className="w-full bg-white/[0.03] border border-white/10 p-4 text-white font-body focus:outline-none focus:border-accent/40 transition-all text-sm"
+                      className="w-full bg-black/40 border border-white/10 rounded-xl p-5 text-white font-sans focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all text-sm"
                     />
                   )}
                 </div>
