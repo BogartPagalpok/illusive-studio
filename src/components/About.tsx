@@ -129,14 +129,14 @@ export default function About() {
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
+            {/* FIXED: Using !important on background and explicit RGBA to kill the purple tint */}
             <div 
-              className="card-dark group p-8 rounded-3xl border transition-all duration-500" 
+              className="group p-8 rounded-3xl border transition-all duration-500 backdrop-blur-2xl" 
               style={{ 
-                backgroundColor: 'color-mix(in srgb, var(--bg-secondary), transparent 20%)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                borderColor: 'rgba(255, 255, 255, 0.08)',
-                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                backgroundColor: 'rgba(255, 255, 255, 0.01) !important',
+                background: 'rgba(10, 10, 12, 0.4)',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.8)'
               }}
             >
               <h3 className="font-bold tracking-tighter text-2xl mb-8 leading-tight" style={{ color: 'var(--text-primary)' }}>
@@ -151,7 +151,7 @@ export default function About() {
               <div className="space-y-6 leading-relaxed text-lg font-light" style={{ color: 'var(--text-secondary)' }}>
                 <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-accent first-letter:mr-3 first-letter:float-left">{content.description_line1}</p>
                 <p>{content.description_line2}</p>
-                <p className="italic" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>{content.description_line3}</p>
+                <p className="italic" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>{content.description_line3}</p>
               </div>
             </div>
           </motion.div>
