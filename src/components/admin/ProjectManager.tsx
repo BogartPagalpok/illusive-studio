@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Upload, Save, RefreshCw, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Upload, Save, RefreshCw, X, Image as ImageIcon, Pencil } from 'lucide-react';
 import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
 
 interface Project {
@@ -292,11 +292,11 @@ export default function ProjectManager() {
               <p className="text-[10px] text-accent uppercase tracking-widest font-black">{project.category}</p>
             </div>
 
-            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onClick={() => setEditingProject(project)} className="p-2 text-white/40 hover:text-white transition-colors">
-                <Plus size={18} />
+            <div className="flex gap-2">
+              <button onClick={() => setEditingProject(project)} className="p-2 text-white/40 hover:text-white transition-colors" title="Edit project">
+                <Pencil size={18} />
               </button>
-              <button onClick={() => project.id && handleDelete(project.id)} className="p-2 text-white/40 hover:text-accent transition-colors">
+              <button onClick={() => project.id && handleDelete(project.id)} className="p-2 text-white/40 hover:text-accent transition-colors" title="Delete project">
                 <Trash2 size={18} />
               </button>
             </div>
