@@ -1,11 +1,23 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Palette, Check } from 'lucide-react';
-import { themePresets, applyTheme } from '../lib/themes';
-import type { ThemePreset } from '../lib/themes';
 import MessageManager from '../components/admin/MessageManager';
 import SiteContentManager from '../components/admin/SiteContentManager';
 import ProjectManager from '../components/admin/ProjectManager';
+
+// Define the 10 themes directly to match your CSS variables
+const THEMES = [
+  { id: 'void', name: 'Void', tagline: 'Deep Web3 Purple', accent: '#9D00FF', bgPrimary: '#030305', bgSecondary: '#1A1A1F' },
+  { id: 'light', name: 'Clean', tagline: 'App Interface', accent: '#FF3366', bgPrimary: '#F0F0F3', bgSecondary: '#FFFFFF' },
+  { id: 'magma', name: 'Magma', tagline: 'Industrial Cyberpunk', accent: '#FF4500', bgPrimary: '#050303', bgSecondary: '#1F110D' },
+  { id: 'toxic', name: 'Toxic', tagline: 'Acid Techwear', accent: '#D4FF00', bgPrimary: '#030503', bgSecondary: '#0E1A0E' },
+  { id: 'ocean', name: 'Ocean', tagline: 'Deep Sea Crypto', accent: '#00FFFF', bgPrimary: '#010609', bgSecondary: '#051E2E' },
+  { id: 'gold', name: 'Gold', tagline: 'Metallic Luxury', accent: '#FFD700', bgPrimary: '#050402', bgSecondary: '#1F1A05' },
+  { id: 'synth', name: 'Synth', tagline: 'Retrowave Neon', accent: '#FF0080', bgPrimary: '#070205', bgSecondary: '#2E051A' },
+  { id: 'glitch', name: 'Glitch', tagline: 'Crimson Hacker', accent: '#DC143C', bgPrimary: '#050000', bgSecondary: '#1A0000' },
+  { id: 'ice', name: 'Ice', tagline: 'Arctic Frost', accent: '#87CEFA', bgPrimary: '#020508', bgSecondary: '#0A1A2A' },
+  { id: 'brutal', name: 'Brutal', tagline: 'Monochrome High-Contrast', accent: '#FFFFFF', bgPrimary: '#000000', bgSecondary: '#1A1A1A' },
+];
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -14,17 +26,34 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [tab, setTab] = useState<'content' | 'projects' | 'messages' | 'media' | 'theme'>('content');
   const [message, setMessage] = useState('');
-  const [activeThemeId, setActiveThemeId] = useState(
-    () => localStorage.getItem('portfolio-theme') || 'cyber-gaming'
-  );
+  
+  const [activeThemeId, setActiveThemeId] = useState(() => {
+    return localStorage.getItem('portfolio-theme') || 'void';
+  });
+
+  // Ensure theme is applied on component mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('portfolio-theme') || 'void';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
 
   const showMessage = (msg: string) => {
     setMessage(msg);
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const handleThemeSelect = (theme: ThemePreset) => {
-    applyTheme(theme);
+  const handleThemeSelect = (theme: typeof THEMES[0]) => {
+    // 1. Update the DOM attribute to trigger the CSS variable swap
+    if (theme.id === 'void') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme.id);
+    }
+    
+    // 2. Save to local storage for persistence
+    localStorage.setItem('portfolio-theme', theme.id);
+    
+    // 3. Update React state
     setActiveThemeId(theme.id);
     showMessage(`Theme applied: ${theme.name}`);
   };
@@ -39,7 +68,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header */}
-      <div className="border-b" style={{ borderColor: 'var(--text-muted)', opacity: 0.1 }}>
+      <div className="border-b" style={{ borderColor: 'var(--text-secondary)', opacity: 0.1 }}>
         <div className="section-container flex items-center justify-between h-20">
           <button
             onClick={onLogout}
@@ -65,7 +94,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="fixed top-24 left-1/2 -translate-x-1/2 z-50 px-8 py-3 text-[10px] font-heading tracking-widest rounded-lg shadow-2xl uppercase font-bold"
-          style={{ backgroundColor: 'var(--accent)', color: 'var(--text-on-accent)' }}
+          style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
         >
           {message}
         </motion.div>
@@ -83,7 +112,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                 ? 'border-accent' 
                 : 'border-transparent opacity-40 hover:opacity-100'
               }`}
-              style={tab === t.key ? { backgroundColor: 'var(--accent)', color: 'var(--text-on-accent)' } : { color: 'var(--text-primary)' }}
+              style={tab === t.key ? { backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' } : { color: 'var(--text-primary)' }}
             >
               {t.label}
             </button>
@@ -99,7 +128,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         {tab === 'theme' && (
           <div className="space-y-12">
             <div className="flex items-center gap-6">
-              <div className="p-5 rounded-2xl" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--text-muted)' }}>
+              <div className="p-5 rounded-2xl" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--text-secondary)' }}>
                 <Palette size={24} style={{ color: 'var(--accent)' }} />
               </div>
               <div>
@@ -109,7 +138,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {themePresets.map((theme) => (
+              {THEMES.map((theme) => (
                 <button
                   key={theme.id}
                   onClick={() => handleThemeSelect(theme)}
@@ -128,7 +157,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                     </div>
                     {activeThemeId === theme.id && (
                       <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--accent)' }}>
-                        <Check size={12} style={{ color: 'var(--text-on-accent)' }} />
+                        <Check size={12} style={{ color: 'var(--accent-contrast)' }} />
                       </div>
                     )}
                   </div>
