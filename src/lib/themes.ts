@@ -11,6 +11,7 @@ export interface ThemePreset {
   bgPrimary: string;    // 60%
   bgSecondary: string;  // 30%
   accent: string;       // 10%
+  bgGradient: string;   // Atmosphere / Glow
   textPrimary: string;
   textSecondary: string;
   fontDisplay: string;
@@ -26,6 +27,7 @@ export const themePresets: ThemePreset[] = [
     bgPrimary: '#0A0A0A',
     bgSecondary: '#141414',
     accent: '#BFFF00',
+    bgGradient: 'radial-gradient(circle at top right, rgba(191, 255, 0, 0.08) 0%, rgba(10, 10, 10, 0) 50%)',
     textPrimary: '#FFFFFF',
     textSecondary: '#D1D5DB',
     fontDisplay: "'Orbitron', sans-serif",
@@ -36,8 +38,9 @@ export const themePresets: ThemePreset[] = [
     name: 'Aurora Forest',
     tagline: 'Boreal Glow',
     bgPrimary: '#053531',
-    bgSecondary: '#00524D',
+    bgSecondary: 'rgba(0, 82, 77, 0.4)',
     accent: '#CBEFEB',
+    bgGradient: 'linear-gradient(180deg, rgba(5, 53, 49, 1) 0%, rgba(0, 82, 77, 0.8) 100%)',
     textPrimary: '#FFFFFF',
     textSecondary: '#4BA89A',
     fontDisplay: "'Outfit', sans-serif",
@@ -48,8 +51,9 @@ export const themePresets: ThemePreset[] = [
     name: 'NFT Vibe',
     tagline: 'Digital Asset',
     bgPrimary: '#000000',
-    bgSecondary: '#1A0B2E',
+    bgSecondary: 'rgba(129, 22, 224, 0.15)',
     accent: '#D0FF00',
+    bgGradient: 'radial-gradient(circle at 50% -20%, rgba(129, 22, 224, 0.3) 0%, rgba(0,0,0,0) 70%)',
     textPrimary: '#FEFFFC',
     textSecondary: '#8116E0',
     fontDisplay: "'Space Grotesk', sans-serif",
@@ -60,8 +64,9 @@ export const themePresets: ThemePreset[] = [
     name: 'Glamour Tiffany',
     tagline: 'High-Fashion',
     bgPrimary: '#000000',
-    bgSecondary: '#171717',
+    bgSecondary: 'rgba(23, 23, 23, 0.8)',
     accent: '#21F1A8',
+    bgGradient: 'radial-gradient(circle at 50% 50%, rgba(33, 241, 168, 0.1) 0%, rgba(0,0,0,0) 60%)',
     textPrimary: '#F4FFFB',
     textSecondary: '#A3A3A3',
     fontDisplay: "'Syne', sans-serif",
@@ -73,9 +78,10 @@ export const themePresets: ThemePreset[] = [
     id: 'rx-78-vibe',
     name: 'RX-78-2 Vibe',
     tagline: 'Federation Prototype',
-    bgPrimary: '#F3F4F6',   // White Armor
-    bgSecondary: '#1E40AF', // Blue Shield
-    accent: '#EF4444',      // Red Core
+    bgPrimary: '#F3F4F6',   
+    bgSecondary: '#FFFFFF', 
+    accent: '#EF4444',      
+    bgGradient: 'linear-gradient(135deg, rgba(243, 244, 246, 1) 0%, rgba(229, 231, 235, 1) 100%)',
     textPrimary: '#111827',
     textSecondary: '#374151',
     fontDisplay: "'Orbitron', sans-serif",
@@ -85,9 +91,10 @@ export const themePresets: ThemePreset[] = [
     id: 'eva-01',
     name: 'Unit-01',
     tagline: 'Berserk Mode',
-    bgPrimary: '#0D0221',   // Deep Space
-    bgSecondary: '#2D005E', // Eva Purple
-    accent: '#A6FF00',      // Neon Green
+    bgPrimary: '#0D0221',   
+    bgSecondary: 'rgba(45, 0, 94, 0.5)', 
+    accent: '#A6FF00',      
+    bgGradient: 'radial-gradient(circle at bottom left, rgba(166, 255, 0, 0.1) 0%, rgba(45, 0, 94, 0.2) 40%, rgba(13, 2, 33, 1) 100%)',
     textPrimary: '#FFFFFF',
     textSecondary: '#BE95FF',
     fontDisplay: "'Syncopate', sans-serif",
@@ -97,9 +104,10 @@ export const themePresets: ThemePreset[] = [
     id: 'demon-slayer',
     name: 'Water Hashira',
     tagline: 'Total Concentration',
-    bgPrimary: '#0F172A',   // Midnight
-    bgSecondary: '#0E7490', // Deep Water
-    accent: '#22D3EE',      // Cyan Slash
+    bgPrimary: '#0F172A',   
+    bgSecondary: 'rgba(14, 116, 144, 0.3)', 
+    accent: '#22D3EE',      
+    bgGradient: 'linear-gradient(to bottom right, rgba(15, 23, 42, 1) 0%, rgba(14, 116, 144, 0.2) 100%)',
     textPrimary: '#F1F5F9',
     textSecondary: '#94A3B8',
     fontDisplay: "'Shippori Mincho', serif",
@@ -109,9 +117,10 @@ export const themePresets: ThemePreset[] = [
     id: 'solo-leveling',
     name: 'Shadow Monarch',
     tagline: 'Arise',
-    bgPrimary: '#000000',   // Abyss
-    bgSecondary: '#111111', // Shadow
-    accent: '#8B5CF6',      // Monarch Glow
+    bgPrimary: '#000000',   
+    bgSecondary: 'rgba(17, 17, 17, 0.8)', 
+    accent: '#8B5CF6',      
+    bgGradient: 'radial-gradient(circle at top center, rgba(139, 92, 246, 0.15) 0%, rgba(0, 0, 0, 1) 80%)',
     textPrimary: '#FFFFFF',
     textSecondary: '#6B7280',
     fontDisplay: "'Orbitron', sans-serif",
@@ -126,6 +135,7 @@ export const themePresets: ThemePreset[] = [
     bgPrimary: '#121212',
     bgSecondary: '#1A1A1A',
     accent: '#FF4500',
+    bgGradient: 'linear-gradient(180deg, rgba(18, 18, 18, 1) 0%, rgba(26, 26, 26, 1) 100%)',
     textPrimary: '#E5E5E5',
     textSecondary: '#737373',
     fontDisplay: "'Space Grotesk', sans-serif",
@@ -147,6 +157,7 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   
   root.style.setProperty('--bg-primary', theme.bgPrimary);
   root.style.setProperty('--bg-secondary', theme.bgSecondary);
+  root.style.setProperty('--bg-gradient', theme.bgGradient); // Apply the new gradient
   root.style.setProperty('--text-primary', theme.textPrimary);
   root.style.setProperty('--text-secondary', theme.textSecondary);
   root.style.setProperty('--accent', theme.accent);
