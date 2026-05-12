@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Send } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useScrollReveal } from '../hooks/useScrollReveal';
-import { Link } from 'react-router-dom';
 import FloatingCube from './FloatingCube';
 
 interface ContactContent {
@@ -91,7 +90,6 @@ export default function Contact() {
 
   return (
     <section id="contact" className="section-padding bg-black relative overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-      {/* Floating 3D Identities */}
       <FloatingCube type="Canva" size={80} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
       <FloatingCube type="Id" size={120} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
 
@@ -142,12 +140,13 @@ export default function Contact() {
                 <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-white/40">
                   Name
                 </label>
+                {/* APPLIED INPUT FIELD CLASS */}
                 <input
                   type="text"
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-none font-body focus:outline-none focus:border-white/20 transition-all bg-white/5 border border-white/10 text-white"
+                  className="input-field"
                   placeholder="Your name"
                 />
               </div>
@@ -155,12 +154,13 @@ export default function Contact() {
                 <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-white/40">
                   Email
                 </label>
+                {/* APPLIED INPUT FIELD CLASS */}
                 <input
                   type="email"
                   required
                   value={form.email}
                   readOnly
-                  className="w-full px-4 py-3 rounded-none font-body focus:outline-none transition-all bg-white/5 border border-white/10 text-white/50 cursor-not-allowed"
+                  className="input-field opacity-60 cursor-not-allowed"
                   placeholder="your@email.com"
                 />
               </div>
@@ -168,35 +168,37 @@ export default function Contact() {
                 <label className="block text-xs font-heading tracking-widest uppercase mb-2 text-white/40">
                   Message
                 </label>
+                {/* APPLIED INPUT FIELD CLASS */}
                 <textarea
                   required
                   rows={5}
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full px-4 py-3 rounded-none font-body focus:outline-none focus:border-white/20 transition-all bg-white/5 border border-white/10 text-white resize-none"
+                  className="input-field resize-none custom-scrollbar"
                   placeholder="Tell me about your project..."
                 />
               </div>
               <button
                 type="submit"
                 disabled={sending}
-                className="btn-primary w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {sending ? (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center justify-center gap-3">
                     <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Sending...
+                    <span>Sending...</span>
                   </span>
                 ) : sent ? (
-                  'Message Sent!'
+                  <span className="flex items-center justify-center">Message Sent!</span>
                 ) : (
-                  <>
-                    <Send size={16} />
-                    Send Message
-                  </>
+                  // STRICT FLEX ALIGNMENT FOR ICON AND TEXT
+                  <span className="flex items-center justify-center gap-3">
+                    <Send size={16} className="-mt-0.5" />
+                    <span>Send Message</span>
+                  </span>
                 )}
               </button>
             </form>
