@@ -8,13 +8,44 @@ import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
 import { loadSavedTheme } from './lib/themes';
 
+// FIXED: Added Atmosphere Engine Gradient Component for that fluid mesh look
+function AtmosphereGradient() {
+  return (
+    <div className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none" style={{ backgroundColor: '#030305' }}>
+      {/* Main Dynamic Blob - Tied to Dashboard Accent */}
+      <div 
+        className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] rounded-full opacity-40 blur-[120px] transition-colors duration-1000"
+        style={{ 
+          background: 'radial-gradient(circle, var(--accent) 0%, transparent 70%)',
+          filter: 'saturate(1.4)'
+        }}
+      />
+      {/* Secondary Depth Blob - Harmonized tint */}
+      <div 
+        className="absolute bottom-[-10%] right-[-5%] w-[70%] h-[70%] rounded-full opacity-20 blur-[100px] transition-colors duration-1000"
+        style={{ 
+          background: 'radial-gradient(circle, color-mix(in srgb, var(--accent), #7000ff 30%) 0%, transparent 70%)',
+        }}
+      />
+      {/* High-Key Highlight */}
+      <div 
+        className="absolute top-[20%] right-[10%] w-[50%] h-[50%] rounded-full opacity-15 blur-[110px] transition-colors duration-1000"
+        style={{ 
+          background: 'radial-gradient(circle, color-mix(in srgb, var(--accent), white 20%) 0%, transparent 70%)',
+        }}
+      />
+      {/* Global Vignette for deep edges */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.5)_100%)]" />
+    </div>
+  );
+}
+
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // FIX: Load the global theme as soon as the app starts
     loadSavedTheme();
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -33,8 +64,8 @@ function App() {
 
   if (loading) {
     return (
-      // FIXED: Removed bg-black. The global body background will handle this now.
       <div className="min-h-screen bg-transparent flex items-center justify-center">
+        <AtmosphereGradient />
         <span className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full" />
       </div>
     );
@@ -43,27 +74,29 @@ function App() {
   // Mandatory Login Wall
   if (!session) {
     return (
-      // FIXED: Removed inline styles. Let index.css do the work.
-      <main className="min-h-screen bg-transparent">
+      <main className="min-h-screen bg-transparent relative">
+        <AtmosphereGradient />
         <Login />
       </main>
     );
   }
 
-  // Admin View (Only you)
+  // Admin View
   if (isAdmin) {
     return (
-      // FIXED: Removed inline styles. Let index.css do the work.
-      <main className="min-h-screen bg-transparent">
+      <main className="min-h-screen bg-transparent relative">
+        <AtmosphereGradient />
         <AdminDashboard onLogout={() => setIsAdmin(false)} />
       </main>
     );
   }
 
-  // Homepage View (For authorized clients)
+  // Homepage View
   return (
-    // FIXED: Removed redundant inline backgrounds. bg-transparent ensures the body gradient shows.
     <main className="min-h-screen relative overflow-x-hidden bg-transparent">
+      {/* FIXED: Gradient placed here to cover all routes and allow glassmorphism to blur it */}
+      <AtmosphereGradient />
+      
       <Routes>
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
