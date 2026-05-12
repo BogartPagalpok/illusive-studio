@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* DEFAULT THEME (RX-78 Vibe) */
+    /* DEFAULT THEME */
     --bg-primary: #000000;
     --bg-secondary: rgba(255, 255, 255, 0.05); /* 30% Surface */
     --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 0, 122, 0.15) 0%, rgba(0,0,0,0) 70%);
@@ -73,39 +73,77 @@
     @apply py-24 lg:py-32;
   }
 
-  /* MASTER BUTTON - Using the 10% Accent Color */
+  /* --- MODERN GRADIENT BUTTONS --- */
   .btn-primary {
     font-family: var(--font-display);
-    background-color: var(--accent);
-    color: var(--accent-contrast); /* Switches between Black/White automatically */
-    @apply inline-flex items-center gap-2 px-8 py-4 font-bold
-           rounded-none uppercase tracking-[0.2em] text-[10px]
-           transition-all duration-500 hover:opacity-90
-           active:scale-95 shadow-[0_0_20px_rgba(0,0,0,0.3)];
+    @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold
+           uppercase tracking-[0.2em] text-[10px]
+           transition-all duration-300;
+    background: linear-gradient(135deg, var(--accent) 0%, rgba(255,255,255,0.2) 100%);
+    background-color: var(--accent); /* Fallback */
+    color: var(--accent-contrast);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px var(--accent);
+    filter: brightness(1.1);
   }
 
   .btn-outline {
     font-family: var(--font-display);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    @apply inline-flex items-center gap-2 px-8 py-4 font-bold
-           rounded-none uppercase tracking-[0.2em] text-[10px]
-           transition-all duration-500 hover:bg-accent hover:text-[var(--accent-contrast)];
+    @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold
+           uppercase tracking-[0.2em] text-[10px] border border-white/20
+           transition-all duration-300 backdrop-blur-md;
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.03);
   }
 
-  /* GLASSMORPHISM CARD - Using the 30% Secondary Color */
+  .btn-outline:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  /* --- MODERN GLASSMORPHISM CARDS --- */
   .card-dark {
+    @apply p-8 rounded-2xl relative overflow-hidden transition-all duration-500;
     background-color: var(--bg-secondary);
     color: var(--secondary-contrast);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    @apply p-8 transition-all duration-700 relative overflow-hidden;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   }
 
+  /* Hover Animation for Cards */
   .card-dark:hover {
-    border-color: var(--accent);
-    @apply shadow-[0_0_30px_rgba(0,0,0,0.4)];
+    transform: translateY(-8px);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px var(--accent);
+  }
+
+  /* Internal subtle gradient glow that appears on hover */
+  .card-dark::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at top right, var(--accent), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .card-dark:hover::before {
+    opacity: 0.08; 
+  }
+
+  .card-dark > * {
+    position: relative;
+    z-index: 1;
   }
 
   /* Typography Utilities */
