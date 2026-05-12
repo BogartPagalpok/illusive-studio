@@ -156,7 +156,7 @@ export default function Services() {
           <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
             {content.subtitle}
           </p>
-          <h2 className="font-bold tracking-tighter heading-lg" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="font-bold tracking-tighter heading-lg" style={{ color: '#ffffff' }}>
             {content.heading.split(' ').map((word, i, arr) => (
               <span key={i}>
                 {word === '&' ? <span className="text-accent">&</span> : word}
@@ -179,21 +179,22 @@ export default function Services() {
               <motion.div 
                 key={index} 
                 variants={itemVariants} 
-                className="group p-8 rounded-3xl border transition-all duration-500 backdrop-blur-3xl"
+                className="group p-8 rounded-3xl border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
                 style={{ 
-                  backgroundColor: 'rgba(10, 10, 12, 0.4)', 
-                  borderColor: 'rgba(255, 255, 255, 0.05)',
-                  boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)' 
+                   backgroundColor: 'rgba(255, 255, 255, 0.03)', 
+                   borderColor: 'rgba(255, 255, 255, 0.12)',
+                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
+                   WebkitBackdropFilter: 'blur(32px) saturate(180%)'
                 }}
               >
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 bg-[var(--text-primary)]/5 border border-[var(--text-primary)]/10 group-hover:scale-110 group-hover:bg-accent group-hover:border-accent group-hover:shadow-[0_0_20px_var(--accent)]">
                   <Icon size={28} className="text-accent transition-colors duration-500 group-hover:text-[var(--accent-contrast)]" />
                 </div>
                 
-                <h3 className="font-bold tracking-tighter text-xl mb-3 transition-colors duration-300 group-hover:text-accent" style={{ color: 'var(--text-primary)' }}>
+                <h3 className="font-bold tracking-tighter text-xl mb-3 transition-colors duration-300 group-hover:text-accent" style={{ color: '#ffffff' }}>
                   {service.title}
                 </h3>
-                <p className="text-sm leading-relaxed transition-colors duration-300 group-hover:text-[var(--text-primary)]" style={{ color: 'var(--text-secondary)' }}>
+                <p className="text-sm leading-relaxed transition-colors duration-300 group-hover:text-[#ffffff]" style={{ color: '#efefef' }}>
                   {service.description}
                 </p>
               </motion.div>
