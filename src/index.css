@@ -4,17 +4,31 @@
 
 @layer base {
   :root {
-    /* DEFAULT THEME */
+    /* DEFAULT THEME (DARK) */
     --bg-primary: #000000;
-    --bg-secondary: rgba(255, 255, 255, 0.05); /* 30% Surface */
+    --bg-secondary: rgba(255, 255, 255, 0.05); 
     --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 0, 122, 0.15) 0%, rgba(0,0,0,0) 70%);
     --text-primary: #FFFFFF;
     --text-secondary: #D1D5DB;
     --accent: #FF007A;
-    --accent-contrast: #FFFFFF; /* Dynamic text color for buttons */
+    --accent-contrast: #FFFFFF; 
     --secondary-contrast: #FFFFFF;
     --font-display: 'Orbitron', sans-serif;
     --font-sans: 'Inter', sans-serif;
+  }
+
+  /* FIX: Define the Light Theme variables here. 
+     This is what makes the "Contrast" actually work.
+  */
+  [data-theme='light'] {
+    --bg-primary: #F5F5F7;
+    --bg-secondary: #FFFFFF;
+    --bg-gradient: none;
+    --text-primary: #000000;
+    --text-secondary: #444446;
+    --accent: #FF3B30; 
+    --accent-contrast: #FFFFFF;
+    --secondary-contrast: #000000;
   }
 
   html {
@@ -38,13 +52,11 @@
     letter-spacing: 0.1em;
   }
 
-  /* Custom Selection Color based on Theme */
   ::selection {
     background-color: var(--accent);
     color: var(--accent-contrast);
   }
 
-  /* Modern Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -55,7 +67,6 @@
 
   ::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 0px;
     border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
@@ -79,16 +90,15 @@
     @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold flex items-center justify-center gap-3
            uppercase tracking-[0.2em] text-[10px]
            transition-all duration-300;
-    /* Hardcoded gradient bypasses variable inheritance issues */
-    background: linear-gradient(135deg, #FF007A 0%, #3B00FF 100%);
-    color: #FFFFFF;
-    box-shadow: 0 4px 15px rgba(255, 0, 122, 0.2);
+    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent), black 25%) 100%);
+    color: var(--accent-contrast);
+    box-shadow: 0 4px 15px color-mix(in srgb, var(--accent), transparent 80%);
     border: none;
   }
 
   .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px -5px #FF007A;
+    box-shadow: 0 10px 25px -5px var(--accent);
     filter: brightness(1.2);
   }
 
@@ -97,6 +107,7 @@
     @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold
            uppercase tracking-[0.2em] text-[10px] border border-white/20
            transition-all duration-300 backdrop-blur-md;
+    /* FIXED: Using text-primary so it turns black in light mode */
     color: var(--text-primary);
     background: rgba(255, 255, 255, 0.03);
   }
@@ -111,8 +122,10 @@
   /* --- CONTACT FORM INPUTS --- */
   .input-field {
     @apply w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4
-           text-white placeholder:text-white/30 focus:outline-none focus:border-[#FF007A]
            transition-all duration-300 backdrop-blur-md;
+    /* FIXED: Removed text-white; now uses variables for auto-contrast */
+    color: var(--text-primary);
+    @apply placeholder:text-opacity-30 focus:outline-none focus:border-[var(--accent)];
     font-family: var(--font-sans);
   }
 
@@ -120,6 +133,7 @@
   .card-dark {
     @apply p-8 rounded-2xl relative overflow-hidden transition-all duration-500;
     background-color: var(--bg-secondary);
+    /* FIXED: Using secondary-contrast for better theme adaptation */
     color: var(--secondary-contrast);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -127,14 +141,12 @@
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   }
 
-  /* Hover Animation for Cards */
   .card-dark:hover {
     transform: translateY(-8px);
     border-color: rgba(255, 255, 255, 0.15);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px var(--accent);
   }
 
-  /* Internal subtle gradient glow that appears on hover */
   .card-dark::before {
     content: '';
     position: absolute;
@@ -155,7 +167,6 @@
     z-index: 1;
   }
 
-  /* Typography Utilities */
   .heading-xl {
     @apply text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tighter;
   }
@@ -169,15 +180,10 @@
   }
 }
 
-/* ========================================
-   Swiper Fixes & Modern Transitions
-   ======================================== */
-
 .works-swiper {
   padding: 40px 0 80px !important;
 }
 
-/* Ensure mobile screens show fully */
 .works-swiper .swiper-slide img {
   @apply object-cover transition-transform duration-700;
 }
@@ -194,7 +200,6 @@
   @apply bg-[var(--accent)] w-12 h-1;
 }
 
-/* Custom Scrollbar for Admin Textareas */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
