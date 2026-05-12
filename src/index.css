@@ -3,32 +3,95 @@
 @tailwind utilities;
 
 @layer base {
+  /* 1. DEFAULT: VOID (Deep Web3 Purple) */
   :root {
-    /* DEFAULT THEME (DARK) */
-    --bg-primary: #000000;
-    --bg-secondary: rgba(255, 255, 255, 0.05); 
-    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 0, 122, 0.15) 0%, rgba(0,0,0,0) 70%);
-    --text-primary: #FFFFFF;
-    --text-secondary: #D1D5DB;
-    --accent: #FF007A;
+    --bg-primary: #030305;
+    --bg-secondary: rgba(255, 255, 255, 0.03); 
+    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(157, 0, 255, 0.15) 0%, rgba(3, 3, 5, 0) 70%);
+    --text-primary: #FAFAFA;
+    --text-secondary: #8E8E93;
+    --accent: #9D00FF;
     --accent-contrast: #FFFFFF; 
     --secondary-contrast: #FFFFFF;
-    --font-display: 'Orbitron', sans-serif;
-    --font-sans: 'Inter', sans-serif;
+    /* SYSTEM-NATIVE PREMIUM FONT STACK */
+    --font-display: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Arial Black", sans-serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif;
   }
 
-  /* FIX: Define the Light Theme variables here. 
-     This is what makes the "Contrast" actually work.
-  */
+  /* 2. LIGHT: CLEAN (App Interface / Cyber Pink) */
   [data-theme='light'] {
-    --bg-primary: #F5F5F7;
+    --bg-primary: #F0F0F3;
     --bg-secondary: #FFFFFF;
     --bg-gradient: none;
-    --text-primary: #000000;
-    --text-secondary: #444446;
-    --accent: #FF3B30; 
+    --text-primary: #09090B;
+    --text-secondary: #6B6B70;
+    --accent: #FF3366; 
     --accent-contrast: #FFFFFF;
-    --secondary-contrast: #000000;
+    --secondary-contrast: #09090B;
+  }
+
+  /* 3. MAGMA: AGGRESSIVE (Industrial Cyberpunk Orange) */
+  [data-theme='magma'] {
+    --bg-primary: #050303;
+    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 69, 0, 0.12) 0%, rgba(5, 3, 3, 0) 70%);
+    --accent: #FF4500;
+    --accent-contrast: #FFFFFF;
+  }
+
+  /* 4. TOXIC: TECHWEAR (Acid Lime) */
+  [data-theme='toxic'] {
+    --bg-primary: #030503;
+    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(57, 255, 20, 0.12) 0%, rgba(3, 5, 3, 0) 70%);
+    --accent: #D4FF00;
+    --accent-contrast: #000000;
+  }
+
+  /* 5. OCEAN: CRYPTO (Deep Sea Cyan) */
+  [data-theme='ocean'] {
+    --bg-primary: #010609;
+    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(0, 255, 255, 0.12) 0%, rgba(1, 6, 9, 0) 70%);
+    --accent: #00FFFF;
+    --accent-contrast: #000000;
+  }
+
+  /* 6. GOLD: LUXURY (Metallic NFT Gold) */
+  [data-theme='gold'] {
+    --bg-primary: #050402;
+    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 215, 0, 0.12) 0%, rgba(5, 4, 2, 0) 70%);
+    --accent: #FFD700;
+    --accent-contrast: #000000;
+  }
+
+  /* 7. SYNTH: RETROWAVE (Hot Pink) */
+  [data-theme='synth'] {
+    --bg-primary: #070205;
+    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 0, 128, 0.15) 0%, rgba(7, 2, 5, 0) 70%);
+    --accent: #FF0080;
+    --accent-contrast: #FFFFFF;
+  }
+
+  /* 8. GLITCH: HACKER (Crimson Red) */
+  [data-theme='glitch'] {
+    --bg-primary: #050000;
+    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(220, 20, 60, 0.15) 0%, rgba(5, 0, 0, 0) 70%);
+    --accent: #DC143C;
+    --accent-contrast: #FFFFFF;
+  }
+
+  /* 9. ICE: FROST (Arctic Blue) */
+  [data-theme='ice'] {
+    --bg-primary: #020508;
+    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(135, 206, 250, 0.12) 0%, rgba(2, 5, 8, 0) 70%);
+    --accent: #87CEFA;
+    --accent-contrast: #000000;
+  }
+
+  /* 10. BRUTAL: MONOCHROME (Pure High Contrast) */
+  [data-theme='brutal'] {
+    --bg-primary: #000000;
+    --bg-gradient: none;
+    --accent: #FFFFFF;
+    --accent-contrast: #000000;
   }
 
   html {
@@ -67,6 +130,7 @@
 
   ::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0px;
     border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
@@ -90,7 +154,8 @@
     @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold flex items-center justify-center gap-3
            uppercase tracking-[0.2em] text-[10px]
            transition-all duration-300;
-    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent), black 25%) 100%);
+    /* FIXED: 40% mix + !important for high-contrast deep gradients on all themes */
+    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent), black 40%) 100%) !important;
     color: var(--accent-contrast);
     box-shadow: 0 4px 15px color-mix(in srgb, var(--accent), transparent 80%);
     border: none;
@@ -107,7 +172,6 @@
     @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold
            uppercase tracking-[0.2em] text-[10px] border border-white/20
            transition-all duration-300 backdrop-blur-md;
-    /* FIXED: Using text-primary so it turns black in light mode */
     color: var(--text-primary);
     background: rgba(255, 255, 255, 0.03);
   }
@@ -123,7 +187,6 @@
   .input-field {
     @apply w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4
            transition-all duration-300 backdrop-blur-md;
-    /* FIXED: Removed text-white; now uses variables for auto-contrast */
     color: var(--text-primary);
     @apply placeholder:text-opacity-30 focus:outline-none focus:border-[var(--accent)];
     font-family: var(--font-sans);
@@ -133,7 +196,6 @@
   .card-dark {
     @apply p-8 rounded-2xl relative overflow-hidden transition-all duration-500;
     background-color: var(--bg-secondary);
-    /* FIXED: Using secondary-contrast for better theme adaptation */
     color: var(--secondary-contrast);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
