@@ -68,18 +68,18 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* THE OVERLAY WATERMARK: Absolute positioned to ignore grid constraints */}
+          {/* THE OVERLAY WATERMARK: Justified right, matched opacity */}
           <h2 
-            className="absolute bottom-[75px] right-8 md:right-12 text-6xl md:text-8xl lg:text-9xl font-heading font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
+            className="absolute bottom-[72px] right-8 md:right-12 text-7xl md:text-9xl lg:text-[10vw] font-heading font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
             style={{ 
-              opacity: 0.9,
+              opacity: 0.8,
               marginRight: '-0.04em'
             }}
           >
             IAN LESTER
           </h2>
 
-          {/* TOP GRID (Content is now relative z-10 to sit above overlay if needed) */}
+          {/* TOP GRID */}
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-start mb-20 md:mb-24">
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2 mb-3">
@@ -90,6 +90,8 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
               <p className="text-[11px] mb-5 max-w-sm leading-relaxed text-white/60">{content.hook_desc}</p>
               <button onClick={() => scrollToSection('contact')} className="btn-primary text-[10px] px-6 py-3 uppercase tracking-widest font-bold" style={{ background: 'var(--accent)', color: '#000000' }}>Book a Call</button>
             </div>
+
+            <div className="hidden lg:block" />
 
             <div>
                <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white">Navigation</h4>
@@ -118,8 +120,8 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             </div>
           </div>
             
-          {/* THE FLARE LINE: Clear divider sitting underneath the overlay name */}
-          <div className="relative z-10 mt-2 pt-6 border-t border-white/20 flex justify-between items-center text-[9px] uppercase tracking-widest opacity-60 font-bold text-white">
+          {/* THE FLARE LINE: Matched opacity (80%) */}
+          <div className="relative z-10 mt-2 pt-6 border-t border-white flex justify-between items-center text-[9px] uppercase tracking-widest font-bold text-white" style={{ borderColor: 'rgba(255, 255, 255, 0.8)', opacity: 0.8 }}>
             <button onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{content.copyright}</button>
             <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors">Back to Top ↑</button>
           </div>
