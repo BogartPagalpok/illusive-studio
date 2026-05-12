@@ -73,16 +73,17 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
               className="text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-none text-white tracking-tighter" 
               style={{ 
                 opacity: 0.6,
-                marginRight: '-0.06em' 
+                marginRight: '-0.07em' 
               }}
             >
               IAN LESTER
             </h2>
           </div>
 
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-start mb-16 md:mb-20">
-            {/* HOOK SECTION - Spans 2 columns to ground the left side */}
-            <div className="lg:col-span-2">
+          {/* EQUAL 4-COLUMN GRID DISTRIBUTION */}
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 items-start mb-16 md:mb-20">
+            {/* Col 1: Hook */}
+            <div>
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles size={14} className="text-accent" />
                 <span className="text-[10px] uppercase tracking-widest text-accent font-bold">Let's Talk</span>
@@ -92,28 +93,32 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
               <button onClick={() => scrollToSection('contact')} className="btn-primary text-[10px] px-6 py-3 uppercase tracking-widest font-bold" style={{ background: 'var(--accent)', color: '#000000' }}>Book a Call</button>
             </div>
 
-            {/* NAVIGATION COLUMN - Positioned to fill the center space */}
-            <div className="lg:pl-8">
+            {/* Col 2: Navigation */}
+            <div className="lg:pl-4">
                <h4 className="text-[9px] uppercase tracking-widest mb-6 font-bold opacity-30 text-white">Navigation</h4>
-               <ul className="space-y-4 text-[11px] text-white/80">
+               <ul className="space-y-4 text-[11px] text-white/80 font-bold uppercase">
                  {['Home', 'Services', 'Works', 'About'].map(item => (
-                   <li key={item}><button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors font-bold uppercase">{item}</button></li>
+                   <li key={item}><button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors">{item}</button></li>
                  ))}
                </ul>
             </div>
 
-            {/* CONTACT & CONNECT COLUMN - Positioned on the far right */}
-            <div>
-               <h4 className="text-[9px] uppercase tracking-widest mb-6 font-bold opacity-30 text-white">Contact & Connect</h4>
+            {/* Col 3: Contact (Separate Column) */}
+            <div className="lg:pl-4">
+               <h4 className="text-[9px] uppercase tracking-widest mb-6 font-bold opacity-30 text-white">Contact</h4>
                <ul className="space-y-4 text-[11px] text-white/80 font-bold">
                  <li className="flex items-center gap-3"><Mail size={12} className="text-accent" /> {content.email}</li>
-                 <li className="flex items-center gap-3 mb-6"><Phone size={12} className="text-accent" /> {content.phone}</li>
-                 
-                 <li className="flex flex-col gap-4 pt-2">
-                    <a href={content.instagram} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors"><Instagram size={12} /> Instagram</a>
-                    <a href={content.github} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors"><Github size={12} /> GitHub</a>
-                    <a href={content.facebook} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors"><Facebook size={12} /> Facebook</a>
-                 </li>
+                 <li className="flex items-center gap-3"><Phone size={12} className="text-accent" /> {content.phone}</li>
+               </ul>
+            </div>
+
+            {/* Col 4: Connect (Separate Column) */}
+            <div className="lg:pl-4">
+               <h4 className="text-[9px] uppercase tracking-widest mb-6 font-bold opacity-30 text-white">Connect</h4>
+               <ul className="space-y-4 text-[11px] text-white/80 font-bold">
+                  <li><a href={content.instagram} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors"><Instagram size={12} /> Instagram</a></li>
+                  <li><a href={content.github} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors"><Github size={12} /> GitHub</a></li>
+                  <li><a href={content.facebook} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors"><Facebook size={12} /> Facebook</a></li>
                </ul>
             </div>
           </div>
