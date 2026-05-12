@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { Mail, Phone, Instagram, Github, Facebook, Sparkles } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -61,18 +60,18 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
   useEffect(() => {
     const ctx = gsap.context(() => {
       if (watermarkRef.current) {
-        // Playful drift animation
+        // Playful drift animation - subtle and horizontal
         gsap.to(watermarkRef.current, {
-          x: 40,
-          duration: 6,
+          x: 50,
+          duration: 8,
           repeat: -1,
           yoyo: true,
           ease: "sine.inOut"
         });
 
-        // Suble scroll reaction
-        gsap.fromTo(watermarkRef.current, { y: 10 }, {
-          y: -10,
+        // Slight lift as you reach the very bottom
+        gsap.fromTo(watermarkRef.current, { y: 15 }, {
+          y: -5,
           scrollTrigger: {
             trigger: footerRef.current,
             start: 'top bottom',
@@ -103,17 +102,18 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* THE CIRCLE AREA WATERMARK: Sitting exactly above the divider line */}
+          {/* THE WATERMARK: Fixed to sit exactly in the gap above the divider line */}
           <div 
             ref={watermarkRef} 
-            className="absolute bottom-[80px] left-0 w-full z-0 flex items-center justify-center pointer-events-none select-none"
+            className="absolute bottom-0 left-0 w-full h-[180px] z-0 flex items-center justify-center pointer-events-none select-none"
           >
             <h2 
-              className="text-[10vw] font-heading font-black tracking-[0.4em] uppercase opacity-[0.06]" 
+              className="text-[12vw] font-heading font-black tracking-[0.1em] uppercase opacity-[0.05]" 
               style={{ 
                 color: '#ffffff', 
-                filter: 'blur(1px)',
-                lineHeight: 1
+                filter: 'blur(1.5px)',
+                lineHeight: 0.8,
+                marginTop: '40px' // Adjusts the vertical "centering" within the gap
               }}
             >
               IAN LESTER
@@ -158,7 +158,8 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             </div>
           </div>
 
-          <div className="relative z-10 mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest">
+          {/* Copyright Bar */}
+          <div className="relative z-10 mt-24 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest">
             <button style={{ color: 'rgba(255, 255, 255, 0.3)' }} onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{content.copyright}</button>
             <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Back to Top ↑</button>
           </div>
