@@ -133,7 +133,10 @@ export default function Services() {
   }, []);
 
   return (
-    <section id="services" ref={sectionRef} className="section-padding bg-transparent relative overflow-hidden">
+    <section ref={sectionRef} className="section-padding relative overflow-visible z-40 bg-transparent">
+      {/* ANCHOR FIX */}
+      <div id="services" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
+
       {/* Floating 3D Identities */}
       <FloatingCube type="Ps" size={120} top="10%" right="5%" blur="4px" delay={0.5} duration={7} />
       <FloatingCube type="Ai" size={60} bottom="20%" left="5%" blur="1px" delay={1.5} duration={5} />
@@ -141,10 +144,6 @@ export default function Services() {
       {/* Parallax depth layer */}
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
-        <div className="absolute top-20 -left-32 text-[14vw] font-heading font-black tracking-widest uppercase select-none whitespace-nowrap text-[var(--text-primary)] opacity-5">
-        </div>
-        <div className="absolute bottom-10 right-0 text-[8vw] font-heading font-black tracking-widest uppercase select-none whitespace-nowrap text-[var(--text-primary)] opacity-5">
-        </div>
       </div>
 
       <div ref={ref} className="section-container relative">
@@ -177,16 +176,24 @@ export default function Services() {
           {servicesData.map((service, index) => {
             const Icon = service.icon;
             return (
-              <motion.div key={index} variants={itemVariants} className="card-dark group">
-                
+              <motion.div 
+                key={index} 
+                variants={itemVariants} 
+                className="group p-8 rounded-3xl border transition-all duration-500 backdrop-blur-3xl"
+                style={{ 
+                   backgroundColor: 'rgba(10, 10, 12, 0.4)', 
+                   borderColor: 'rgba(255, 255, 255, 0.05)',
+                   boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                }}
+              >
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 bg-[var(--text-primary)]/5 border border-[var(--text-primary)]/10 group-hover:scale-110 group-hover:bg-accent group-hover:border-accent group-hover:shadow-[0_0_20px_var(--accent)]">
-                  <Icon size={28} className="text-accent transition-colors duration-500 group-hover:text-[var(--accent-contrast)] drop-shadow-md" />
+                  <Icon size={28} className="text-accent transition-colors duration-500 group-hover:text-[var(--accent-contrast)]" />
                 </div>
                 
-                <h3 className="text-[var(--text-primary)] font-bold tracking-tighter heading-md mb-3 text-xl transition-colors duration-300 group-hover:text-accent">
+                <h3 className="font-bold tracking-tighter text-xl mb-3 transition-colors duration-300 group-hover:text-accent" style={{ color: 'var(--text-primary)' }}>
                   {service.title}
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm leading-relaxed group-hover:text-[var(--text-primary)] transition-colors duration-300">
+                <p className="text-sm leading-relaxed transition-colors duration-300 group-hover:text-[var(--text-primary)]" style={{ color: 'var(--text-secondary)' }}>
                   {service.description}
                 </p>
               </motion.div>
