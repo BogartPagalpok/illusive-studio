@@ -67,21 +67,23 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
             WebkitBackdropFilter: 'blur(32px) saturate(180%)'
           }}
         >
-          {/* WATERMARK: Exact 15px Gap above the line, Flush Right Alignment */}
-          <h2 
-            className="absolute bottom-[83px] right-8 md:right-12 text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter uppercase leading-none text-white pointer-events-none select-none z-0" 
-            style={{ 
-              opacity: 0.6,
-              textAlign: 'right'
-            }}
-          >
-            IAN LESTER
-          </h2>
+          {/* WATERMARK: Exact 15px Gap and Forced Flush Right Alignment */}
+          <div className="absolute bottom-[83px] left-0 w-full flex justify-end px-8 md:px-12 pointer-events-none select-none z-0">
+            <h2 
+              className="text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-none text-white tracking-tighter" 
+              style={{ 
+                opacity: 0.6,
+                marginRight: '-0.07em' // Compensates for the font's internal character padding on 'R'
+              }}
+            >
+              IAN LESTER
+            </h2>
+          </div>
 
-          {/* 3-COLUMN GRID STRUCTURE */}
+          {/* 3-COLUMN GRID: Perfectly Aligned */}
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 items-start mb-16 md:mb-20">
-            {/* Col 1: Hook */}
-            <div className="pr-4">
+            {/* Hook Column */}
+            <div>
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles size={14} className="text-accent" />
                 <span className="text-[10px] uppercase tracking-widest text-accent font-bold">Let's Talk</span>
@@ -91,30 +93,33 @@ export default function Footer({ onAdminTrigger }: FooterProps) {
               <button onClick={() => scrollToSection('contact')} className="btn-primary text-[10px] px-6 py-3 uppercase tracking-widest font-bold" style={{ background: 'var(--accent)', color: '#000000' }}>Book a Call</button>
             </div>
 
-            {/* Col 2: Navigation */}
+            {/* Navigation Column */}
             <div>
-               <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white">Navigation</h4>
-               <ul className="space-y-2 text-[11px] text-white/80">
+               <h4 className="text-[9px] uppercase tracking-widest mb-6 font-bold opacity-30 text-white">Navigation</h4>
+               <ul className="space-y-4 text-[11px] text-white/80">
                  {['Home', 'Services', 'Works', 'About'].map(item => (
                    <li key={item}><button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors">{item}</button></li>
                  ))}
                </ul>
             </div>
 
-            {/* Col 3: Contact & Connect Unified */}
+            {/* Contact & Connect Column (Unified horizontally) */}
             <div>
-               <h4 className="text-[9px] uppercase tracking-widest mb-4 font-bold opacity-30 text-white">Contact</h4>
-               <ul className="space-y-4 text-[11px] text-white/80">
-                 <li className="flex items-center gap-2"><Mail size={12} className="text-accent" /> {content.email}</li>
-                 <li className="flex items-center gap-2 mb-4"><Phone size={12} className="text-accent" /> {content.phone}</li>
+               <h4 className="text-[9px] uppercase tracking-widest mb-6 font-bold opacity-30 text-white">Contact & Connect</h4>
+               <div className="space-y-6">
+                 {/* Contact Details */}
+                 <ul className="space-y-4 text-[11px] text-white/80">
+                   <li className="flex items-center gap-3"><Mail size={12} className="text-accent" /> {content.email}</li>
+                   <li className="flex items-center gap-3"><Phone size={12} className="text-accent" /> {content.phone}</li>
+                 </ul>
                  
-                 {/* Socials Divider flare */}
-                 <li className="pt-4 border-t border-white/10 flex flex-col gap-3">
-                    <a href={content.instagram} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors"><Instagram size={12} /> Instagram</a>
-                    <a href={content.github} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors"><Github size={12} /> GitHub</a>
-                    <a href={content.facebook} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors"><Facebook size={12} /> Facebook</a>
-                 </li>
-               </ul>
+                 {/* Connect Details (No extra border/divider here) */}
+                 <ul className="space-y-4 text-[11px] text-white/80">
+                    <li><a href={content.instagram} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors"><Instagram size={12} /> Instagram</a></li>
+                    <li><a href={content.github} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors"><Github size={12} /> GitHub</a></li>
+                    <li><a href={content.facebook} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors"><Facebook size={12} /> Facebook</a></li>
+                 </ul>
+               </div>
             </div>
           </div>
             
