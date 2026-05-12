@@ -13,7 +13,6 @@ import { motion } from 'framer-motion';
 function AtmosphereGradient() {
   return (
     <div className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none bg-[#020204]">
-      {/* Hardware-accelerated blobs using will-change-transform */}
       <motion.div 
         animate={{
           x: ['-5%', '5%', '-5%'],
@@ -39,7 +38,6 @@ function AtmosphereGradient() {
         }}
       />
 
-      {/* Static deep vignette for focus (Zero lag) */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.85)_100%)]" />
     </div>
   );
@@ -50,38 +48,45 @@ function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // Reusable sync function to prevent code duplication
+  const syncUserTheme = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('theme_preference')
+        .eq('id', userId)
+        .single();
+
+      if (!error && data?.theme_preference) {
+        document.documentElement.setAttribute('data-theme', data.theme_preference);
+        localStorage.setItem('theme', data.theme_preference);
+      }
+    } catch (err) {
+      console.warn('Theme sync failed.');
+    }
+  };
+
   useEffect(() => {
-    // Initial local load for instant UI feel
     loadSavedTheme();
 
     const initAuthAndTheme = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
 
-      // SYNC THEME FROM DATABASE: Ensures consistency across all devices
       if (session?.user) {
-        try {
-          const { data, error } = await supabase
-            .from('user_profiles')
-            .select('theme_preference')
-            .eq('id', session.user.id)
-            .single();
-
-          if (!error && data?.theme_preference) {
-            document.documentElement.setAttribute('data-theme', data.theme_preference);
-            localStorage.setItem('theme', data.theme_preference);
-          }
-        } catch (err) {
-          console.warn('Profile fetch failed, defaulting to local theme.');
-        }
+        await syncUserTheme(session.user.id);
       }
       setLoading(false);
     };
 
     initAuthAndTheme();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
+      // SYNC ON AUTH CHANGE: Fixes the issue where theme doesn't update on login/session refresh
+      if (session?.user) {
+        await syncUserTheme(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
