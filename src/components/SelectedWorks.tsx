@@ -5,7 +5,6 @@ import { X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
-// Swiper Styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -41,10 +40,10 @@ export default function SelectedWorks() {
 
         if (dbError) throw dbError;
         
+        console.log(`Debug: Found ${data?.length || 0} projects in DB`);
         setProjects(data || []);
         setFilteredProjects(data || []);
       } catch (err: any) {
-        console.error("Supabase Connection Error:", err.message);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -72,16 +71,16 @@ export default function SelectedWorks() {
   if (loading) return (
     <div className="h-96 flex flex-col items-center justify-center bg-black gap-4">
       <Loader2 className="w-10 h-10 text-accent animate-spin" />
-      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Syncing with Database...</p>
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Syncing Engine...</p>
     </div>
   );
 
   if (error) return (
-    <div className="h-96 flex flex-col items-center justify-center bg-black p-8 text-center">
-      <p className="text-red-500 font-black uppercase tracking-widest text-sm mb-2">Schema Mismatch or RLS Lock</p>
+    <div className="h-96 flex flex-col items-center justify-center bg-black p-8 text-center border border-red-500/20">
+      <p className="text-red-500 font-black uppercase tracking-widest text-sm mb-2">Sync Failed</p>
       <p className="text-white/40 text-xs max-w-md mb-6">{error}</p>
       <button onClick={() => window.location.reload()} className="px-8 py-3 border border-white/20 text-white text-[10px] font-black uppercase hover:border-accent hover:text-accent transition-all">
-        Restart Sync
+        Retry Sync
       </button>
     </div>
   );
@@ -89,8 +88,6 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="py-24 bg-black overflow-hidden relative">
       <div className="section-container">
-        
-        {/* GENRE/CATEGORY FILTER */}
         <div className="flex flex-wrap gap-4 mb-16 justify-center">
           {CATEGORIES.map((cat) => (
             <button
@@ -107,7 +104,6 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* WORKS SLIDER */}
         {filteredProjects.length > 0 ? (
           <Swiper
             modules={[Navigation, Pagination, EffectCoverflow]}
@@ -141,12 +137,12 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
         ) : (
-          <div className="h-64 flex items-center justify-center text-white/10 uppercase font-black tracking-[0.4em] border border-white/5 border-dashed">
-            Empty Genre Cache
+          <div className="h-64 flex flex-col items-center justify-center text-white/10 border border-white/5 border-dashed">
+            <span className="uppercase font-black tracking-[0.4em] mb-2">Zero Assets Found</span>
+            <span className="text-[10px] lowercase">Check database tables or RLS policies</span>
           </div>
         )}
 
-        {/* SLIDER NAVIGATION */}
         <div className="flex justify-center gap-6 mt-8">
           <button className="swiper-prev p-4 border border-white/10 hover:border-accent hover:text-accent transition-all text-white rounded-full">
             <ChevronLeft size={24} />
@@ -157,7 +153,6 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* PROJECT LIGHTBOX */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
@@ -174,9 +169,9 @@ export default function SelectedWorks() {
               <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
                 <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">{selectedProject.category}</span>
                 <h2 className="text-white text-5xl md:text-7xl font-black uppercase mt-4 leading-none">{selectedProject.title}</h2>
-                <p className="text-white/60 mt-8 text-lg leading-relaxed font-light">{selectedProject.description || "Cinematic visual design."}</p>
+                <p className="text-white/60 mt-8 text-lg leading-relaxed font-light">{selectedProject.description || "Visual asset."}</p>
                 <button className="mt-12 bg-accent text-black px-10 py-4 font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
-                  Launch Project
+                  Launch Case Study
                 </button>
               </motion.div>
             </div>
