@@ -16,7 +16,7 @@ export default function Navbar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
 
-  // Memoized fetch to prevent re-renders/leaks
+  // 1. Memoized fetch to prevent re-renders and dependency loops
   const fetchContent = useCallback(async () => {
     try {
       const { data } = await supabase
@@ -40,10 +40,11 @@ export default function Navbar() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // 2. Handle background blur on scroll
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', onScroll, { passive: true });
 
-    // Observer for body lock (View Project Modal)
+    // 3. Observer for body lock (Triggers when View Project Modal is open)
     const checkModal = () => {
       setIsModalOpen(document.body.style.overflow === 'hidden');
     };
@@ -53,6 +54,7 @@ export default function Navbar() {
 
     fetchContent();
 
+    // 4. Cleanup to prevent memory leaks
     return () => {
       window.removeEventListener('scroll', onScroll);
       observer.disconnect();
@@ -66,20 +68,25 @@ export default function Navbar() {
       } ${isModalOpen ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100 translate-y-0'}`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6">
+        {/* LOGO */}
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
-          className="font-heading font-black text-xl tracking-wider uppercase text-white"
+          className="font-heading font-black text-xl tracking-wider uppercase text-white group"
         >
-          {content.logo_text}
+          {content.logo_text.includes('.') ? (
+            <>
+              {content.logo_text.split('.')[0]}<span className="text-accent">.</span>{content.logo_text.split('.')[1]}
+            </>
+          ) : content.logo_text}
         </button>
 
-        {/* DESKTOP NAV */}
+        {/* DESKTOP LINKS */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <a 
               key={link.href} 
               href={link.href} 
-              className="text-xs font-heading font-bold tracking-[0.2em] uppercase text-white/60 hover:text-accent transition-all"
+              className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-white/60 hover:text-accent transition-all"
             >
               {link.label}
             </a>
@@ -92,7 +99,7 @@ export default function Navbar() {
           </a>
         </div>
 
-        {/* MOBILE TOGGLE */}
+        {/* MOBILE MENU TOGGLE */}
         <button 
           onClick={() => setMobileOpen(!mobileOpen)} 
           className="md:hidden text-white p-2"
@@ -101,14 +108,14 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* MOBILE MENU IMPLEMENTATION */}
+      {/* MOBILE MENU OVERLAY */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-20 left-0 w-full bg-black/95 backdrop-blur-xl border-t border-white/10 md:hidden"
+            className="absolute top-20 left-0 w-full bg-black/95 backdrop-blur-2xl border-t border-white/10 md:hidden overflow-hidden"
           >
             <div className="flex flex-col p-8 gap-6">
               {navLinks.map((link) => (
