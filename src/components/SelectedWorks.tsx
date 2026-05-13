@@ -15,8 +15,7 @@ interface Project {
   category: string;
   description: string;
   image_url: string;
-  process?: string;
-  tools?: string[]; // Matches your DB text[]
+  tools?: string[];
   all_images?: string[];
 }
 
@@ -28,26 +27,11 @@ export default function SelectedWorks() {
   const [zoom, setZoom] = useState(1);
   const swiperRef = useRef<SwiperType | null>(null);
 
-  // Navbar Toggle Fix for Build
   useEffect(() => {
-    const nav = document.querySelector('nav') as HTMLElement | null;
-    if (!nav) return;
-    if (selectedProject) {
-      document.body.style.overflow = 'hidden';
-      nav.style.transform = 'translateY(-100%)';
-      nav.style.opacity = '0';
-    } else {
-      document.body.style.overflow = 'unset';
-      nav.style.transform = 'translateY(0)';
-      nav.style.opacity = '1';
-    }
-  }, [selectedProject]);
-
-  useEffect(() => {
-    const fetchData = async () => {
+    const fetchProjects = async () => {
       const { data } = await supabase
         .from('portfolio_projects')
-        .select('id, title, category, description, image_url, process, tools')
+        .select('*')
         .eq('featured', true)
         .order('created_at', { ascending: false });
 
@@ -69,49 +53,61 @@ export default function SelectedWorks() {
         setProjects(Object.values(grouped));
       }
     };
-    fetchData();
+    fetchProjects();
   }, []);
 
   return (
-    <section id="works" className="relative h-screen w-full bg-black overflow-hidden flex flex-col justify-between">
+    <section id="works" className="relative h-screen w-full bg-[#0a0a0a] overflow-hidden flex flex-col justify-end">
       
-      {/* 1. DYNAMIC BG (Syncs to Carousel) */}
+      {/* 1. THEME-SYNCED BILLBOARD BG */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
           {projects.length > 0 && (
             <motion.div
               key={projects[activeIndex]?.id}
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               className="absolute inset-0"
             >
               <img 
                 src={projects[activeIndex]?.image_url} 
-                className="h-full w-full object-cover brightness-[0.2] grayscale-[30%]" 
+                className="h-full w-full object-cover" 
                 alt="bg"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
+              
+              {/* THEME GRADIENT TINT: From Theme-Black to Transparent */}
+              {/* Uses your accent color for a subtle atmospheric bleed (low opacity) */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+              
+              {/* ACCENT COLOR GLOW (Left side only) */}
+              <div className="absolute inset-y-0 left-0 w-1/3 bg-accent/5 blur-[120px] pointer-events-none" />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* 2. HERO SECTION */}
-      <div className="relative z-20 flex-1 flex flex-col justify-center px-6 md:px-16 pt-20">
+      {/* 2. LOWER-LEFT HERO CONTENT (Flush with Cards) */}
+      <div className="relative z-20 w-full px-6 md:px-16 mb-4">
         <AnimatePresence mode="wait">
           {projects.length > 0 && (
             <motion.div
               key={`hero-${projects[activeIndex]?.id}`}
-              initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
               className="max-w-4xl"
             >
-              <p className="text-accent text-[10px] md:text-xs tracking-[0.5em] uppercase font-black italic mb-4">
-                {projects[activeIndex]?.category}
-              </p>
-              <h2 className="text-5xl md:text-[7rem] font-black text-white uppercase tracking-tighter leading-[0.85] italic mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="h-[2px] w-8 bg-accent" />
+                <p className="text-accent text-[10px] md:text-xs tracking-[0.5em] uppercase font-black italic">
+                  {projects[activeIndex]?.category}
+                </p>
+              </div>
+              <h2 className="text-4xl md:text-6xl lg:text-[7vw] font-black text-white uppercase tracking-tighter leading-[0.8] italic mb-4">
                 {projects[activeIndex]?.title}
               </h2>
-              <p className="text-white/50 text-sm md:text-lg italic max-w-2xl line-clamp-2 leading-relaxed">
+              <p className="text-white/80 text-sm md:text-lg italic max-w-xl line-clamp-3 leading-relaxed">
                 {projects[activeIndex]?.description}
               </p>
             </motion.div>
@@ -119,24 +115,24 @@ export default function SelectedWorks() {
         </AnimatePresence>
       </div>
 
-      {/* 3. BOTTOM CAROUSEL */}
+      {/* 3. CAROUSEL ROW */}
       <div className="relative z-20 w-full pb-10 px-6 md:px-16">
-        <h3 className="text-white/40 text-[9px] uppercase tracking-[0.4em] font-black mb-4 italic">Projects</h3>
         <Swiper
           onSwiper={(s) => { swiperRef.current = s; }}
           onSlideChange={(s) => setActiveIndex(s.realIndex)}
           modules={[Navigation]}
+          navigation={true}
           slidesPerView="auto"
-          spaceBetween={15}
-          loop={projects.length > 3}
-          className="!overflow-visible"
+          spaceBetween={12}
+          loop={projects.length > 4}
+          className="!overflow-visible desktop-swiper-fix"
         >
           {projects.map((project, idx) => (
-            <SwiperSlide key={project.id} style={{ width: 'min(280px, 50vw)' }}>
+            <SwiperSlide key={project.id} style={{ width: 'min(260px, 45vw)' }}>
               <div 
                 onClick={() => setSelectedProject(project)}
-                className={`relative aspect-[16/9] rounded-md overflow-hidden cursor-pointer border transition-all duration-300 ${
-                  activeIndex === idx ? 'border-white/60' : 'border-white/5 opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
+                className={`relative aspect-[16/9] rounded-lg overflow-hidden cursor-pointer border-2 transition-all duration-300 ${
+                  activeIndex === idx ? 'border-accent shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]' : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
                 }`}
               >
                 <img src={project.image_url} className="w-full h-full object-cover" alt="thumb" />
@@ -146,45 +142,41 @@ export default function SelectedWorks() {
         </Swiper>
       </div>
 
-      {/* 4. PRO VIEWER MODAL */}
+      {/* 4. PRO MODAL (Locked Zoom/Pan) */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[10000] bg-black/98 backdrop-blur-3xl flex flex-col"
+            className="fixed inset-0 z-[10000] bg-[#0a0a0a]/95 flex flex-col"
           >
-            <div className="flex justify-between items-center p-8 z-[10002]">
-               <div className="text-white uppercase font-black italic tracking-widest text-xl">{selectedProject.title}</div>
-               <div className="flex gap-4">
-                  <button onClick={() => setZoom(z => Math.max(z - 0.5, 1))} className="p-3 bg-white/5 rounded-full text-white border border-white/10"><ZoomOut size={18}/></button>
-                  <button onClick={() => setZoom(z => Math.min(z + 0.5, 4))} className="p-3 bg-white/5 rounded-full text-white border border-white/10"><ZoomIn size={18}/></button>
-                  <button onClick={() => {setSelectedProject(null); setZoom(1);}} className="p-3 bg-white/20 rounded-full text-white ml-4"><X size={18}/></button>
+            <div className="flex justify-between items-center p-6 z-[10002] bg-gradient-to-b from-[#0a0a0a] to-transparent">
+               <div className="text-white uppercase font-black italic tracking-widest text-lg">{selectedProject.title}</div>
+               <div className="flex gap-3">
+                  <button onClick={() => setZoom(z => Math.max(z - 0.5, 1))} className="p-2 bg-white/5 rounded-full text-white border border-white/10 hover:bg-accent hover:text-black transition-colors"><ZoomOut size={18}/></button>
+                  <button onClick={() => setZoom(z => Math.min(z + 0.5, 4))} className="p-2 bg-white/5 rounded-full text-white border border-white/10 hover:bg-accent hover:text-black transition-colors"><ZoomIn size={18}/></button>
+                  <button onClick={() => {setSelectedProject(null); setZoom(1);}} className="p-2 bg-accent rounded-full text-black ml-4"><X size={18}/></button>
                </div>
             </div>
 
             <div className="relative flex-1 flex items-center justify-center overflow-hidden">
-               <button onClick={() => setCurrentImageIndex(prev => (prev - 1 + (selectedProject.all_images?.length || 1)) % (selectedProject.all_images?.length || 1))} className="absolute left-6 z-[10002] p-4 bg-black/40 rounded-full text-white"><ChevronLeft size={28}/></button>
-               <button onClick={() => setCurrentImageIndex(prev => (prev + 1) % (selectedProject.all_images?.length || 1))} className="absolute right-6 z-[10002] p-4 bg-black/40 rounded-full text-white"><ChevronRight size={28}/></button>
+               <button onClick={() => setCurrentImageIndex(prev => (prev - 1 + (selectedProject.all_images?.length || 1)) % (selectedProject.all_images?.length || 1))} className="absolute left-6 z-[10002] p-4 bg-[#0a0a0a]/50 rounded-full text-white hover:bg-accent hover:text-black transition-all"><ChevronLeft size={24}/></button>
+               <button onClick={() => setCurrentImageIndex(prev => (prev + 1) % (selectedProject.all_images?.length || 1))} className="absolute right-6 z-[10002] p-4 bg-[#0a0a0a]/50 rounded-full text-white hover:bg-accent hover:text-black transition-all"><ChevronRight size={24}/></button>
 
-               <div className="w-full h-full flex items-center justify-center overflow-hidden">
+               <div className="w-full h-full flex items-center justify-center">
                  <motion.div 
                    drag={zoom > 1}
-                   className="relative flex items-center justify-center cursor-move"
+                   dragConstraints={{ left: -400 * zoom, right: 400 * zoom, top: -400 * zoom, bottom: 400 * zoom }}
+                   dragElastic={0} 
+                   className="relative flex items-center justify-center"
                  >
                    <motion.img 
                      key={currentImageIndex}
                      animate={{ scale: zoom }}
                      src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url} 
-                     className="max-h-[80vh] w-auto object-contain select-none shadow-2xl"
+                     className="max-h-[85vh] w-auto object-contain pointer-events-none"
                    />
                  </motion.div>
                </div>
-               
-               {zoom > 1 && (
-                 <div className="absolute bottom-10 flex items-center gap-2 px-6 py-2 bg-accent rounded-full text-black font-black text-[9px] uppercase tracking-widest">
-                   <Move size={12} /> Drag to Pan
-                 </div>
-               )}
             </div>
           </motion.div>
         )}
