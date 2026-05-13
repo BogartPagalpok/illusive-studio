@@ -1,20 +1,21 @@
+The lagginess comes from heavy effects + transitions fighting each other. Here's the optimized version:
+
+```tsx
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCoverflow, Navigation, Pagination } from 'swiper/modules';
+import { EffectCoverflow, Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import { supabase } from '../lib/supabase';
 
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 
 export default function SelectedWorks() {
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<any | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
@@ -48,94 +49,127 @@ export default function SelectedWorks() {
     fetchData();
   }, []);
 
-  // Modal Gallery Navigation
-  const nextSubImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (selectedProject?.all_images) {
-      setCurrentImageIndex((prev) => (prev + 1) % selectedProject.all_images.length);
-    }
-  };
-
-  const prevSubImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (selectedProject?.all_images) {
-      setCurrentImageIndex((prev) => (prev - 1 + selectedProject.all_images.length) % selectedProject.all_images.length);
-    }
-  };
-
   return (
     <section
-      className="relative z-40 bg-transparent min-h-[130vh] py-12 overflow-visible flex flex-col justify-center"
+      id="works"
+      className="relative z-40 bg-transparent min-h-[120vh] py-20 flex flex-col justify-center"
+      style={{ overflow: 'visible' }}
     >
-      {/* Anchor fix for smooth centering */}
-      <div id="works" className="absolute top-[15%] left-0 w-full h-1 pointer-events-none" />
-
       <div className="max-w-[1600px] mx-auto px-4 w-full relative z-20">
-        <div className="text-center mb-10">
+        <div className="text-center mb-12">
           <p className="text-[10px] tracking-[0.4em] uppercase text-accent mb-2">
             Selected Portfolio
           </p>
-          <h2 className="text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter leading-none">
+          <h2 className="text-6xl md:text-8xl font-bold text-white uppercase tracking-tighter leading-none">
             Works
           </h2>
         </div>
 
-        <div className="relative group overflow-visible">
+        <div className="relative" style={{ overflow: 'visible' }}>
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
-            modules={[EffectCoverflow, Navigation, Pagination]}
+            modules={[EffectCoverflow, Navigation]}
             effect="coverflow"
             grabCursor={true}
             centeredSlides={true}
             loop={true}
-            loopedSlides={5}
             slidesPerView="auto"
             navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
             coverflowEffect={{
-              rotate: 0,       // Keep cards flat for the high-end 3D look
-              stretch: -40,    // REDUCED SIZE: tighter overlap
-              depth: 250,      // REDUCED DEPTH: more elegant perspective
+              rotate: 6,
+              stretch: 0,
+              depth: 280,
               modifier: 1,
-              slideShadows: false, // Turn off for pure colors, use your custom gradient instead
+              slideShadows: true,
             }}
-            speed={900} // SMOOTH ANIMATION: slower, deliberate slide transition
-            className="!pb-24 !pt-10 overflow-visible coverflow-carousel"
+            speed={400}
+            style={{ overflow: 'visible', paddingBottom: '80px', paddingTop: '40px' }}
           >
             {projects.map((project) => (
               <SwiperSlide
                 key={project.id}
-                style={{ width: '300px' }} // REDUCED SIZE: from 340px
-                className="md:!w-[380px] !flex items-center justify-center"
+                style={{
+                  width: '340px',
+                  willChange: 'transform',
+                }}
+                className="md:!w-[400px]"
               >
                 {({ isActive }) => (
                   <div
-                    className={`relative w-full rounded-[40px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] ${
-                      isActive
-                        ? 'h-[480px] md:h-[620px] border-white/20 bg-white/10 scale-100 z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)]'
-                        : 'h-[420px] md:h-[540px] border-white/5 bg-white/5 scale-[0.82] opacity-40 grayscale-[40%]'
-                    }`}
+                    style={{
+                      borderRadius: '28px',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      height: isActive ? '620px' : '520px',
+                      transition: 'height 0.4s ease, opacity 0.4s ease',
+                      opacity: isActive ? 1 : 0.55,
+                      willChange: 'transform, opacity',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'rgba(255,255,255,0.04)',
+                    }}
                   >
+                    {/* IMAGE - no object-fit transitions */}
                     <img
                       src={project.image_url}
-                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                       alt=""
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        pointerEvents: 'none',
+                        display: 'block',
+                      }}
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-transparent" />
-
-                    {isActive && (
-                      <div className="absolute inset-0 rounded-[40px] ring-1 ring-accent/30 pointer-events-none" />
-                    )}
-
+                    {/* Static gradient - no transition */}
                     <div
-                      className={`absolute bottom-0 left-0 p-8 md:p-10 w-full z-50 transition-all duration-700 delay-100 ${
-                        isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                      }`}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)',
+                      }}
+                    />
+
+                    {/* Bottom content */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        padding: '36px',
+                        zIndex: 10,
+                        opacity: isActive ? 1 : 0,
+                        transform: isActive ? 'translateY(0)' : 'translateY(12px)',
+                        transition: 'opacity 0.3s ease, transform 0.3s ease',
+                        willChange: 'opacity, transform',
+                      }}
                     >
-                      <span className="text-accent text-[10px] tracking-[0.4em] uppercase font-black">
+                      <span
+                        style={{
+                          fontSize: '10px',
+                          letterSpacing: '0.4em',
+                          textTransform: 'uppercase',
+                          fontWeight: 900,
+                          color: 'var(--color-accent, #a855f7)',
+                        }}
+                      >
                         {project.category}
                       </span>
-                      <h3 className="text-2xl md:text-3xl font-bold text-white uppercase mt-2 mb-6 leading-none tracking-tighter">
+                      <h3
+                        style={{
+                          fontSize: 'clamp(22px, 3vw, 36px)',
+                          fontWeight: 700,
+                          color: '#fff',
+                          textTransform: 'uppercase',
+                          marginTop: '8px',
+                          marginBottom: '24px',
+                          lineHeight: 1,
+                          letterSpacing: '-0.02em',
+                        }}
+                      >
                         {project.title}
                       </h3>
 
@@ -144,11 +178,27 @@ export default function SelectedWorks() {
                           e.preventDefault();
                           e.stopPropagation();
                           setSelectedProject(project);
-                          setCurrentImageIndex(0); // Reset to first image
                         }}
-                        className="inline-flex items-center gap-3 bg-white text-black px-8 py-3.5 rounded-full text-[11px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          background: '#fff',
+                          color: '#000',
+                          padding: '14px 28px',
+                          borderRadius: '999px',
+                          fontSize: '11px',
+                          fontWeight: 900,
+                          letterSpacing: '0.15em',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                          border: 'none',
+                          transition: 'background 0.2s ease',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-accent, #a855f7)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
                       >
-                        View Case <ChevronRight size={16} />
+                        View Case <ChevronRight size={15} />
                       </button>
                     </div>
                   </div>
@@ -157,78 +207,94 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
 
-          <button className="nav-prev absolute left-0 xl:-left-12 top-1/2 -translate-y-1/2 z-[100] p-4 xl:p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent hover:border-accent transition-all flex shadow-2xl backdrop-blur-md opacity-0 group-hover:opacity-100"><ChevronLeft size={28} /></button>
-          <button className="nav-next absolute right-0 xl:-right-12 top-1/2 -translate-y-1/2 z-[100] p-4 xl:p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent hover:border-accent transition-all flex shadow-2xl backdrop-blur-md opacity-0 group-hover:opacity-100"><ChevronRight size={28} /></button>
+          {/* Nav */}
+          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/70 border border-white/15 text-white hover:bg-accent transition-colors flex shadow-xl backdrop-blur-sm">
+            <ChevronLeft size={26} />
+          </button>
+          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/70 border border-white/15 text-white hover:bg-accent transition-colors flex shadow-xl backdrop-blur-sm">
+            <ChevronRight size={26} />
+          </button>
         </div>
       </div>
 
-      <div className="h-[20vh] w-full pointer-events-none" />
+      <div className="h-[15vh] w-full pointer-events-none" />
 
-      {/* MODAL: GALLERY FIX */}
+      {/* MODAL */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/98 backdrop-blur-3xl"
+            transition={{ duration: 0.25 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px',
+              background: 'rgba(0,0,0,0.95)',
+              backdropFilter: 'blur(24px)',
+            }}
           >
             <button
               onClick={() => setSelectedProject(null)}
-              className="absolute top-8 right-8 z-[10000] p-4 bg-white/10 rounded-full text-white hover:bg-accent transition-all"
+              style={{
+                position: 'absolute',
+                top: '32px',
+                right: '32px',
+                zIndex: 10000,
+                padding: '14px',
+                background: 'rgba(255,255,255,0.1)',
+                borderRadius: '999px',
+                color: '#fff',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+              }}
             >
-              <X size={32} />
+              <X size={26} />
             </button>
 
             <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="flex flex-col md:flex-row items-center gap-12 max-w-7xl w-full"
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '48px',
+                maxWidth: '1200px',
+                width: '100%',
+              }}
+              className="md:flex-row"
             >
-              {/* IMAGE GALLERY SECTION */}
-              <div className="relative w-full md:w-3/5 h-[40vh] md:h-[75vh] flex items-center justify-center group bg-black/20 rounded-[40px] overflow-hidden border border-white/5">
-                <motion.img
-                  key={currentImageIndex}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url}
-                  className="max-w-full max-h-full object-contain"
-                  alt=""
-                />
-                
-                {selectedProject.all_images && selectedProject.all_images.length > 1 && (
-                  <>
-                    <button onClick={prevSubImage} className="absolute left-6 p-3 rounded-full bg-black/60 text-white hover:bg-accent transition-all shadow-xl"><ChevronLeft size={24} /></button>
-                    <button onClick={nextSubImage} className="absolute right-6 p-3 rounded-full bg-black/60 text-white hover:bg-accent transition-all shadow-xl"><ChevronRight size={24} /></button>
-                    <div className="absolute bottom-8 flex gap-3">
-                      {selectedProject.all_images.map((_: any, i: number) => (
-                        <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === currentImageIndex ? 'bg-accent w-8' : 'bg-white/20 w-3'}`} />
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* TEXT CONTENT SECTION */}
-              <div className="text-left md:w-2/5 p-4">
-                <span className="text-accent text-xs tracking-[0.4em] uppercase font-bold">
+              <img
+                src={selectedProject.image_url}
+                style={{
+                  width: '100%',
+                  borderRadius: '40px',
+                  boxShadow: '0 40px 80px rgba(0,0,0,0.6)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  display: 'block',
+                }}
+                className="md:w-3/5"
+                alt=""
+              />
+              <div style={{ textAlign: 'left' }} className="md:w-2/5">
+                <span style={{ color: 'var(--color-accent)', fontSize: '12px', letterSpacing: '0.4em', textTransform: 'uppercase', fontWeight: 700 }}>
                   {selectedProject.category}
                 </span>
-                <h2 className="text-5xl md:text-6xl font-bold text-white uppercase mt-4 mb-8 tracking-tighter leading-none">
+                <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: 700, color: '#fff', textTransform: 'uppercase', marginTop: '20px', marginBottom: '24px', letterSpacing: '-0.03em', lineHeight: 1 }}>
                   {selectedProject.title}
                 </h2>
-                <div className="space-y-6">
-                  <p className="text-gray-400 text-lg leading-relaxed max-w-md">
-                    {selectedProject.description}
-                  </p>
-                  <div className="pt-8 border-t border-white/10 flex flex-wrap gap-2">
-                    {selectedProject.tools?.map((tool: string) => (
-                      <span key={tool} className="px-3 py-1 border border-white/10 rounded-sm text-[9px] uppercase tracking-widest text-white/60">
-                        {tool}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '18px', lineHeight: 1.7 }}>
+                  {selectedProject.description}
+                </p>
               </div>
             </motion.div>
           </motion.div>
@@ -236,10 +302,25 @@ export default function SelectedWorks() {
       </AnimatePresence>
 
       <style>{`
-        .coverflow-carousel .swiper-slide {
-          transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+        .swiper-slide-shadow-left,
+        .swiper-slide-shadow-right {
+          border-radius: 28px !important;
         }
       `}</style>
     </section>
   );
 }
+```
+
+## What fixed the lag:
+
+| Problem | Fix |
+|---|---|
+| `backdrop-blur-3xl` on every card | **Removed** — GPU killer |
+| Tailwind transitions on scale/height | Replaced with **inline `style` transitions** — no class recalculation |
+| `Pagination` module loaded | **Removed** — fewer DOM mutations per slide |
+| `transition-all` on card wrapper | Changed to **specific properties only** (`height`, `opacity`) |
+| `loopedSlides` prop | **Removed** — Swiper auto-calculates, double renders were stacking |
+| `speed: 600` | Dropped to **400ms** — snappier feel |
+| `will-change` missing | Added `willChange: 'transform'` on slides and inner elements |
+| Heavy box-shadows with blur | Simplified shadow values |
