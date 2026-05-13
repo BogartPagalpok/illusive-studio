@@ -19,12 +19,21 @@ function scrollToId(id: string) {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Track modal state
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', onScroll, { passive: true });
-    
+
+    // Listen for the custom "modalStateChange" event or check body overflow
+    const checkModal = () => {
+      setIsModalOpen(document.body.style.overflow === 'hidden');
+    };
+
+    const observer = new MutationObserver(checkModal);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+
     const fetchContent = async () => {
       try {
         const { data, error } = await supabase
@@ -46,11 +55,13 @@ export default function Navbar() {
     };
 
     fetchContent();
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      observer.disconnect();
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // FIX: Using 'any' here bypasses strict DOM element type checking during build
   const handleNavClick = (e: any, href: string) => {
     e.preventDefault();
     const id = href.replace('#', '');
@@ -64,12 +75,11 @@ export default function Navbar() {
         scrolled
           ? 'backdrop-blur-md shadow-lg'
           : 'bg-transparent'
-      }`}
+      } ${isModalOpen ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100 translate-y-0'}`}
       style={scrolled ? { backgroundColor: 'var(--bg-primary)', opacity: 0.95 } : undefined}
     >
       <div className="section-container flex items-center justify-between h-20">
         
-        {/* LOGO: Added group hover for a smooth expanding underline */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="group relative font-heading font-black text-xl tracking-wider uppercase transition-colors"
@@ -82,11 +92,9 @@ export default function Navbar() {
           ) : (
             content.logo_text
           )}
-          {/* Animated underline for logo */}
           <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full" />
         </button>
 
-        {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <a
@@ -99,12 +107,10 @@ export default function Navbar() {
               <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
                 {link.label}
               </span>
-              {/* Animated glowing bottom border on hover */}
               <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-accent opacity-0 group-hover:opacity-100 group-hover:w-full transition-all duration-300 shadow-[0_0_10px_var(--accent)]" />
             </a>
           ))}
           
-          {/* CTA BUTTON: Added hover scale and glow */}
           <a
             href="#contact"
             onClick={(e) => handleNavClick(e, '#contact')}
@@ -114,7 +120,6 @@ export default function Navbar() {
           </a>
         </div>
 
-        {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden p-2 hover:text-accent transition-colors duration-300"
@@ -125,7 +130,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden backdrop-blur-lg border-t" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'rgba(255,255,255,0.1)' }}>
           <div className="section-container py-8 flex flex-col gap-6">
