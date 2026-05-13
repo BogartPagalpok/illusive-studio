@@ -20,11 +20,10 @@ export default function Navbar() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // 1. Optimized Scroll Handler with Referential Integrity
     const handleScroll = () => {
       const current = window.scrollY;
       const newScrolled = current > 50;
-      
-      // Auto-hide: Hide if scrolling down past 150px, show if scrolling up
       const isScrollingDown = current > lastScrollY.current && current > 150;
       const newVisible = !isScrollingDown || current < 20;
 
@@ -37,11 +36,18 @@ export default function Navbar() {
       lastScrollY.current = current;
     };
 
-    const checkModal = () => {
+    // 2. Performance Fix: MutationObserver replaces the Interval Poll
+    const observer = new MutationObserver(() => {
       const modalActive = document.body.style.overflow === 'hidden';
       setIsModalOpen(prev => (prev !== modalActive ? modalActive : prev));
-    };
+    });
 
+    observer.observe(document.body, { 
+      attributes: true, 
+      attributeFilter: ['style'] 
+    });
+
+    // 3. Initial Fetch
     const fetchContent = async () => {
       const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
       if (data) {
@@ -55,12 +61,11 @@ export default function Navbar() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    const modalTimer = setInterval(checkModal, 300);
     fetchContent();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      clearInterval(modalTimer);
+      observer.disconnect(); // Clean cleanup
     };
   }, []);
 
@@ -73,7 +78,6 @@ export default function Navbar() {
       } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6 md:px-16">
-        {/* LOGO */}
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="font-black text-xl text-white uppercase tracking-tighter hover:text-accent transition-colors"
@@ -81,7 +85,6 @@ export default function Navbar() {
           {content.logo_text}
         </button>
 
-        {/* DESKTOP NAV */}
         <div className="hidden md:flex items-center gap-10">
           {navLinks.map((link) => (
             <a 
@@ -90,7 +93,6 @@ export default function Navbar() {
               className="group relative text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors"
             >
               {link.label}
-              {/* UNDERLINE ANIMATION */}
               <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-accent transition-all duration-300 group-hover:w-full" />
             </a>
           ))}
@@ -102,11 +104,7 @@ export default function Navbar() {
           </a>
         </div>
 
-        {/* MOBILE TOGGLE */}
-        <button 
-          onClick={() => setMobileOpen(!mobileOpen)} 
-          className="md:hidden text-white p-2"
-        >
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white p-2">
           {mobileOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
@@ -115,24 +113,13 @@ export default function Navbar() {
       <div className={`md:hidden overflow-hidden transition-all duration-500 bg-black/95 ${mobileOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className="flex flex-col p-8 gap-8 border-t border-white/10">
           {navLinks.map((link) => (
-            <a 
-              key={link.href} 
-              href={link.href} 
-              onClick={() => setMobileOpen(false)}
-              className="text-2xl font-black uppercase text-white hover:text-accent transition-colors"
-            >
+            <a key={link.href} href={link.href} onClick={() => setMobileOpen(false)} className="text-2xl font-black uppercase text-white hover:text-accent transition-colors">
               {link.label}
             </a>
           ))}
-          
           <div className="pt-6 border-t border-white/10">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent mb-4">Get In Touch</p>
-            <p className="text-white/50 text-sm mb-1">hello@illusive.studio</p>
-            <div className="flex gap-4 mt-4">
-               {/* Add your social handles here */}
-               <div className="text-xs text-white/30 uppercase tracking-widest">Instagram</div>
-               <div className="text-xs text-white/30 uppercase tracking-widest">Behance</div>
-            </div>
+            <p className="text-white/50 text-sm mb-1 font-heading">hello@illusive.studio</p>
           </div>
         </div>
       </div>
