@@ -39,7 +39,7 @@ export default function SelectedWorks() {
       if (error) throw error;
       setAllData(data || []);
     } catch (err) {
-      console.error("Connection failed");
+      console.error("Supabase Error");
     } finally {
       setLoading(false);
     }
@@ -49,14 +49,14 @@ export default function SelectedWorks() {
     fetchWorks();
   }, [fetchWorks]);
 
-  // Grouping Logic: Merges multiple files with the same title into one card
+  // FIXED LOGIC: Group by project name to avoid cluttered cards
   const projects = useMemo(() => {
     const unique: Project[] = [];
-    const titlesSeen = new Set<string>();
+    const seen = new Set<string>();
 
     for (const item of allData) {
-      if (!titlesSeen.has(item.title)) {
-        titlesSeen.add(item.title);
+      if (!seen.has(item.title)) {
+        seen.add(item.title);
         unique.push(item);
       }
     }
@@ -80,12 +80,12 @@ export default function SelectedWorks() {
   );
 
   const current = projects[activeIndex] || null;
-  const modalGallery = allData.filter(p => p.title === selectedTitle);
+  const gallery = allData.filter(p => p.title === selectedTitle);
 
   return (
     <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. CINEMATIC BACKGROUND */}
+      {/* 1. BACKGROUND */}
       <AnimatePresence mode="wait">
         {current && (
           <motion.div
@@ -99,7 +99,7 @@ export default function SelectedWorks() {
             <img 
               src={current.image_url} 
               className="w-full h-full object-cover opacity-40 pointer-events-none" 
-              alt="bg" 
+              alt="Background" 
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
@@ -125,12 +125,12 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO + RAIL (PUSHED TO BOTTOM) */}
+        {/* 3. HERO + RAIL (PINNED TO BOTTOM) */}
         <div className="mt-auto flex flex-col gap-10">
           
           <div className="max-w-4xl">
             {current && (
-              <div className="transition-all duration-500">
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
                   {current.category}
                 </span>
@@ -199,9 +199,9 @@ export default function SelectedWorks() {
               <button type="button" onClick={() => setSelectedTitle(null)} className="text-white/50 hover:text-white"><X size={32} /></button>
             </div>
             <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
-              {modalGallery.map((img) => (
+              {gallery.map((img) => (
                 <div key={img.id} className="flex flex-col gap-6">
-                  <img src={img.image_url} className="w-full border border-white/10" alt="gallery-img" />
+                  <img src={img.image_url} className="w-full border border-white/10 shadow-2xl" alt="gallery-img" />
                 </div>
               ))}
             </div>
