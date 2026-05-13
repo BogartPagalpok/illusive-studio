@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, EffectCoverflow } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper';
 import { X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
@@ -29,6 +30,7 @@ export default function SelectedWorks() {
   const [error, setError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
     const fetchWorks = async () => {
@@ -57,11 +59,19 @@ export default function SelectedWorks() {
       : projects.filter(p => p.category === activeCategory);
     setFilteredProjects(filtered);
     setActiveIndex(0); // Reset index on filter
+    
+    // Reinitialize Swiper after filter
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(0);
+      swiperRef.current.update();
+    }
   }, [activeCategory, projects]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') setSelectedProject(null);
-  }, []);
+    if (e.key === 'Escape' && selectedProject) {
+      setSelectedProject(null);
+    }
+  }, [selectedProject]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -101,54 +111,58 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* SWIPER UI - Added key to force re-init on filter */}
-        <Swiper
-          key={activeCategory} 
-          modules={[Navigation, Pagination, EffectCoverflow]}
-          effect="coverflow"
-          grabCursor={true}
-          centeredSlides={true}
-          slidesPerView={'auto'}
-          loop={filteredProjects.length > 3}
-          navigation={{
-            nextEl: '.swiper-next',
-            prevEl: '.swiper-prev',
-          }}
-          coverflowEffect={{
-            rotate: 0,
-            stretch: 0,
-            depth: 100,
-            modifier: 2,
-            slideShadows: false,
-          }}
-          pagination={{ clickable: true, dynamicBullets: true }}
-          onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-          className="w-full !py-10"
-        >
-          {filteredProjects.map((project, idx) => (
-            <SwiperSlide key={project.id} className="!w-[300px] sm:!w-[400px] aspect-[4/5]">
-              <div 
-                className={`relative w-full h-full border-2 transition-all duration-700 overflow-hidden cursor-pointer ${
-                  activeIndex === idx 
-                  ? 'border-accent shadow-[0_0_40px_rgba(var(--accent-rgb),0.2)] scale-105' 
-                  : 'border-white/5 grayscale opacity-30 scale-90'
-                }`}
-                onClick={() => setSelectedProject(project)}
-              >
-                <img 
-                  src={project.image_url} 
-                  alt={project.title} 
-                  className="w-full h-full object-cover pointer-events-none" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-0 p-6 md:p-8 w-full">
-                  <span className="text-accent text-[8px] font-black tracking-widest uppercase">{project.category}</span>
-                  <h3 className="text-white text-xl md:text-2xl font-black uppercase mt-2 truncate">{project.title}</h3>
+        {/* SWIPER UI - Removed problematic key, using ref instead for proper state management */}
+        {filteredProjects.length > 0 && (
+          <Swiper
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+            }}
+            modules={[Navigation, Pagination, EffectCoverflow]}
+            effect="coverflow"
+            grabCursor={true}
+            centeredSlides={true}
+            slidesPerView={'auto'}
+            loop={filteredProjects.length > 3}
+            navigation={{
+              nextEl: '.swiper-next',
+              prevEl: '.swiper-prev',
+            }}
+            coverflowEffect={{
+              rotate: 0,
+              stretch: 0,
+              depth: 100,
+              modifier: 2,
+              slideShadows: false,
+            }}
+            pagination={{ clickable: true, dynamicBullets: true }}
+            onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+            className="w-full !py-10"
+          >
+            {filteredProjects.map((project, idx) => (
+              <SwiperSlide key={project.id} className="!w-[300px] sm:!w-[400px] aspect-[4/5]">
+                <div 
+                  className={`relative w-full h-full border-2 transition-all duration-700 overflow-hidden cursor-pointer ${
+                    activeIndex === idx 
+                    ? 'border-accent shadow-[0_0_40px_rgba(var(--accent-rgb),0.2)] scale-105' 
+                    : 'border-white/5 grayscale opacity-30 scale-90'
+                  }`}
+                  onClick={() => setSelectedProject(project)}
+                >
+                  <img 
+                    src={project.image_url} 
+                    alt={project.title} 
+                    className="w-full h-full object-cover pointer-events-none" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                  <div className="absolute bottom-0 p-6 md:p-8 w-full">
+                    <span className="text-accent text-[8px] font-black tracking-widest uppercase">{project.category}</span>
+                    <h3 className="text-white text-xl md:text-2xl font-black uppercase mt-2 truncate">{project.title}</h3>
+                  </div>
                 </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        )}
 
         {/* NAVIGATION CONTROLS */}
         <div className="flex justify-center gap-8 mt-12">
