@@ -37,7 +37,7 @@ export default function SelectedWorks() {
       if (error) throw error;
       setAllData(data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch Error");
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ export default function SelectedWorks() {
 
   useEffect(() => { fetchWorks(); }, [fetchWorks]);
 
-  // GROUPING: Filter duplicates by title so each project only has one card in the rail
+  // GROUPING: Ensures one card per project title
   const projects = useMemo(() => {
     const unique: Project[] = [];
     const seen = new Set();
@@ -83,7 +83,6 @@ export default function SelectedWorks() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
             className="absolute inset-0 z-0"
           >
             <img src={current.image_url} className="w-full h-full object-cover opacity-40 pointer-events-none" alt="bg" />
@@ -115,7 +114,7 @@ export default function SelectedWorks() {
           
           <div className="max-w-4xl">
             {current && (
-              <div className="transition-all duration-500">
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
                   {current.category}
                 </span>
@@ -158,7 +157,7 @@ export default function SelectedWorks() {
                 <SwiperSlide key={p.id} className="!w-[130px] md:!w-[230px]">
                   <div 
                     onClick={() => swiperRef.current?.slideTo(idx)}
-                    className={`relative aspect-video cursor-pointer transition-all duration-500 border-2 rounded-sm overflow-hidden ${
+                    className={`relative aspect-video cursor-pointer border-2 rounded-sm overflow-hidden ${
                       activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' : 'border-transparent opacity-40 grayscale hover:opacity-100'
                     }`}
                   >
