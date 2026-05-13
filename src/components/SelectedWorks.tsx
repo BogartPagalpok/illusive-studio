@@ -34,18 +34,18 @@ export default function SelectedWorks() {
     const fetchWorks = async () => {
       try {
         setLoading(true);
-        // FIX: Pointing to the correct table 'portfolio_projects'
-        const { data, error } = await supabase
+        // FIX: Pointing to 'portfolio_projects' as seen in your Table Editor screenshot
+        const { data, error: dbError } = await supabase
           .from('portfolio_projects') 
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (dbError) throw dbError;
         
         setProjects(data || []);
         setFilteredProjects(data || []);
       } catch (err: any) {
-        console.error("Supabase Error:", err.message);
+        console.error("Supabase Connection Error:", err.message);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -73,19 +73,16 @@ export default function SelectedWorks() {
   if (loading) return (
     <div className="h-96 flex flex-col items-center justify-center bg-black gap-4">
       <Loader2 className="w-10 h-10 text-accent animate-spin" />
-      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Initializing Portfolio...</p>
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Syncing with Database...</p>
     </div>
   );
 
   if (error) return (
-    <div className="h-96 flex flex-col items-center justify-center text-red-500 bg-black p-8 text-center">
-      <p className="font-black uppercase tracking-widest text-sm mb-2">Schema Sync Error</p>
-      <p className="text-xs opacity-60 max-w-md">{error}</p>
-      <button 
-        onClick={() => window.location.reload()}
-        className="mt-6 px-6 py-2 border border-red-500 text-[10px] uppercase font-black hover:bg-red-500 hover:text-white transition-all"
-      >
-        Retry Connection
+    <div className="h-96 flex flex-col items-center justify-center bg-black p-8 text-center">
+      <p className="text-red-500 font-black uppercase tracking-widest text-sm mb-2">Schema Mismatch or RLS Lock</p>
+      <p className="text-white/40 text-xs max-w-md mb-6">{error}</p>
+      <button onClick={() => window.location.reload()} className="px-8 py-3 border border-white/20 text-white text-[10px] font-black uppercase hover:border-accent hover:text-accent transition-all">
+        Restart Sync
       </button>
     </div>
   );
@@ -94,7 +91,7 @@ export default function SelectedWorks() {
     <section id="works" className="py-24 bg-black overflow-hidden relative">
       <div className="section-container">
         
-        {/* CATEGORY SELECTOR */}
+        {/* GENRE/CATEGORY FILTER */}
         <div className="flex flex-wrap gap-4 mb-16 justify-center">
           {CATEGORIES.map((cat) => (
             <button
@@ -111,7 +108,7 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* SWIPER COMPONENT */}
+        {/* WORKS SLIDER */}
         {filteredProjects.length > 0 ? (
           <Swiper
             modules={[Navigation, Pagination, EffectCoverflow]}
@@ -120,17 +117,8 @@ export default function SelectedWorks() {
             centeredSlides={true}
             slidesPerView={'auto'}
             loop={filteredProjects.length > 3}
-            navigation={{
-              nextEl: '.swiper-next',
-              prevEl: '.swiper-prev',
-            }}
-            coverflowEffect={{
-              rotate: 0,
-              stretch: 0,
-              depth: 100,
-              modifier: 2.5,
-              slideShadows: true,
-            }}
+            navigation={{ nextEl: '.swiper-next', prevEl: '.swiper-prev' }}
+            coverflowEffect={{ rotate: 0, stretch: 0, depth: 100, modifier: 2.5, slideShadows: true }}
             pagination={{ clickable: true }}
             onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
             className="w-full py-12"
@@ -139,15 +127,11 @@ export default function SelectedWorks() {
               <SwiperSlide key={project.id} className="max-w-[400px] aspect-[4/5]">
                 <div 
                   className={`relative w-full h-full border-2 transition-all duration-700 overflow-hidden cursor-pointer ${
-                    activeIndex === idx ? 'border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.3)] scale-105' : 'border-white/10 grayscale opacity-40 scale-95'
+                    activeIndex === idx ? 'border-accent shadow-[0_0_40px_rgba(var(--accent-rgb),0.4)] scale-105' : 'border-white/10 grayscale opacity-40 scale-95'
                   }`}
                   onClick={() => setSelectedProject(project)}
                 >
-                  <img 
-                    src={project.image_url} 
-                    alt={project.title} 
-                    className="w-full h-full object-cover" 
-                  />
+                  <img src={project.image_url} alt={project.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
                   <div className="absolute bottom-0 p-8">
                     <span className="text-accent text-[8px] font-black tracking-widest uppercase">{project.category}</span>
@@ -158,12 +142,12 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
         ) : (
-          <div className="h-64 flex items-center justify-center text-white/20 uppercase font-black tracking-[0.5em] border border-white/5 border-dashed">
-            No items in this genre
+          <div className="h-64 flex items-center justify-center text-white/10 uppercase font-black tracking-[0.4em] border border-white/5 border-dashed">
+            Empty Genre Cache
           </div>
         )}
 
-        {/* CONTROLS */}
+        {/* SLIDER NAVIGATION */}
         <div className="flex justify-center gap-6 mt-8">
           <button className="swiper-prev p-4 border border-white/10 hover:border-accent hover:text-accent transition-all text-white rounded-full">
             <ChevronLeft size={24} />
@@ -174,46 +158,27 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* MODAL / CASE STUDY */}
+      {/* PROJECT LIGHTBOX */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/98 backdrop-blur-2xl"
           >
-            <button 
-              onClick={() => setSelectedProject(null)}
-              className="absolute top-10 right-10 text-white/50 hover:text-white transition-colors z-50"
-            >
+            <button onClick={() => setSelectedProject(null)} className="absolute top-10 right-10 text-white/50 hover:text-white z-50">
               <X size={40} />
             </button>
-            
             <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center px-4">
-              <motion.div 
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                className="relative group overflow-hidden border border-white/10 bg-white/5"
-              >
-                <img 
-                  src={selectedProject.image_url} 
-                  alt={selectedProject.title} 
-                  className="w-full h-auto object-cover" 
-                />
+              <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="border border-white/10 bg-white/5">
+                <img src={selectedProject.image_url} alt={selectedProject.title} className="w-full h-auto object-cover" />
               </motion.div>
-              <motion.div
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-              >
+              <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
                 <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">{selectedProject.category}</span>
                 <h2 className="text-white text-5xl md:text-7xl font-black uppercase mt-4 leading-none">{selectedProject.title}</h2>
-                <p className="text-white/60 mt-8 text-lg leading-relaxed font-light">{selectedProject.description || "Cinematic visual design and execution. Industrial minimalist aesthetic."}</p>
-                <div className="mt-12 flex gap-4">
-                  <button className="bg-accent text-black px-10 py-4 font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
-                    View Project
-                  </button>
-                </div>
+                <p className="text-white/60 mt-8 text-lg leading-relaxed font-light">{selectedProject.description || "Cinematic visual design."}</p>
+                <button className="mt-12 bg-accent text-black px-10 py-4 font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
+                  Launch Project
+                </button>
               </motion.div>
             </div>
           </motion.div>
