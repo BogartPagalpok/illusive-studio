@@ -93,10 +93,14 @@ export default function SelectedWorks() {
             centeredSlides={true}
             loop={true}
             loopedSlides={5}
-            slidesPerView="auto"
+            slidesPerView={1.5}
+            breakpoints={{
+              768: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 }
+            }}
             navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
-            coverflowEffect={{ rotate: 5, stretch: 0, depth: 250, modifier: 1, slideShadows: true }}
-            speed={700}
+            coverflowEffect={{ rotate: 0, stretch: 0, depth: 150, modifier: 2.5, slideShadows: true }}
+            speed={800}
             className="!pb-24 !pt-10 overflow-visible coverflow-carousel"
           >
             {projects.map((project) => (
