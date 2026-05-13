@@ -17,25 +17,14 @@ export default function SelectedWorks() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   const swiperRef = useRef<SwiperType | null>(null);
 
-  // FIX: Navbar Glassmorphism + Auto-Hide to stop blocking the Modal
   useEffect(() => {
     const nav = document.querySelector('nav');
     if (selectedProject) {
       document.body.style.overflow = 'hidden';
-      if (nav) {
-        nav.style.transition = 'all 0.4s ease';
-        nav.style.opacity = '0';
-        nav.style.transform = 'translateY(-100%)';
-      }
+      if (nav) nav.style.display = 'none'; // HIDDEN: Stop the annoying overlap
     } else {
       document.body.style.overflow = 'unset';
-      if (nav) {
-        nav.style.opacity = '1';
-        nav.style.transform = 'translateY(0)';
-        // Force Glassmorphism on the Nav via JS to be safe
-        nav.style.backdropFilter = 'blur(12px)';
-        nav.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
-      }
+      if (nav) nav.style.display = 'flex';
     }
   }, [selectedProject]);
 
@@ -46,13 +35,11 @@ export default function SelectedWorks() {
         .select('*')
         .eq('featured', true)
         .order('created_at', { ascending: false });
-
       if (data) {
         const grouped: Record<string, any> = {};
         data.forEach((item) => {
           const cleanTitle = item.title.replace(/\.[^/.]+$/, '').trim();
           if (!grouped[cleanTitle]) {
-            // FIX: Ensure ALL database fields (description, tools) are kept
             grouped[cleanTitle] = { ...item, title: cleanTitle, all_images: [item.image_url] };
           } else {
             grouped[cleanTitle].all_images?.push(item.image_url);
@@ -79,16 +66,14 @@ export default function SelectedWorks() {
   };
 
   return (
-    // FIX: overflow-hidden stops the "Bouncing" of arrows/titles when slides scale
-    <section id="works" className="py-12 relative z-40 bg-transparent min-h-screen overflow-hidden flex flex-col justify-center">
-      
+    <section id="works" className="relative z-40 bg-transparent min-h-screen py-12 overflow-x-hidden flex flex-col justify-center">
       <div className="max-w-[1600px] mx-auto px-4 w-full relative z-20">
         <div className="text-center mb-10">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-accent mb-2">Portfolio</p>
-          <h2 className="text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
+          <p className="text-[10px] tracking-[0.4em] uppercase text-accent mb-2">Selected Portfolio</p>
+          <h2 className="text-6xl md:text-8xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
         </div>
 
-        <div className="relative group">
+        <div className="relative group overflow-visible">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
             modules={[EffectCoverflow, Navigation, Pagination]}
@@ -100,45 +85,43 @@ export default function SelectedWorks() {
             slidesPerView="auto"
             navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
             coverflowEffect={{
-              rotate: 0,
-              stretch: -50,    // Reduces overlap for cleaner look
-              depth: 200,      
+              rotate: 8,
+              stretch: 0,
+              depth: 350,
               modifier: 1,
-              slideShadows: false,
+              slideShadows: true,
             }}
-            speed={800} 
-            // FIX: Fixed height on the Swiper container PREVENTS THE BOUNCING
-            className="!pb-24 !pt-10 overflow-visible coverflow-carousel h-[600px] md:h-[750px]"
+            speed={600}
+            className="!pb-24 !pt-10 overflow-visible coverflow-carousel"
           >
             {projects.map((project) => (
               <SwiperSlide
                 key={project.id}
                 style={{ width: '300px' }} // REDUCED SIZE
-                className="md:!w-[400px] !flex items-center justify-center"
+                className="md:!w-[420px] !flex items-center justify-center"
               >
                 {({ isActive }) => (
                   <div
-                    className={`relative w-full rounded-[40px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${
+                    className={`relative w-full rounded-[30px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${
                       isActive
-                        ? 'h-[520px] md:h-[680px] border-white/20 bg-white/10 scale-100 z-10'
-                        : 'h-[440px] md:h-[580px] border-white/5 bg-white/5 scale-[0.85] opacity-40'
+                        ? 'h-[580px] md:h-[700px] border-white/20 bg-white/10 scale-100 z-10'
+                        : 'h-[500px] md:h-[600px] border-white/5 bg-white/5 scale-[0.88] opacity-60'
                     }`}
                   >
                     <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover pointer-events-none" alt="" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-transparent" />
-                    
-                    {isActive && <div className="absolute inset-0 rounded-[40px] ring-1 ring-accent/30 pointer-events-none" />}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                    {isActive && <div className="absolute inset-0 rounded-[30px] ring-1 ring-accent/30 pointer-events-none" />}
 
-                    <div className={`absolute bottom-0 left-0 p-10 w-full z-50 transition-all duration-500 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                    <div className={`absolute bottom-0 left-0 p-8 md:p-10 w-full z-50 transition-all duration-500 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                       <span className="text-accent text-[10px] tracking-[0.4em] uppercase font-black">{project.category}</span>
-                      <h3 className="text-2xl md:text-4xl font-bold text-white uppercase mt-2 mb-8 leading-none tracking-tighter">{project.title}</h3>
+                      <h3 className="text-2xl md:text-4xl font-bold text-white uppercase mt-2 mb-6 leading-none tracking-tighter">{project.title}</h3>
                       <button
                         onClick={(e) => {
                           e.preventDefault(); e.stopPropagation();
                           setSelectedProject(project);
                           setCurrentImageIndex(0);
                         }}
-                        className="inline-flex items-center gap-3 bg-white text-black px-10 py-4 rounded-full text-[11px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]"
+                        className="inline-flex items-center gap-3 bg-white text-black px-8 py-3.5 rounded-full text-[11px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]"
                       >
                         View Case <ChevronRight size={16} />
                       </button>
@@ -149,9 +132,8 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
 
-          {/* ARROWS: Fixed outside the Swiper to avoid bouncing */}
-          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/60 border border-white/10 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl"><ChevronLeft size={28} /></button>
-          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/60 border border-white/10 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl"><ChevronRight size={28} /></button>
+          <button className="nav-prev absolute left-2 xl:left-0 top-1/2 -translate-y-1/2 z-[100] p-4 xl:p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent transition-all flex shadow-2xl backdrop-blur-sm"><ChevronLeft size={28} /></button>
+          <button className="nav-next absolute right-2 xl:right-0 top-1/2 -translate-y-1/2 z-[100] p-4 xl:p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent transition-all flex shadow-2xl backdrop-blur-sm"><ChevronRight size={28} /></button>
         </div>
       </div>
 
@@ -163,13 +145,13 @@ export default function SelectedWorks() {
           >
             <button onClick={() => setSelectedProject(null)} className="absolute top-8 right-8 z-[10000] p-4 bg-white/10 rounded-full text-white hover:bg-accent transition-all"><X size={28} /></button>
 
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="flex flex-col md:flex-row items-center gap-12 max-w-7xl w-full">
-              <div className="relative w-full md:w-3/5 h-[45vh] md:h-[75vh] flex items-center justify-center bg-black/20 rounded-[40px] overflow-hidden border border-white/5 shadow-2xl">
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="flex flex-col md:flex-row items-center gap-16 max-w-7xl w-full">
+              {/* RESTORED GALLERY NAVIGATION */}
+              <div className="relative w-full md:w-3/5 h-[50vh] md:h-[75vh] flex items-center justify-center group overflow-hidden rounded-[30px] bg-black/20">
                 <motion.img
                   key={currentImageIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url}
-                  className="max-w-full max-h-full object-contain p-4" alt="" />
-                
+                  className="max-w-full max-h-full object-contain" alt="" />
                 {selectedProject.all_images && selectedProject.all_images.length > 1 && (
                   <>
                     <button onClick={prevSubImage} className="absolute left-4 p-3 rounded-full bg-black/60 text-white hover:bg-accent transition-all"><ChevronLeft size={24} /></button>
@@ -178,16 +160,15 @@ export default function SelectedWorks() {
                 )}
               </div>
 
-              {/* DETAILS RESTORED: Image 2 Fix */}
+              {/* RESTORED DETAILS */}
               <div className="text-left md:w-2/5 p-4">
                 <span className="text-accent text-sm tracking-[0.4em] uppercase font-bold">{selectedProject.category}</span>
-                <h2 className="text-5xl md:text-7xl font-bold text-white uppercase mt-4 mb-8 tracking-tighter leading-none">{selectedProject.title}</h2>
-                <p className="text-gray-400 text-lg leading-relaxed mb-10">{selectedProject.description}</p>
-                
+                <h2 className="text-5xl md:text-7xl font-bold text-white uppercase mt-6 mb-8 tracking-tighter leading-none">{selectedProject.title}</h2>
+                <p className="text-gray-400 text-xl leading-relaxed">{selectedProject.description}</p>
                 {selectedProject.tools && (
-                  <div className="flex flex-wrap gap-2 pt-8 border-t border-white/10">
+                  <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap gap-2">
                     {selectedProject.tools.map((tool: string) => (
-                      <span key={tool} className="px-3 py-1 border border-white/10 rounded-sm text-[10px] uppercase text-white/50 tracking-widest">{tool}</span>
+                      <span key={tool} className="px-3 py-1 border border-white/10 rounded-sm text-[10px] uppercase text-white/60 tracking-widest">{tool}</span>
                     ))}
                   </div>
                 )}
@@ -196,6 +177,11 @@ export default function SelectedWorks() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style>{`
+        .coverflow-carousel .swiper-slide { transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .coverflow-carousel .swiper-slide-shadow-left, .coverflow-carousel .swiper-slide-shadow-right { border-radius: 30px; }
+      `}</style>
     </section>
   );
 }
