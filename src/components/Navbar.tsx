@@ -3,132 +3,173 @@ import { Menu, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const navLinks = [
-  { label: 'Services', href: '#services', id: 'services' },
-  { label: 'Works', href: '#works', id: 'works' },
-  { label: 'About', href: '#about', id: 'about' },
-  { label: 'Contact', href: '#contact', id: 'contact' },
+  { label: 'Services', href: '#services' },
+  { label: 'Works', href: '#works' },
+  { label: 'About', href: '#about' },
+  { label: 'Contact', href: '#contact' },
 ];
 
+function scrollToId(id: string) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
 export default function Navbar() {
-  const [navState, setNavState] = useState({ scrolled: false, visible: true });
-  const [activeSection, setActiveSection] = useState('home');
+  const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
-  
   const lastScrollY = useRef(0);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const handleScroll = () => {
+    // 1. Scroll tracking for background transition & auto-hide
+    const onScroll = () => {
       const current = window.scrollY;
-      const shouldBeScrolled = current > 50;
-      
-      // 1. Auto-Hide Logic
+      setScrolled(current > 50);
+
+      // Auto-hide logic: hide when scrolling down past 150px, show when scrolling up or near top
       const isScrollingDown = current > lastScrollY.current && current > 150;
-      const shouldBeVisible = !isScrollingDown || current < 20;
+      setVisible(!isScrollingDown || current < 20);
 
-      setNavState(prev => 
-        (prev.scrolled === shouldBeScrolled && prev.visible === shouldBeVisible) 
-          ? prev 
-          : { scrolled: shouldBeScrolled, visible: shouldBeVisible }
-      );
-
-      // 2. Active Section Logic (Replaces your jQuery logic)
-      const sections = ['services', 'works', 'about', 'contact'];
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 200 && rect.bottom >= 200) {
-            setActiveSection(section);
-            document.body.className = `page-${section}`; // Sync body class like your jQuery code
-            break;
-          }
-        }
-      }
-      
       lastScrollY.current = current;
     };
+    window.addEventListener('scroll', onScroll, { passive: true });
 
-    const observer = new MutationObserver(() => {
-      const modalActive = document.body.style.overflow === 'hidden';
-      setIsModalOpen(prev => (prev !== modalActive ? modalActive : prev));
-    });
+    // 2. High-performance Modal Detection (Replaces polling)
+    const checkModal = () => {
+      setIsModalOpen(document.body.style.overflow === 'hidden');
+    };
+
+    const observer = new MutationObserver(checkModal);
     observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
 
+    // 3. Dynamic content fetch
     const fetchContent = async () => {
-      const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
-      if (data) {
-        const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
-        data.forEach(row => {
-          if (row.key === 'logo_text') mapped.logo_text = row.value;
-          if (row.key === 'cta_text') mapped.cta_text = row.value;
-        });
-        setContent(mapped);
+      try {
+        const { data, error } = await supabase
+          .from('site_content')
+          .select('key, value')
+          .eq('section', 'navbar');
+
+        if (!error && data && data.length > 0) {
+          const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
+          data.forEach(row => {
+            if (row.key === 'logo_text') mapped.logo_text = row.value;
+            if (row.key === 'cta_text') mapped.cta_text = row.value;
+          });
+          setContent(mapped);
+        }
+      } catch (err) {
+        console.error("Content fetch failed, using defaults.");
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
     fetchContent();
-    
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', onScroll);
       observer.disconnect();
     };
   }, []);
 
-  const handleNavClick = (e: React.MouseEvent, id: string) => {
+  const handleNavClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    scrollToId(href.replace('#', ''));
     setMobileOpen(false);
   };
 
-  const isActuallyVisible = (navState.visible || isHovered || mobileOpen) && !isModalOpen;
+  const isActuallyVisible = (visible || isHovered || mobileOpen) && !isModalOpen;
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 h-4 z-[110]" onMouseEnter={() => setIsHovered(true)} />
+      {/* Invisible hover zone at top */}
+      <div
+        className="fixed top-0 left-0 right-0 h-4 z-[110]"
+        onMouseEnter={() => setIsHovered(true)}
+      />
 
       <nav
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-in-out ${
-          navState.scrolled || mobileOpen ? 'backdrop-blur-md bg-black/80 shadow-lg' : 'bg-transparent'
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled ? 'backdrop-blur-md shadow-lg bg-[var(--bg-primary)]/95' : 'bg-transparent'
         } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6 md:px-16">
-          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="font-heading font-black text-xl tracking-wider uppercase text-white">
-            {content.logo_text}
+        <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
+          
+          {/* LOGO WITH PULSE & UNDERLINE */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="group relative font-heading font-black text-xl tracking-wider uppercase transition-colors text-[var(--text-primary)]"
+          >
+            {content.logo_text.includes('.') ? (
+              <>
+                {content.logo_text.split('.')[0]}<span className="text-accent group-hover:animate-pulse">.</span>{content.logo_text.split('.')[1]}
+              </>
+            ) : content.logo_text}
+            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full shadow-[0_0_8px_var(--accent)]" />
           </button>
 
+          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
               <a
-                key={link.id}
+                key={link.href}
                 href={link.href}
-                onClick={(e) => handleNavClick(e, link.id)}
-                className={`group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase transition-all duration-300 ${
-                  activeSection === link.id ? 'text-accent' : 'text-white/50 hover:text-white'
-                }`}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase transition-all duration-300 text-[var(--text-primary)]"
               >
-                {link.label}
-                <span className={`absolute bottom-0 left-0 h-[2px] bg-accent transition-all duration-300 ${
-                  activeSection === link.id ? 'w-full shadow-[0_0_10px_var(--accent)]' : 'w-0 group-hover:w-full'
-                }`} />
+                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
+                  {link.label}
+                </span>
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-accent opacity-0 group-hover:opacity-100 group-hover:w-full transition-all duration-300 shadow-[0_0_10px_var(--accent)]" />
               </a>
             ))}
-            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="bg-accent text-black px-7 py-3 rounded-md text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
+            
+            <a
+              href="#contact"
+              onClick={(e) => handleNavClick(e, '#contact')}
+              className="btn-primary text-[10px] py-3 px-8 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_var(--accent)] font-black"
+            >
               {content.cta_text}
             </a>
           </div>
 
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white">
+          {/* MOBILE TOGGLE */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden p-2 hover:text-accent transition-colors duration-300 text-[var(--text-primary)]"
+            aria-label="Toggle menu"
+          >
             {mobileOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
+        </div>
+
+        {/* MOBILE MENU OVERLAY */}
+        <div className={`md:hidden overflow-hidden transition-all duration-500 bg-[var(--bg-primary)]/98 backdrop-blur-xl ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
+          <div className="section-container py-10 flex flex-col gap-8 px-6">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="group relative inline-block text-2xl font-heading font-black tracking-widest uppercase transition-all duration-300 text-[var(--text-primary)]"
+              >
+                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
+                  {link.label}
+                </span>
+                <span className="absolute -bottom-1 left-0 w-0 h-[3px] bg-accent opacity-0 group-hover:opacity-100 group-hover:w-12 transition-all duration-300" />
+              </a>
+            ))}
+            <a
+              href="#contact"
+              onClick={(e) => handleNavClick(e, '#contact')}
+              className="btn-primary text-sm py-4 px-6 justify-center mt-6 font-black"
+            >
+              {content.cta_text}
+            </a>
+          </div>
         </div>
       </nav>
     </>
