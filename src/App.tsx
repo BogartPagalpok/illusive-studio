@@ -10,15 +10,11 @@ import { loadSavedTheme, applyTheme } from './lib/themes';
 import type { ThemeName } from './lib/themes';
 import { motion } from 'framer-motion';
 
-// PERFORMANCE OPTIMIZED GRADIENT
 function AtmosphereGradient() {
   return (
     <div className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none bg-[#020204]">
       <motion.div 
-        animate={{
-          x: ['-5%', '5%', '-5%'],
-          y: ['-2%', '2%', '-2%'],
-        }}
+        animate={{ x: ['-5%', '5%', '-5%'], y: ['-2%', '2%', '-2%'] }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full opacity-30 blur-[80px] will-change-transform"
         style={{ 
@@ -26,19 +22,14 @@ function AtmosphereGradient() {
           filter: 'saturate(1.5)'
         }}
       />
-
       <motion.div 
-        animate={{
-          x: ['5%', '-5%', '5%'],
-          y: ['2%', '-2%', '2%'],
-        }}
+        animate={{ x: ['5%', '-5%', '5%'], y: ['2%', '-2%', '2%'] }}
         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
         className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full opacity-20 blur-[70px] will-change-transform"
         style={{ 
           background: 'radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--accent), #4000ff 40%) 0%, transparent 70%)',
         }}
       />
-
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.85)_100%)]" />
     </div>
   );
@@ -55,10 +46,9 @@ function App() {
         .from('user_profiles')
         .select('theme_preference')
         .eq('id', userId)
-        .maybeSingle(); // FIXED: Changed from .single() to .maybeSingle() to prevent 406 errors
+        .maybeSingle(); 
 
       if (!error && data?.theme_preference) {
-        // applyTheme handles CSS variables, data-theme attribute, and localStorage
         applyTheme(data.theme_preference as ThemeName);
       }
     } catch (err) {
@@ -67,27 +57,16 @@ function App() {
   };
 
   useEffect(() => {
-    // 1. Instant local load (zero-latency)
     loadSavedTheme();
-
     const initAuthAndTheme = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.warn('Supabase Auth Warning:', error.message);
-        }
-        
+        if (error) console.warn('Supabase Auth Warning:', error.message);
         setSession(session);
-        
-        // 3. Sync theme in background (Non-blocking)
-        if (session?.user) {
-          syncUserTheme(session.user.id);
-        }
+        if (session?.user) syncUserTheme(session.user.id);
       } catch (err) {
-        console.error('Supabase connection failed completely:', err);
+        console.error('Supabase connection failed:', err);
       } finally {
-        // 2. Stop loading immediately after session check ALWAYS
         setLoading(false);
       }
     };
@@ -96,9 +75,7 @@ function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session?.user) {
-        syncUserTheme(session.user.id);
-      }
+      if (session?.user) syncUserTheme(session.user.id);
     });
 
     return () => subscription.unsubscribe();
@@ -106,19 +83,18 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-transparent flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center relative">
         <AtmosphereGradient />
-        <span 
-          className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full" 
-          style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }}
-        />
+        <span className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full" style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
+  // NOTE: AtmosphereGradient is placed at the top of each return block
+  // This ensures it stays fixed behind the content regardless of the route
   if (!session) {
     return (
-      <main className="min-h-screen bg-transparent relative">
+      <main className="min-h-screen relative bg-transparent">
         <AtmosphereGradient />
         <Login />
       </main>
@@ -127,7 +103,7 @@ function App() {
 
   if (isAdmin) {
     return (
-      <main className="min-h-screen bg-transparent relative">
+      <main className="min-h-screen relative bg-transparent">
         <AtmosphereGradient />
         <AdminDashboard onLogout={() => setIsAdmin(false)} />
       </main>
