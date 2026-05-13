@@ -40,14 +40,13 @@ export default function SelectedWorks() {
   }, []);
 
   return (
-    // REDUCED VERTICAL PADDING HERE
-    <section className="py-12 relative z-40 bg-transparent min-h-screen overflow-hidden">
-      <div id="works" className="absolute -top-24" />
+    // 1. ADDED MIN-HEIGHT AND PADDING TO ENSURE THE SECTION CAN ACTUALLY CENTER
+    <section id="works" className="relative z-40 bg-transparent min-h-[120vh] py-20 overflow-visible flex flex-col justify-center">
       
-      <div className="max-w-[1600px] mx-auto px-4 relative z-20">
-        <div className="text-center mb-8">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-accent mb-2">Visionary Lab</p>
-          <h2 className="text-5xl md:text-6xl font-bold text-white uppercase tracking-tighter">Selected Works</h2>
+      <div className="max-w-[1600px] mx-auto px-4 w-full relative z-20">
+        <div className="text-center mb-12">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-accent mb-2">Selected Portfolio</p>
+          <h2 className="text-6xl md:text-8xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
         </div>
 
         <div className="relative group overflow-visible">
@@ -59,27 +58,27 @@ export default function SelectedWorks() {
             centeredSlides={true}
             loop={true}
             loopedSlides={5} 
-            slidesPerView={'auto'} // MUST BE AUTO
+            slidesPerView={'auto'} 
             navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
             coverflowEffect={{
               rotate: 0,
-              stretch: -50, // Reduced pull to prevent over-lapping "slim" look
+              stretch: -40, // Secret to the "overlapping" look
               depth: 200,
               modifier: 1,
               slideShadows: false,
             }}
-            className="!pb-20 !pt-5 overflow-visible"
+            className="!pb-24 !pt-10 overflow-visible"
           >
             {projects.map((project) => (
-              // FIXED WIDTHS IN PIXELS - STOPS THE SQUASHING
-              <SwiperSlide key={project.id} style={{ width: '400px' }} className="md:!w-[450px]">
-                <div className="relative h-[550px] md:h-[650px] rounded-[50px] border border-white/10 overflow-hidden backdrop-blur-3xl bg-white/5 shadow-2xl">
+              // 2. FORCE PHYSICAL WIDTH IN PIXELS - STOPS THE SLIM SLIVERS
+              <SwiperSlide key={project.id} style={{ width: '380px' }} className="md:!w-[480px] !flex items-center justify-center">
+                <div className="relative w-full h-[550px] md:h-[700px] rounded-[50px] border border-white/10 overflow-hidden backdrop-blur-3xl bg-white/5 shadow-2xl transition-all duration-500">
                   <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover pointer-events-none" alt="" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
                   
                   <div className="absolute bottom-0 left-0 p-10 w-full z-50">
-                    <span className="text-accent text-[10px] tracking-[0.3em] uppercase font-bold">{project.category}</span>
-                    <h3 className="text-2xl md:text-3xl font-bold text-white uppercase mt-2 mb-6 leading-none tracking-tighter">{project.title}</h3>
+                    <span className="text-accent text-[10px] tracking-[0.4em] uppercase font-black">{project.category}</span>
+                    <h3 className="text-3xl md:text-5xl font-bold text-white uppercase mt-2 mb-8 leading-none tracking-tighter">{project.title}</h3>
                     
                     <button 
                       onClick={(e) => {
@@ -87,9 +86,9 @@ export default function SelectedWorks() {
                         e.stopPropagation();
                         setSelectedProject(project);
                       }}
-                      className="inline-flex items-center gap-3 bg-white text-black px-8 py-3 rounded-full text-[10px] tracking-widest uppercase font-black hover:bg-accent transition-all cursor-pointer relative z-[60]"
+                      className="inline-flex items-center gap-3 bg-white text-black px-10 py-4 rounded-full text-[11px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]"
                     >
-                      Explore <ChevronRight size={14} />
+                      View Case <ChevronRight size={16} />
                     </button>
                   </div>
                 </div>
@@ -97,14 +96,17 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
 
-          <button className="nav-prev absolute left-2 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent transition-all hidden xl:flex">
-            <ChevronLeft size={28} />
+          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[100] p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl">
+            <ChevronLeft size={32} />
           </button>
-          <button className="nav-next absolute right-2 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent transition-all hidden xl:flex">
-            <ChevronRight size={28} />
+          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[100] p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl">
+            <ChevronRight size={32} />
           </button>
         </div>
       </div>
+
+      {/* 3. SPACER DIV TO ENSURE SMOOTH SCROLLING DEPTH */}
+      <div className="h-[20vh] w-full pointer-events-none" />
 
       <AnimatePresence>
         {selectedProject && (
@@ -116,12 +118,12 @@ export default function SelectedWorks() {
               <X size={28} />
             </button>
             
-            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="flex flex-col md:flex-row items-center gap-12 max-w-6xl">
-              <img src={selectedProject.image_url} className="w-full md:w-1/2 rounded-[40px] shadow-2xl" alt="" />
-              <div className="text-left md:w-1/2">
-                <span className="text-accent text-sm tracking-[0.3em] uppercase">{selectedProject.category}</span>
-                <h2 className="text-5xl font-bold text-white uppercase mt-4 mb-6 tracking-tighter leading-none">{selectedProject.title}</h2>
-                <p className="text-gray-400 text-lg leading-relaxed">{selectedProject.description}</p>
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="flex flex-col md:flex-row items-center gap-16 max-w-7xl">
+              <img src={selectedProject.image_url} className="w-full md:w-3/5 rounded-[50px] shadow-2xl border border-white/10" alt="" />
+              <div className="text-left md:w-2/5">
+                <span className="text-accent text-sm tracking-[0.4em] uppercase font-bold">{selectedProject.category}</span>
+                <h2 className="text-6xl font-bold text-white uppercase mt-6 mb-8 tracking-tighter leading-none">{selectedProject.title}</h2>
+                <p className="text-gray-400 text-xl leading-relaxed">{selectedProject.description}</p>
               </div>
             </motion.div>
           </motion.div>
