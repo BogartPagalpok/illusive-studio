@@ -167,46 +167,63 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   const accentContrast = getContrastYIQ(theme.accent);
   root.style.setProperty('--accent-contrast', accentContrast === 'white' ? '#FFFFFF' : '#000000');
 
-  // Trigger animations to recalculate
+  // Recalculate ScrollTriggers for theme-dependent layouts
   window.dispatchEvent(new Event('storage'));
   setTimeout(() => { ScrollTrigger.refresh(); }, 150);
 
   if (syncToCloud) {
     try {
-      // FIX: Save the theme choice GLOBALLY so all clients see it
+      // MASTER SYNC: Overwrite the single global row in site_config
       const { error } = await supabase
-        .from('site_content')
-        .upsert({ section: 'global', key: 'active_theme', value: theme.id }, { onConflict: 'section,key' });
+        .from('site_config')
+        .update({ theme_color: theme.id, updated_at: new Date().toISOString() })
+        .eq('id', 1);
         
-      if (error) console.error("Error saving global theme:", error.message);
+      if (error) console.error("Sync Error:", error.message);
     } catch (err) {
-      console.warn("Theme cloud sync failed.");
+      console.warn("Cloud sync failed.");
     }
   }
 }
 
 export async function loadSavedTheme() {
   try {
-    // FIX: Any visitor (client) will fetch the active theme from the global table
-    // Notice there is no "getUser()" check here. It's public.
     const { data, error } = await supabase
-      .from('site_content')
-      .select('value')
-      .match({ section: 'global', key: 'active_theme' })
+      .from('site_config')
+      .select('theme_color')
+      .eq('id', 1)
       .maybeSingle();
     
-    if (!error && data?.value) {
-      const theme = themePresets.find((t) => t.id === data.value);
+    if (!error && data?.theme_color) {
+      const theme = themePresets.find((t) => t.id === data.theme_color);
       if (theme) {
         applyTheme(theme, false);
         return;
       }
     }
   } catch (error) {
-    console.warn("Failed to load global theme.");
+    console.warn("Master Theme fetch failed.");
   }
 
-  // Absolute fallback if the database connection fails completely
+  // Final fallback
   const defaultTheme = themePresets.find((t) => t.id === 'cyber-gaming');
   if (defaultTheme) applyTheme(defaultTheme, false);
+}
+
+// REAL-TIME SYNC: Listens for changes from other devices
+export function subscribeToThemeChanges() {
+  return supabase
+    .channel('global-theme')
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'site_config', filter: 'id=eq.1' },
+      (payload) => {
+        const newThemeId = payload.new.theme_color;
+        const theme = themePresets.find(t => t.id === newThemeId);
+        if (theme) {
+          applyTheme(theme, false); // false to avoid loop
+        }
+      }
+    )
+    .subscribe();
 }
