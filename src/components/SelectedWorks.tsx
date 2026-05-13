@@ -1,113 +1,188 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Play } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
-import type { Swiper as SwiperType } from 'swiper';
+import { Navigation, Pagination, EffectCoverflow } from 'swiper/modules';
+import { ZoomIn, ZoomOut, X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
+// Swiper Styles
 import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/effect-coverflow';
+
+interface Project {
+  id: string;
+  title: string;
+  category: string;
+  image_url: string;
+  description?: string;
+}
+
+const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
 
 export default function SelectedWorks() {
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedProject, setSelectedProject] = useState<any | null>(null);
-  const [zoom, setZoom] = useState(1);
-  const swiperRef = useRef<SwiperType | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
+  // 1. Fetch Data with Error Handling
   useEffect(() => {
-    // We only trigger the body lock. Navbar will "notice" it and hide itself.
-    document.body.style.overflow = selectedProject ? 'hidden' : 'unset';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [selectedProject]);
+    const fetchWorks = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data } = await supabase.from('portfolio_projects').select('*').eq('featured', true).order('created_at', { ascending: false });
-      if (data) setProjects(data);
+        if (error) throw error;
+        setProjects(data || []);
+        setFilteredProjects(data || []);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchData();
+    fetchWorks();
   }, []);
 
-  const active = projects[activeIndex];
+  // 2. Genre Filtering Logic
+  useEffect(() => {
+    if (activeCategory === 'All') {
+      setFilteredProjects(projects);
+    } else {
+      setFilteredProjects(projects.filter(p => p.category === activeCategory));
+    }
+  }, [activeCategory, projects]);
 
-  const paginate = (dir: number) => {
-    if (!selectedProject) return;
-    const idx = projects.findIndex(p => p.id === selectedProject.id);
-    const nextIdx = (idx + dir + projects.length) % projects.length;
-    setSelectedProject(projects[nextIdx]);
-    setZoom(1);
-  };
+  // 3. Keyboard Navigation (Esc to close modal)
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') setSelectedProject(null);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  if (loading) return (
+    <div className="h-96 flex items-center justify-center bg-black">
+      <Loader2 className="w-10 h-10 text-accent animate-spin" />
+    </div>
+  );
+
+  if (error) return (
+    <div className="h-96 flex items-center justify-center text-red-500 font-bold uppercase tracking-widest">
+      Error: {error}
+    </div>
+  );
 
   return (
-    <section id="works" className="relative h-screen w-full bg-black overflow-hidden flex flex-col justify-end">
-      
-      {/* 1. CINEMATIC BILLBOARD */}
-      <div className="absolute inset-0 z-0">
-        <AnimatePresence mode="wait">
-          {active && (
-            <motion.div key={active.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0">
-              <img src={active.image_url} className="h-full w-full object-cover brightness-[0.3]" alt="" />
-              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* 2. MAIN HERO UI */}
-      <div className="relative z-20 w-full px-6 md:px-16 mb-8 flex items-end justify-between">
-        <div className="max-w-4xl">
-          <AnimatePresence mode="wait">
-            {active && (
-              <motion.div key={active.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-                <p className="text-accent text-[10px] tracking-[0.5em] uppercase font-black italic">{active.category}</p>
-                <h2 className="text-5xl md:text-[7vw] font-black text-white uppercase tracking-tighter leading-[0.8] italic">{active.title}</h2>
-                <button onClick={() => { setSelectedProject(active); setZoom(1); }} className="bg-white text-black px-10 py-4 rounded-md font-black uppercase text-xs flex items-center gap-2">
-                  <Play size={18} fill="black" /> VIEW PROJECT
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+    <section id="works" className="py-24 bg-black overflow-hidden">
+      <div className="section-container">
+        
+        {/* CATEGORY / GENRE PILLS */}
+        <div className="flex flex-wrap gap-4 mb-16 justify-center">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-6 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
+                activeCategory === cat 
+                ? 'bg-accent border-accent text-black shadow-[0_0_20px_rgba(var(--accent-rgb),0.4)]' 
+                : 'border-white/10 text-white/40 hover:border-white/60 hover:text-white'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
-        <div className="hidden md:flex gap-4">
-          <button onClick={() => swiperRef.current?.slidePrev()} className="p-4 bg-white/5 border border-white/10 rounded-full text-white"><ChevronLeft size={32} /></button>
-          <button onClick={() => swiperRef.current?.slideNext()} className="p-4 bg-white/5 border border-white/10 rounded-full text-white"><ChevronRight size={32} /></button>
-        </div>
-      </div>
 
-      {/* 3. ROW CAROUSEL */}
-      <div className="relative z-20 w-full pb-12 px-6 md:px-16">
-        <Swiper onSwiper={(s) => { swiperRef.current = s; }} onSlideChange={(s) => setActiveIndex(s.realIndex)} modules={[Navigation]} slidesPerView="auto" spaceBetween={15} loop={projects.length > 3}>
-          {projects.map((p, idx) => (
-            <SwiperSlide key={p.id} style={{ width: 'min(280px, 45vw)' }}>
-              <div onClick={() => swiperRef.current?.slideToLoop(idx)} className={`relative aspect-[16/9] rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${activeIndex === idx ? 'border-accent' : 'border-white/20'}`}>
-                <img src={p.card_thumbnail || p.image_url} className="w-full h-full object-cover" alt="" />
+        {/* SWIPER UI */}
+        <Swiper
+          modules={[Navigation, Pagination, EffectCoverflow]}
+          effect="coverflow"
+          grabCursor={true}
+          centeredSlides={true}
+          slidesPerView={'auto'}
+          loop={filteredProjects.length > 3}
+          coverflowEffect={{
+            rotate: 0,
+            stretch: 0,
+            depth: 100,
+            modifier: 2.5,
+            slideShadows: true,
+          }}
+          pagination={{ clickable: true }}
+          onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+          className="w-full py-12"
+        >
+          {filteredProjects.map((project, idx) => (
+            <SwiperSlide key={project.id} className="max-w-[400px] aspect-[4/5]">
+              <div 
+                className={`relative w-full h-full border-2 transition-all duration-500 overflow-hidden cursor-pointer ${
+                  activeIndex === idx ? 'border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.3)]' : 'border-white/10 grayscale opacity-40'
+                }`}
+                onClick={() => setSelectedProject(project)}
+              >
+                <img 
+                  src={project.image_url} 
+                  alt={project.title} 
+                  className="w-full h-full object-cover" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
+                <div className="absolute bottom-0 p-8">
+                  <span className="text-accent text-[8px] font-black tracking-widest uppercase">{project.category}</span>
+                  <h3 className="text-white text-2xl font-black uppercase mt-2">{project.title}</h3>
+                </div>
               </div>
             </SwiperSlide>
           ))}
         </Swiper>
+
+        {/* NAVIGATION CONTROLS */}
+        <div className="flex justify-center gap-6 mt-8">
+          <button className="swiper-prev p-4 border border-white/10 hover:border-accent hover:text-accent transition-all">
+            <ChevronLeft size={24} />
+          </button>
+          <button className="swiper-next p-4 border border-white/10 hover:border-accent hover:text-accent transition-all">
+            <ChevronRight size={24} />
+          </button>
+        </div>
       </div>
 
-      {/* 4. MODAL (THE GLASS DESIGN) */}
+      {/* LIGHTBOX / MODAL */}
       <AnimatePresence>
         {selectedProject && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[99999] bg-black/40 backdrop-blur-[45px] flex flex-col">
-            <div className="flex justify-between items-center p-8 z-[100] bg-black/10 backdrop-blur-md border-b border-white/5">
-               <h2 className="text-white uppercase font-black italic text-2xl tracking-tighter">{selectedProject.title}</h2>
-               <div className="flex gap-4">
-                  <button onClick={() => setZoom(z => Math.min(z + 0.5, 3))} className="p-3 bg-white/5 rounded-full text-white border border-white/10 hover:bg-white/20" title="Zoom In"><ZoomIn size={20}/></button>
-                  <button onClick={() => setZoom(z => Math.max(z - 0.5, 1))} className="p-3 bg-white/5 rounded-full text-white border border-white/10 hover:bg-white/20" title="Zoom Out"><ZoomOut size={20}/></button>
-                  <button onClick={() => { setSelectedProject(null); setZoom(1); }} className="p-3 bg-accent rounded-full text-black ml-4"><X size={20}/></button>
-               </div>
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl">
+            <button 
+              onClick={() => setSelectedProject(null)}
+              className="absolute top-10 right-10 text-white/50 hover:text-white transition-colors"
+            >
+              <X size={40} />
+            </button>
+            
+            <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div className="relative group overflow-hidden border border-white/10">
+                <img 
+                  src={selectedProject.image_url} 
+                  alt={selectedProject.title} 
+                  className="w-full h-auto object-cover" 
+                />
+              </div>
+              <div>
+                <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">{selectedProject.category}</span>
+                <h2 className="text-white text-5xl font-black uppercase mt-4 leading-none">{selectedProject.title}</h2>
+                <p className="text-white/60 mt-6 text-lg leading-relaxed font-light">{selectedProject.description || "Project description coming soon."}</p>
+                <button className="mt-10 btn-primary px-10 py-4">View Live Project</button>
+              </div>
             </div>
-            <div className="relative flex-1 flex items-center justify-center overflow-hidden">
-               <button onClick={(e) => { e.stopPropagation(); paginate(-1); }} className="absolute left-8 z-[110] p-5 bg-white/5 backdrop-blur-md rounded-full text-white hover:bg-accent border border-white/10"><ChevronLeft size={24} /></button>
-               <button onClick={(e) => { e.stopPropagation(); paginate(1); }} className="absolute right-8 z-[110] p-5 bg-white/5 backdrop-blur-md rounded-full text-white hover:bg-accent border border-white/10"><ChevronRight size={24} /></button>
-               <motion.div drag={zoom > 1} dragMomentum={false} dragElastic={0} className="flex items-center justify-center cursor-move">
-                 <motion.img key={selectedProject.id} animate={{ scale: zoom }} src={selectedProject.image_url} className="max-h-[85vh] w-auto object-contain shadow-[0_0_80px_rgba(0,0,0,0.8)]" alt={selectedProject.title} />
-               </motion.div>
-            </div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </section>
