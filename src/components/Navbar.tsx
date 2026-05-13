@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function Navbar() {
@@ -13,27 +13,25 @@ export default function Navbar() {
     if (typeof window === 'undefined') return;
 
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const current = window.scrollY;
+      setScrolled(current > 50);
       
-      // 1. Shadow/Blur toggle
-      setScrolled(currentScrollY > 50);
-      
-      // 2. Taskbar Auto-Hide (Show on Up, Hide on Down)
-      if (currentScrollY > lastScrollY && currentScrollY > 150) {
+      // Auto-hide: Hide on scroll down, Show on scroll up
+      if (current > lastScrollY && current > 150) {
         setVisible(false);
       } else {
         setVisible(true);
       }
-      setLastScrollY(currentScrollY);
+      setLastScrollY(current);
     };
 
-    // 3. Modal Detection (Syncs with body lock in SelectedWorks)
+    // Passive check for body lock (prevents UI overlap with Modals)
     const checkModal = () => {
       setIsModalOpen(document.body.style.overflow === 'hidden');
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    const modalInterval = setInterval(checkModal, 200);
+    const modalCheck = setInterval(checkModal, 250);
 
     const fetchContent = async () => {
       const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
@@ -51,18 +49,18 @@ export default function Navbar() {
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      clearInterval(modalInterval);
+      clearInterval(modalCheck);
     };
   }, [lastScrollY]);
 
-  // Combined visibility: Hide if (Scrolling Down) OR (Modal is Open)
-  const isActuallyVisible = visible && !isModalOpen;
+  // Logic: Hide if scrolling down OR if a Modal is active
+  const active = visible && !isModalOpen;
 
   return (
     <nav 
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-in-out ${
         scrolled ? 'backdrop-blur-md bg-black/80 shadow-lg' : 'bg-transparent'
-      } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
+      } ${active ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6 md:px-16">
         <button 
@@ -76,7 +74,10 @@ export default function Navbar() {
           <a href="#services" className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-accent transition-colors">Services</a>
           <a href="#works" className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-accent transition-colors">Works</a>
           <a href="#about" className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-accent transition-colors">About</a>
-          <a href="#contact" className="bg-accent text-black px-7 py-3 rounded-md text-[10px] font-black uppercase hover:scale-105 transition-transform shadow-lg">
+          <a 
+            href="#contact" 
+            className="bg-accent text-black px-7 py-3 rounded-md text-[10px] font-black uppercase hover:scale-105 transition-transform"
+          >
             {content.cta_text}
           </a>
         </div>
