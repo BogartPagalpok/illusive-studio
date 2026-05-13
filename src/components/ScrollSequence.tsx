@@ -14,7 +14,7 @@ interface ScrollSequenceProps {
 }
 
 export default function ScrollSequence({
-  frameCount = 288,
+  frameCount = 250, // Changed from 288 to 250
   filePrefix = 'frame_',
   fileExtension = 'webp',
   scrollLength = 4,
@@ -93,15 +93,13 @@ export default function ScrollSequence({
         scrollTrigger: {
           trigger: container,
           start: "top top",
-          // This dictates the exact scroll distance before unpinning (e.g., 400% of the screen)
           end: `+=${scrollLength * 100}%`, 
           scrub: 0.5,
-          pin: true, // GSAP handles freezing the section
+          pin: true, 
           anticipatePin: 1
         }
       });
 
-      // 1. Play Forward (Takes exactly the first 50% of the scroll)
       tl.to(frameObj, {
         frame: frameCount - 1,
         snap: "frame",
@@ -113,7 +111,6 @@ export default function ScrollSequence({
           }
         }
       })
-      // 2. Play Reverse (Takes exactly the remaining 50% of the scroll)
       .to(frameObj, {
         frame: 0,
         snap: "frame",
@@ -131,7 +128,6 @@ export default function ScrollSequence({
   }, [frameCount, drawFrame, scrollLength]);
 
   return (
-    // FIX: Removed the manual height style and sticky classes. GSAP takes full control here.
     <div ref={containerRef} className="relative w-full bg-black z-0">
       <div className="h-screen w-full overflow-hidden relative">
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" />
