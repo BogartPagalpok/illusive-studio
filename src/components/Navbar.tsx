@@ -121,12 +121,14 @@ export default function Navbar() {
                 }`} />
               </a>
             ))}
-            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="bg-accent text-black px-7 py-3 rounded-md text-[10px] font-black uppercase hover:scale-105 transition-all shadow-xl">
+            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="bg-accent text-black px-7 py-3 rounded-md text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
               {content.cta_text}
             </a>
           </div>
 
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white"><Menu size={28} /></button>
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white">
+            {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
         </div>
       </nav>
     </>
