@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/', 
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
     // Let Vite handle the chunks and assets folder automatically
   }
 });
