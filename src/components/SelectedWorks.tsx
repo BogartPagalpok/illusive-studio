@@ -35,9 +35,9 @@ export default function SelectedWorks() {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      setAllData(data || []);
+      if (data) setAllData(data);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch failed");
     } finally {
       setLoading(false);
     }
@@ -45,10 +45,10 @@ export default function SelectedWorks() {
 
   useEffect(() => { fetchWorks(); }, [fetchWorks]);
 
-  // FIX 1: GROUPING LOGIC - Filter duplicates so 1 project = 1 card
+  // GROUPING: Merge rows with same title into one card for the rail
   const projects = useMemo(() => {
     const unique: Project[] = [];
-    const seen = new Set();
+    const seen = new Set<string>();
     allData.forEach(p => {
       if (!seen.has(p.title)) {
         seen.add(p.title);
@@ -75,10 +75,11 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
       
+      {/* 1. BACKGROUND ENGINE */}
       <AnimatePresence mode="wait">
         {current && (
           <motion.div
-            key={`bg-${current.id}`}
+            key={current.id}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -94,7 +95,7 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pb-12">
         
-        {/* FIX 2: CATEGORIES TOP-LEFT */}
+        {/* 2. CATEGORIES - TOP LEFT FIX */}
         <div className="flex gap-6 items-center pt-24 md:pt-32 justify-start overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
@@ -109,7 +110,7 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* FIX 3: ANCHOR CONTENT TO BOTTOM */}
+        {/* 3. HERO + RAIL - PINNED TO BOTTOM */}
         <div className="mt-auto flex flex-col gap-10">
           
           <div className="max-w-4xl">
@@ -118,21 +119,19 @@ export default function SelectedWorks() {
                 <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
                   {current.category}
                 </span>
-                {/* FIX 4: DESKTOP FONT SCALE */}
+                {/* 4. DESKTOP FONT SCALE FIX */}
                 <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
                   {current.title}
                 </h1>
                 <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-8 max-w-xl line-clamp-3">
                   {current.description}
                 </p>
-                <div className="flex gap-4">
-                  <button 
-                    onClick={() => setSelectedTitle(current.title)}
-                    className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
-                  >
-                    <Play size={14} fill="black" /> View Project
-                  </button>
-                </div>
+                <button 
+                  onClick={() => setSelectedTitle(current.title)}
+                  className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
+                >
+                  <Play size={14} fill="black" /> View Project
+                </button>
               </div>
             )}
           </div>
@@ -173,7 +172,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* MULTI-IMAGE MODAL */}
+      {/* 5. MODAL GALLERY */}
       <AnimatePresence>
         {selectedTitle && (
           <motion.div 
