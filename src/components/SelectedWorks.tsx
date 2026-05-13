@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
-import { ChevronLeft, ChevronRight, Play, Loader2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Info, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
@@ -128,16 +128,16 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 h-screen min-h-[700px] flex flex-col justify-between px-8 md:px-16 py-12">
+      <div className="relative z-10 min-h-screen md:h-screen md:min-h-[700px] flex flex-col justify-between px-4 sm:px-6 md:px-16 py-8 md:py-12">
         
         {/* 2. GENRE NAVIGATION (Top Bar) */}
-        <div className="flex gap-6 md:gap-8 items-center pt-8 overflow-x-auto pb-4">
+        <div className="flex gap-3 sm:gap-6 md:gap-8 items-center pt-6 md:pt-8 overflow-x-auto pb-4">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setActiveCategory(cat)}
-              className={`text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+              className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
                 activeCategory === cat 
                   ? 'text-white scale-110' 
                   : 'text-white/40 hover:text-white'
@@ -149,7 +149,7 @@ export default function SelectedWorks() {
         </div>
 
         {/* 3. HERO CONTENT (The Movie Info) */}
-        <div className="max-w-3xl mb-12">
+        <div className="max-w-3xl mb-8 md:mb-12">
           <AnimatePresence mode="wait">
             {currentProject && (
               <motion.div
@@ -159,22 +159,29 @@ export default function SelectedWorks() {
                 exit={{ y: -20, opacity: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <span className="text-accent text-sm font-black tracking-[0.3em] uppercase block mb-4">
+                <span className="text-accent text-[10px] sm:text-xs md:text-sm font-black tracking-[0.3em] uppercase block mb-2 md:mb-4">
                   {currentProject?.category}
                 </span>
-                <h1 className="text-white text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
+                <h1 className="text-white text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-4 md:mb-6">
                   {currentProject?.title}
                 </h1>
-                <p className="text-white/70 text-lg md:text-xl font-light leading-relaxed mb-8 max-w-2xl">
+                <p className="text-white/70 text-xs sm:text-sm md:text-lg lg:text-xl font-light leading-relaxed mb-6 md:mb-8 max-w-2xl">
                   {currentProject?.description || "Pushing the boundaries of creative excellence and innovative design."}
                 </p>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-2 md:gap-4">
                   <button 
                     type="button"
                     onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-2 bg-white text-black px-8 py-3 font-bold rounded hover:bg-white/80 transition-all"
+                    className="flex items-center gap-2 bg-white text-black px-4 sm:px-6 md:px-8 py-2 md:py-3 font-bold text-xs md:text-sm rounded hover:bg-white/80 transition-all"
                   >
-                    <Play size={20} fill="black" /> View Project
+                    <Play size={16} className="md:w-5 md:h-5" fill="black" /> View Project
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setSelectedProject(currentProject)}
+                    className="flex items-center gap-2 bg-white/20 text-white px-4 sm:px-6 md:px-8 py-2 md:py-3 font-bold text-xs md:text-sm rounded backdrop-blur-md hover:bg-white/30 transition-all"
+                  >
+                    <Info size={16} className="md:w-5 md:h-5" /> Details
                   </button>
                 </div>
               </motion.div>
@@ -183,26 +190,60 @@ export default function SelectedWorks() {
         </div>
 
         {/* 4. UP NEXT RAIL (Bottom Swiper) */}
-        <div className="w-full pb-8">
-          <h2 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em] mb-4">
-            Current Project
+        <div className="w-full pb-6 md:pb-8">
+          <h2 className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-3 md:mb-4">
+            Up Next in Portfolio
           </h2>
           
-          {currentProject ? (
-            <div className="relative">
-              <div 
-                onClick={() => setSelectedProject(currentProject)}
-                className="relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 border-accent shadow-[0_0_20px_var(--accent)] max-w-[240px] md:max-w-[320px]"
+          {filteredProjects.length > 0 ? (
+            <>
+              <Swiper
+                onSwiper={(s) => (swiperRef.current = s)}
+                modules={[Navigation]}
+                spaceBetween={12}
+                slidesPerView={'auto'}
+                navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
+                onSlideChange={(s) => setActiveIndex(s.realIndex)}
+                className="overflow-visible"
               >
-                <img 
-                  src={currentProject.image_url} 
-                  className="w-full h-full object-cover" 
-                  alt={currentProject.title} 
-                />
+                {filteredProjects.map((project, idx) => (
+                  <SwiperSlide key={project.id} className="!w-[120px] sm:!w-[160px] md:!w-[240px]">
+                    <div 
+                      onClick={() => swiperRef.current?.slideTo(idx)}
+                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
+                        activeIndex === idx 
+                          ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' 
+                          : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
+                      }`}
+                    >
+                      <img 
+                        src={project.image_url} 
+                        className="w-full h-full object-cover" 
+                        alt={project.title} 
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              
+              {/* Mini Nav Controls */}
+              <div className="flex gap-3 md:gap-4 mt-4 md:mt-6">
+                <button 
+                  type="button"
+                  className="rail-prev text-white/20 hover:text-white transition-colors"
+                >
+                  <ChevronLeft size={20} className="md:w-6 md:h-6" />
+                </button>
+                <button 
+                  type="button"
+                  className="rail-next text-white/20 hover:text-white transition-colors"
+                >
+                  <ChevronRight size={20} className="md:w-6 md:h-6" />
+                </button>
               </div>
-            </div>
+            </>
           ) : (
-            <div className="text-white/10 text-xs font-black uppercase tracking-[0.2em]">
+            <div className="text-white/10 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">
               No projects available
             </div>
           )}
@@ -216,15 +257,15 @@ export default function SelectedWorks() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/95 backdrop-blur-lg"
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6 bg-black/95 backdrop-blur-lg"
             onClick={() => setSelectedProject(null)}
           >
             <button 
               type="button"
               onClick={() => setSelectedProject(null)} 
-              className="absolute top-8 right-8 text-white hover:text-accent transition-colors z-[1001]"
+              className="absolute top-4 sm:top-8 right-4 sm:right-8 text-white hover:text-accent transition-colors z-[1001]"
             >
-              <X size={40} />
+              <X size={32} className="sm:w-10 sm:h-10" />
             </button>
             
             <motion.div 
@@ -232,7 +273,7 @@ export default function SelectedWorks() {
               animate={{ scale: 1, y: 0 }} 
               transition={{ duration: 0.3 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-12 items-center"
+              className="max-w-6xl w-full grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center"
             >
               <div className="border border-white/20 rounded-lg overflow-hidden">
                 <img 
@@ -242,22 +283,22 @@ export default function SelectedWorks() {
                 />
               </div>
               <div className="text-left">
-                <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">
+                <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase">
                   {selectedProject.category}
                 </span>
-                <h2 className="text-white text-5xl md:text-7xl font-black uppercase mt-4 leading-tight">
+                <h2 className="text-white text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-black uppercase mt-3 md:mt-4 leading-tight">
                   {selectedProject.title}
                 </h2>
-                <p className="text-white/60 mt-8 text-lg leading-relaxed font-light">
+                <p className="text-white/60 mt-4 md:mt-8 text-xs sm:text-sm md:text-lg leading-relaxed font-light">
                   {selectedProject.description || "A stunning visual creation from our portfolio."}
                 </p>
-                <div className="mt-12 h-[1px] w-full bg-white/10" />
-                <div className="mt-8">
+                <div className="mt-8 md:mt-12 h-[1px] w-full bg-white/10" />
+                <div className="mt-6 md:mt-8">
                   <button 
                     type="button"
-                    className="flex items-center gap-2 bg-accent text-black px-8 py-3 font-bold rounded hover:bg-accent/80 transition-all"
+                    className="flex items-center gap-2 bg-accent text-black px-4 sm:px-6 md:px-8 py-2 md:py-3 font-bold text-xs md:text-sm rounded hover:bg-accent/80 transition-all"
                   >
-                    <Play size={20} fill="black" /> Explore Project
+                    <Play size={16} className="md:w-5 md:h-5" fill="black" /> Explore Project
                   </button>
                 </div>
               </div>
