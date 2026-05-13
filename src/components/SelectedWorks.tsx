@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, EffectCoverflow } from 'swiper/modules';
 import { ZoomIn, ZoomOut, X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
 // Swiper Styles
@@ -147,10 +148,10 @@ export default function SelectedWorks() {
 
         {/* NAVIGATION CONTROLS */}
         <div className="flex justify-center gap-6 mt-8">
-          <button className="swiper-prev p-4 border border-white/10 hover:border-accent hover:text-accent transition-all">
+          <button className="swiper-prev p-4 border border-white/10 hover:border-accent hover:text-accent transition-all text-white">
             <ChevronLeft size={24} />
           </button>
-          <button className="swiper-next p-4 border border-white/10 hover:border-accent hover:text-accent transition-all">
+          <button className="swiper-next p-4 border border-white/10 hover:border-accent hover:text-accent transition-all text-white">
             <ChevronRight size={24} />
           </button>
         </div>
