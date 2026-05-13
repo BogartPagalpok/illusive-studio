@@ -166,8 +166,8 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   setTimeout(() => { ScrollTrigger.refresh(); }, 150);
 
   if (syncToCloud) {
+    console.log(`[Theme Sync] Attempting to push ${theme.id} to Supabase...`);
     try {
-      // MASTER SYNC: Changed key to 'active_theme' to match your database
       const { error } = await supabase
         .from('site_config')
         .update({ 
@@ -176,38 +176,50 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
         })
         .eq('id', 1);
         
-      if (error) console.error("Sync Error:", error.message);
+      if (error) {
+        console.error("[Theme Sync] Database blocked the update (Check RLS Policies!):", error.message);
+      } else {
+        console.log(`[Theme Sync] Successfully saved ${theme.id} to Database!`);
+      }
     } catch (err) {
-      console.warn("Cloud sync failed.");
+      console.error("[Theme Sync] Network or try/catch failure:", err);
     }
   }
 }
 
 export async function loadSavedTheme() {
+  console.log("[Theme Load] Fetching initial theme from database...");
   try {
-    // FETCH: Changed key to 'active_theme' to match your database
     const { data, error } = await supabase
       .from('site_config')
       .select('active_theme')
       .eq('id', 1)
       .maybeSingle();
     
-    if (!error && data?.active_theme) {
+    if (error) {
+      console.error("[Theme Load] Failed to fetch theme:", error.message);
+    } else if (data?.active_theme) {
+      console.log(`[Theme Load] Found theme in DB: ${data.active_theme}`);
       const theme = themePresets.find((t) => t.id === data.active_theme);
       if (theme) {
         applyTheme(theme, false);
         return;
+      } else {
+        console.warn(`[Theme Load] Theme '${data.active_theme}' not found in presets array!`);
       }
     }
   } catch (error) {
-    console.warn("Master Theme fetch failed.");
+    console.error("[Theme Load] Critical fetch crash:", error);
   }
 
+  console.log("[Theme Load] Falling back to default VOID theme.");
   const defaultTheme = themePresets.find((t) => t.id === 'VOID');
   if (defaultTheme) applyTheme(defaultTheme, false);
 }
 
 export function subscribeToThemeChanges() {
+  console.log("[Theme Listener] Initializing connection to Supabase Realtime...");
+  
   return supabase
     .channel('global-theme-changes')
     .on(
@@ -219,15 +231,23 @@ export function subscribeToThemeChanges() {
         filter: 'id=eq.1' 
       },
       (payload) => {
-        // LISTENER: Changed key to 'active_theme' to match your database
+        console.log("[Theme Listener] Realtime Ping Received!", payload);
         const newThemeId = payload.new.active_theme;
+        
         if (newThemeId) {
           const theme = themePresets.find(t => t.id === newThemeId);
           if (theme) {
+            console.log(`[Theme Listener] Applying new theme across network: ${theme.id}`);
             applyTheme(theme, false); 
           }
         }
       }
     )
-    .subscribe();
+    .subscribe((status, err) => {
+      if (err) {
+        console.error("[Theme Listener] Failed to connect to channel:", err);
+      } else {
+        console.log(`[Theme Listener] Channel Status: ${status}`);
+      }
+    });
 }
