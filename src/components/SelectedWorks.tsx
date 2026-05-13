@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, EffectCoverflow } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper';
 import { X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
@@ -28,6 +29,8 @@ export default function SelectedWorks() {
   const [error, setError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  
+  const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
     const fetchWorks = async () => {
@@ -39,8 +42,6 @@ export default function SelectedWorks() {
           .order('created_at', { ascending: false });
 
         if (dbError) throw dbError;
-        
-        console.log(`Debug: Found ${data?.length || 0} projects in DB`);
         setProjects(data || []);
         setFilteredProjects(data || []);
       } catch (err: any) {
@@ -56,7 +57,15 @@ export default function SelectedWorks() {
     const filtered = activeCategory === 'All' 
       ? projects 
       : projects.filter(p => p.category === activeCategory);
+    
     setFilteredProjects(filtered);
+    
+    // Manual re-initialization for Swiper
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(0, 0);
+      swiperRef.current.update();
+    }
+    setActiveIndex(0);
   }, [activeCategory, projects]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -69,25 +78,24 @@ export default function SelectedWorks() {
   }, [handleKeyDown]);
 
   if (loading) return (
-    <div className="h-96 flex flex-col items-center justify-center bg-black gap-4">
+    <div className="h-[60vh] flex flex-col items-center justify-center bg-black gap-4">
       <Loader2 className="w-10 h-10 text-accent animate-spin" />
       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Syncing Engine...</p>
     </div>
   );
 
   if (error) return (
-    <div className="h-96 flex flex-col items-center justify-center bg-black p-8 text-center border border-red-500/20">
+    <div className="h-96 flex flex-col items-center justify-center bg-black p-8 text-center">
       <p className="text-red-500 font-black uppercase tracking-widest text-sm mb-2">Sync Failed</p>
-      <p className="text-white/40 text-xs max-w-md mb-6">{error}</p>
-      <button onClick={() => window.location.reload()} className="px-8 py-3 border border-white/20 text-white text-[10px] font-black uppercase hover:border-accent hover:text-accent transition-all">
-        Retry Sync
-      </button>
+      <p className="text-white/40 text-xs max-w-md">{error}</p>
     </div>
   );
 
   return (
     <section id="works" className="py-24 bg-black overflow-hidden relative">
       <div className="section-container">
+        
+        {/* GENRE PILLS */}
         <div className="flex flex-wrap gap-4 mb-16 justify-center">
           {CATEGORIES.map((cat) => (
             <button
@@ -104,8 +112,10 @@ export default function SelectedWorks() {
           ))}
         </div>
 
+        {/* SWIPER */}
         {filteredProjects.length > 0 ? (
           <Swiper
+            onSwiper={(swiper) => (swiperRef.current = swiper)}
             modules={[Navigation, Pagination, EffectCoverflow]}
             effect="coverflow"
             grabCursor={true}
@@ -116,21 +126,21 @@ export default function SelectedWorks() {
             coverflowEffect={{ rotate: 0, stretch: 0, depth: 100, modifier: 2.5, slideShadows: true }}
             pagination={{ clickable: true }}
             onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-            className="w-full py-12"
+            className="w-full !py-12"
           >
             {filteredProjects.map((project, idx) => (
-              <SwiperSlide key={project.id} className="max-w-[400px] aspect-[4/5]">
+              <SwiperSlide key={project.id} className="!w-[300px] sm:!w-[400px] aspect-[4/5]">
                 <div 
                   className={`relative w-full h-full border-2 transition-all duration-700 overflow-hidden cursor-pointer ${
-                    activeIndex === idx ? 'border-accent shadow-[0_0_40px_rgba(var(--accent-rgb),0.4)] scale-105' : 'border-white/10 grayscale opacity-40 scale-95'
+                    activeIndex === idx ? 'border-accent scale-105' : 'border-white/10 grayscale opacity-40 scale-95'
                   }`}
                   onClick={() => setSelectedProject(project)}
                 >
                   <img src={project.image_url} alt={project.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
-                  <div className="absolute bottom-0 p-8">
+                  <div className="absolute bottom-0 p-8 w-full">
                     <span className="text-accent text-[8px] font-black tracking-widest uppercase">{project.category}</span>
-                    <h3 className="text-white text-2xl font-black uppercase mt-2">{project.title}</h3>
+                    <h3 className="text-white text-2xl font-black uppercase mt-2 truncate">{project.title}</h3>
                   </div>
                 </div>
               </SwiperSlide>
@@ -138,11 +148,11 @@ export default function SelectedWorks() {
           </Swiper>
         ) : (
           <div className="h-64 flex flex-col items-center justify-center text-white/10 border border-white/5 border-dashed">
-            <span className="uppercase font-black tracking-[0.4em] mb-2">Zero Assets Found</span>
-            <span className="text-[10px] lowercase">Check database tables or RLS policies</span>
+            <span className="uppercase font-black tracking-[0.4em]">Zero Assets Found</span>
           </div>
         )}
 
+        {/* NAV */}
         <div className="flex justify-center gap-6 mt-8">
           <button className="swiper-prev p-4 border border-white/10 hover:border-accent hover:text-accent transition-all text-white rounded-full">
             <ChevronLeft size={24} />
@@ -153,6 +163,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
+      {/* MODAL */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
@@ -163,17 +174,17 @@ export default function SelectedWorks() {
               <X size={40} />
             </button>
             <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center px-4">
-              <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="border border-white/10 bg-white/5">
+              <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="border border-white/10 bg-white/5">
                 <img src={selectedProject.image_url} alt={selectedProject.title} className="w-full h-auto object-cover" />
               </motion.div>
-              <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+              <div className="text-left">
                 <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">{selectedProject.category}</span>
                 <h2 className="text-white text-5xl md:text-7xl font-black uppercase mt-4 leading-none">{selectedProject.title}</h2>
-                <p className="text-white/60 mt-8 text-lg leading-relaxed font-light">{selectedProject.description || "Visual asset."}</p>
+                <p className="text-white/60 mt-8 text-lg leading-relaxed font-light">{selectedProject.description || "Visual asset execution."}</p>
                 <button className="mt-12 bg-accent text-black px-10 py-4 font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all">
                   Launch Case Study
                 </button>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         )}
