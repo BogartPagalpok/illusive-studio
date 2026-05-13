@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
+// Swiper Styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -24,7 +25,7 @@ export default function SelectedWorks() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedProjectTitle, setSelectedProjectTitle] = useState<string | null>(null);
+  const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
 
   const fetchWorks = useCallback(async () => {
@@ -34,32 +35,41 @@ export default function SelectedWorks() {
         .from('portfolio_projects')
         .select('*')
         .order('created_at', { ascending: false });
+
       if (error) throw error;
-      setAllData(data || []);
+      if (data) setAllData(data);
     } catch (err) {
-      console.error(err);
+      console.error("Fetch failed");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { fetchWorks(); }, [fetchWorks]);
+  useEffect(() => {
+    fetchWorks();
+  }, [fetchWorks]);
 
-  // GROUPING LOGIC: Same name = One Project
+  // Grouping: Ensures one card per project name
   const projects = useMemo(() => {
-    const grouped = allData.reduce((acc: Project[], item) => {
-      const exists = acc.find((p) => p.title === item.title);
-      if (!exists) acc.push(item);
-      return acc;
-    }, []);
+    const uniqueProjects: Project[] = [];
+    const seenTitles = new Set<string>();
+
+    allData.forEach((item) => {
+      if (!seenTitles.has(item.title)) {
+        seenTitles.add(item.title);
+        uniqueProjects.push(item);
+      }
+    });
 
     return activeCategory === 'All' 
-      ? grouped 
-      : grouped.filter(p => p.category === activeCategory);
+      ? uniqueProjects 
+      : uniqueProjects.filter(p => p.category === activeCategory);
   }, [allData, activeCategory]);
 
   useEffect(() => {
-    if (swiperRef.current) swiperRef.current.slideTo(0);
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(0, 0);
+    }
     setActiveIndex(0);
   }, [activeCategory]);
 
@@ -69,27 +79,26 @@ export default function SelectedWorks() {
     </div>
   );
 
-  const currentProject = projects[activeIndex];
-  const modalGallery = allData.filter(p => p.title === selectedProjectTitle);
+  const current = projects[activeIndex] || null;
+  const gallery = allData.filter(p => p.title === selectedTitle);
 
   return (
     <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND */}
+      {/* 1. BACKGROUND */}
       <AnimatePresence mode="wait">
-        {currentProject && (
+        {current && (
           <motion.div
-            key={`bg-${currentProject.id}`}
+            key={current.id}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
             className="absolute inset-0 z-0"
           >
             <img 
-              src={currentProject.image_url} 
-              className="w-full h-full object-cover opacity-40 pointer-events-none"
-              alt="Background"
+              src={current.image_url} 
+              className="w-full h-full object-cover opacity-40 pointer-events-none" 
+              alt="Background" 
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
@@ -97,14 +106,13 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pb-10">
+      <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pb-12">
         
-        {/* 2. TOP-LEFT CATEGORIES */}
+        {/* 2. TOP NAV */}
         <div className="flex gap-6 items-center pt-24 md:pt-32 justify-start overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
-              type="button"
               onClick={() => setActiveCategory(cat)}
               className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
                 activeCategory === cat ? 'text-white border-b-2 border-accent pb-1' : 'text-white/30 hover:text-white'
@@ -115,56 +123,43 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. BOTTOM STACK - Pinned Hero + Rail */}
-        <div className="mt-auto flex flex-col gap-8 md:gap-12">
+        {/* 3. HERO + RAIL (BOTTOM ANCHOR) */}
+        <div className="mt-auto flex flex-col gap-10">
           
           <div className="max-w-4xl">
-            <AnimatePresence mode="wait">
-              {currentProject && (
-                <motion.div
-                  key={`hero-${currentProject.id}`}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -10, opacity: 0 }}
-                  transition={{ duration: 0.5 }}
+            {current && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
+                  {current.category}
+                </span>
+                <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4">
+                  {current.title}
+                </h1>
+                <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-8 max-w-xl line-clamp-3">
+                  {current.description}
+                </p>
+                <button 
+                  onClick={() => setSelectedTitle(current.title)}
+                  className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
                 >
-                  <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
-                    {currentProject.category}
-                  </span>
-                  {/* Desktop Font Fixed: md:text-6xl max */}
-                  <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
-                    {currentProject.title}
-                  </h1>
-                  <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-8 max-w-xl line-clamp-3">
-                    {currentProject.description || "Experimental visual design and digital texture reconstruction."}
-                  </p>
-                  <button 
-                    type="button"
-                    onClick={() => setSelectedProjectTitle(currentProject.title)}
-                    className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
-                  >
-                    <Play size={14} fill="black" /> View Project
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  <Play size={14} fill="black" /> View Project
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* 4. UP NEXT RAIL */}
           <div className="w-full">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">
-                Up Next In Portfolio
-              </h2>
+              <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">Up Next</h2>
               <div className="flex gap-4">
-                <button type="button" className="rail-prev text-white/40 hover:text-white transition-all"><ChevronLeft size={20} /></button>
-                <button type="button" className="rail-next text-white/40 hover:text-white transition-all"><ChevronRight size={20} /></button>
+                <button className="rail-prev text-white/40 hover:text-white"><ChevronLeft size={20} /></button>
+                <button className="rail-next text-white/40 hover:text-white"><ChevronRight size={20} /></button>
               </div>
             </div>
             
             <Swiper
               key={activeCategory} 
-              onSwiper={(s) => (swiperRef.current = s)}
+              onSwiper={(s) => { swiperRef.current = s; }}
               modules={[Navigation]}
               spaceBetween={12}
               slidesPerView={'auto'}
@@ -172,17 +167,15 @@ export default function SelectedWorks() {
               onSlideChange={(s) => setActiveIndex(s.realIndex)}
               className="!overflow-visible"
             >
-              {projects.map((project, idx) => (
-                <SwiperSlide key={project.id} className="!w-[130px] md:!w-[220px]">
+              {projects.map((p, idx) => (
+                <SwiperSlide key={p.id} className="!w-[130px] md:!w-[230px]">
                   <div 
                     onClick={() => swiperRef.current?.slideTo(idx)}
-                    className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
-                      activeIndex === idx 
-                        ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' 
-                        : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                    className={`relative aspect-video cursor-pointer transition-all duration-500 border-2 ${
+                      activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' : 'border-transparent opacity-40 grayscale hover:opacity-100'
                     }`}
                   >
-                    <img src={project.image_url} className="w-full h-full object-cover" alt="thumb" />
+                    <img src={p.image_url} className="w-full h-full object-cover" alt="thumbnail" />
                   </div>
                 </SwiperSlide>
               ))}
@@ -191,22 +184,21 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* 5. MULTI-IMAGE MODAL */}
+      {/* 4. MODAL */}
       <AnimatePresence>
-        {selectedProjectTitle && (
+        {selectedTitle && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[1000] bg-black/98 backdrop-blur-3xl overflow-y-auto"
           >
             <div className="sticky top-0 z-[1001] flex justify-between items-center px-8 py-8 bg-black/80 backdrop-blur-md">
-              <h2 className="text-white text-2xl font-black uppercase tracking-tighter">{selectedProjectTitle}</h2>
-              <button type="button" onClick={() => setSelectedProjectTitle(null)} className="text-white/50 hover:text-white"><X size={32} /></button>
+              <h2 className="text-white text-2xl font-black uppercase">{selectedTitle}</h2>
+              <button onClick={() => setSelectedTitle(null)} className="text-white/50 hover:text-white"><X size={32} /></button>
             </div>
             <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
-              {modalGallery.map((img, i) => (
-                <div key={img.id} className="flex flex-col gap-6">
-                  <img src={img.image_url} className="w-full border border-white/10 shadow-2xl" alt="gallery" />
-                  {i === 0 && img.description && <p className="text-white/60 text-lg font-light leading-relaxed">{img.description}</p>}
+              {gallery.map((img) => (
+                <div key={img.id}>
+                  <img src={img.image_url} className="w-full border border-white/10" alt="gallery" />
                 </div>
               ))}
             </div>
