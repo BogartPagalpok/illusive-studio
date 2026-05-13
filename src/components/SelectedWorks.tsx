@@ -17,7 +17,7 @@ export default function SelectedWorks() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   const swiperRef = useRef<SwiperType | null>(null);
 
-  // 1. AUTO-HIDE NAVBAR (Only shows on top hover, hidden when modal is open)
+  // 1. AUTO-HIDE NAVBAR (Stops the overlap blocking the X button)
   useEffect(() => {
     const nav = document.querySelector('nav');
     if (!nav) return;
@@ -36,19 +36,17 @@ export default function SelectedWorks() {
 
     if (selectedProject) {
       document.body.style.overflow = 'hidden';
-      nav.style.opacity = '0';
-      nav.style.pointerEvents = 'none';
+      nav.style.display = 'none';
     } else {
       document.body.style.overflow = 'unset';
-      nav.style.opacity = '1';
-      nav.style.pointerEvents = 'auto';
-      nav.style.transition = 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
+      nav.style.display = 'flex';
+      nav.style.transition = 'all 0.4s ease';
       window.addEventListener('mousemove', handleMouseMove);
     }
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [selectedProject]);
 
-  // 2. DATA FETCHING (Corrected to your Admin Panel fields)
+  // 2. DATA FETCH: Preserving Overview, Workflow, and Tech Stack
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await supabase
@@ -56,16 +54,17 @@ export default function SelectedWorks() {
         .select('*')
         .eq('featured', true)
         .order('created_at', { ascending: false });
+
       if (data) {
         const grouped: Record<string, any> = {};
         data.forEach((item) => {
           const cleanTitle = item.title.replace(/\.[^/.]+$/, '').trim();
           if (!grouped[cleanTitle]) {
+            // CRITICAL: Spreading 'item' ensures overview, workflow, etc., are NOT stripped
             grouped[cleanTitle] = { 
               ...item, 
               title: cleanTitle, 
               all_images: [item.image_url],
-              // Map tech_stack from DB to tools array
               tools: item.tech_stack ? item.tech_stack.split(',').map((t: string) => t.trim()) : []
             };
           } else {
@@ -86,8 +85,8 @@ export default function SelectedWorks() {
           <h2 className="text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
         </div>
 
-        {/* CLAMPED HEIGHT: Stops "Oversize" and layout bouncing */}
-        <div className="relative group h-[clamp(480px,65vh,680px)] overflow-visible">
+        {/* CLAMPED SIZE: Stops the "Huge Screen" oversize issue */}
+        <div className="relative group h-[clamp(450px,65vh,680px)] overflow-visible">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
             modules={[EffectCoverflow, Navigation, Pagination]}
@@ -139,26 +138,26 @@ export default function SelectedWorks() {
                 )}
               </div>
 
-              {/* DETAILS RESTORED: Mapping overview, workflow, and tech_stack */}
-              <div className="text-left md:w-2/5 p-4">
+              {/* DETAILS SECTION: Fixed Readability and Preserved Data */}
+              <div className="text-left md:w-2/5 p-4 max-w-xl">
                 <span className="text-accent text-xs tracking-[0.4em] uppercase font-bold">{selectedProject.category}</span>
                 <h2 className="text-5xl md:text-7xl font-bold text-white uppercase mt-4 mb-8 tracking-tighter leading-none">{selectedProject.title}</h2>
                 <div className="space-y-6">
-                  {/* Overview Field */}
-                  <p className="text-gray-400 text-lg leading-relaxed">{selectedProject.overview || selectedProject.description}</p>
+                  {/* Overview Field - Higher Contrast Text */}
+                  <p className="text-gray-200 text-lg leading-relaxed font-medium">{selectedProject.overview || selectedProject.description}</p>
                   
                   {/* Workflow Field */}
                   {selectedProject.workflow && (
-                    <div className="pt-4 border-t border-white/5">
-                      <p className="text-white/40 text-[10px] uppercase tracking-widest mb-2 font-bold">Process</p>
-                      <p className="text-gray-500 text-sm leading-relaxed italic">{selectedProject.workflow}</p>
+                    <div className="pt-4 border-t border-white/10">
+                      <p className="text-white/50 text-[10px] uppercase tracking-widest mb-2 font-bold">Process & Strategy</p>
+                      <p className="text-gray-400 text-sm leading-relaxed italic">{selectedProject.workflow}</p>
                     </div>
                   )}
 
                   {/* Tech Stack Mapping */}
                   <div className="pt-6 flex flex-wrap gap-2">
-                    {selectedProject.tools.map((t: string) => (
-                      <span key={t} className="px-3 py-1 border border-white/10 rounded-sm text-[9px] uppercase text-white/50 tracking-widest">{t}</span>
+                    {selectedProject.tools?.map((t: string) => (
+                      <span key={t} className="px-3 py-1 border border-white/20 rounded-sm text-[9px] uppercase text-white tracking-widest bg-white/5">{t}</span>
                     ))}
                   </div>
                 </div>
