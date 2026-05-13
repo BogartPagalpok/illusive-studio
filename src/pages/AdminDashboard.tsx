@@ -6,18 +6,8 @@ import SiteContentManager from '../components/admin/SiteContentManager';
 import ProjectManager from '../components/admin/ProjectManager';
 import { supabase } from '../lib/supabase';
 
-const THEMES = [
-  { id: 'void', name: 'Void', tagline: 'Deep Web3 Purple', accent: '#9D00FF', bgPrimary: '#030305', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(157, 0, 255, 0.15) 0%, rgba(3, 3, 5, 0) 70%)' },
-  { id: 'light', name: 'Clean', tagline: 'App Interface', accent: '#FF3366', bgPrimary: '#F0F0F3', bgGradient: 'none' },
-  { id: 'magma', name: 'Magma', tagline: 'Industrial Cyberpunk', accent: '#FF4500', bgPrimary: '#050303', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(255, 69, 0, 0.12) 0%, rgba(5, 3, 3, 0) 70%)' },
-  { id: 'toxic', name: 'Toxic', tagline: 'Acid Techwear', accent: '#D4FF00', bgPrimary: '#030503', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(57, 255, 20, 0.12) 0%, rgba(3, 5, 3, 0) 70%)' },
-  { id: 'ocean', name: 'Ocean', tagline: 'Deep Sea Crypto', accent: '#00FFFF', bgPrimary: '#010609', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(0, 255, 255, 0.12) 0%, rgba(1, 6, 9, 0) 70%)' },
-  { id: 'gold', name: 'Gold', tagline: 'Metallic Luxury', accent: '#FFD700', bgPrimary: '#050402', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(255, 215, 0, 0.12) 0%, rgba(5, 4, 2, 0) 70%)' },
-  { id: 'synth', name: 'Synth', tagline: 'Retrowave Neon', accent: '#FF0080', bgPrimary: '#070205', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(255, 0, 128, 0.15) 0%, rgba(7, 2, 5, 0) 70%)' },
-  { id: 'glitch', name: 'Glitch', tagline: 'Crimson Hacker', accent: '#DC143C', bgPrimary: '#050000', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(220, 20, 60, 0.15) 0%, rgba(5, 0, 0, 0) 70%)' },
-  { id: 'ice', name: 'Ice', tagline: 'Arctic Frost', accent: '#87CEFA', bgPrimary: '#020508', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(135, 206, 250, 0.12) 0%, rgba(2, 5, 8, 0) 70%)' },
-  { id: 'brutal', name: 'Brutal', tagline: 'Monochrome High-Contrast', accent: '#FFFFFF', bgPrimary: '#000000', bgGradient: 'none' },
-];
+// 1. IMPORT THE MASTER ENGINE AND PRESETS
+import { applyTheme, themePresets } from '../lib/themes';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -28,42 +18,26 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [message, setMessage] = useState('');
   
   const [activeThemeId, setActiveThemeId] = useState(() => {
-    return localStorage.getItem('portfolio-theme') || 'void';
+    return localStorage.getItem('portfolio-theme') || 'VOID';
   });
-
-  const applyThemeToDOM = (themeId: string) => {
-    document.documentElement.setAttribute('data-theme', themeId);
-    document.body.setAttribute('data-theme', themeId);
-  };
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('portfolio-theme') || 'void';
-    applyThemeToDOM(savedTheme);
-  }, []);
 
   const showMessage = (msg: string) => {
     setMessage(msg);
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const handleThemeSelect = async (theme: typeof THEMES[0]) => {
-    // 1. Update UI and Local Storage immediately
-    applyThemeToDOM(theme.id);
-    localStorage.setItem('portfolio-theme', theme.id);
+  const handleThemeSelect = async (theme: typeof themePresets[0]) => {
+    // 1. Update UI state for the green checkmark
     setActiveThemeId(theme.id);
+    localStorage.setItem('portfolio-theme', theme.id);
+    
+    showMessage(`Syncing Engine: ${theme.name}...`);
 
-    // 2. Sync to Supabase for other devices
+    // 2. FIRE THE MASTER ENGINE
+    // This updates local CSS variables AND pushes to site_config to ping other devices
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { error } = await supabase
-          .from('user_profiles')
-          .update({ theme_preference: theme.id })
-          .eq('id', session.user.id);
-        
-        if (error) throw error;
-      }
-      showMessage(`Theme synchronized: ${theme.name}`);
+      await applyTheme(theme, true);
+      showMessage(`Global Sync Complete: ${theme.name}`);
     } catch (err) {
       console.warn('Sync failed, saved locally only.');
       showMessage(`Saved locally: ${theme.name}`);
@@ -147,7 +121,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {THEMES.map((theme) => (
+              {/* 3. MAP OVER themePresets INSTEAD OF LOCAL ARRAY */}
+              {themePresets.map((theme) => (
                 <button
                   key={theme.id}
                   onClick={() => handleThemeSelect(theme)}
