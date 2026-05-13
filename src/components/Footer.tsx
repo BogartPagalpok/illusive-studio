@@ -82,8 +82,18 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
           </div>
             
           {/* FLARE LINE */}
-          <div className="relative z-10 mt-2 pt-6 border-t flex justify-between items-center text-[9px] uppercase tracking-widest font-bold text-white" style={{ borderColor: 'rgba(255, 255, 255, 0.6)', opacity: 0.6 }}>
-            <button onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{`© ${new Date().getFullYear()} Ian Lester Eclevia. All rights reserved.`}</button>
+          <div className="relative z-10 mt-2 pt-6 border-t flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] uppercase tracking-widest font-bold text-white" style={{ borderColor: 'rgba(255, 255, 255, 0.6)', opacity: 0.6 }}>
+            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6">
+              <button onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{`© ${new Date().getFullYear()} Ian Lester Eclevia. All rights reserved.`}</button>
+              
+              {/* PRIVACY AND TERMS LINKS ADDED HERE */}
+              <div className="flex items-center gap-4 mt-2 md:mt-0">
+                <a href="/privacy" className="hover:text-accent transition-colors">Privacy</a>
+                <span className="opacity-30">|</span>
+                <a href="/terms" className="hover:text-accent transition-colors">Terms</a>
+              </div>
+            </div>
+
             <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors">Back to Top ↑</button>
           </div>
         </div>
