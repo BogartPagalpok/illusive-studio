@@ -17,9 +17,38 @@ export default function SelectedWorks() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   const swiperRef = useRef<SwiperType | null>(null);
 
-  // Body scroll lock triggers the Navbar's own opacity logic
+  // 1. RESTORED AUTOHIDE & NAV LOGIC
   useEffect(() => {
-    document.body.style.overflow = selectedProject ? 'hidden' : 'unset';
+    const nav = document.querySelector('nav');
+    if (!nav) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Only trigger if no modal is open
+      if (!selectedProject) {
+        if (e.clientY <= 80 || window.scrollY <= 50) {
+          nav.style.opacity = '1';
+          nav.style.transform = 'translateY(0)';
+          nav.style.pointerEvents = 'auto';
+        } else {
+          nav.style.opacity = '0';
+          nav.style.transform = 'translateY(-100%)';
+          nav.style.pointerEvents = 'none';
+        }
+      }
+    };
+
+    if (selectedProject) {
+      document.body.style.overflow = 'hidden';
+      // Handled by Navbar.tsx visibility logic via body overflow, 
+      // but forced here for safety.
+      nav.style.opacity = '0';
+      nav.style.pointerEvents = 'none';
+    } else {
+      document.body.style.overflow = 'unset';
+      nav.style.transition = 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
+      window.addEventListener('mousemove', handleMouseMove);
+    }
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [selectedProject]);
 
   useEffect(() => {
@@ -39,7 +68,6 @@ export default function SelectedWorks() {
               ...item, 
               title: cleanTitle, 
               all_images: [item.image_url],
-              // Admin Panel uses tech_stack string -> Convert to array
               tools: item.tech_stack ? item.tech_stack.split(',').map((t: string) => t.trim()) : []
             };
           } else {
@@ -53,14 +81,15 @@ export default function SelectedWorks() {
   }, []);
 
   return (
-    <section id="works" className="relative z-10 bg-transparent min-h-screen py-20 overflow-hidden flex flex-col justify-center">
+    <section id="works" className="relative z-10 bg-transparent min-h-screen py-10 overflow-hidden flex flex-col justify-center">
       <div className="max-w-[1400px] mx-auto px-4 w-full relative z-20">
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <p className="text-[10px] tracking-[0.4em] uppercase text-accent mb-2">Portfolio</p>
-          <h2 className="text-6xl md:text-8xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
+          <h2 className="text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
         </div>
 
-        <div className="relative group h-[600px] md:h-[750px] overflow-visible">
+        {/* 2. RESTORED CLAMPED CARD SIZE */}
+        <div className="relative group h-[clamp(480px,65vh,720px)] overflow-visible">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
             modules={[EffectCoverflow, Navigation, Pagination]}
@@ -76,15 +105,15 @@ export default function SelectedWorks() {
             className="!pb-24 !pt-10 overflow-visible coverflow-carousel"
           >
             {projects.map((project) => (
-              <SwiperSlide key={project.id} style={{ width: 'min(400px, 90vw)' }} className="!flex items-center justify-center">
+              <SwiperSlide key={project.id} style={{ width: 'min(380px, 85vw)' }} className="!flex items-center justify-center">
                 {({ isActive }) => (
-                  <div className={`relative w-full rounded-[40px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${isActive ? 'h-[550px] md:h-[700px] border-white/20 bg-white/10 scale-100 z-10' : 'h-[450px] md:h-[550px] border-white/5 bg-white/5 scale-[0.9] opacity-40'}`}>
+                  <div className={`relative w-full rounded-[35px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${isActive ? 'h-[clamp(450px,60vh,650px)] border-white/20 bg-white/10 scale-100 z-10' : 'h-[clamp(380px,50vh,550px)] border-white/5 bg-white/5 scale-[0.88] opacity-50'}`}>
                     <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover pointer-events-none" alt="" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-transparent" />
-                    <div className={`absolute bottom-0 left-0 p-10 w-full z-50 transition-all duration-500 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                      <span className="text-accent text-[10px] tracking-[0.4em] uppercase font-black">{project.category}</span>
-                      <h3 className="text-2xl md:text-4xl font-bold text-white uppercase mt-2 mb-8 leading-none tracking-tighter">{project.title}</h3>
-                      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedProject(project); setCurrentImageIndex(0); }} className="inline-flex items-center gap-3 bg-white text-black px-10 py-4 rounded-full text-[11px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]">View Case <ChevronRight size={16} /></button>
+                    <div className={`absolute bottom-0 left-0 p-8 md:p-10 w-full z-50 transition-all duration-500 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                      <span className="text-accent text-[9px] tracking-[0.4em] uppercase font-black">{project.category}</span>
+                      <h3 className="text-xl md:text-3xl font-bold text-white uppercase mt-1 mb-6 leading-none tracking-tighter">{project.title}</h3>
+                      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedProject(project); setCurrentImageIndex(0); }} className="inline-flex items-center gap-2 bg-white text-black px-8 py-3 rounded-full text-[10px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]">View Case <ChevronRight size={14} /></button>
                     </div>
                   </div>
                 )}
@@ -92,8 +121,8 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
           
-          <button className="nav-prev absolute left-4 top-1/2 -translate-y-1/2 z-[100] p-5 rounded-full bg-black/80 border border-white/10 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl"><ChevronLeft size={32} /></button>
-          <button className="nav-next absolute right-4 top-1/2 -translate-y-1/2 z-[100] p-5 rounded-full bg-black/80 border border-white/10 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl"><ChevronRight size={32} /></button>
+          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/80 border border-white/10 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl"><ChevronLeft size={24} /></button>
+          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/80 border border-white/10 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl"><ChevronRight size={24} /></button>
         </div>
       </div>
 
@@ -102,9 +131,9 @@ export default function SelectedWorks() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[10000] flex items-center justify-center p-4 md:p-12 bg-black/95 backdrop-blur-2xl">
             <button onClick={() => setSelectedProject(null)} className="absolute top-8 right-8 z-[10001] p-5 bg-white/10 rounded-full text-white hover:bg-accent transition-all"><X size={32} /></button>
             
-            <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} className="flex flex-col lg:flex-row items-center gap-16 max-w-[1600px] w-full">
-              <div className="relative w-full lg:w-3/5 h-[50vh] lg:h-[80vh] flex items-center justify-center rounded-[50px] bg-white/5 border border-white/10 overflow-hidden shadow-2xl">
-                <motion.img key={currentImageIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url} className="max-w-full max-h-full object-contain p-8" alt="" />
+            <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} className="flex flex-col lg:flex-row items-center gap-12 max-w-[1500px] w-full">
+              <div className="relative w-full lg:w-3/5 h-[45vh] lg:h-[75vh] flex items-center justify-center rounded-[45px] bg-black/20 border border-white/10 overflow-hidden shadow-2xl">
+                <motion.img key={currentImageIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url} className="max-w-full max-h-full object-contain p-6" alt="" />
                 
                 {selectedProject.all_images && selectedProject.all_images.length > 1 && (
                   <div className="absolute inset-0 flex items-center justify-between px-6">
@@ -114,28 +143,28 @@ export default function SelectedWorks() {
                 )}
               </div>
 
-              <div className="text-left lg:w-2/5 p-6 space-y-10">
+              <div className="text-left lg:w-2/5 p-4 space-y-8">
                 <div>
-                  <span className="text-accent text-xs tracking-[0.5em] uppercase font-black">{selectedProject.category}</span>
-                  <h2 className="text-6xl md:text-8xl font-bold text-white uppercase mt-4 tracking-tighter leading-[0.9] drop-shadow-2xl">{selectedProject.title}</h2>
+                  <span className="text-accent text-xs tracking-[0.4em] uppercase font-black">{selectedProject.category}</span>
+                  <h2 className="text-5xl md:text-7xl font-bold text-white uppercase mt-4 tracking-tighter leading-none">{selectedProject.title}</h2>
                 </div>
 
-                <div className="space-y-8 bg-black/40 p-8 rounded-[30px] backdrop-blur-md border border-white/5">
-                  {/* DATA MAPPING: overview, workflow, tools */}
-                  <p className="text-gray-100 text-xl leading-relaxed font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                <div className="space-y-6 bg-black/40 p-8 rounded-[30px] backdrop-blur-md border border-white/5 shadow-2xl">
+                  {/* 3. MAPPED PROJECT DETAILS */}
+                  <p className="text-gray-100 text-lg leading-relaxed font-medium">
                     {selectedProject.overview || selectedProject.description}
                   </p>
                   
                   {selectedProject.workflow && (
                     <div className="pt-6 border-t border-white/10">
-                      <p className="text-white/40 text-[11px] uppercase tracking-[0.3em] mb-3 font-bold">Process & Strategy</p>
-                      <p className="text-gray-300 text-base leading-relaxed italic drop-shadow-sm">{selectedProject.workflow}</p>
+                      <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] mb-2 font-bold italic">Strategy & Execution</p>
+                      <p className="text-gray-300 text-sm leading-relaxed italic">{selectedProject.workflow}</p>
                     </div>
                   )}
 
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2 pt-2">
                     {selectedProject.tools?.map((t: string) => (
-                      <span key={t} className="px-4 py-2 border border-white/20 rounded-lg text-[10px] uppercase text-white font-bold tracking-widest bg-white/5 shadow-sm">{t}</span>
+                      <span key={t} className="px-3 py-1.5 border border-white/10 rounded-lg text-[9px] uppercase text-white tracking-widest bg-white/5">{t}</span>
                     ))}
                   </div>
                 </div>
