@@ -11,7 +11,6 @@ import 'swiper/css/effect-coverflow';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-// 1. THIS IS THE DEPLOYMENT FIX: Strict Typing so Vercel doesn't crash
 interface Project {
   id: string;
   title: string;
@@ -27,7 +26,6 @@ interface Project {
 }
 
 export default function SelectedWorks() {
-  // 2. REPLACED 'any' WITH 'Project'
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
@@ -109,16 +107,27 @@ export default function SelectedWorks() {
             centeredSlides={true}
             loop={projects.length > 2} 
             loopedSlides={projects.length > 0 ? projects.length : undefined} 
-            speed={800} 
+            speed={900} 
             slidesPerView="auto"
             navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
-            coverflowEffect={{ rotate: 5, stretch: 0, depth: 250, modifier: 1, slideShadows: true }}
+            coverflowEffect={{ 
+              rotate: 0, 
+              stretch: 0, 
+              depth: 150, 
+              modifier: 2.5, 
+              slideShadows: true 
+            }}
             className="!pb-24 !pt-10 overflow-visible coverflow-carousel"
           >
             {projects.map((project) => (
               <SwiperSlide key={project.id} style={{ width: 'min(380px, 85vw)' }} className="!flex items-center justify-center">
                 {({ isActive }) => (
-                  <div className={`relative w-full rounded-[35px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${isActive ? 'h-[clamp(450px,60vh,650px)] border-white/20 bg-white/10 scale-100 z-10' : 'h-[clamp(380px,50vh,550px)] border-white/5 bg-white/5 scale-[0.88] opacity-50'}`}>
+                  /* THE RIM GLOW FIX: Added hover logic for the active card */
+                  <div className={`relative w-full rounded-[35px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${
+                    isActive 
+                      ? 'h-[clamp(450px,60vh,650px)] border-white/20 bg-white/10 scale-100 z-10 hover:border-accent/50 hover:shadow-[0_0_40px_rgba(var(--accent-rgb),0.3)]' 
+                      : 'h-[clamp(380px,50vh,550px)] border-white/5 bg-white/5 scale-[0.88] opacity-50'
+                  }`}>
                     <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover pointer-events-none" alt={project.title} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-transparent" />
                     <div className={`absolute bottom-0 left-0 p-8 md:p-10 w-full z-50 transition-all duration-500 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
