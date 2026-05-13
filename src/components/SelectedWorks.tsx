@@ -22,6 +22,7 @@ interface Project {
   workflow?: string;
   tech_stack?: string;
   tools?: string[];
+  [key: string]: any;
 }
 
 export default function SelectedWorks() {
@@ -32,6 +33,7 @@ export default function SelectedWorks() {
   const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
+    // FIX: Explicitly cast as HTMLElement to prevent Vercel build crash
     const nav = document.querySelector('nav') as HTMLElement | null;
     if (!nav) return;
 
@@ -78,7 +80,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative z-10 min-h-screen overflow-hidden flex flex-col justify-center bg-black">
       
-      {/* 1. DYNAMIC BILLBOARD BACKGROUND (Netflix Style) */}
+      {/* NETFLIX BILLBOARD BACKGROUND */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
           {projects.length > 0 && (
@@ -92,8 +94,8 @@ export default function SelectedWorks() {
             >
               <img 
                 src={projects[activeIndex]?.image_url} 
-                className="w-full h-full object-cover brightness-[0.2] grayscale-[20%]" 
-                alt="billboard"
+                className="w-full h-full object-cover brightness-[0.25] grayscale-[20%]" 
+                alt="bg-billboard"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/80" />
             </motion.div>
@@ -103,12 +105,12 @@ export default function SelectedWorks() {
 
       <div className="max-w-[1400px] mx-auto px-6 w-full relative z-20">
         
-        {/* 2. DYNAMIC TITLE & CATEGORY (Synced to Swiper) */}
+        {/* HERO CONTENT: Synced to Carousel Index */}
         <div className="mb-10 h-32 md:h-52 flex flex-col justify-end">
           <AnimatePresence mode="wait">
             {projects.length > 0 && (
               <motion.div
-                key={`hero-${projects[activeIndex]?.id}`}
+                key={`hero-text-${projects[activeIndex]?.id}`}
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 30 }}
@@ -129,7 +131,7 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
-        {/* 3. THE CAROUSEL */}
+        {/* CAROUSEL CONTROLLER */}
         <div className="relative group overflow-visible">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
@@ -182,7 +184,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* 4. MODAL VIEW */}
+      {/* MODAL CASE STUDY */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/98 backdrop-blur-3xl p-6 md:p-12 overflow-y-auto">
