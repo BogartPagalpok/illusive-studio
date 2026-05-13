@@ -1,66 +1,72 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Menu } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
+  
+  // Use a ref for scroll position to avoid re-triggering the effect loop
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // 1. Fetch Content ONCE on mount
+    const fetchContent = async () => {
+      try {
+        const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
+        if (data) {
+          const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
+          data.forEach(row => {
+            if (row.key === 'logo_text') mapped.logo_text = row.value;
+            if (row.key === 'cta_text') mapped.cta_text = row.value;
+          });
+          setContent(mapped);
+        }
+      } catch (err) {
+        console.error('Navbar fetch error:', err);
+      }
+    };
+    fetchContent();
+
+    // 2. Scroll Logic
     const handleScroll = () => {
       const current = window.scrollY;
       setScrolled(current > 50);
       
-      // Auto-hide: Hide on scroll down, Show on scroll up
-      if (current > lastScrollY && current > 150) {
+      // Show if scrolling up, hide if scrolling down
+      if (current > lastScrollY.current && current > 150) {
         setVisible(false);
       } else {
         setVisible(true);
       }
-      setLastScrollY(current);
+      lastScrollY.current = current;
     };
 
-    // Passive check for body lock (prevents UI overlap with Modals)
+    // 3. Modal Check
     const checkModal = () => {
       setIsModalOpen(document.body.style.overflow === 'hidden');
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    const modalCheck = setInterval(checkModal, 250);
-
-    const fetchContent = async () => {
-      const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
-      if (data) {
-        const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
-        data.forEach(row => {
-          if (row.key === 'logo_text') mapped.logo_text = row.value;
-          if (row.key === 'cta_text') mapped.cta_text = row.value;
-        });
-        setContent(mapped);
-      }
-    };
-
-    fetchContent();
+    const modalTimer = setInterval(checkModal, 300);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      clearInterval(modalCheck);
+      clearInterval(modalTimer);
     };
-  }, [lastScrollY]);
+  }, []); // Empty dependency array = Runs once. No loops.
 
-  // Logic: Hide if scrolling down OR if a Modal is active
-  const active = visible && !isModalOpen;
+  const isActive = visible && !isModalOpen;
 
   return (
     <nav 
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-in-out ${
         scrolled ? 'backdrop-blur-md bg-black/80 shadow-lg' : 'bg-transparent'
-      } ${active ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
+      } ${isActive ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6 md:px-16">
         <button 
