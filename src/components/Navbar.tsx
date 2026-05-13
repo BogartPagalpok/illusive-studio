@@ -34,7 +34,7 @@ export default function Navbar() {
         .eq('section', 'navbar');
 
       if (data) {
-        const mapped = { ...content };
+        const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
         data.forEach(row => {
           if (row.key === 'logo_text') mapped.logo_text = row.value;
           if (row.key === 'cta_text') mapped.cta_text = row.value;
@@ -71,6 +71,22 @@ export default function Navbar() {
             {content.cta_text}
           </a>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileOpen && (
+          <div className="absolute top-20 left-0 right-0 md:hidden bg-black/95 backdrop-blur-md">
+            <div className="flex flex-col items-center gap-4 py-8">
+              {navLinks.map((link) => (
+                <a key={link.href} href={link.href} className="text-sm font-heading font-medium tracking-widest uppercase text-white/60 hover:text-accent transition-all" onClick={() => setMobileOpen(false)}>
+                  {link.label}
+                </a>
+              ))}
+              <a href="#contact" className="btn-primary text-xs py-3 px-6 transition-all" onClick={() => setMobileOpen(false)}>
+                {content.cta_text}
+              </a>
+            </div>
+          </div>
+        )}
 
         <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white">
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
