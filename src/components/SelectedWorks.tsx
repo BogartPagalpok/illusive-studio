@@ -21,7 +21,7 @@ export default function SelectedWorks() {
   }, [selectedProject]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchProjects = async () => {
       const { data } = await supabase.from('portfolio_projects').select('*').eq('featured', true).order('created_at', { ascending: false });
       if (data) {
         const grouped: Record<string, any> = {};
@@ -36,16 +36,16 @@ export default function SelectedWorks() {
         setProjects(Object.values(grouped));
       }
     };
-    fetchData();
+    fetchProjects();
   }, []);
 
   return (
-    // 1. ADDED MIN-HEIGHT AND PADDING TO ENSURE THE SECTION CAN ACTUALLY CENTER
-    <section id="works" className="relative z-40 bg-transparent min-h-[120vh] py-20 overflow-visible flex flex-col justify-center">
+    // 1. ADDED PADDING AND HEIGHT SO THE ANCHOR #WORKS ACTUALLY CENTERS THE CONTENT
+    <section id="works" className="relative z-40 bg-transparent min-h-screen py-32 flex flex-col justify-center overflow-visible">
       
       <div className="max-w-[1600px] mx-auto px-4 w-full relative z-20">
-        <div className="text-center mb-12">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-accent mb-2">Selected Portfolio</p>
+        <div className="text-center mb-10">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-accent mb-2">Portfolio</p>
           <h2 className="text-6xl md:text-8xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
         </div>
 
@@ -62,21 +62,21 @@ export default function SelectedWorks() {
             navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
             coverflowEffect={{
               rotate: 0,
-              stretch: -40, // Secret to the "overlapping" look
-              depth: 200,
+              stretch: -100, // PULLS THE CARDS OVER EACH OTHER LIKE THE NFT EXAMPLE
+              depth: 300,    // PUSHES SIDE CARDS BACK
               modifier: 1,
-              slideShadows: false,
+              slideShadows: false, // KILLS THE GREEN TINT/MUDDY SHADOWS
             }}
             className="!pb-24 !pt-10 overflow-visible"
           >
             {projects.map((project) => (
-              // 2. FORCE PHYSICAL WIDTH IN PIXELS - STOPS THE SLIM SLIVERS
-              <SwiperSlide key={project.id} style={{ width: '380px' }} className="md:!w-[480px] !flex items-center justify-center">
-                <div className="relative w-full h-[550px] md:h-[700px] rounded-[50px] border border-white/10 overflow-hidden backdrop-blur-3xl bg-white/5 shadow-2xl transition-all duration-500">
+              // 2. HARD-CODED WIDTH: STOPS THE FLEXBOX SQUASHING
+              <SwiperSlide key={project.id} style={{ width: '400px' }} className="md:!w-[480px] !flex items-center justify-center">
+                <div className="relative w-full h-[550px] md:h-[700px] rounded-[50px] border border-white/10 overflow-hidden backdrop-blur-3xl bg-white/5 shadow-2xl transition-all duration-500 hover:border-accent/50">
                   <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover pointer-events-none" alt="" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
                   
-                  <div className="absolute bottom-0 left-0 p-10 w-full z-50">
+                  <div className="absolute bottom-0 left-0 p-12 w-full z-50">
                     <span className="text-accent text-[10px] tracking-[0.4em] uppercase font-black">{project.category}</span>
                     <h3 className="text-3xl md:text-5xl font-bold text-white uppercase mt-2 mb-8 leading-none tracking-tighter">{project.title}</h3>
                     
@@ -88,7 +88,7 @@ export default function SelectedWorks() {
                       }}
                       className="inline-flex items-center gap-3 bg-white text-black px-10 py-4 rounded-full text-[11px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]"
                     >
-                      View Case <ChevronRight size={16} />
+                      View Project <ChevronRight size={16} />
                     </button>
                   </div>
                 </div>
@@ -96,17 +96,14 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
 
-          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[100] p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl">
+          <button className="nav-prev absolute -left-4 top-1/2 -translate-y-1/2 z-[100] p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl">
             <ChevronLeft size={32} />
           </button>
-          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[100] p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl">
+          <button className="nav-next absolute -right-4 top-1/2 -translate-y-1/2 z-[100] p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl">
             <ChevronRight size={32} />
           </button>
         </div>
       </div>
-
-      {/* 3. SPACER DIV TO ENSURE SMOOTH SCROLLING DEPTH */}
-      <div className="h-[20vh] w-full pointer-events-none" />
 
       <AnimatePresence>
         {selectedProject && (
