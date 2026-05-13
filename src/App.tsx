@@ -6,8 +6,7 @@ import Login from './pages/Login';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
-import { loadSavedTheme, applyTheme } from './lib/themes';
-import type { ThemeName } from './lib/themes';
+import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import { motion } from 'framer-motion';
 
 function AtmosphereGradient() {
@@ -40,45 +39,36 @@ function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const syncUserTheme = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('theme_preference')
-        .eq('id', userId)
-        .maybeSingle(); 
-
-      if (!error && data?.theme_preference) {
-        applyTheme(data.theme_preference as ThemeName);
-      }
-    } catch (err) {
-      console.warn('Background theme sync failed.');
-    }
-  };
-
   useEffect(() => {
+    // 1. Ignition: Load the Global Master Theme from Supabase site_config
     loadSavedTheme();
-    const initAuthAndTheme = async () => {
+
+    // 2. Real-time Bridge: Listen for theme updates from other devices
+    const themeSubscription = subscribeToThemeChanges();
+
+    const initAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) console.warn('Supabase Auth Warning:', error.message);
         setSession(session);
-        if (session?.user) syncUserTheme(session.user.id);
       } catch (err) {
         console.error('Supabase connection failed:', err);
       } finally {
+        // Only stop loading once auth AND initial theme load are handled
         setLoading(false);
       }
     };
 
-    initAuthAndTheme();
+    initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session?.user) syncUserTheme(session.user.id);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      authSubscription.unsubscribe();
+      themeSubscription.unsubscribe(); // Clean up Real-time listener
+    };
   }, []);
 
   if (loading) {
@@ -90,8 +80,6 @@ function App() {
     );
   }
 
-  // NOTE: AtmosphereGradient is placed at the top of each return block
-  // This ensures it stays fixed behind the content regardless of the route
   if (!session) {
     return (
       <main className="min-h-screen relative bg-transparent">
