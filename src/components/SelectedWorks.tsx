@@ -34,7 +34,6 @@ export default function SelectedWorks() {
     const fetchWorks = async () => {
       try {
         setLoading(true);
-        // FIX: Pointing to 'portfolio_projects' as seen in your Table Editor screenshot
         const { data, error: dbError } = await supabase
           .from('portfolio_projects') 
           .select('*')
