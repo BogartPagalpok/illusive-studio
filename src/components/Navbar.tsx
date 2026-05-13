@@ -19,22 +19,17 @@ export default function Navbar() {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', onScroll, { passive: true });
 
-    // SIMPLE MODAL CHECK: Only hides if the body is locked
-    const checkModal = () => {
+    // Simple observer: If body overflow is hidden, hide the nav
+    const observer = new MutationObserver(() => {
       setIsModalOpen(document.body.style.overflow === 'hidden');
-    };
-
-    const observer = new MutationObserver(checkModal);
+    });
+    
     observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
 
     const fetchContent = async () => {
-      const { data } = await supabase
-        .from('site_content')
-        .select('key, value')
-        .eq('section', 'navbar');
-
+      const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
       if (data) {
-        const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
+        const mapped = { ...content };
         data.forEach(row => {
           if (row.key === 'logo_text') mapped.logo_text = row.value;
           if (row.key === 'cta_text') mapped.cta_text = row.value;
@@ -51,43 +46,19 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? 'backdrop-blur-md bg-black/80 shadow-lg' : 'bg-transparent'
-      } ${isModalOpen ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100 translate-y-0'}`}
-    >
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      scrolled ? 'backdrop-blur-md bg-black/80 shadow-lg' : 'bg-transparent'
+    } ${isModalOpen ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100 translate-y-0'}`}>
       <div className="section-container flex items-center justify-between h-20">
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="font-heading font-black text-xl tracking-wider uppercase text-white">
-          {content.logo_text.split('.').map((part, i) => i === 0 ? part : <span key={i}><span className="text-accent">.</span>{part}</span>)}
+          {content.logo_text}
         </button>
-
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <a key={link.href} href={link.href} className="text-sm font-heading font-medium tracking-widest uppercase text-white/60 hover:text-accent transition-all">
-              {link.label}
-            </a>
+            <a key={link.href} href={link.href} className="text-sm font-heading font-medium tracking-widest uppercase text-white/60 hover:text-accent transition-all">{link.label}</a>
           ))}
-          <a href="#contact" className="btn-primary text-xs py-3 px-6 transition-all hover:scale-105 hover:shadow-[0_0_20px_var(--accent)]">
-            {content.cta_text}
-          </a>
+          <a href="#contact" className="btn-primary text-xs py-3 px-6 hover:scale-105 transition-all">{content.cta_text}</a>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileOpen && (
-          <div className="absolute top-20 left-0 right-0 md:hidden bg-black/95 backdrop-blur-md">
-            <div className="flex flex-col items-center gap-4 py-8">
-              {navLinks.map((link) => (
-                <a key={link.href} href={link.href} className="text-sm font-heading font-medium tracking-widest uppercase text-white/60 hover:text-accent transition-all" onClick={() => setMobileOpen(false)}>
-                  {link.label}
-                </a>
-              ))}
-              <a href="#contact" className="btn-primary text-xs py-3 px-6 transition-all" onClick={() => setMobileOpen(false)}>
-                {content.cta_text}
-              </a>
-            </div>
-          </div>
-        )}
-
         <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white">
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
