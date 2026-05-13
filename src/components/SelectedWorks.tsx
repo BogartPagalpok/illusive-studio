@@ -15,7 +15,8 @@ interface Project {
   category: string;
   description: string;
   image_url: string;
-  tools?: string[];
+  process?: string;
+  tools?: string[]; // Matches your DB text[]
   all_images?: string[];
 }
 
@@ -27,11 +28,26 @@ export default function SelectedWorks() {
   const [zoom, setZoom] = useState(1);
   const swiperRef = useRef<SwiperType | null>(null);
 
+  // Navbar Toggle Fix for Build
   useEffect(() => {
-    const fetchProjects = async () => {
+    const nav = document.querySelector('nav') as HTMLElement | null;
+    if (!nav) return;
+    if (selectedProject) {
+      document.body.style.overflow = 'hidden';
+      nav.style.transform = 'translateY(-100%)';
+      nav.style.opacity = '0';
+    } else {
+      document.body.style.overflow = 'unset';
+      nav.style.transform = 'translateY(0)';
+      nav.style.opacity = '1';
+    }
+  }, [selectedProject]);
+
+  useEffect(() => {
+    const fetchData = async () => {
       const { data } = await supabase
         .from('portfolio_projects')
-        .select('*')
+        .select('id, title, category, description, image_url, process, tools')
         .eq('featured', true)
         .order('created_at', { ascending: false });
 
@@ -53,28 +69,26 @@ export default function SelectedWorks() {
         setProjects(Object.values(grouped));
       }
     };
-    fetchProjects();
+    fetchData();
   }, []);
 
   return (
     <section id="works" className="relative h-screen w-full bg-black overflow-hidden flex flex-col justify-between">
       
-      {/* 1. DYNAMIC BACKGROUND (Active Project Thumbnail) */}
+      {/* 1. DYNAMIC BG (Syncs to Carousel) */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
           {projects.length > 0 && (
             <motion.div
               key={projects[activeIndex]?.id}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1, ease: "easeOut" }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
               className="absolute inset-0"
             >
               <img 
                 src={projects[activeIndex]?.image_url} 
                 className="h-full w-full object-cover brightness-[0.2] grayscale-[30%]" 
-                alt="dynamic-bg"
+                alt="bg"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
             </motion.div>
@@ -82,16 +96,13 @@ export default function SelectedWorks() {
         </AnimatePresence>
       </div>
 
-      {/* 2. HERO CONTENT (Upper Section) */}
+      {/* 2. HERO SECTION */}
       <div className="relative z-20 flex-1 flex flex-col justify-center px-6 md:px-16 pt-20">
         <AnimatePresence mode="wait">
           {projects.length > 0 && (
             <motion.div
               key={`hero-${projects[activeIndex]?.id}`}
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 30 }}
-              transition={{ duration: 0.6 }}
+              initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }}
               className="max-w-4xl"
             >
               <p className="text-accent text-[10px] md:text-xs tracking-[0.5em] uppercase font-black italic mb-4">
@@ -108,9 +119,9 @@ export default function SelectedWorks() {
         </AnimatePresence>
       </div>
 
-      {/* 3. THUMBNAIL ROW (Lower Section) */}
+      {/* 3. BOTTOM CAROUSEL */}
       <div className="relative z-20 w-full pb-10 px-6 md:px-16">
-        <h3 className="text-white/40 text-[9px] uppercase tracking-[0.4em] font-black mb-4 italic">Collections</h3>
+        <h3 className="text-white/40 text-[9px] uppercase tracking-[0.4em] font-black mb-4 italic">Projects</h3>
         <Swiper
           onSwiper={(s) => { swiperRef.current = s; }}
           onSlideChange={(s) => setActiveIndex(s.realIndex)}
@@ -122,24 +133,20 @@ export default function SelectedWorks() {
         >
           {projects.map((project, idx) => (
             <SwiperSlide key={project.id} style={{ width: 'min(280px, 50vw)' }}>
-              <motion.div 
-                whileHover={{ scale: 1.05, zIndex: 50 }}
+              <div 
                 onClick={() => setSelectedProject(project)}
                 className={`relative aspect-[16/9] rounded-md overflow-hidden cursor-pointer border transition-all duration-300 ${
-                  activeIndex === idx ? 'border-white/60' : 'border-white/5 opacity-50 grayscale'
+                  activeIndex === idx ? 'border-white/60' : 'border-white/5 opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
                 }`}
               >
                 <img src={project.image_url} className="w-full h-full object-cover" alt="thumb" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-end p-3">
-                   <p className="text-white font-black uppercase text-[8px] italic truncate">{project.title}</p>
-                </div>
-              </motion.div>
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>
       </div>
 
-      {/* 4. DRAG & PAN VIEWER MODAL */}
+      {/* 4. PRO VIEWER MODAL */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
@@ -162,7 +169,6 @@ export default function SelectedWorks() {
                <div className="w-full h-full flex items-center justify-center overflow-hidden">
                  <motion.div 
                    drag={zoom > 1}
-                   dragConstraints={{ left: -1000, right: 1000, top: -1000, bottom: 1000 }}
                    className="relative flex items-center justify-center cursor-move"
                  >
                    <motion.img 
@@ -176,7 +182,7 @@ export default function SelectedWorks() {
                
                {zoom > 1 && (
                  <div className="absolute bottom-10 flex items-center gap-2 px-6 py-2 bg-accent rounded-full text-black font-black text-[9px] uppercase tracking-widest">
-                   <Move size={12} /> Drag to Pan Detail
+                   <Move size={12} /> Drag to Pan
                  </div>
                )}
             </div>
