@@ -24,9 +24,9 @@ export default function Navbar() {
       const current = window.scrollY;
       const newScrolled = current > 50;
       
-      // Softened Auto-hide: Only hides after 200px and if scrolling down significantly
-      const isScrollingDown = current > lastScrollY.current && current > 200;
-      const newVisible = !isScrollingDown || current < 10;
+      // Softened Taskbar Logic: Only hides if scrolling down significantly
+      const isScrollingDown = current > lastScrollY.current && current > 150;
+      const newVisible = !isScrollingDown || current < 20;
 
       setNavState(prev => 
         (prev.scrolled === newScrolled && prev.visible === newVisible) 
@@ -43,15 +43,17 @@ export default function Navbar() {
     };
 
     const fetchContent = async () => {
-      const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
-      if (data) {
-        const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
-        data.forEach(row => {
-          if (row.key === 'logo_text') mapped.logo_text = row.value;
-          if (row.key === 'cta_text') mapped.cta_text = row.value;
-        });
-        setContent(mapped);
-      }
+      try {
+        const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
+        if (data) {
+          const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
+          data.forEach(row => {
+            if (row.key === 'logo_text') mapped.logo_text = row.value;
+            if (row.key === 'cta_text') mapped.cta_text = row.value;
+          });
+          setContent(mapped);
+        }
+      } catch (e) { console.error("Nav Fetch Error", e); }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -90,28 +92,24 @@ export default function Navbar() {
               className="group relative text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors"
             >
               {link.label}
-              {/* UNDERLINE ANIMATION */}
               <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-accent transition-all duration-300 group-hover:w-full" />
             </a>
           ))}
           <a 
             href="#contact" 
-            className="bg-accent text-black px-7 py-3 rounded-md text-[10px] font-black uppercase hover:scale-105 hover:bg-white transition-all shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]"
+            className="bg-accent text-black px-7 py-3 rounded-md text-[10px] font-black uppercase hover:scale-105 hover:bg-white transition-all"
           >
             {content.cta_text}
           </a>
         </div>
 
         {/* MOBILE TOGGLE */}
-        <button 
-          onClick={() => setMobileOpen(!mobileOpen)} 
-          className="md:hidden text-white p-2 hover:text-accent transition-colors"
-        >
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white p-2">
           {mobileOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
-      {/* MOBILE OVERLAY / GET IN TOUCH SECTION */}
+      {/* MOBILE MENU / GET IN TOUCH */}
       <div className={`md:hidden overflow-hidden transition-all duration-500 bg-black/95 ${mobileOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className="flex flex-col p-8 gap-8 border-t border-white/10">
           {navLinks.map((link) => (
@@ -119,18 +117,14 @@ export default function Navbar() {
               key={link.href} 
               href={link.href} 
               onClick={() => setMobileOpen(false)}
-              className="text-2xl font-black uppercase text-white hover:text-accent transition-colors"
+              className="text-2xl font-black uppercase text-white"
             >
               {link.label}
             </a>
           ))}
           <div className="pt-4 border-t border-white/5">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent mb-4">Get In Touch</p>
-            <a href="#contact" onClick={() => setMobileOpen(false)} className="text-white/60 hover:text-white block mb-2 font-heading">hello@illusive.studio</a>
-            <div className="flex gap-4 mt-6">
-               <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-accent hover:text-black transition-all cursor-pointer">IG</div>
-               <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-accent hover:text-black transition-all cursor-pointer">BE</div>
-            </div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent mb-2">Get In Touch</p>
+            <p className="text-white/40 text-sm">hello@illusive.studio</p>
           </div>
         </div>
       </div>
