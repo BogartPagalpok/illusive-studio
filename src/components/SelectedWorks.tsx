@@ -35,20 +35,27 @@ export default function SelectedWorks() {
     if (!nav) return;
     if (selectedProject) {
       document.body.style.overflow = 'hidden';
-      nav.style.opacity = '0';
-      nav.style.pointerEvents = 'none';
+      (nav as HTMLElement).style.opacity = '0';
+      (nav as HTMLElement).style.pointerEvents = 'none';
     } else {
       document.body.style.overflow = 'unset';
+      (nav as HTMLElement).style.opacity = '1';
+      (nav as HTMLElement).style.pointerEvents = 'auto';
     }
   }, [selectedProject]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('portfolio_projects')
         .select('*')
         .eq('featured', true)
         .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Supabase Fetch Error:", error.message);
+        return;
+      }
 
       if (data) {
         const grouped: Record<string, Project> = {};
@@ -105,17 +112,20 @@ export default function SelectedWorks() {
                     <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover pointer-events-none" alt={project.title} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                     
-                    {/* INNER CONTENT FIX */}
                     <div className={`absolute bottom-0 left-0 p-5 md:p-10 w-full z-50 transition-all duration-500 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                       <span className="text-accent text-[8px] md:text-[9px] tracking-[0.4em] uppercase font-black">{project.category}</span>
                       
-                      {/* Scaled down heading for mobile */}
                       <h3 className="text-xl md:text-3xl font-bold text-white uppercase mt-1 mb-4 md:mb-6 leading-[1.1] tracking-tighter">
                         {project.title}
                       </h3>
 
                       <button 
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedProject(project); setCurrentImageIndex(0); }} 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          e.stopPropagation(); 
+                          setSelectedProject(project); 
+                          setCurrentImageIndex(0); 
+                        }} 
                         className="inline-flex items-center gap-2 bg-white text-black px-5 py-2 md:px-8 md:py-3 rounded-full text-[8px] md:text-[10px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]"
                       >
                         View Case <ChevronRight size={12} />
@@ -126,10 +136,12 @@ export default function SelectedWorks() {
               </SwiperSlide>
             ))}
           </Swiper>
+          
+          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/80 border border-white/10 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl"><ChevronLeft size={24} /></button>
+          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/80 border border-white/10 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl"><ChevronRight size={24} /></button>
         </div>
       </div>
 
-      {/* Modal/Case Study Section */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
@@ -157,8 +169,8 @@ export default function SelectedWorks() {
                 
                 {selectedProject.all_images && selectedProject.all_images.length > 1 && (
                   <div className="absolute inset-0 flex items-center justify-between px-4">
-                    <button onClick={() => setCurrentImageIndex(prev => (prev - 1 + selectedProject.all_images!.length) % selectedProject.all_images!.length)} className="p-2 rounded-full bg-black/50 text-white"><ChevronLeft size={18} /></button>
-                    <button onClick={() => setCurrentImageIndex(prev => (prev + 1) % selectedProject.all_images!.length)} className="p-2 rounded-full bg-black/50 text-white"><ChevronRight size={18} /></button>
+                    <button onClick={() => setCurrentImageIndex(prev => (prev - 1 + (selectedProject.all_images?.length || 1)) % (selectedProject.all_images?.length || 1))} className="p-2 rounded-full bg-black/50 text-white transition-colors hover:bg-accent"><ChevronLeft size={18} /></button>
+                    <button onClick={() => setCurrentImageIndex(prev => (prev + 1) % (selectedProject.all_images?.length || 1))} className="p-2 rounded-full bg-black/50 text-white transition-colors hover:bg-accent"><ChevronRight size={18} /></button>
                   </div>
                 )}
               </div>
