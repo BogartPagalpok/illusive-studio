@@ -15,9 +15,9 @@ function scrollToId(id: string) {
 }
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [visible, setVisible] = useState(true); // Track auto-hide
-  const [isHovered, setIsHovered] = useState(false); // Track if mouse is at top
+  // Batch state to prevent multiple render cycles per scroll event
+  const [navState, setNavState] = useState({ scrolled: false, visible: true });
+  const [isHovered, setIsHovered] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
@@ -25,21 +25,29 @@ export default function Navbar() {
   const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => {
-      const current = window.scrollY;
-      setScrolled(current > 50);
+    if (typeof window === 'undefined') return;
 
-      // Auto-hide logic: Hide on scroll down, show on scroll up
-      if (current > lastScrollY.current && current > 150) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
+    const handleScroll = () => {
+      const current = window.scrollY;
+      const shouldBeScrolled = current > 50;
+      // Auto-hide: Hide if scrolling down > 150px, show if scrolling up
+      const isScrollingDown = current > lastScrollY.current && current > 150;
+      const shouldBeVisible = !isScrollingDown || current < 20;
+
+      // Crucial: Only update state if values actually change
+      setNavState(prev => {
+        if (prev.scrolled === shouldBeScrolled && prev.visible === shouldBeVisible) {
+          return prev;
+        }
+        return { scrolled: shouldBeScrolled, visible: shouldBeVisible };
+      });
+
       lastScrollY.current = current;
     };
 
     const checkModal = () => {
-      setIsModalOpen(document.body.style.overflow === 'hidden');
+      const modalActive = document.body.style.overflow === 'hidden';
+      setIsModalOpen(prev => (prev !== modalActive ? modalActive : prev));
     };
 
     const observer = new MutationObserver(checkModal);
@@ -47,8 +55,8 @@ export default function Navbar() {
 
     const fetchContent = async () => {
       try {
-        const { data, error } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
-        if (!error && data) {
+        const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
+        if (data) {
           const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
           data.forEach(row => {
             if (row.key === 'logo_text') mapped.logo_text = row.value;
@@ -59,10 +67,11 @@ export default function Navbar() {
       } catch (err) {}
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
     fetchContent();
+    
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scroll', handleScroll);
       observer.disconnect();
     };
   }, []);
@@ -73,12 +82,12 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
-  // Visibility math: Show if (Scrolling Up OR Hovered at Top) AND (No Modal)
-  const isActuallyVisible = (visible || isHovered || mobileOpen) && !isModalOpen;
+  // The "Taskbar" trigger logic
+  const showNav = (navState.visible || isHovered || mobileOpen) && !isModalOpen;
 
   return (
     <>
-      {/* HOVER TRIGGER: Invisible zone at the very top of the screen */}
+      {/* PEEK ZONE */}
       <div 
         className="fixed top-0 left-0 right-0 h-4 z-[60]" 
         onMouseEnter={() => setIsHovered(true)} 
@@ -88,21 +97,20 @@ export default function Navbar() {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
-          scrolled || mobileOpen ? 'backdrop-blur-md shadow-lg bg-[var(--bg-primary)]/95' : 'bg-transparent'
-        } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
+          navState.scrolled || mobileOpen ? 'backdrop-blur-md bg-black/80 shadow-lg' : 'bg-transparent'
+        } ${showNav ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
-        <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
-          
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6 md:px-16">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="group relative font-heading font-black text-xl tracking-wider uppercase transition-colors text-[var(--text-primary)]"
+            className="group relative font-heading font-black text-xl tracking-wider uppercase transition-colors text-white"
           >
             {content.logo_text.includes('.') ? (
               <>
                 {content.logo_text.split('.')[0]}<span className="text-accent group-hover:animate-pulse">.</span>{content.logo_text.split('.')[1]}
               </>
             ) : content.logo_text}
-            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full shadow-[0_0_8px_var(--accent)]" />
+            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full" />
           </button>
 
           <div className="hidden md:flex items-center gap-10">
@@ -111,48 +119,31 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className="group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase transition-all duration-300 text-[var(--text-primary)]"
+                className="group relative text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-white/50 hover:text-white transition-all"
               >
-                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
-                  {link.label}
-                </span>
-                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-accent opacity-0 group-hover:opacity-100 group-hover:w-full transition-all duration-300 shadow-[0_0_10px_var(--accent)]" />
+                {link.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
-            
-            <a
-              href="#contact"
-              onClick={(e) => handleNavClick(e, '#contact')}
-              className="btn-primary text-[10px] py-3 px-8 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_var(--accent)] font-black"
-            >
+            <a href="#contact" onClick={(e) => handleNavClick(e, '#contact')} className="btn-primary text-[10px] py-3 px-8 font-black uppercase">
               {content.cta_text}
             </a>
           </div>
 
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 hover:text-accent transition-colors duration-300 text-[var(--text-primary)]"
-          >
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white p-2">
             {mobileOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
 
-        <div className={`md:hidden overflow-hidden transition-all duration-500 bg-[var(--bg-primary)]/98 backdrop-blur-xl ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
-          <div className="section-container py-10 flex flex-col gap-8 px-6">
+        {/* MOBILE MENU */}
+        <div className={`md:hidden overflow-hidden transition-all duration-500 bg-black/95 ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
+          <div className="flex flex-col p-10 gap-8">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="group relative inline-block text-2xl font-heading font-black tracking-widest uppercase transition-all duration-300 text-[var(--text-primary)]"
-              >
-                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
-                  {link.label}
-                </span>
-                <span className="absolute -bottom-1 left-0 w-0 h-[3px] bg-accent opacity-0 group-hover:opacity-100 group-hover:w-12 transition-all duration-300" />
+              <a key={link.href} href={link.href} onClick={(e) => handleNavClick(e, link.href)} className="text-2xl font-heading font-black uppercase text-white hover:text-accent">
+                {link.label}
               </a>
             ))}
-            <a href="#contact" onClick={(e) => handleNavClick(e, '#contact')} className="btn-primary text-sm py-4 px-6 justify-center mt-6 font-black">
+            <a href="#contact" onClick={(e) => handleNavClick(e, '#contact')} className="btn-primary text-sm py-4 px-6 text-center font-black">
               {content.cta_text}
             </a>
           </div>
