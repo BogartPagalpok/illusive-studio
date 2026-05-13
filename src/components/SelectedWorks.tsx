@@ -2,47 +2,22 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCoverflow, Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { EffectCoverflow, Navigation, Pagination } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { supabase } from '../lib/supabase';
-import { useScrollReveal } from '../hooks/useScrollReveal';
-import FloatingCube from './FloatingCube';
 
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-gsap.registerPlugin(ScrollTrigger);
-
-interface Project {
-  id: string;
-  title: string;
-  category: string;
-  description: string;
-  process: string;
-  tools: string[];
-  results: string;
-  image_url: string;
-  featured: boolean;
-  all_images?: string[]; 
-}
-
 export default function SelectedWorks() {
-  const { ref, isVisible } = useScrollReveal();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); 
+  const [projects, setProjects] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<any | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
-    if (selectedProject) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = selectedProject ? 'hidden' : 'unset';
   }, [selectedProject]);
 
   useEffect(() => {
@@ -54,9 +29,10 @@ export default function SelectedWorks() {
         .order('created_at', { ascending: false });
 
       if (data) {
-        const grouped: Record<string, Project> = {};
+        // Simple grouping logic to ensure clean titles
+        const grouped: Record<string, any> = {};
         data.forEach((item) => {
-          const cleanTitle = item.title.replace(/\.[^/.]+$/, "").replace(/\d+$/, "").trim();
+          const cleanTitle = item.title.replace(/\.[^/.]+$/, "").trim();
           if (!grouped[cleanTitle]) {
             grouped[cleanTitle] = { ...item, title: cleanTitle, all_images: [item.image_url] };
           } else {
@@ -70,59 +46,57 @@ export default function SelectedWorks() {
   }, []);
 
   return (
-    <section className="section-padding relative z-40 bg-transparent min-h-screen overflow-visible">
+    <section className="py-24 relative z-40 bg-transparent min-h-screen overflow-hidden">
       <div id="works" className="absolute -top-24" />
       
-      <div ref={ref} className="section-container relative z-30">
+      <div className="max-w-[1600px] mx-auto px-4 relative z-20">
         <div className="text-center mb-16">
-          <p className="text-sm tracking-[0.3em] uppercase text-accent mb-4 font-heading">Portfolio</p>
-          <h2 className="heading-lg uppercase font-bold text-white tracking-tighter">Selected Works</h2>
+          <p className="text-sm tracking-[0.4em] uppercase text-accent mb-4">Visionary Lab</p>
+          <h2 className="text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter">Selected Works</h2>
         </div>
 
-        <div className="relative group px-4 overflow-visible">
+        <div className="relative group overflow-visible">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
-            modules={[EffectCoverflow, Navigation, Pagination, Autoplay]}
+            modules={[EffectCoverflow, Navigation, Pagination]}
             effect={'coverflow'}
             grabCursor={true}
             centeredSlides={true}
-            // FIXED: loop={false} kills the "slim/squashed" bug and the console warning
-            loop={false} 
+            // INFINITE STACK FIX
+            loop={true}
+            loopedSlides={5} 
             slidesPerView={'auto'}
             navigation={{
               nextEl: '.nav-next',
               prevEl: '.nav-prev',
             }}
             coverflowEffect={{
-              rotate: 0,
-              stretch: -20, // Reduced from -60 to prevent excessive overlapping on smaller views
-              depth: 150,
+              rotate: 0,           // Keeps cards flat like your reference
+              stretch: -100,       // Pulls cards together for the "Stacked" look
+              depth: 300,          // Pushes side cards back in 3D space
               modifier: 1,
               slideShadows: false,
             }}
-            className="!pb-24 !pt-10 overflow-visible"
+            className="!pb-28 !pt-10 overflow-visible"
           >
             {projects.map((project) => (
-              <SwiperSlide key={project.id} className="max-w-[300px] md:max-w-[420px] !flex items-center justify-center">
-                <div 
-                  className="relative w-full h-[500px] md:h-[650px] rounded-[45px] border border-white/10 overflow-hidden backdrop-blur-3xl bg-white/5 transition-all duration-500 shadow-2xl"
-                >
-                  <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover" alt={project.title} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              <SwiperSlide key={project.id} className="max-w-[320px] md:max-w-[480px]">
+                <div className="relative h-[550px] md:h-[750px] rounded-[60px] border border-white/10 overflow-hidden backdrop-blur-3xl bg-white/5 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)]">
+                  <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover" alt="" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
                   
-                  <div className="absolute bottom-0 left-0 p-10 w-full z-20">
-                    <span className="text-accent text-[10px] tracking-[0.3em] uppercase font-bold">{project.category}</span>
-                    <h3 className="text-2xl md:text-3xl font-bold text-white uppercase mt-2 mb-8 leading-none tracking-tighter">{project.title}</h3>
+                  <div className="absolute bottom-0 left-0 p-12 w-full z-10">
+                    <span className="text-accent text-xs tracking-[0.3em] uppercase font-bold">{project.category}</span>
+                    <h3 className="text-3xl md:text-5xl font-bold text-white uppercase mt-4 mb-10 leading-none tracking-tighter">{project.title}</h3>
                     
                     <button 
                       onClick={(e) => {
-                        e.preventDefault();
                         e.stopPropagation();
                         setSelectedProject(project);
                       }}
-                      className="inline-flex items-center gap-2 bg-white/10 hover:bg-accent hover:text-black backdrop-blur-md border border-white/10 px-8 py-4 rounded-full text-[10px] tracking-widest uppercase text-white transition-all cursor-pointer font-bold relative z-30"
+                      className="inline-flex items-center gap-4 bg-white text-black px-10 py-5 rounded-full text-xs tracking-[0.2em] uppercase font-black hover:bg-accent transition-all cursor-pointer shadow-xl"
                     >
-                      View Project <ChevronRight size={14} />
+                      View Full Case <ChevronRight size={18} />
                     </button>
                   </div>
                 </div>
@@ -130,12 +104,12 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
 
-          {/* Navigation Arrows */}
-          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[70] p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-accent hover:text-black transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
-            <ChevronLeft size={24} />
+          {/* High-Contrast Navigation */}
+          <button className="nav-prev absolute left-4 top-1/2 -translate-y-1/2 z-[100] p-6 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent hover:text-black transition-all hidden xl:flex shadow-2xl">
+            <ChevronLeft size={32} />
           </button>
-          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[70] p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-accent hover:text-black transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
-            <ChevronRight size={24} />
+          <button className="nav-next absolute right-4 top-1/2 -translate-y-1/2 z-[100] p-6 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent hover:text-black transition-all hidden xl:flex shadow-2xl">
+            <ChevronRight size={32} />
           </button>
         </div>
       </div>
@@ -144,39 +118,23 @@ export default function SelectedWorks() {
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-12 bg-black/98 backdrop-blur-3xl"
           >
-            <div className="absolute inset-0" onClick={() => setSelectedProject(null)} />
+            <button onClick={() => setSelectedProject(null)} className="absolute top-10 right-10 z-[10000] p-5 bg-white/10 rounded-full text-white hover:bg-accent hover:text-black transition-all">
+              <X size={32} />
+            </button>
+            
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="relative w-full max-w-7xl h-[90vh] bg-neutral-900 border border-white/10 rounded-[40px] overflow-hidden flex flex-col md:flex-row backdrop-blur-3xl shadow-2xl"
+              initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+              className="w-full max-w-7xl flex flex-col md:flex-row items-center gap-16"
             >
-              <button onClick={() => setSelectedProject(null)} className="absolute top-8 right-8 z-[120] p-3 bg-black/50 rounded-full text-white hover:bg-accent hover:text-black transition-all">
-                <X size={24} />
-              </button>
-
-              <div className="w-full md:w-3/5 h-1/2 md:h-full bg-black/50 p-6 flex items-center justify-center">
-                <img 
-                   src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url} 
-                   className="max-w-full max-h-full object-contain"
-                   alt={selectedProject.title}
-                />
+              <div className="flex-1">
+                <img src={selectedProject.image_url} className="w-full rounded-[40px] shadow-2xl border border-white/10" alt="" />
               </div>
-
-              <div className="w-full md:w-2/5 p-8 md:p-16 overflow-y-auto custom-scrollbar bg-black/20">
-                <span className="text-accent text-[10px] tracking-widest uppercase">{selectedProject.category}</span>
-                <h2 className="text-4xl font-bold text-white uppercase mt-4 mb-8 leading-tight tracking-tighter">{selectedProject.title}</h2>
-                <div className="space-y-8 text-sm text-gray-300 leading-relaxed">
-                   <p>{selectedProject.description}</p>
-                   <div className="pt-8 border-t border-white/10">
-                      <h4 className="text-[10px] uppercase text-white/50 tracking-[0.3em] mb-4">Tools Lab</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedProject.tools?.map(tool => (
-                          <span key={tool} className="px-3 py-1 border border-white/10 rounded-sm text-[9px] uppercase text-white">{tool}</span>
-                        ))}
-                      </div>
-                   </div>
-                </div>
+              <div className="flex-1 text-left">
+                <span className="text-accent text-sm tracking-[0.3em] uppercase">{selectedProject.category}</span>
+                <h2 className="text-6xl font-bold text-white uppercase mt-6 mb-8 tracking-tighter leading-none">{selectedProject.title}</h2>
+                <p className="text-gray-400 text-xl leading-relaxed max-w-lg">{selectedProject.description}</p>
               </div>
             </motion.div>
           </motion.div>
