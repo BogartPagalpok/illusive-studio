@@ -17,7 +17,6 @@ export default function SelectedWorks() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   const swiperRef = useRef<SwiperType | null>(null);
 
-  // 1. AUTO-HIDE NAVBAR (Stops the overlap blocking the X button)
   useEffect(() => {
     const nav = document.querySelector('nav');
     if (!nav) return;
@@ -46,7 +45,6 @@ export default function SelectedWorks() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [selectedProject]);
 
-  // 2. DATA FETCH: Preserving Overview, Workflow, and Tech Stack
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await supabase
@@ -60,7 +58,6 @@ export default function SelectedWorks() {
         data.forEach((item) => {
           const cleanTitle = item.title.replace(/\.[^/.]+$/, '').trim();
           if (!grouped[cleanTitle]) {
-            // CRITICAL: Spreading 'item' ensures overview, workflow, etc., are NOT stripped
             grouped[cleanTitle] = { 
               ...item, 
               title: cleanTitle, 
@@ -85,7 +82,6 @@ export default function SelectedWorks() {
           <h2 className="text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
         </div>
 
-        {/* CLAMPED SIZE: Stops the "Huge Screen" oversize issue */}
         <div className="relative group h-[clamp(450px,65vh,680px)] overflow-visible">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
@@ -138,26 +134,23 @@ export default function SelectedWorks() {
                 )}
               </div>
 
-              {/* DETAILS SECTION: Fixed Readability and Preserved Data */}
               <div className="text-left md:w-2/5 p-4 max-w-xl">
                 <span className="text-accent text-xs tracking-[0.4em] uppercase font-bold">{selectedProject.category}</span>
                 <h2 className="text-5xl md:text-7xl font-bold text-white uppercase mt-4 mb-8 tracking-tighter leading-none">{selectedProject.title}</h2>
                 <div className="space-y-6">
-                  {/* Overview Field - Higher Contrast Text */}
-                  <p className="text-gray-200 text-lg leading-relaxed font-medium">{selectedProject.overview || selectedProject.description}</p>
+                  {/* Dynamic Contrast Fix: text-gray-100 + Shadow prevents wash-out */}
+                  <p className="text-gray-100 text-lg leading-relaxed font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{selectedProject.overview || selectedProject.description}</p>
                   
-                  {/* Workflow Field */}
                   {selectedProject.workflow && (
                     <div className="pt-4 border-t border-white/10">
                       <p className="text-white/50 text-[10px] uppercase tracking-widest mb-2 font-bold">Process & Strategy</p>
-                      <p className="text-gray-400 text-sm leading-relaxed italic">{selectedProject.workflow}</p>
+                      <p className="text-gray-400 text-sm leading-relaxed italic drop-shadow-sm">{selectedProject.workflow}</p>
                     </div>
                   )}
 
-                  {/* Tech Stack Mapping */}
                   <div className="pt-6 flex flex-wrap gap-2">
                     {selectedProject.tools?.map((t: string) => (
-                      <span key={t} className="px-3 py-1 border border-white/20 rounded-sm text-[9px] uppercase text-white tracking-widest bg-white/5">{t}</span>
+                      <span key={t} className="px-3 py-1 border border-white/20 rounded-sm text-[9px] uppercase text-white tracking-widest bg-white/5 drop-shadow-sm">{t}</span>
                     ))}
                   </div>
                 </div>
