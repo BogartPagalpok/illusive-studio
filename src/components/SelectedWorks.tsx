@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
-import { ChevronLeft, ChevronRight, Play, Info, Loader2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
@@ -176,13 +176,6 @@ export default function SelectedWorks() {
                   >
                     <Play size={20} fill="black" /> View Project
                   </button>
-                  <button 
-                    type="button"
-                    onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-2 bg-white/20 text-white px-8 py-3 font-bold rounded backdrop-blur-md hover:bg-white/30 transition-all"
-                  >
-                    <Info size={20} /> Details
-                  </button>
                 </div>
               </motion.div>
             )}
@@ -192,56 +185,22 @@ export default function SelectedWorks() {
         {/* 4. UP NEXT RAIL (Bottom Swiper) */}
         <div className="w-full pb-8">
           <h2 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em] mb-4">
-            Up Next in Portfolio
+            Current Project
           </h2>
           
-          {filteredProjects.length > 0 ? (
-            <>
-              <Swiper
-                onSwiper={(s) => (swiperRef.current = s)}
-                modules={[Navigation]}
-                spaceBetween={20}
-                slidesPerView={'auto'}
-                navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
-                onSlideChange={(s) => setActiveIndex(s.realIndex)}
-                className="overflow-visible"
+          {currentProject ? (
+            <div className="relative">
+              <div 
+                onClick={() => setSelectedProject(currentProject)}
+                className="relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 border-accent shadow-[0_0_20px_var(--accent)] max-w-[240px] md:max-w-[320px]"
               >
-                {filteredProjects.map((project, idx) => (
-                  <SwiperSlide key={project.id} className="!w-[160px] md:!w-[240px]">
-                    <div 
-                      onClick={() => swiperRef.current?.slideTo(idx)}
-                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
-                        activeIndex === idx 
-                          ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' 
-                          : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
-                      }`}
-                    >
-                      <img 
-                        src={project.image_url} 
-                        className="w-full h-full object-cover" 
-                        alt={project.title} 
-                      />
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              
-              {/* Mini Nav Controls */}
-              <div className="flex gap-4 mt-6">
-                <button 
-                  type="button"
-                  className="rail-prev text-white/20 hover:text-white transition-colors"
-                >
-                  <ChevronLeft size={24} />
-                </button>
-                <button 
-                  type="button"
-                  className="rail-next text-white/20 hover:text-white transition-colors"
-                >
-                  <ChevronRight size={24} />
-                </button>
+                <img 
+                  src={currentProject.image_url} 
+                  className="w-full h-full object-cover" 
+                  alt={currentProject.title} 
+                />
               </div>
-            </>
+            </div>
           ) : (
             <div className="text-white/10 text-xs font-black uppercase tracking-[0.2em]">
               No projects available
