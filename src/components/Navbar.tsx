@@ -29,7 +29,7 @@ export default function Navbar() {
     const fetchContent = async () => {
       const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
       if (data) {
-        const mapped = { ...content };
+        const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
         data.forEach(row => {
           if (row.key === 'logo_text') mapped.logo_text = row.value;
           if (row.key === 'cta_text') mapped.cta_text = row.value;
@@ -63,6 +63,17 @@ export default function Navbar() {
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
+      {/* Mobile Menu */}
+      {mobileOpen && (
+        <div className="md:hidden bg-black/90 backdrop-blur-md border-t border-white/10">
+          <div className="section-container py-4 flex flex-col gap-4">
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href} onClick={() => setMobileOpen(false)} className="text-sm font-heading font-medium tracking-widest uppercase text-white/60 hover:text-accent transition-all">{link.label}</a>
+            ))}
+            <a href="#contact" onClick={() => setMobileOpen(false)} className="btn-primary text-xs py-3 px-6 hover:scale-105 transition-all inline-block">{content.cta_text}</a>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
