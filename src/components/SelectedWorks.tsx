@@ -11,9 +11,25 @@ import 'swiper/css/effect-coverflow';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+// 1. THIS IS THE DEPLOYMENT FIX: Strict Typing so Vercel doesn't crash
+interface Project {
+  id: string;
+  title: string;
+  category: string;
+  image_url: string;
+  all_images?: string[];
+  overview?: string;
+  description?: string;
+  workflow?: string;
+  tech_stack?: string;
+  tools?: string[];
+  [key: string]: any;
+}
+
 export default function SelectedWorks() {
-  const [projects, setProjects] = useState<any[]>([]);
-  const [selectedProject, setSelectedProject] = useState<any | null>(null);
+  // 2. REPLACED 'any' WITH 'Project'
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   const swiperRef = useRef<SwiperType | null>(null);
 
@@ -91,23 +107,19 @@ export default function SelectedWorks() {
             effect="coverflow"
             grabCursor={true}
             centeredSlides={true}
-            loop={true}
-            loopedSlides={5}
-            slidesPerView={1.5}
-            breakpoints={{
-              768: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 }
-            }}
+            loop={projects.length > 2} 
+            loopedSlides={projects.length > 0 ? projects.length : undefined} 
+            speed={800} 
+            slidesPerView="auto"
             navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
-            coverflowEffect={{ rotate: 0, stretch: 0, depth: 150, modifier: 2.5, slideShadows: true }}
-            speed={800}
+            coverflowEffect={{ rotate: 5, stretch: 0, depth: 250, modifier: 1, slideShadows: true }}
             className="!pb-24 !pt-10 overflow-visible coverflow-carousel"
           >
             {projects.map((project) => (
               <SwiperSlide key={project.id} style={{ width: 'min(380px, 85vw)' }} className="!flex items-center justify-center">
                 {({ isActive }) => (
                   <div className={`relative w-full rounded-[35px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${isActive ? 'h-[clamp(450px,60vh,650px)] border-white/20 bg-white/10 scale-100 z-10' : 'h-[clamp(380px,50vh,550px)] border-white/5 bg-white/5 scale-[0.88] opacity-50'}`}>
-                    <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover pointer-events-none" alt="" />
+                    <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover pointer-events-none" alt={project.title} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-transparent" />
                     <div className={`absolute bottom-0 left-0 p-8 md:p-10 w-full z-50 transition-all duration-500 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                       <span className="text-accent text-[9px] tracking-[0.4em] uppercase font-black">{project.category}</span>
@@ -132,12 +144,12 @@ export default function SelectedWorks() {
             
             <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} className="flex flex-col lg:flex-row items-center gap-12 max-w-[1500px] w-full">
               <div className="relative w-full lg:w-3/5 h-[45vh] lg:h-[75vh] flex items-center justify-center rounded-[45px] bg-white/5 border border-white/10 overflow-hidden shadow-2xl">
-                <motion.img key={currentImageIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url} className="max-w-full max-h-full object-contain p-6" alt="" />
+                <motion.img key={currentImageIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url} className="max-w-full max-h-full object-contain p-6" alt={selectedProject.title} />
                 
                 {selectedProject.all_images && selectedProject.all_images.length > 1 && (
                   <div className="absolute inset-0 flex items-center justify-between px-6">
-                    <button onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev - 1 + selectedProject.all_images.length) % selectedProject.all_images.length)}} className="p-4 rounded-full bg-black/60 text-white hover:bg-accent transition-all z-[10002]"><ChevronLeft size={24} /></button>
-                    <button onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev + 1) % selectedProject.all_images.length)}} className="p-4 rounded-full bg-black/60 text-white hover:bg-accent transition-all z-[10002]"><ChevronRight size={24} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev - 1 + (selectedProject.all_images?.length || 1)) % (selectedProject.all_images?.length || 1))}} className="p-4 rounded-full bg-black/60 text-white hover:bg-accent transition-all z-[10002]"><ChevronLeft size={24} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev + 1) % (selectedProject.all_images?.length || 1))}} className="p-4 rounded-full bg-black/60 text-white hover:bg-accent transition-all z-[10002]"><ChevronRight size={24} /></button>
                   </div>
                 )}
               </div>
