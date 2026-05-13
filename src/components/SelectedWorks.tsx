@@ -123,7 +123,7 @@ export default function SelectedWorks() {
 
       <AnimatePresence>
         {selectedProject && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[10000] flex items-center justify-center p-4 md:p-12 bg-black/95 backdrop-blur-2xl">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[10000] flex items-center justify-center p-4 md:p-12 bg-black/60 backdrop-blur-2xl">
             <button onClick={() => setSelectedProject(null)} className="absolute top-8 right-8 z-[10001] p-5 bg-white/10 rounded-full text-white hover:bg-accent transition-all"><X size={32} /></button>
             
             <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} className="flex flex-col lg:flex-row items-center gap-12 max-w-[1500px] w-full">
@@ -144,7 +144,6 @@ export default function SelectedWorks() {
                   <h2 className="text-5xl md:text-7xl font-bold text-white uppercase mt-4 tracking-tighter leading-none">{selectedProject.title}</h2>
                 </div>
 
-                {/* RESTORED GLASSMORPHISM CONTAINER */}
                 <div className="space-y-6 bg-white/5 p-10 rounded-[40px] backdrop-blur-3xl border border-white/10 shadow-2xl">
                   <p className="text-gray-100 text-xl leading-relaxed font-medium">
                     {selectedProject.overview || selectedProject.description}
