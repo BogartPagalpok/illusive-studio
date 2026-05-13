@@ -172,10 +172,11 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
 
   if (syncToCloud) {
     try {
+      // MASTER SYNC: Save the ID so we get the full font/gradient package on all devices
       const { error } = await supabase
         .from('site_config')
         .update({ 
-          theme_color: theme.id, 
+          active_theme_id: theme.id, 
           updated_at: new Date().toISOString() 
         })
         .eq('id', 1);
@@ -191,12 +192,12 @@ export async function loadSavedTheme() {
   try {
     const { data, error } = await supabase
       .from('site_config')
-      .select('theme_color')
+      .select('active_theme_id')
       .eq('id', 1)
       .maybeSingle();
     
-    if (!error && data?.theme_color) {
-      const theme = themePresets.find((t) => t.id === data.theme_color);
+    if (!error && data?.active_theme_id) {
+      const theme = themePresets.find((t) => t.id === data.active_theme_id);
       if (theme) {
         applyTheme(theme, false);
         return;
@@ -222,8 +223,7 @@ export function subscribeToThemeChanges() {
         filter: 'id=eq.1' 
       },
       (payload) => {
-        // Payload.new contains the updated record
-        const newThemeId = payload.new.theme_color;
+        const newThemeId = payload.new.active_theme_id;
         if (newThemeId) {
           const theme = themePresets.find(t => t.id === newThemeId);
           if (theme) {
