@@ -1,211 +1,171 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Palette, Check } from 'lucide-react';
-import MessageManager from '../components/admin/MessageManager';
-import SiteContentManager from '../components/admin/SiteContentManager';
-import ProjectManager from '../components/admin/ProjectManager';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCoverflow, Navigation, Pagination } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper';
 import { supabase } from '../lib/supabase';
 
-const THEMES = [
-  { id: 'void', name: 'Void', tagline: 'Deep Web3 Purple', accent: '#9D00FF', bgPrimary: '#030305', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(157, 0, 255, 0.15) 0%, rgba(3, 3, 5, 0) 70%)' },
-  { id: 'light', name: 'Clean', tagline: 'App Interface', accent: '#FF3366', bgPrimary: '#F0F0F3', bgGradient: 'none' },
-  { id: 'magma', name: 'Magma', tagline: 'Industrial Cyberpunk', accent: '#FF4500', bgPrimary: '#050303', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(255, 69, 0, 0.12) 0%, rgba(5, 3, 3, 0) 70%)' },
-  { id: 'toxic', name: 'Toxic', tagline: 'Acid Techwear', accent: '#D4FF00', bgPrimary: '#030503', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(57, 255, 20, 0.12) 0%, rgba(3, 5, 3, 0) 70%)' },
-  { id: 'ocean', name: 'Ocean', tagline: 'Deep Sea Crypto', accent: '#00FFFF', bgPrimary: '#010609', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(0, 255, 255, 0.12) 0%, rgba(1, 6, 9, 0) 70%)' },
-  { id: 'gold', name: 'Gold', tagline: 'Metallic Luxury', accent: '#FFD700', bgPrimary: '#050402', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(255, 215, 0, 0.12) 0%, rgba(5, 4, 2, 0) 70%)' },
-  { id: 'synth', name: 'Synth', tagline: 'Retrowave Neon', accent: '#FF0080', bgPrimary: '#070205', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(255, 0, 128, 0.15) 0%, rgba(7, 2, 5, 0) 70%)' },
-  { id: 'glitch', name: 'Glitch', tagline: 'Crimson Hacker', accent: '#DC143C', bgPrimary: '#050000', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(220, 20, 60, 0.15) 0%, rgba(5, 0, 0, 0) 70%)' },
-  { id: 'ice', name: 'Ice', tagline: 'Arctic Frost', accent: '#87CEFA', bgPrimary: '#020508', bgGradient: 'radial-gradient(circle at 50% -20%, rgba(135, 206, 250, 0.12) 0%, rgba(2, 5, 8, 0) 70%)' },
-  { id: 'brutal', name: 'Brutal', tagline: 'Monochrome High-Contrast', accent: '#FFFFFF', bgPrimary: '#000000', bgGradient: 'none' },
-];
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
-interface AdminDashboardProps {
-  onLogout: () => void;
-}
+export default function SelectedWorks() {
+  const [projects, setProjects] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<any | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); 
+  const swiperRef = useRef<SwiperType | null>(null);
 
-export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
-  const [tab, setTab] = useState<'content' | 'projects' | 'messages' | 'media' | 'theme'>('content');
-  const [message, setMessage] = useState('');
-  
-  const [activeThemeId, setActiveThemeId] = useState(() => {
-    return localStorage.getItem('portfolio-theme') || 'void';
-  });
-
-  const applyThemeToDOM = (themeId: string) => {
-    document.documentElement.setAttribute('data-theme', themeId);
-    document.body.setAttribute('data-theme', themeId);
-  };
-
+  // 1. AUTO-HIDE NAVBAR (Stops overlap jitter)
   useEffect(() => {
-    const savedTheme = localStorage.getItem('portfolio-theme') || 'void';
-    applyThemeToDOM(savedTheme);
+    const nav = document.querySelector('nav');
+    if (!nav) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!selectedProject) {
+        // Show if at top or mouse is near top
+        if (e.clientY <= 70 || window.scrollY <= 50) {
+          nav.style.opacity = '1';
+          nav.style.transform = 'translateY(0)';
+          nav.style.backdropFilter = 'blur(16px)';
+        } else {
+          nav.style.opacity = '0';
+          nav.style.transform = 'translateY(-100%)';
+        }
+      }
+    };
+
+    if (selectedProject) {
+      document.body.style.overflow = 'hidden';
+      nav.style.opacity = '0';
+      nav.style.pointerEvents = 'none';
+    } else {
+      document.body.style.overflow = 'unset';
+      nav.style.opacity = '1';
+      nav.style.pointerEvents = 'auto';
+      window.addEventListener('mousemove', handleMouseMove);
+    }
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [selectedProject]);
+
+  // 2. DATA FETCHING (Using overview, workflow, and tech_stack)
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await supabase
+        .from('portfolio_projects')
+        .select('*')
+        .eq('featured', true)
+        .order('created_at', { ascending: false });
+
+      if (data) {
+        const grouped: Record<string, any> = {};
+        data.forEach((item) => {
+          const cleanTitle = item.title.replace(/\.[^/.]+$/, '').trim();
+          if (!grouped[cleanTitle]) {
+            grouped[cleanTitle] = { 
+              ...item, 
+              title: cleanTitle, 
+              all_images: [item.image_url],
+              // Split tech_stack string into tags
+              tools: item.tech_stack ? item.tech_stack.split(',').map((t: string) => t.trim()) : []
+            };
+          } else {
+            grouped[cleanTitle].all_images?.push(item.image_url);
+          }
+        });
+        setProjects(Object.values(grouped));
+      }
+    };
+    fetchData();
   }, []);
 
-  const showMessage = (msg: string) => {
-    setMessage(msg);
-    setTimeout(() => setMessage(''), 3000);
-  };
-
-  const handleThemeSelect = async (theme: typeof THEMES[0]) => {
-    // 1. Update UI and Local Storage immediately
-    applyThemeToDOM(theme.id);
-    localStorage.setItem('portfolio-theme', theme.id);
-    setActiveThemeId(theme.id);
-
-    // 2. Sync to Supabase for other devices
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { error } = await supabase
-          .from('user_profiles')
-          .update({ theme_preference: theme.id })
-          .eq('id', session.user.id);
-        
-        if (error) throw error;
-      }
-      showMessage(`Theme synchronized: ${theme.name}`);
-    } catch (err) {
-      console.warn('Sync failed, saved locally only.');
-      showMessage(`Saved locally: ${theme.name}`);
-    }
-  };
-
-  const tabs = [
-    { key: 'content' as const, label: 'Content' },
-    { key: 'projects' as const, label: 'Projects' },
-    { key: 'messages' as const, label: 'Messages' },
-    { key: 'theme' as const, label: 'Engine' },
-  ];
-
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* Header */}
-      <div className="border-b" style={{ borderColor: 'var(--text-secondary)', opacity: 0.1 }}>
-        <div className="section-container flex items-center justify-between h-20">
-          <button
-            onClick={onLogout}
-            className="flex items-center gap-2 text-[10px] font-heading tracking-widest uppercase transition-colors"
-            style={{ color: 'var(--text-secondary)' }}
+    <section id="works" className="relative z-40 bg-transparent min-h-screen py-8 overflow-hidden flex flex-col justify-center">
+      <div className="max-w-[1400px] mx-auto px-4 w-full relative z-20">
+        <div className="text-center mb-6">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-accent mb-2">Portfolio</p>
+          <h2 className="text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
+        </div>
+
+        {/* CLAMPED HEIGHT: Prevents oversize bounce on huge TVs */}
+        <div className="relative group h-[clamp(450px,65vh,700px)] overflow-visible">
+          <Swiper
+            onSwiper={(s) => { swiperRef.current = s; }}
+            modules={[EffectCoverflow, Navigation, Pagination]}
+            effect="coverflow"
+            grabCursor={true}
+            centeredSlides={true}
+            loop={true}
+            loopedSlides={5}
+            slidesPerView="auto"
+            navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
+            coverflowEffect={{ rotate: 8, stretch: 0, depth: 300, modifier: 1, slideShadows: true }}
+            speed={700}
+            className="!pb-20 !pt-5 overflow-visible coverflow-carousel"
           >
-            <ArrowLeft size={14} /> Exit
-          </button>
-          
-          <h1 className="font-heading font-black tracking-tighter text-sm" style={{ color: 'var(--text-primary)' }}>
-            CONTROL <span style={{ color: 'var(--accent)' }}>SYSTEM</span>
-          </h1>
-
-          <button onClick={onLogout} className="btn-primary py-2 px-6 rounded-lg text-[9px]">
-            Logout
-          </button>
+            {projects.map((project) => (
+              <SwiperSlide key={project.id} style={{ width: 'min(380px, 85vw)' }} className="!flex items-center justify-center">
+                {({ isActive }) => (
+                  <div className={`relative w-full rounded-[30px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${isActive ? 'h-[clamp(420px,60vh,650px)] border-white/20 bg-white/10 scale-100 z-10' : 'h-[clamp(360px,50vh,550px)] border-white/5 bg-white/5 scale-[0.85] opacity-60'}`}>
+                    <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover pointer-events-none" alt="" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-transparent" />
+                    {isActive && <div className="absolute inset-0 rounded-[30px] ring-1 ring-accent/30 pointer-events-none" />}
+                    <div className={`absolute bottom-0 left-0 p-6 md:p-10 w-full z-50 transition-all duration-500 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                      <span className="text-accent text-[9px] tracking-[0.4em] uppercase font-black">{project.category}</span>
+                      <h3 className="text-xl md:text-3xl font-bold text-white uppercase mt-1 mb-6 leading-none tracking-tighter">{project.title}</h3>
+                      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedProject(project); setCurrentImageIndex(0); }} className="inline-flex items-center gap-2 bg-white text-black px-8 py-3 rounded-full text-[10px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]">View Case <ChevronRight size={14} /></button>
+                    </div>
+                  </div>
+                )}
+              </SwiperSlide>
+            ))}
+          </Swiper>
+          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/80 border border-white/10 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl"><ChevronLeft size={24} /></button>
+          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[100] p-4 rounded-full bg-black/80 border border-white/10 text-white hover:bg-accent transition-all hidden xl:flex shadow-2xl"><ChevronRight size={24} /></button>
         </div>
       </div>
 
-      {/* Message toast */}
-      {message && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed top-24 left-1/2 -translate-x-1/2 z-50 px-8 py-3 text-[10px] font-heading tracking-widest rounded-lg shadow-2xl uppercase font-bold"
-          style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
-        >
-          {message}
-        </motion.div>
-      )}
-
-      <div className="section-container py-12">
-        <div className="flex gap-2 mb-12 overflow-x-auto pb-4">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`px-6 py-3 text-[9px] font-heading font-black tracking-[0.2em] uppercase rounded-lg transition-all duration-300 border ${
-                tab === t.key 
-                ? 'border-accent' 
-                : 'border-transparent opacity-40 hover:opacity-100'
-              }`}
-              style={tab === t.key ? { backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' } : { color: 'var(--text-primary)' }}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {tab === 'content' && <SiteContentManager />}
-        {tab === 'projects' && <ProjectManager />}
-        {tab === 'messages' && <MessageManager />}
-
-        {tab === 'theme' && (
-          <div className="space-y-12">
-            <div className="flex items-center gap-6">
-              <div className="p-5 rounded-2xl" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--text-secondary)' }}>
-                <Palette size={24} style={{ color: 'var(--accent)' }} />
-              </div>
-              <div>
-                <h2 className="text-3xl font-heading font-black" style={{ color: 'var(--text-primary)' }}>Atmosphere Engine</h2>
-                <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--text-secondary)' }}>Visual Synchronization Module</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {THEMES.map((theme) => (
-                <button
-                  key={theme.id}
-                  onClick={() => handleThemeSelect(theme)}
-                  className="group p-6 rounded-2xl border transition-all duration-500 text-left relative overflow-hidden"
-                  style={{ 
-                    backgroundColor: 'var(--bg-secondary)', 
-                    borderColor: activeThemeId === theme.id ? 'var(--accent)' : 'rgba(128,128,128,0.1)' 
-                  }}
-                >
-                  <div className="flex justify-between items-start mb-6">
-                    <div 
-                      className="w-10 h-10 rounded-xl flex items-center justify-center border"
-                      style={{ backgroundColor: `${theme.accent}10`, borderColor: `${theme.accent}30` }}
-                    >
-                      <Palette size={16} style={{ color: theme.accent }} />
-                    </div>
-                    {activeThemeId === theme.id && (
-                      <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--accent)' }}>
-                        <Check size={12} style={{ color: 'var(--accent-contrast)' }} />
-                      </div>
-                    )}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/98 backdrop-blur-3xl">
+            <button onClick={() => setSelectedProject(null)} className="absolute top-8 right-8 z-[10000] p-4 bg-white/10 rounded-full text-white hover:bg-accent transition-all"><X size={28} /></button>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="flex flex-col md:flex-row items-center gap-12 max-w-7xl w-full">
+              <div className="relative w-full md:w-3/5 h-[45vh] md:h-[75vh] flex items-center justify-center rounded-[40px] bg-black/20 overflow-hidden border border-white/5 shadow-2xl">
+                <motion.img key={currentImageIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url} className="max-w-full max-h-full object-contain p-4" alt="" />
+                {selectedProject.all_images && selectedProject.all_images.length > 1 && (
+                  <div className="absolute inset-0 flex items-center justify-between px-4">
+                    <button onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev - 1 + selectedProject.all_images.length) % selectedProject.all_images.length)}} className="p-3 rounded-full bg-black/60 text-white hover:bg-accent transition-all"><ChevronLeft size={20} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => (prev + 1) % selectedProject.all_images.length)}} className="p-3 rounded-full bg-black/60 text-white hover:bg-accent transition-all"><ChevronRight size={20} /></button>
                   </div>
+                )}
+              </div>
+
+              {/* DETAILS RESTORED: Overview + Workflow + Tech Stack */}
+              <div className="text-left md:w-2/5 p-4">
+                <span className="text-accent text-xs tracking-[0.4em] uppercase font-bold">{selectedProject.category}</span>
+                <h2 className="text-5xl md:text-7xl font-bold text-white uppercase mt-4 mb-8 tracking-tighter leading-none">{selectedProject.title}</h2>
+                <div className="space-y-6">
+                  <p className="text-gray-400 text-lg leading-relaxed">{selectedProject.overview || selectedProject.description}</p>
                   
-                  <h3 className="text-xl font-heading font-black mb-1" style={{ color: 'var(--text-primary)' }}>
-                    {theme.name}
-                  </h3>
-                  <p className="text-[9px] font-heading font-bold tracking-[0.2em] uppercase" style={{ color: 'var(--text-secondary)' }}>
-                    {theme.tagline}
-                  </p>
-
-                  <div 
-                    className="w-full h-28 rounded-xl mt-6 relative overflow-hidden border border-white/5 transition-transform duration-500 group-hover:scale-[1.02]"
-                    style={{ backgroundColor: theme.bgPrimary, backgroundImage: theme.bgGradient }}
-                  >
-                    <div 
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[65%] rounded-lg border flex items-center justify-center shadow-2xl" 
-                      style={{ 
-                        backgroundColor: 'rgba(128, 128, 128, 0.05)', 
-                        borderColor: 'rgba(128, 128, 128, 0.15)',
-                        backdropFilter: 'blur(8px)',
-                        WebkitBackdropFilter: 'blur(8px)'
-                      }}
-                    >
-                      <div 
-                        className="w-[50%] h-[35%] rounded-md" 
-                        style={{ 
-                          background: `linear-gradient(135deg, ${theme.accent} 0%, color-mix(in srgb, ${theme.accent}, black 40%) 100%)`, 
-                          boxShadow: `0 4px 15px color-mix(in srgb, ${theme.accent}, transparent 80%)` 
-                        }} 
-                      />
+                  {selectedProject.workflow && (
+                    <div className="pt-4 border-t border-white/5">
+                      <p className="text-white/40 text-[10px] uppercase tracking-widest mb-2 font-bold">Process</p>
+                      <p className="text-gray-500 text-sm leading-relaxed italic">{selectedProject.workflow}</p>
                     </div>
+                  )}
+
+                  <div className="pt-6 flex flex-wrap gap-2">
+                    {selectedProject.tools.map((t: string) => (
+                      <span key={t} className="px-3 py-1 border border-white/10 rounded-sm text-[9px] uppercase text-white/50 tracking-widest">{t}</span>
+                    ))}
                   </div>
-                </button>
-              ))}
-            </div>
-          </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
-      </div>
-    </div>
+      </AnimatePresence>
+    </section>
   );
 }
