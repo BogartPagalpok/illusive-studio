@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { EffectCoverflow, Navigation, Pagination, Autoplay } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -11,6 +11,7 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 import FloatingCube from './FloatingCube';
 
 import 'swiper/css';
+import 'swiper/css/effect-coverflow';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
@@ -69,53 +70,58 @@ export default function SelectedWorks() {
   }, []);
 
   return (
-    <section className="section-padding relative z-40 bg-transparent min-h-screen">
+    <section className="section-padding relative z-40 bg-transparent min-h-screen overflow-hidden">
       <div id="works" className="absolute -top-24" />
       
-      <div ref={ref} className="section-container">
+      <div ref={ref} className="section-container relative z-20">
         <div className="text-center mb-16">
           <p className="text-sm tracking-[0.3em] uppercase text-accent mb-4 font-heading">Portfolio</p>
           <h2 className="heading-lg uppercase font-bold text-white tracking-tighter">Selected Works</h2>
         </div>
 
-        <div className="relative group px-4 md:px-12">
+        <div className="relative group px-4">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
-            modules={[Navigation, Pagination, Autoplay]}
+            modules={[EffectCoverflow, Navigation, Pagination, Autoplay]}
+            effect={'coverflow'}
+            grabCursor={true}
+            centeredSlides={true}
+            loop={projects.length > 5}
+            // FIXED: slidesPerView 'auto' prevents cards from being squashed/slimmed
+            slidesPerView={'auto'}
             navigation={{
               nextEl: '.nav-next',
               prevEl: '.nav-prev',
             }}
-            pagination={{ clickable: true, dynamicBullets: true }}
-            spaceBetween={30}
-            slidesPerView={1}
-            grabCursor={true}
-            // FIXED: Standard slide prevents the "slim" look
-            breakpoints={{
-              640: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 }
+            coverflowEffect={{
+              rotate: 0,            // Keeps cards flat to user
+              stretch: -60,         // PULLS CARDS TOGETHER for the designer overlap look
+              depth: 200,           // PUSHES side cards back in 3D space
+              modifier: 1,
+              slideShadows: false,
             }}
-            className="pb-16"
+            className="!pb-24 !pt-10"
           >
             {projects.map((project) => (
-              <SwiperSlide key={project.id}>
+              <SwiperSlide key={project.id} className="max-w-[320px] md:max-w-[420px]">
                 <div 
-                  className="relative h-[500px] rounded-3xl border border-white/10 overflow-hidden backdrop-blur-2xl bg-white/5 transition-transform duration-500 hover:scale-[1.02]"
+                  className="relative h-[500px] md:h-[650px] rounded-[45px] border border-white/10 overflow-hidden backdrop-blur-3xl bg-white/5 transition-all duration-500 shadow-2xl"
                 >
-                  <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700" />
+                  <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                   
-                  <div className="absolute bottom-0 left-0 p-8 w-full z-10">
-                    <span className="text-accent text-[10px] tracking-widest uppercase">{project.category}</span>
-                    <h3 className="text-2xl font-bold text-white uppercase mt-2 mb-6">{project.title}</h3>
+                  <div className="absolute bottom-0 left-0 p-10 w-full z-10">
+                    <span className="text-accent text-[10px] tracking-[0.3em] uppercase font-bold">{project.category}</span>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white uppercase mt-2 mb-8 leading-none tracking-tighter">{project.title}</h3>
+                    
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedProject(project);
                       }}
-                      className="inline-block border-b border-accent pb-1 text-[10px] tracking-widest uppercase text-white hover:text-accent transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-2 bg-white/10 hover:bg-accent hover:text-black backdrop-blur-md border border-white/10 px-8 py-4 rounded-full text-[10px] tracking-widest uppercase text-white transition-all cursor-pointer font-bold"
                     >
-                      View Project
+                      View Project <ChevronRight size={14} />
                     </button>
                   </div>
                 </div>
@@ -123,49 +129,48 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
 
-          {/* CUSTOM ARROWS: Only visible on desktop hover */}
-          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-50 p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-accent hover:text-black transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
+          {/* CUSTOM ARROWS: High Z-Index to stay clickable */}
+          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[60] p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-accent hover:text-black transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
             <ChevronLeft size={24} />
           </button>
-          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-50 p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-accent hover:text-black transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
+          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[60] p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-accent hover:text-black transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
             <ChevronRight size={24} />
           </button>
         </div>
       </div>
 
-      {/* PROJECT MODAL with Glassmorphism */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl"
           >
             <div className="absolute inset-0" onClick={() => setSelectedProject(null)} />
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              className="relative w-full max-w-6xl h-[85vh] bg-neutral-900/80 border border-white/10 rounded-3xl overflow-hidden flex flex-col md:flex-row backdrop-blur-3xl shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
+              className="relative w-full max-w-7xl h-[90vh] bg-neutral-900/90 border border-white/10 rounded-[40px] overflow-hidden flex flex-col md:flex-row backdrop-blur-3xl shadow-2xl"
             >
-              <button onClick={() => setSelectedProject(null)} className="absolute top-6 right-6 z-[110] p-2 bg-black/50 rounded-full text-white hover:bg-accent hover:text-black transition-all">
+              <button onClick={() => setSelectedProject(null)} className="absolute top-8 right-8 z-[120] p-3 bg-black/50 rounded-full text-white hover:bg-accent hover:text-black transition-all">
                 <X size={24} />
               </button>
 
-              <div className="w-full md:w-3/5 h-1/2 md:h-full bg-black/40 p-4 flex items-center justify-center">
+              <div className="w-full md:w-3/5 h-1/2 md:h-full bg-black/50 p-6 flex items-center justify-center">
                 <img 
                    src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url} 
-                   className="max-w-full max-h-full object-contain shadow-2xl"
+                   className="max-w-full max-h-full object-contain"
                 />
               </div>
 
-              <div className="w-full md:w-2/5 p-8 md:p-12 overflow-y-auto custom-scrollbar bg-black/20">
+              <div className="w-full md:w-2/5 p-8 md:p-16 overflow-y-auto custom-scrollbar bg-black/20">
                 <span className="text-accent text-[10px] tracking-widest uppercase">{selectedProject.category}</span>
-                <h2 className="text-3xl font-bold text-white uppercase mt-4 mb-8">{selectedProject.title}</h2>
-                <div className="space-y-6 text-sm text-gray-300 leading-relaxed">
+                <h2 className="text-4xl font-bold text-white uppercase mt-4 mb-8 leading-tight tracking-tighter">{selectedProject.title}</h2>
+                <div className="space-y-8 text-sm text-gray-300 leading-relaxed">
                    <p>{selectedProject.description}</p>
-                   <div className="pt-6 border-t border-white/5">
-                      <h4 className="text-[10px] uppercase text-white/50 tracking-widest mb-4">Tools Used</h4>
+                   <div className="pt-8 border-t border-white/10">
+                      <h4 className="text-[10px] uppercase text-white/50 tracking-[0.3em] mb-4">Tools Lab</h4>
                       <div className="flex flex-wrap gap-2">
                         {selectedProject.tools?.map(tool => (
-                          <span key={tool} className="px-3 py-1 border border-white/10 rounded-full text-[9px] uppercase tracking-tighter text-white">{tool}</span>
+                          <span key={tool} className="px-3 py-1 border border-white/10 rounded-sm text-[9px] uppercase text-white">{tool}</span>
                         ))}
                       </div>
                    </div>
