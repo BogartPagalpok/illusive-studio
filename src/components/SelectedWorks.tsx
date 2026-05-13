@@ -17,13 +17,11 @@ export default function SelectedWorks() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   const swiperRef = useRef<SwiperType | null>(null);
 
-  // 1. RESTORED AUTOHIDE & NAV LOGIC
   useEffect(() => {
     const nav = document.querySelector('nav');
     if (!nav) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Only trigger if no modal is open
       if (!selectedProject) {
         if (e.clientY <= 80 || window.scrollY <= 50) {
           nav.style.opacity = '1';
@@ -39,8 +37,6 @@ export default function SelectedWorks() {
 
     if (selectedProject) {
       document.body.style.overflow = 'hidden';
-      // Handled by Navbar.tsx visibility logic via body overflow, 
-      // but forced here for safety.
       nav.style.opacity = '0';
       nav.style.pointerEvents = 'none';
     } else {
@@ -88,7 +84,6 @@ export default function SelectedWorks() {
           <h2 className="text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
         </div>
 
-        {/* 2. RESTORED CLAMPED CARD SIZE */}
         <div className="relative group h-[clamp(480px,65vh,720px)] overflow-visible">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
@@ -132,7 +127,7 @@ export default function SelectedWorks() {
             <button onClick={() => setSelectedProject(null)} className="absolute top-8 right-8 z-[10001] p-5 bg-white/10 rounded-full text-white hover:bg-accent transition-all"><X size={32} /></button>
             
             <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} className="flex flex-col lg:flex-row items-center gap-12 max-w-[1500px] w-full">
-              <div className="relative w-full lg:w-3/5 h-[45vh] lg:h-[75vh] flex items-center justify-center rounded-[45px] bg-black/20 border border-white/10 overflow-hidden shadow-2xl">
+              <div className="relative w-full lg:w-3/5 h-[45vh] lg:h-[75vh] flex items-center justify-center rounded-[45px] bg-white/5 border border-white/10 overflow-hidden shadow-2xl">
                 <motion.img key={currentImageIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url} className="max-w-full max-h-full object-contain p-6" alt="" />
                 
                 {selectedProject.all_images && selectedProject.all_images.length > 1 && (
@@ -145,26 +140,26 @@ export default function SelectedWorks() {
 
               <div className="text-left lg:w-2/5 p-4 space-y-8">
                 <div>
-                  <span className="text-accent text-xs tracking-[0.4em] uppercase font-black">{selectedProject.category}</span>
+                  <span className="text-accent text-xs tracking-[0.5em] uppercase font-black">{selectedProject.category}</span>
                   <h2 className="text-5xl md:text-7xl font-bold text-white uppercase mt-4 tracking-tighter leading-none">{selectedProject.title}</h2>
                 </div>
 
-                <div className="space-y-6 bg-black/40 p-8 rounded-[30px] backdrop-blur-md border border-white/5 shadow-2xl">
-                  {/* 3. MAPPED PROJECT DETAILS */}
-                  <p className="text-gray-100 text-lg leading-relaxed font-medium">
+                {/* RESTORED GLASSMORPHISM CONTAINER */}
+                <div className="space-y-6 bg-white/5 p-10 rounded-[40px] backdrop-blur-3xl border border-white/10 shadow-2xl">
+                  <p className="text-gray-100 text-xl leading-relaxed font-medium">
                     {selectedProject.overview || selectedProject.description}
                   </p>
                   
                   {selectedProject.workflow && (
                     <div className="pt-6 border-t border-white/10">
                       <p className="text-white/40 text-[10px] uppercase tracking-[0.3em] mb-2 font-bold italic">Strategy & Execution</p>
-                      <p className="text-gray-300 text-sm leading-relaxed italic">{selectedProject.workflow}</p>
+                      <p className="text-gray-300 text-base leading-relaxed italic">{selectedProject.workflow}</p>
                     </div>
                   )}
 
                   <div className="flex flex-wrap gap-2 pt-2">
                     {selectedProject.tools?.map((t: string) => (
-                      <span key={t} className="px-3 py-1.5 border border-white/10 rounded-lg text-[9px] uppercase text-white tracking-widest bg-white/5">{t}</span>
+                      <span key={t} className="px-4 py-2 border border-white/10 rounded-lg text-[10px] uppercase text-white/80 font-bold tracking-[0.2em] bg-white/5 shadow-inner">{t}</span>
                     ))}
                   </div>
                 </div>
