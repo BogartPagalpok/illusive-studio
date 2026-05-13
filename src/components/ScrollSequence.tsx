@@ -14,7 +14,7 @@ interface ScrollSequenceProps {
 }
 
 export default function ScrollSequence({
-  frameCount = 230, // Changed from 288 to 230
+  frameCount = 240, // EXACTLY 240 FRAMES
   filePrefix = 'frame_',
   fileExtension = 'webp',
   scrollLength = 4,
