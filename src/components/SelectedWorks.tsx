@@ -91,28 +91,16 @@ export default function SelectedWorks() {
             effect="coverflow"
             grabCursor={true}
             centeredSlides={true}
-            loop={true}
             
-            // FIX 1: Dynamically pad the loop so Swiper doesn't run out of clones and stutter
-            loopedSlides={projects.length > 0 ? projects.length : 5}
-            
-            // FIX 2: Strict "auto" so it never overrides your custom Tailwind card sizes
+            // --- ONLY ANIMATION PHYSICS CHANGED HERE ---
+            loop={projects.length > 2} 
+            loopedSlides={projects.length > 0 ? projects.length : undefined} 
+            speed={800} 
+            // -----------------------------------------
+
             slidesPerView="auto"
-            
             navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
-            
-            // FIX 3: The Smooth Physics Engine (0 rotation keeps it flat and modern)
-            coverflowEffect={{ 
-              rotate: 0, 
-              stretch: 0, 
-              depth: 150, 
-              modifier: 2.5, 
-              slideShadows: true 
-            }}
-            
-            // FIX 4: Slower transition speed for a premium glide
-            speed={800}
-            
+            coverflowEffect={{ rotate: 5, stretch: 0, depth: 250, modifier: 1, slideShadows: true }}
             className="!pb-24 !pt-10 overflow-visible coverflow-carousel"
           >
             {projects.map((project) => (
