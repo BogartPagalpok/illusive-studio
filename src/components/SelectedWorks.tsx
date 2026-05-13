@@ -14,6 +14,7 @@ interface Project {
   category: string;
   description: string;
   image_url: string;
+  process?: string;
   tools?: string[];
 }
 
@@ -24,7 +25,7 @@ export default function SelectedWorks() {
   const [zoom, setZoom] = useState(1);
   const swiperRef = useRef<SwiperType | null>(null);
 
-  // 1. HARD NAVBAR KILL (Desktop & Mobile)
+  // 1. HARD NAVBAR KILL
   useEffect(() => {
     const nav = document.querySelector('nav') as HTMLElement | null;
     if (nav) nav.style.display = 'none';
@@ -33,16 +34,18 @@ export default function SelectedWorks() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('portfolio_projects')
-        .select('id, title, category, description, image_url, tools')
+        .select('id, title, category, description, image_url, process, tools')
         .eq('featured', true)
         .order('created_at', { ascending: false });
+
+      if (error) return;
 
       if (data) {
         setProjects(data.map((item: any) => ({
           ...item,
-          title: (item.title || '').replace(/\.[^/.]+$/, '').trim(),
+          title: (item.title || 'Untitled').replace(/\.[^/.]+$/, '').trim(),
           tools: Array.isArray(item.tools) ? item.tools : []
         })));
       }
@@ -53,17 +56,17 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative h-screen w-full bg-[#050505] overflow-hidden flex flex-col justify-end">
       
-      {/* 2. NETFLIX HERO BG (Cinematic Contrast) */}
+      {/* 2. NETFLIX HERO BG */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
           {projects[activeIndex] && (
             <motion.div
               key={projects[activeIndex].id}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.8 }}
               className="absolute inset-0"
             >
-              <img src={projects[activeIndex].image_url} className="h-full w-full object-cover brightness-[0.5]" alt="hero" />
+              <img src={projects[activeIndex].image_url} className="h-full w-full object-cover brightness-[0.4]" alt="hero" />
               <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/40 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
             </motion.div>
@@ -71,7 +74,7 @@ export default function SelectedWorks() {
         </AnimatePresence>
       </div>
 
-      {/* 3. HERO CONTENT + CUSTOM NAV (On the Hero, NOT the carousel) */}
+      {/* 3. HERO CONTENT + CUSTOM NAV (On Background) */}
       <div className="relative z-20 w-full px-6 md:px-16 mb-8 flex items-end justify-between">
         <div className="max-w-4xl">
           <AnimatePresence mode="wait">
@@ -83,8 +86,8 @@ export default function SelectedWorks() {
               >
                 <p className="text-accent text-[10px] tracking-[0.5em] uppercase font-black italic">{projects[activeIndex].category}</p>
                 <h2 className="text-5xl md:text-[7vw] font-black text-white uppercase tracking-tighter leading-[0.8] italic">{projects[activeIndex].title}</h2>
-                <p className="text-white/70 text-sm md:text-lg italic max-w-xl line-clamp-3">{projects[activeIndex].description}</p>
-                <button onClick={() => setSelectedProject(projects[activeIndex])} className="bg-white text-black px-10 py-4 rounded-md font-black uppercase text-xs flex items-center gap-2 hover:bg-accent hover:scale-105 transition-all">
+                <p className="text-white/70 text-sm md:text-lg italic max-w-xl line-clamp-3 leading-relaxed">{projects[activeIndex].description}</p>
+                <button onClick={() => setSelectedProject(projects[activeIndex])} className="bg-white text-black px-10 py-4 rounded-md font-black uppercase text-xs flex items-center gap-2 hover:bg-accent transition-all active:scale-95">
                   <Play size={18} fill="black" /> View Case Study
                 </button>
               </motion.div>
@@ -92,7 +95,6 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
-        {/* CUSTOM NAV ARROWS (Targeting Hero BG) */}
         <div className="hidden md:flex gap-4">
           <button className="p-4 bg-white/5 border border-white/10 rounded-full text-white hover:bg-white hover:text-black transition-all prev-btn">
             <ChevronLeft size={32} />
@@ -103,7 +105,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* 4. THE ROW (Cards only) */}
+      {/* 4. THE ROW (Cards Only) */}
       <div className="relative z-20 w-full pb-12 px-6 md:px-16">
         <Swiper
           onSwiper={(s) => { swiperRef.current = s; }}
@@ -130,11 +132,11 @@ export default function SelectedWorks() {
         </Swiper>
       </div>
 
-      {/* 5. MODAL (Pinch/Drag/Zoom Physics Fixed) */}
+      {/* 5. PRO MODAL (Drag & Zoom Fixed) */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[10000] bg-black/98 flex flex-col">
-            <div className="flex justify-between items-center p-8 z-[10002] bg-gradient-to-b from-black to-transparent">
+            <div className="flex justify-between items-center p-8 z-[10002]">
                <h2 className="text-white uppercase font-black italic text-2xl tracking-tighter">{selectedProject.title}</h2>
                <div className="flex gap-4">
                   <button onClick={() => setZoom(z => Math.max(z - 0.5, 1))} className="p-3 bg-white/5 rounded-full text-white"><ZoomOut size={20}/></button>
@@ -150,14 +152,17 @@ export default function SelectedWorks() {
                  dragElastic={0}
                  className="flex items-center justify-center cursor-move"
                >
-                 <motion.img animate={{ scale: zoom }} src={selectedProject.image_url} className="max-h-[85vh] w-auto object-contain pointer-events-none select-none shadow-2xl" />
+                 <motion.img 
+                   animate={{ scale: zoom }} 
+                   src={selectedProject.image_url} 
+                   className="max-h-[85vh] w-auto object-contain pointer-events-none select-none shadow-2xl" 
+                 />
                </motion.div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* RESET SWIPER BLUE ARROWS */}
       <style dangerouslySetInnerHTML={{ __html: `
         .swiper-button-next, .swiper-button-prev { display: none !important; }
       `}} />
