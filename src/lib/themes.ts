@@ -167,10 +167,11 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
 
   if (syncToCloud) {
     try {
+      // MASTER SYNC: Changed key to 'active_theme' to match your database
       const { error } = await supabase
         .from('site_config')
         .update({ 
-          active_theme_id: theme.id, 
+          active_theme: theme.id, 
           updated_at: new Date().toISOString() 
         })
         .eq('id', 1);
@@ -184,14 +185,15 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
 
 export async function loadSavedTheme() {
   try {
+    // FETCH: Changed key to 'active_theme' to match your database
     const { data, error } = await supabase
       .from('site_config')
-      .select('active_theme_id')
+      .select('active_theme')
       .eq('id', 1)
       .maybeSingle();
     
-    if (!error && data?.active_theme_id) {
-      const theme = themePresets.find((t) => t.id === data.active_theme_id);
+    if (!error && data?.active_theme) {
+      const theme = themePresets.find((t) => t.id === data.active_theme);
       if (theme) {
         applyTheme(theme, false);
         return;
@@ -217,7 +219,8 @@ export function subscribeToThemeChanges() {
         filter: 'id=eq.1' 
       },
       (payload) => {
-        const newThemeId = payload.new.active_theme_id;
+        // LISTENER: Changed key to 'active_theme' to match your database
+        const newThemeId = payload.new.active_theme;
         if (newThemeId) {
           const theme = themePresets.find(t => t.id === newThemeId);
           if (theme) {
