@@ -77,10 +77,10 @@ export default function SelectedWorks() {
 
       {/* 3. ROW CAROUSEL */}
       <div className="relative z-20 w-full pb-12 px-6 md:px-16">
-        <Swiper onSwiper={(s) => { swiperRef.current = s; }} onSlideChange={(s) => setActiveIndex(s.realIndex)} modules={[Navigation]} slidesPerView="auto" spaceBetween={15} loop={projects.length > 3} className="!overflow-visible">
+        <Swiper onSwiper={(s) => { swiperRef.current = s; }} onSlideChange={(s) => setActiveIndex(s.realIndex)} modules={[Navigation]} slidesPerView="auto" spaceBetween={15} loop={projects.length > 3}>
           {projects.map((p, idx) => (
             <SwiperSlide key={p.id} style={{ width: 'min(280px, 45vw)' }}>
-              <div onClick={() => swiperRef.current?.slideToLoop(idx)} className={`relative aspect-[16/9] rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_30px_rgba(var(--accent-rgb),0.5)] z-30' : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'}`}>
+              <div onClick={() => swiperRef.current?.slideToLoop(idx)} className={`relative aspect-[16/9] rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${activeIndex === idx ? 'border-accent' : 'border-white/20'}`}>
                 <img src={p.card_thumbnail || p.image_url} className="w-full h-full object-cover" alt="" />
               </div>
             </SwiperSlide>
@@ -95,15 +95,16 @@ export default function SelectedWorks() {
             <div className="flex justify-between items-center p-8 z-[100] bg-black/10 backdrop-blur-md border-b border-white/5">
                <h2 className="text-white uppercase font-black italic text-2xl tracking-tighter">{selectedProject.title}</h2>
                <div className="flex gap-4">
-                  <button onClick={() => setZoom(z => Math.max(z - 0.5, 1))} className="p-3 bg-white/5 rounded-full text-white border border-white/10 hover:bg-white/20"><ZoomIn size={20}/></button>
+                  <button onClick={() => setZoom(z => Math.min(z + 0.5, 3))} className="p-3 bg-white/5 rounded-full text-white border border-white/10 hover:bg-white/20" title="Zoom In"><ZoomIn size={20}/></button>
+                  <button onClick={() => setZoom(z => Math.max(z - 0.5, 1))} className="p-3 bg-white/5 rounded-full text-white border border-white/10 hover:bg-white/20" title="Zoom Out"><ZoomOut size={20}/></button>
                   <button onClick={() => { setSelectedProject(null); setZoom(1); }} className="p-3 bg-accent rounded-full text-black ml-4"><X size={20}/></button>
                </div>
             </div>
             <div className="relative flex-1 flex items-center justify-center overflow-hidden">
-               <button onClick={(e) => { e.stopPropagation(); paginate(-1); }} className="absolute left-8 z-[110] p-5 bg-white/5 backdrop-blur-md rounded-full text-white hover:bg-accent border border-white/10"><ChevronLeft size={40}/></button>
-               <button onClick={(e) => { e.stopPropagation(); paginate(1); }} className="absolute right-8 z-[110] p-5 bg-white/5 backdrop-blur-md rounded-full text-white hover:bg-accent border border-white/10"><ChevronRight size={40}/></button>
+               <button onClick={(e) => { e.stopPropagation(); paginate(-1); }} className="absolute left-8 z-[110] p-5 bg-white/5 backdrop-blur-md rounded-full text-white hover:bg-accent border border-white/10"><ChevronLeft size={24} /></button>
+               <button onClick={(e) => { e.stopPropagation(); paginate(1); }} className="absolute right-8 z-[110] p-5 bg-white/5 backdrop-blur-md rounded-full text-white hover:bg-accent border border-white/10"><ChevronRight size={24} /></button>
                <motion.div drag={zoom > 1} dragMomentum={false} dragElastic={0} className="flex items-center justify-center cursor-move">
-                 <motion.img key={selectedProject.id} animate={{ scale: zoom }} src={selectedProject.image_url} className="max-h-[85vh] w-auto object-contain shadow-[0_0_80px_rgba(0,0,0,0.8)]" />
+                 <motion.img key={selectedProject.id} animate={{ scale: zoom }} src={selectedProject.image_url} className="max-h-[85vh] w-auto object-contain shadow-[0_0_80px_rgba(0,0,0,0.8)]" alt={selectedProject.title} />
                </motion.div>
             </div>
           </motion.div>
