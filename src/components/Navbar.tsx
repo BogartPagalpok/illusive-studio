@@ -6,17 +6,20 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // 1. Background blur logic
+      // 1. Shadow/Blur toggle
       setScrolled(currentScrollY > 50);
       
-      // 2. Taskbar Auto-Hide logic (Show if scrolling up, hide if scrolling down)
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      // 2. Taskbar Auto-Hide (Show on Up, Hide on Down)
+      if (currentScrollY > lastScrollY && currentScrollY > 150) {
         setVisible(false);
       } else {
         setVisible(true);
@@ -24,7 +27,13 @@ export default function Navbar() {
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    // 3. Modal Detection (Syncs with body lock in SelectedWorks)
+    const checkModal = () => {
+      setIsModalOpen(document.body.style.overflow === 'hidden');
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    const modalInterval = setInterval(checkModal, 200);
 
     const fetchContent = async () => {
       const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
@@ -39,16 +48,23 @@ export default function Navbar() {
     };
 
     fetchContent();
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearInterval(modalInterval);
+    };
   }, [lastScrollY]);
+
+  // Combined visibility: Hide if (Scrolling Down) OR (Modal is Open)
+  const isActuallyVisible = visible && !isModalOpen;
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-[100] transition-transform duration-300 ease-in-out ${
-        scrolled ? 'backdrop-blur-md bg-black/80' : 'bg-transparent'
-      } ${visible ? 'translate-y-0' : '-translate-y-full'}`}
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-in-out ${
+        scrolled ? 'backdrop-blur-md bg-black/80 shadow-lg' : 'bg-transparent'
+      } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6">
+      <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6 md:px-16">
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="font-black text-xl text-white uppercase tracking-tighter"
@@ -56,11 +72,11 @@ export default function Navbar() {
           {content.logo_text}
         </button>
 
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#services" className="text-[10px] font-bold uppercase tracking-widest text-white/60 hover:text-accent">Services</a>
-          <a href="#works" className="text-[10px] font-bold uppercase tracking-widest text-white/60 hover:text-accent">Works</a>
-          <a href="#about" className="text-[10px] font-bold uppercase tracking-widest text-white/60 hover:text-accent">About</a>
-          <a href="#contact" className="bg-accent text-black px-6 py-2 rounded font-black text-[10px] uppercase">
+        <div className="hidden md:flex items-center gap-10">
+          <a href="#services" className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-accent transition-colors">Services</a>
+          <a href="#works" className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-accent transition-colors">Works</a>
+          <a href="#about" className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-accent transition-colors">About</a>
+          <a href="#contact" className="bg-accent text-black px-7 py-3 rounded-md text-[10px] font-black uppercase hover:scale-105 transition-transform shadow-lg">
             {content.cta_text}
           </a>
         </div>
