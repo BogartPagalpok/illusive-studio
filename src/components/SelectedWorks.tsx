@@ -59,7 +59,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative h-screen w-full bg-black overflow-hidden flex flex-col justify-between">
       
-      {/* 1. DYNAMIC BACKGROUND (The Active Project Thumbnail) */}
+      {/* 1. DYNAMIC BACKGROUND (Active Project Thumbnail) */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
           {projects.length > 0 && (
@@ -82,7 +82,7 @@ export default function SelectedWorks() {
         </AnimatePresence>
       </div>
 
-      {/* 2. HERO CONTENT (Upper Tier) */}
+      {/* 2. HERO CONTENT (Upper Section) */}
       <div className="relative z-20 flex-1 flex flex-col justify-center px-6 md:px-16 pt-20">
         <AnimatePresence mode="wait">
           {projects.length > 0 && (
@@ -108,7 +108,7 @@ export default function SelectedWorks() {
         </AnimatePresence>
       </div>
 
-      {/* 3. THUMBNAIL ROW (Lower Tier) */}
+      {/* 3. THUMBNAIL ROW (Lower Section) */}
       <div className="relative z-20 w-full pb-10 px-6 md:px-16">
         <h3 className="text-white/40 text-[9px] uppercase tracking-[0.4em] font-black mb-4 italic">Collections</h3>
         <Swiper
