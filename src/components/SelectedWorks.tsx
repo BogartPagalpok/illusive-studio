@@ -70,56 +70,57 @@ export default function SelectedWorks() {
   }, []);
 
   return (
-    <section className="section-padding relative z-40 bg-transparent min-h-screen overflow-hidden">
+    <section className="section-padding relative z-40 bg-transparent min-h-screen overflow-visible">
       <div id="works" className="absolute -top-24" />
       
-      <div ref={ref} className="section-container relative z-20">
+      <div ref={ref} className="section-container relative z-30">
         <div className="text-center mb-16">
           <p className="text-sm tracking-[0.3em] uppercase text-accent mb-4 font-heading">Portfolio</p>
           <h2 className="heading-lg uppercase font-bold text-white tracking-tighter">Selected Works</h2>
         </div>
 
-        <div className="relative group px-4">
+        <div className="relative group px-4 overflow-visible">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
             modules={[EffectCoverflow, Navigation, Pagination, Autoplay]}
             effect={'coverflow'}
             grabCursor={true}
             centeredSlides={true}
-            loop={projects.length > 5}
-            // FIXED: slidesPerView 'auto' prevents cards from being squashed/slimmed
+            // FIXED: loop={false} kills the "slim/squashed" bug and the console warning
+            loop={false} 
             slidesPerView={'auto'}
             navigation={{
               nextEl: '.nav-next',
               prevEl: '.nav-prev',
             }}
             coverflowEffect={{
-              rotate: 0,            // Keeps cards flat to user
-              stretch: -60,         // PULLS CARDS TOGETHER for the designer overlap look
-              depth: 200,           // PUSHES side cards back in 3D space
+              rotate: 0,
+              stretch: -20, // Reduced from -60 to prevent excessive overlapping on smaller views
+              depth: 150,
               modifier: 1,
               slideShadows: false,
             }}
-            className="!pb-24 !pt-10"
+            className="!pb-24 !pt-10 overflow-visible"
           >
             {projects.map((project) => (
-              <SwiperSlide key={project.id} className="max-w-[320px] md:max-w-[420px]">
+              <SwiperSlide key={project.id} className="max-w-[300px] md:max-w-[420px] !flex items-center justify-center">
                 <div 
-                  className="relative h-[500px] md:h-[650px] rounded-[45px] border border-white/10 overflow-hidden backdrop-blur-3xl bg-white/5 transition-all duration-500 shadow-2xl"
+                  className="relative w-full h-[500px] md:h-[650px] rounded-[45px] border border-white/10 overflow-hidden backdrop-blur-3xl bg-white/5 transition-all duration-500 shadow-2xl"
                 >
-                  <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover" alt={project.title} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                   
-                  <div className="absolute bottom-0 left-0 p-10 w-full z-10">
+                  <div className="absolute bottom-0 left-0 p-10 w-full z-20">
                     <span className="text-accent text-[10px] tracking-[0.3em] uppercase font-bold">{project.category}</span>
                     <h3 className="text-2xl md:text-3xl font-bold text-white uppercase mt-2 mb-8 leading-none tracking-tighter">{project.title}</h3>
                     
                     <button 
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         setSelectedProject(project);
                       }}
-                      className="inline-flex items-center gap-2 bg-white/10 hover:bg-accent hover:text-black backdrop-blur-md border border-white/10 px-8 py-4 rounded-full text-[10px] tracking-widest uppercase text-white transition-all cursor-pointer font-bold"
+                      className="inline-flex items-center gap-2 bg-white/10 hover:bg-accent hover:text-black backdrop-blur-md border border-white/10 px-8 py-4 rounded-full text-[10px] tracking-widest uppercase text-white transition-all cursor-pointer font-bold relative z-30"
                     >
                       View Project <ChevronRight size={14} />
                     </button>
@@ -129,11 +130,11 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
 
-          {/* CUSTOM ARROWS: High Z-Index to stay clickable */}
-          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[60] p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-accent hover:text-black transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
+          {/* Navigation Arrows */}
+          <button className="nav-prev absolute left-0 top-1/2 -translate-y-1/2 z-[70] p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-accent hover:text-black transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
             <ChevronLeft size={24} />
           </button>
-          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[60] p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-accent hover:text-black transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
+          <button className="nav-next absolute right-0 top-1/2 -translate-y-1/2 z-[70] p-4 rounded-full bg-black/50 border border-white/10 text-white hover:bg-accent hover:text-black transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
             <ChevronRight size={24} />
           </button>
         </div>
@@ -143,12 +144,12 @@ export default function SelectedWorks() {
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl"
           >
             <div className="absolute inset-0" onClick={() => setSelectedProject(null)} />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="relative w-full max-w-7xl h-[90vh] bg-neutral-900/90 border border-white/10 rounded-[40px] overflow-hidden flex flex-col md:flex-row backdrop-blur-3xl shadow-2xl"
+              className="relative w-full max-w-7xl h-[90vh] bg-neutral-900 border border-white/10 rounded-[40px] overflow-hidden flex flex-col md:flex-row backdrop-blur-3xl shadow-2xl"
             >
               <button onClick={() => setSelectedProject(null)} className="absolute top-8 right-8 z-[120] p-3 bg-black/50 rounded-full text-white hover:bg-accent hover:text-black transition-all">
                 <X size={24} />
@@ -158,6 +159,7 @@ export default function SelectedWorks() {
                 <img 
                    src={selectedProject.all_images?.[currentImageIndex] || selectedProject.image_url} 
                    className="max-w-full max-h-full object-contain"
+                   alt={selectedProject.title}
                 />
               </div>
 
