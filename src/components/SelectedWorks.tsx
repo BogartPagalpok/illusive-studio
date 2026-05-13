@@ -16,6 +16,7 @@ interface Project {
   category: string;
   image_url: string;
   description?: string;
+  created_at?: string;
 }
 
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
@@ -38,8 +39,8 @@ export default function SelectedWorks() {
 
       if (error) throw error;
       if (data) setAllData(data);
-    } catch (err) {
-      console.error("Fetch failed");
+    } catch (err: unknown) {
+      console.error("Supabase connection failed");
     } finally {
       setLoading(false);
     }
@@ -49,21 +50,21 @@ export default function SelectedWorks() {
     fetchWorks();
   }, [fetchWorks]);
 
-  // Grouping: Ensures one card per project name
+  // GROUPING LOGIC: Merges rows with the same name into one card
   const projects = useMemo(() => {
-    const uniqueProjects: Project[] = [];
-    const seenTitles = new Set<string>();
+    const unique: Project[] = [];
+    const seen = new Set<string>();
 
     allData.forEach((item) => {
-      if (!seenTitles.has(item.title)) {
-        seenTitles.add(item.title);
-        uniqueProjects.push(item);
+      if (!seen.has(item.title)) {
+        seen.add(item.title);
+        unique.push(item);
       }
     });
 
     return activeCategory === 'All' 
-      ? uniqueProjects 
-      : uniqueProjects.filter(p => p.category === activeCategory);
+      ? unique 
+      : unique.filter(p => p.category === activeCategory);
   }, [allData, activeCategory]);
 
   useEffect(() => {
@@ -85,20 +86,21 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. BACKGROUND */}
+      {/* 1. BACKGROUND ENGINE */}
       <AnimatePresence mode="wait">
         {current && (
           <motion.div
-            key={current.id}
+            key={`bg-${current.id}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
             className="absolute inset-0 z-0"
           >
             <img 
               src={current.image_url} 
               className="w-full h-full object-cover opacity-40 pointer-events-none" 
-              alt="Background" 
+              alt="bg" 
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
@@ -108,11 +110,12 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pb-12">
         
-        {/* 2. TOP NAV */}
+        {/* 2. CATEGORIES - Top Left */}
         <div className="flex gap-6 items-center pt-24 md:pt-32 justify-start overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
+              type="button"
               onClick={() => setActiveCategory(cat)}
               className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
                 activeCategory === cat ? 'text-white border-b-2 border-accent pb-1' : 'text-white/30 hover:text-white'
@@ -123,22 +126,23 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO + RAIL (BOTTOM ANCHOR) */}
+        {/* 3. HERO + RAIL - Pinned to Bottom */}
         <div className="mt-auto flex flex-col gap-10">
           
           <div className="max-w-4xl">
             {current && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="transition-all duration-500">
                 <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
                   {current.category}
                 </span>
-                <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4">
+                <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
                   {current.title}
                 </h1>
                 <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-8 max-w-xl line-clamp-3">
                   {current.description}
                 </p>
                 <button 
+                  type="button"
                   onClick={() => setSelectedTitle(current.title)}
                   className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
                 >
@@ -150,10 +154,10 @@ export default function SelectedWorks() {
 
           <div className="w-full">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">Up Next</h2>
+              <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">Up Next In Portfolio</h2>
               <div className="flex gap-4">
-                <button className="rail-prev text-white/40 hover:text-white"><ChevronLeft size={20} /></button>
-                <button className="rail-next text-white/40 hover:text-white"><ChevronRight size={20} /></button>
+                <button type="button" className="rail-prev text-white/40 hover:text-white"><ChevronLeft size={20} /></button>
+                <button type="button" className="rail-next text-white/40 hover:text-white"><ChevronRight size={20} /></button>
               </div>
             </div>
             
@@ -171,7 +175,7 @@ export default function SelectedWorks() {
                 <SwiperSlide key={p.id} className="!w-[130px] md:!w-[230px]">
                   <div 
                     onClick={() => swiperRef.current?.slideTo(idx)}
-                    className={`relative aspect-video cursor-pointer transition-all duration-500 border-2 ${
+                    className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
                       activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' : 'border-transparent opacity-40 grayscale hover:opacity-100'
                     }`}
                   >
@@ -184,7 +188,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* 4. MODAL */}
+      {/* 4. MODAL GALLERY */}
       <AnimatePresence>
         {selectedTitle && (
           <motion.div 
@@ -192,13 +196,13 @@ export default function SelectedWorks() {
             className="fixed inset-0 z-[1000] bg-black/98 backdrop-blur-3xl overflow-y-auto"
           >
             <div className="sticky top-0 z-[1001] flex justify-between items-center px-8 py-8 bg-black/80 backdrop-blur-md">
-              <h2 className="text-white text-2xl font-black uppercase">{selectedTitle}</h2>
-              <button onClick={() => setSelectedTitle(null)} className="text-white/50 hover:text-white"><X size={32} /></button>
+              <h2 className="text-white text-2xl font-black uppercase tracking-tighter">{selectedTitle}</h2>
+              <button type="button" onClick={() => setSelectedTitle(null)} className="text-white/50 hover:text-white"><X size={32} /></button>
             </div>
             <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
               {gallery.map((img) => (
-                <div key={img.id}>
-                  <img src={img.image_url} className="w-full border border-white/10" alt="gallery" />
+                <div key={img.id} className="flex flex-col gap-6">
+                  <img src={img.image_url} className="w-full border border-white/10" alt="gallery-img" />
                 </div>
               ))}
             </div>
