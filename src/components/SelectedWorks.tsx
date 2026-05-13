@@ -20,11 +20,11 @@ interface Project {
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
 
 export default function SelectedWorks() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [allData, setAllData] = useState<Project[]>([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProjectTitle, setSelectedProjectTitle] = useState<string | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
 
   const fetchWorks = useCallback(async () => {
@@ -35,7 +35,7 @@ export default function SelectedWorks() {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      setProjects(data || []);
+      setAllData(data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -45,14 +45,22 @@ export default function SelectedWorks() {
 
   useEffect(() => { fetchWorks(); }, [fetchWorks]);
 
-  const filteredProjects = useMemo(() => {
+  // FIX: Grouping Logic - Merges rows with the same title into one card
+  const projects = useMemo(() => {
+    const grouped = allData.reduce((acc: Project[], item) => {
+      if (!acc.find((p) => p.title === item.title)) {
+        acc.push(item);
+      }
+      return acc;
+    }, []);
+
     return activeCategory === 'All' 
-      ? projects 
-      : projects.filter(p => p.category === activeCategory);
-  }, [activeCategory, projects]);
+      ? grouped 
+      : grouped.filter(p => p.category === activeCategory);
+  }, [allData, activeCategory]);
 
   useEffect(() => {
-    if (swiperRef.current) swiperRef.current.slideTo(0);
+    if (swiperRef.current) swiperRef.current.slideTo(0, 0);
     setActiveIndex(0);
   }, [activeCategory]);
 
@@ -62,12 +70,13 @@ export default function SelectedWorks() {
     </div>
   );
 
-  const currentProject = filteredProjects[activeIndex];
+  const currentProject = projects[activeIndex];
+  const modalGallery = allData.filter(p => p.title === selectedProjectTitle);
 
   return (
     <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. BACKGROUND ENGINE */}
+      {/* 1. BACKGROUND */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -89,18 +98,17 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      {/* 2. MAIN UI CONTAINER */}
-      <div className="relative z-10 h-full flex flex-col px-6 md:px-12 pb-10">
+      <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pb-10">
         
-        {/* TOP GENRE NAV - Safe area for mobile */}
-        <div className="flex gap-6 items-center pt-24 md:pt-32 overflow-x-auto no-scrollbar">
+        {/* 2. TOP-LEFT CATEGORIES */}
+        <div className="flex gap-6 items-center pt-24 md:pt-32 justify-start overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setActiveCategory(cat)}
               className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
-                activeCategory === cat ? 'text-white scale-110' : 'text-white/30 hover:text-white'
+                activeCategory === cat ? 'text-white border-b-2 border-accent pb-1' : 'text-white/30 hover:text-white'
               }`}
             >
               {cat}
@@ -108,10 +116,9 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* BOTTOM STACK - Hero Info + Rail pinned together at bottom */}
+        {/* 3. BOTTOM STACK - Hero Info + Rail pinned together at bottom */}
         <div className="mt-auto flex flex-col gap-8 md:gap-12">
           
-          {/* HERO CONTENT - Scaled for Desktop & Mobile */}
           <div className="max-w-4xl">
             <AnimatePresence mode="wait">
               {currentProject && (
@@ -122,20 +129,20 @@ export default function SelectedWorks() {
                   exit={{ y: -10, opacity: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-2">
+                  <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
                     {currentProject.category}
                   </span>
-                  {/* FIX: Title font size reigned in for Desktop (max 6xl) */}
+                  {/* FIX: Title font size reigned in for Desktop */}
                   <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
                     {currentProject.title}
                   </h1>
-                  <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-6 max-w-xl line-clamp-3">
-                    {currentProject.description || "Experimental visual design and digital texture reconstruction."}
+                  <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-8 max-w-xl line-clamp-3">
+                    {currentProject.description}
                   </p>
                   <button 
                     type="button"
-                    onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-2 bg-white text-black px-6 py-2.5 md:px-8 md:py-3 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
+                    onClick={() => setSelectedProjectTitle(currentProject.title)}
+                    className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
                   >
                     <Play size={14} fill="black" /> View Project
                   </button>
@@ -144,62 +151,74 @@ export default function SelectedWorks() {
             </AnimatePresence>
           </div>
 
-          {/* UP NEXT RAIL - Clutter Fix */}
+          {/* 4. UP NEXT RAIL */}
           <div className="w-full">
-            <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em] mb-4">
-              Up Next In Portfolio
-            </h2>
-            
-            <div className="relative">
-              <Swiper
-                key={activeCategory} 
-                onSwiper={(s) => (swiperRef.current = s)}
-                modules={[Navigation]}
-                spaceBetween={12}
-                slidesPerView={'auto'}
-                navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
-                onSlideChange={(s) => setActiveIndex(s.realIndex)}
-                className="!overflow-visible"
-              >
-                {filteredProjects.map((project, idx) => (
-                  <SwiperSlide key={project.id} className="!w-[120px] md:!w-[220px]">
-                    <div 
-                      onClick={() => swiperRef.current?.slideTo(idx)}
-                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
-                        activeIndex === idx 
-                          ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' 
-                          : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
-                      }`}
-                    >
-                      <img src={project.image_url} className="w-full h-full object-cover" alt="thumbnail" />
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">
+                Up Next In Portfolio
+              </h2>
+              <div className="flex gap-4">
+                <button type="button" className="rail-prev text-white/40 hover:text-white transition-all"><ChevronLeft size={20} /></button>
+                <button type="button" className="rail-next text-white/40 hover:text-white transition-all"><ChevronRight size={20} /></button>
+              </div>
             </div>
+            
+            <Swiper
+              key={activeCategory} 
+              onSwiper={(s) => (swiperRef.current = s)}
+              modules={[Navigation]}
+              spaceBetween={12}
+              slidesPerView={'auto'}
+              navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
+              onSlideChange={(s) => setActiveIndex(s.realIndex)}
+              className="!overflow-visible"
+            >
+              {projects.map((project, idx) => (
+                <SwiperSlide key={project.id} className="!w-[130px] md:!w-[220px]">
+                  <div 
+                    onClick={() => swiperRef.current?.slideTo(idx)}
+                    className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
+                      activeIndex === idx 
+                        ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' 
+                        : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                    }`}
+                  >
+                    <img src={project.image_url} className="w-full h-full object-cover" alt="thumb" />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       </div>
 
-      {/* MODAL LIGHTBOX */}
+      {/* 5. MULTI-IMAGE MODAL */}
       <AnimatePresence>
-        {selectedProject && (
+        {selectedProjectTitle && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/98 backdrop-blur-2xl"
+            className="fixed inset-0 z-[1000] bg-black/98 backdrop-blur-3xl overflow-y-auto"
           >
-            <button onClick={() => setSelectedProject(null)} className="absolute top-10 right-10 text-white/50 hover:text-white"><X size={32} /></button>
-            <div className="max-w-6xl w-full grid md:grid-cols-2 gap-12 items-center px-4">
-              <img src={selectedProject.image_url} className="w-full border border-white/10" alt="modal-view" />
-              <div className="text-left">
-                <span className="text-accent text-xs font-black uppercase tracking-widest">{selectedProject.category}</span>
-                <h2 className="text-white text-4xl md:text-5xl font-black uppercase mt-4">{selectedProject.title}</h2>
-                <p className="text-white/60 mt-6 text-sm md:text-lg font-light leading-relaxed">{selectedProject.description}</p>
-              </div>
+            <div className="sticky top-0 z-[1001] flex justify-between items-center px-8 py-8 bg-black/80 backdrop-blur-md">
+              <h2 className="text-white text-2xl font-black uppercase tracking-tighter">{selectedProjectTitle}</h2>
+              <button type="button" onClick={() => setSelectedProjectTitle(null)} className="text-white/50 hover:text-white"><X size={32} /></button>
+            </div>
+            <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
+              {modalGallery.map((img, i) => (
+                <div key={img.id} className="flex flex-col gap-6">
+                  <img src={img.image_url} className="w-full border border-white/10 shadow-2xl" alt="gallery" />
+                  {i === 0 && img.description && <p className="text-white/60 text-lg font-light leading-relaxed">{img.description}</p>}
+                </div>
+              ))}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </section>
   );
 }
