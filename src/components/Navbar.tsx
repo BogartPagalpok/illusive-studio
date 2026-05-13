@@ -8,47 +8,46 @@ export default function Navbar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
   
-  // Use a ref for scroll position to avoid re-triggering the effect loop
   const lastScrollY = useRef(0);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // 1. Fetch Content ONCE on mount
     const fetchContent = async () => {
-      try {
-        const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
-        if (data) {
-          const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
-          data.forEach(row => {
-            if (row.key === 'logo_text') mapped.logo_text = row.value;
-            if (row.key === 'cta_text') mapped.cta_text = row.value;
-          });
-          setContent(mapped);
-        }
-      } catch (err) {
-        console.error('Navbar fetch error:', err);
+      const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
+      if (data) {
+        const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
+        data.forEach(row => {
+          if (row.key === 'logo_text') mapped.logo_text = row.value;
+          if (row.key === 'cta_text') mapped.cta_text = row.value;
+        });
+        setContent(mapped);
       }
     };
     fetchContent();
 
-    // 2. Scroll Logic
     const handleScroll = () => {
       const current = window.scrollY;
-      setScrolled(current > 50);
-      
-      // Show if scrolling up, hide if scrolling down
+
+      // 1. Conditional State Update: Only call setScrolled if the value actually changes
+      const isScrolled = current > 50;
+      setScrolled(prev => (prev !== isScrolled ? isScrolled : prev));
+
+      // 2. Conditional Visibility: Only call setVisible if the direction changes
       if (current > lastScrollY.current && current > 150) {
-        setVisible(false);
+        // Scrolling Down - only update if currently visible
+        setVisible(prev => (prev !== false ? false : prev));
       } else {
-        setVisible(true);
+        // Scrolling Up - only update if currently hidden
+        setVisible(prev => (prev !== true ? true : prev));
       }
+      
       lastScrollY.current = current;
     };
 
-    // 3. Modal Check
     const checkModal = () => {
-      setIsModalOpen(document.body.style.overflow === 'hidden');
+      const modalActive = document.body.style.overflow === 'hidden';
+      setIsModalOpen(prev => (prev !== modalActive ? modalActive : prev));
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -58,8 +57,9 @@ export default function Navbar() {
       window.removeEventListener('scroll', handleScroll);
       clearInterval(modalTimer);
     };
-  }, []); // Empty dependency array = Runs once. No loops.
+  }, []);
 
+  // Compute final visibility - this logic is cheap, runs only on re-renders
   const isActive = visible && !isModalOpen;
 
   return (
