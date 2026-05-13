@@ -71,15 +71,24 @@ function App() {
     loadSavedTheme();
 
     const initAuthAndTheme = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      
-      // 2. Stop loading immediately after session check
-      setLoading(false);
-
-      // 3. Sync theme in background (Non-blocking)
-      if (session?.user) {
-        syncUserTheme(session.user.id);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.warn('Supabase Auth Warning:', error.message);
+        }
+        
+        setSession(session);
+        
+        // 3. Sync theme in background (Non-blocking)
+        if (session?.user) {
+          syncUserTheme(session.user.id);
+        }
+      } catch (err) {
+        console.error('Supabase connection failed completely:', err);
+      } finally {
+        // 2. Stop loading immediately after session check ALWAYS
+        setLoading(false);
       }
     };
 
