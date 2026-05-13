@@ -24,7 +24,7 @@ export default function Navbar() {
       const current = window.scrollY;
       const newScrolled = current > 50;
       
-      // Softened Taskbar Logic: Only hides if scrolling down significantly
+      // Auto-hide: Hide if scrolling down past 150px, show if scrolling up
       const isScrollingDown = current > lastScrollY.current && current > 150;
       const newVisible = !isScrollingDown || current < 20;
 
@@ -43,17 +43,15 @@ export default function Navbar() {
     };
 
     const fetchContent = async () => {
-      try {
-        const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
-        if (data) {
-          const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
-          data.forEach(row => {
-            if (row.key === 'logo_text') mapped.logo_text = row.value;
-            if (row.key === 'cta_text') mapped.cta_text = row.value;
-          });
-          setContent(mapped);
-        }
-      } catch (e) { console.error("Nav Fetch Error", e); }
+      const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
+      if (data) {
+        const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
+        data.forEach(row => {
+          if (row.key === 'logo_text') mapped.logo_text = row.value;
+          if (row.key === 'cta_text') mapped.cta_text = row.value;
+        });
+        setContent(mapped);
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -92,24 +90,28 @@ export default function Navbar() {
               className="group relative text-[10px] font-bold uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors"
             >
               {link.label}
+              {/* UNDERLINE ANIMATION */}
               <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-accent transition-all duration-300 group-hover:w-full" />
             </a>
           ))}
           <a 
             href="#contact" 
-            className="bg-accent text-black px-7 py-3 rounded-md text-[10px] font-black uppercase hover:scale-105 hover:bg-white transition-all"
+            className="bg-accent text-black px-7 py-3 rounded-md text-[10px] font-black uppercase hover:scale-105 hover:bg-white transition-all shadow-xl"
           >
             {content.cta_text}
           </a>
         </div>
 
         {/* MOBILE TOGGLE */}
-        <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white p-2">
+        <button 
+          onClick={() => setMobileOpen(!mobileOpen)} 
+          className="md:hidden text-white p-2"
+        >
           {mobileOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
-      {/* MOBILE MENU / GET IN TOUCH */}
+      {/* MOBILE MENU & GET IN TOUCH */}
       <div className={`md:hidden overflow-hidden transition-all duration-500 bg-black/95 ${mobileOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className="flex flex-col p-8 gap-8 border-t border-white/10">
           {navLinks.map((link) => (
@@ -117,14 +119,20 @@ export default function Navbar() {
               key={link.href} 
               href={link.href} 
               onClick={() => setMobileOpen(false)}
-              className="text-2xl font-black uppercase text-white"
+              className="text-2xl font-black uppercase text-white hover:text-accent transition-colors"
             >
               {link.label}
             </a>
           ))}
-          <div className="pt-4 border-t border-white/5">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent mb-2">Get In Touch</p>
-            <p className="text-white/40 text-sm">hello@illusive.studio</p>
+          
+          <div className="pt-6 border-t border-white/10">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent mb-4">Get In Touch</p>
+            <p className="text-white/50 text-sm mb-1">hello@illusive.studio</p>
+            <div className="flex gap-4 mt-4">
+               {/* Add your social handles here */}
+               <div className="text-xs text-white/30 uppercase tracking-widest">Instagram</div>
+               <div className="text-xs text-white/30 uppercase tracking-widest">Behance</div>
+            </div>
           </div>
         </div>
       </div>
