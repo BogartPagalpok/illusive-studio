@@ -55,7 +55,7 @@ function App() {
         .from('user_profiles')
         .select('theme_preference')
         .eq('id', userId)
-        .single();
+        .maybeSingle(); // FIXED: Changed from .single() to .maybeSingle() to prevent 406 errors
 
       if (!error && data?.theme_preference) {
         // applyTheme handles CSS variables, data-theme attribute, and localStorage
