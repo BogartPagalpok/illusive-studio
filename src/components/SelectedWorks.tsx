@@ -35,15 +35,30 @@ export default function SelectedWorks() {
     const nav = document.querySelector('nav') as HTMLElement | null;
     if (!nav) return;
 
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!selectedProject) {
+        if (e.clientY <= 80 || window.scrollY <= 50) {
+          nav.style.opacity = '1';
+          nav.style.transform = 'translateY(0)';
+          nav.style.pointerEvents = 'auto';
+        } else {
+          nav.style.opacity = '0';
+          nav.style.transform = 'translateY(-100%)';
+          nav.style.pointerEvents = 'none';
+        }
+      }
+    };
+
     if (selectedProject) {
       document.body.style.overflow = 'hidden';
       nav.style.opacity = '0';
       nav.style.pointerEvents = 'none';
     } else {
       document.body.style.overflow = 'unset';
-      nav.style.opacity = '1';
-      nav.style.pointerEvents = 'auto';
+      nav.style.transition = 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
+      window.addEventListener('mousemove', handleMouseMove);
     }
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [selectedProject]);
 
   useEffect(() => {
@@ -117,10 +132,15 @@ export default function SelectedWorks() {
                     
                     <div className={`absolute bottom-0 left-0 p-[7%] md:p-10 w-full z-50 transition-all duration-500 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                       <span className="text-accent text-[8px] md:text-[9px] tracking-[0.4em] uppercase font-black">{project.category}</span>
-                      <h3 className="text-[clamp(1.1rem,5vw,1.875rem)] md:text-3xl font-bold text-white uppercase mt-1 mb-4 md:mb-6 leading-[1.1] tracking-tighter">
+                      <h3 className="text-[clamp(1.1rem,4.5vw,1.875rem)] md:text-3xl font-bold text-white uppercase mt-1 mb-4 md:mb-6 leading-[1.1] tracking-tighter">
                         {project.title}
                       </h3>
-                      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedProject(project); setCurrentImageIndex(0); }} className="inline-flex items-center gap-2 bg-white text-black px-6 py-2 md:px-8 md:py-3 rounded-full text-[9px] md:text-[10px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]">View Case <ChevronRight size={14} /></button>
+                      <button 
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedProject(project); setCurrentImageIndex(0); }} 
+                        className="inline-flex items-center gap-2 bg-white text-black px-6 py-2 md:px-8 md:py-3 rounded-full text-[9px] md:text-[10px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]"
+                      >
+                        View Case <ChevronRight size={14} />
+                      </button>
                     </div>
                   </div>
                 )}
