@@ -48,10 +48,10 @@ export default function SelectedWorks() {
   }, []);
 
   return (
-    <section
-      id="works"
-      className="relative z-40 bg-transparent min-h-[120vh] py-20 overflow-visible flex flex-col justify-center"
-    >
+    <section className="relative z-40 bg-transparent min-h-[130vh] py-20 overflow-visible flex flex-col justify-center">
+      {/* FIXED: Dedicated anchor point for perfect center scrolling */}
+      <div id="works" className="absolute top-[15%] left-0 w-full h-1 pointer-events-none" />
+
       <div className="max-w-[1600px] mx-auto px-4 w-full relative z-20">
         <div className="text-center mb-12">
           <p className="text-[10px] tracking-[0.4em] uppercase text-accent mb-2">
@@ -64,39 +64,37 @@ export default function SelectedWorks() {
 
         <div className="relative group overflow-visible">
           <Swiper
-            onSwiper={(s) => {
-              swiperRef.current = s;
-            }}
+            onSwiper={(s) => { swiperRef.current = s; }}
             modules={[EffectCoverflow, Navigation, Pagination]}
             effect="coverflow"
             grabCursor={true}
             centeredSlides={true}
             loop={true}
-            loopedSlides={projects.length}
+            loopedSlides={5} // FIXED: Explicit buffer for smooth looping with low project counts
             slidesPerView="auto"
             navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
             coverflowEffect={{
-              rotate: 8,
-              stretch: 0,
-              depth: 350,
+              rotate: 0,       // FIXED: Flat cards for modern UI look
+              stretch: -60,    // FIXED: Negative stretch pulls cards together for "Vision Pro" stack
+              depth: 300,      // FIXED: Increased depth for better fanned-out perspective
               modifier: 1,
-              slideShadows: true,
+              slideShadows: false, // FIXED: Turned off to prevent murky tint on renders
             }}
-            speed={600}
+            speed={800}
             className="!pb-24 !pt-10 overflow-visible coverflow-carousel"
           >
             {projects.map((project) => (
               <SwiperSlide
                 key={project.id}
-                style={{ width: '340px' }}
-                className="md:!w-[420px] !flex items-center justify-center"
+                style={{ width: '360px' }}
+                className="md:!w-[460px] !flex items-center justify-center"
               >
                 {({ isActive }) => (
                   <div
-                    className={`relative w-full rounded-[30px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${
+                    className={`relative w-full rounded-[40px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${
                       isActive
                         ? 'h-[580px] md:h-[700px] border-white/20 bg-white/10 scale-100 z-10'
-                        : 'h-[500px] md:h-[600px] border-white/5 bg-white/5 scale-[0.88] opacity-60'
+                        : 'h-[500px] md:h-[600px] border-white/5 bg-white/5 scale-[0.85] opacity-40'
                     }`}
                   >
                     <img
@@ -105,26 +103,21 @@ export default function SelectedWorks() {
                       alt=""
                     />
 
-                    {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent" />
 
-                    {/* Glow ring on active card */}
                     {isActive && (
-                      <div className="absolute inset-0 rounded-[30px] ring-1 ring-accent/30 pointer-events-none" />
+                      <div className="absolute inset-0 rounded-[40px] ring-1 ring-accent/30 pointer-events-none" />
                     )}
 
-                    {/* Bottom content */}
                     <div
-                      className={`absolute bottom-0 left-0 p-8 md:p-10 w-full z-50 transition-all duration-500 ${
-                        isActive
-                          ? 'opacity-100 translate-y-0'
-                          : 'opacity-0 translate-y-4'
+                      className={`absolute bottom-0 left-0 p-8 md:p-12 w-full z-50 transition-all duration-500 ${
+                        isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                       }`}
                     >
                       <span className="text-accent text-[10px] tracking-[0.4em] uppercase font-black">
                         {project.category}
                       </span>
-                      <h3 className="text-2xl md:text-4xl font-bold text-white uppercase mt-2 mb-6 leading-none tracking-tighter">
+                      <h3 className="text-3xl md:text-5xl font-bold text-white uppercase mt-2 mb-8 leading-none tracking-tighter">
                         {project.title}
                       </h3>
 
@@ -134,9 +127,9 @@ export default function SelectedWorks() {
                           e.stopPropagation();
                           setSelectedProject(project);
                         }}
-                        className="inline-flex items-center gap-3 bg-white text-black px-8 py-3.5 rounded-full text-[11px] font-black tracking-widest uppercase hover:bg-accent hover:text-black transition-all cursor-pointer relative z-[60]"
+                        className="inline-flex items-center gap-3 bg-white text-black px-10 py-4 rounded-full text-[11px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]"
                       >
-                        View Case <ChevronRight size={16} />
+                        View Project <ChevronRight size={16} />
                       </button>
                     </div>
                   </div>
@@ -145,19 +138,17 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
 
-          {/* Nav buttons */}
-          <button className="nav-prev absolute left-2 xl:left-0 top-1/2 -translate-y-1/2 z-[100] p-4 xl:p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent hover:border-accent transition-all flex shadow-2xl backdrop-blur-sm">
-            <ChevronLeft size={28} />
+          <button className="nav-prev absolute left-2 xl:-left-8 top-1/2 -translate-y-1/2 z-[100] p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent hover:border-accent transition-all flex shadow-2xl backdrop-blur-md opacity-0 group-hover:opacity-100">
+            <ChevronLeft size={30} />
           </button>
-          <button className="nav-next absolute right-2 xl:right-0 top-1/2 -translate-y-1/2 z-[100] p-4 xl:p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent hover:border-accent transition-all flex shadow-2xl backdrop-blur-sm">
-            <ChevronRight size={28} />
+          <button className="nav-next absolute right-2 xl:-right-8 top-1/2 -translate-y-1/2 z-[100] p-5 rounded-full bg-black/80 border border-white/20 text-white hover:bg-accent hover:border-accent transition-all flex shadow-2xl backdrop-blur-md opacity-0 group-hover:opacity-100">
+            <ChevronRight size={30} />
           </button>
         </div>
       </div>
 
       <div className="h-[20vh] w-full pointer-events-none" />
 
-      {/* MODAL */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -168,14 +159,14 @@ export default function SelectedWorks() {
           >
             <button
               onClick={() => setSelectedProject(null)}
-              className="absolute top-8 right-8 z-[10000] p-4 bg-white/10 rounded-full text-white hover:bg-accent transition-all"
+              className="absolute top-10 right-10 z-[10000] p-4 bg-white/10 rounded-full text-white hover:bg-accent transition-all"
             >
-              <X size={28} />
+              <X size={32} />
             </button>
 
             <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
               className="flex flex-col md:flex-row items-center gap-16 max-w-7xl"
             >
               <img
@@ -187,7 +178,7 @@ export default function SelectedWorks() {
                 <span className="text-accent text-sm tracking-[0.4em] uppercase font-bold">
                   {selectedProject.category}
                 </span>
-                <h2 className="text-6xl font-bold text-white uppercase mt-6 mb-8 tracking-tighter leading-none">
+                <h2 className="text-6xl md:text-7xl font-bold text-white uppercase mt-6 mb-8 tracking-tighter leading-none">
                   {selectedProject.title}
                 </h2>
                 <p className="text-gray-400 text-xl leading-relaxed">
@@ -198,37 +189,6 @@ export default function SelectedWorks() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Custom styles for the coverflow shadows and depth */}
-      <style>{`
-        .coverflow-carousel .swiper-slide {
-          transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        .coverflow-carousel .swiper-slide-shadow-left,
-        .coverflow-carousel .swiper-slide-shadow-right {
-          background: linear-gradient(
-            to right,
-            rgba(0, 0, 0, 0.6),
-            transparent
-          );
-          border-radius: 30px;
-        }
-        .coverflow-carousel .swiper-slide-shadow-right {
-          background: linear-gradient(
-            to left,
-            rgba(0, 0, 0, 0.6),
-            transparent
-          );
-        }
-        .coverflow-carousel .swiper-pagination-bullet {
-          background: white;
-          opacity: 0.3;
-        }
-        .coverflow-carousel .swiper-pagination-bullet-active {
-          opacity: 1;
-          background: var(--color-accent, #fff);
-        }
-      `}</style>
     </section>
   );
 }
