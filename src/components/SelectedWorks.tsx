@@ -32,23 +32,8 @@ export default function SelectedWorks() {
   const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
-    // FIX: Type Casting as HTMLElement to prevent Vercel Build Failure
     const nav = document.querySelector('nav') as HTMLElement | null;
     if (!nav) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!selectedProject) {
-        if (e.clientY <= 80 || window.scrollY <= 50) {
-          nav.style.opacity = '1';
-          nav.style.transform = 'translateY(0)';
-          nav.style.pointerEvents = 'auto';
-        } else {
-          nav.style.opacity = '0';
-          nav.style.transform = 'translateY(-100%)';
-          nav.style.pointerEvents = 'none';
-        }
-      }
-    };
 
     if (selectedProject) {
       document.body.style.overflow = 'hidden';
@@ -56,10 +41,9 @@ export default function SelectedWorks() {
       nav.style.pointerEvents = 'none';
     } else {
       document.body.style.overflow = 'unset';
-      nav.style.transition = 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
-      window.addEventListener('mousemove', handleMouseMove);
+      nav.style.opacity = '1';
+      nav.style.pointerEvents = 'auto';
     }
-    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [selectedProject]);
 
   useEffect(() => {
@@ -99,17 +83,16 @@ export default function SelectedWorks() {
           <h2 className="text-4xl md:text-7xl font-bold text-white uppercase tracking-tighter leading-none">Works</h2>
         </div>
 
-        <div className="relative group h-[clamp(480px,65vh,720px)] overflow-visible">
+        <div className="relative group h-[500px] md:h-[650px] lg:h-[720px] overflow-visible">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
             modules={[EffectCoverflow, Navigation, Pagination]}
             effect="coverflow"
             grabCursor={true}
             centeredSlides={true}
-            // ANIMATION FIX: Smoother loop and transitions
-            loop={projects.length > 2} 
-            loopedSlides={projects.length > 0 ? projects.length : 5} 
-            speed={850} 
+            loop={projects.length > 2}
+            loopedSlides={projects.length > 0 ? projects.length : 5}
+            speed={850}
             slidesPerView="auto"
             navigation={{ nextEl: '.nav-next', prevEl: '.nav-prev' }}
             coverflowEffect={{ 
@@ -124,18 +107,17 @@ export default function SelectedWorks() {
             {projects.map((project) => (
               <SwiperSlide key={project.id} style={{ width: 'min(380px, 85vw)' }} className="!flex items-center justify-center">
                 {({ isActive }) => (
-                  <div className={`relative w-full rounded-[35px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${
+                  <div className={`relative w-full rounded-[30px] md:rounded-[35px] border overflow-hidden backdrop-blur-3xl shadow-2xl transition-all duration-700 ease-out ${
                     isActive 
-                      ? 'h-[clamp(450px,60vh,650px)] border-white/20 bg-white/10 scale-100 z-10 hover:border-white/50 hover:shadow-[0_0_50px_rgba(255,255,255,0.2)]' 
-                      : 'h-[clamp(380px,50vh,550px)] border-white/5 bg-white/5 scale-[0.88] opacity-50'
+                      ? 'h-[420px] md:h-[580px] lg:h-[650px] border-white/20 bg-white/10 scale-100 z-10' 
+                      : 'h-[350px] md:h-[480px] lg:h-[550px] border-white/5 bg-white/5 scale-[0.88] opacity-40'
                   }`}>
                     <img src={project.image_url} className="absolute inset-0 w-full h-full object-cover pointer-events-none" alt={project.title} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-transparent" />
                     
-                    {/* RESPONSIVE INSIDE THE CARD FIX */}
                     <div className={`absolute bottom-0 left-0 p-[7%] md:p-10 w-full z-50 transition-all duration-500 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                       <span className="text-accent text-[8px] md:text-[9px] tracking-[0.4em] uppercase font-black">{project.category}</span>
-                      <h3 className="text-[clamp(1.1rem,4.5vw,1.875rem)] md:text-3xl font-bold text-white uppercase mt-1 mb-4 md:mb-6 leading-[1.1] tracking-tighter">
+                      <h3 className="text-[clamp(1.1rem,5vw,1.875rem)] md:text-3xl font-bold text-white uppercase mt-1 mb-4 md:mb-6 leading-[1.1] tracking-tighter">
                         {project.title}
                       </h3>
                       <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedProject(project); setCurrentImageIndex(0); }} className="inline-flex items-center gap-2 bg-white text-black px-6 py-2 md:px-8 md:py-3 rounded-full text-[9px] md:text-[10px] font-black tracking-widest uppercase hover:bg-accent transition-all cursor-pointer relative z-[60]">View Case <ChevronRight size={14} /></button>
@@ -162,8 +144,8 @@ export default function SelectedWorks() {
                 
                 {selectedProject.all_images && selectedProject.all_images.length > 1 && (
                   <div className="absolute inset-0 flex items-center justify-between px-4 md:px-6">
-                    <button onClick={(e) => { e.stopPropagation(); const len = selectedProject.all_images?.length || 1; setCurrentImageIndex(prev => (prev - 1 + len) % len)}} className="p-3 md:p-4 rounded-full bg-black/60 text-white hover:bg-accent"><ChevronLeft size={20} /></button>
-                    <button onClick={(e) => { e.stopPropagation(); const len = selectedProject.all_images?.length || 1; setCurrentImageIndex(prev => (prev + 1) % len)}} className="p-3 md:p-4 rounded-full bg-black/60 text-white hover:bg-accent"><ChevronRight size={20} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); const len = selectedProject.all_images?.length || 1; setCurrentImageIndex(prev => (prev - 1 + len) % len)}} className="p-3 md:p-4 rounded-full bg-black/60 text-white hover:bg-accent transition-all"><ChevronLeft size={20} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); const len = selectedProject.all_images?.length || 1; setCurrentImageIndex(prev => (prev + 1) % len)}} className="p-3 md:p-4 rounded-full bg-black/60 text-white hover:bg-accent transition-all"><ChevronRight size={20} /></button>
                   </div>
                 )}
               </div>
