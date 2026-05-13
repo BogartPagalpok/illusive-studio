@@ -24,6 +24,7 @@ export default function SelectedWorks() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
@@ -31,15 +32,15 @@ export default function SelectedWorks() {
   const fetchWorks = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error: dbError } = await supabase
         .from('portfolio_projects')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (dbError) throw dbError;
       setProjects(data || []);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setError(err.message || "Connection Failure");
     } finally {
       setLoading(false);
     }
@@ -49,20 +50,24 @@ export default function SelectedWorks() {
     fetchWorks();
   }, [fetchWorks]);
 
+  // useMemo prevents the UI from flickering or duplicating during state changes
   const filteredProjects = useMemo(() => {
     return activeCategory === 'All' 
       ? projects 
       : projects.filter(p => p.category === activeCategory);
   }, [activeCategory, projects]);
 
+  // Reset index when category changes
   useEffect(() => {
-    if (swiperRef.current) swiperRef.current.slideTo(0);
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(0);
+    }
     setActiveIndex(0);
   }, [activeCategory]);
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-black">
-      <Loader2 className="w-10 h-10 text-accent animate-spin" />
+      <Loader2 className="w-12 h-12 text-accent animate-spin" />
     </div>
   );
 
@@ -71,7 +76,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative h-screen min-h-[600px] w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND (Single Layer) */}
+      {/* 1. DYNAMIC BACKGROUND LAYER (Single Poster) */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -87,16 +92,18 @@ export default function SelectedWorks() {
               className="w-full h-full object-cover opacity-40 pointer-events-none"
               alt="Background"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
+            {/* Cinematic Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 h-full flex flex-col justify-between px-6 md:px-12 py-10">
+      <div className="relative z-10 h-full flex flex-col justify-between px-6 md:px-16 py-8 md:py-12">
         
-        {/* 2. TOP NAVIGATION */}
-        <div className="flex gap-6 items-center pt-6 overflow-x-auto no-scrollbar">
+        {/* 2. TOP GENRE NAVIGATION */}
+        <div className="flex gap-6 md:gap-10 items-center pt-4 md:pt-8 overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
@@ -111,8 +118,8 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO CONTENT - Corrected Scale */}
-        <div className="max-w-4xl mt-10 md:mt-20">
+        {/* 3. HERO CONTENT - Reduced Scaling for Better Fit */}
+        <div className="max-w-4xl mt-12 md:mt-24">
           <AnimatePresence mode="wait">
             {currentProject && (
               <motion.div
@@ -122,20 +129,20 @@ export default function SelectedWorks() {
                 exit={{ y: -10, opacity: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
+                <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.3em] uppercase block mb-3">
                   {currentProject.category}
                 </span>
-                {/* Scaled down to prevent swallowing the screen */}
-                <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[800px]">
+                {/* Fixed Large Typography Scaling */}
+                <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.95] mb-4 md:mb-6 max-w-[800px]">
                   {currentProject.title}
                 </h1>
-                <p className="text-white/60 text-sm md:text-base font-light leading-relaxed mb-8 max-w-xl line-clamp-2 md:line-clamp-3">
-                  {currentProject.description || "Experimental visual design and digital texture reconstruction."}
+                <p className="text-white/60 text-sm md:text-lg font-light leading-relaxed mb-6 md:mb-10 max-w-2xl line-clamp-3">
+                  {currentProject.description || "Experimental digital execution focusing on industrial minimalism and structural integrity."}
                 </p>
                 <button 
                   type="button"
                   onClick={() => setSelectedProject(currentProject)}
-                  className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
+                  className="flex items-center gap-2 bg-white text-black px-6 md:px-10 py-3 md:py-4 text-[10px] md:text-xs font-black uppercase tracking-widest rounded-sm hover:bg-accent transition-all"
                 >
                   <Play size={16} fill="black" /> View Project
                 </button>
@@ -144,15 +151,14 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
-        {/* 4. UP NEXT RAIL (Bottom Swiper) */}
-        <div className="w-full pb-4">
-          <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em] mb-4">
+        {/* 4. UP NEXT RAIL (Bottom Swiper) - Fixed Card Layout */}
+        <div className="w-full pb-4 md:pb-8">
+          <h2 className="text-white/30 text-[9px] font-black uppercase tracking-[0.3em] mb-4">
             Up Next In Portfolio
           </h2>
           
           <div className="relative group">
             <Swiper
-              key={activeCategory} 
               onSwiper={(s) => (swiperRef.current = s)}
               modules={[Navigation]}
               spaceBetween={12}
@@ -162,12 +168,12 @@ export default function SelectedWorks() {
               className="!overflow-visible"
             >
               {filteredProjects.map((project, idx) => (
-                <SwiperSlide key={project.id} className="!w-[130px] md:!w-[220px]">
+                <SwiperSlide key={project.id} className="!w-[130px] md:!w-[240px]">
                   <div 
                     onClick={() => swiperRef.current?.slideTo(idx)}
                     className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
                       activeIndex === idx 
-                        ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' 
+                        ? 'border-accent scale-105 shadow-[0_0_30px_rgba(var(--accent-rgb),0.3)] z-20' 
                         : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
                     }`}
                   >
@@ -177,10 +183,14 @@ export default function SelectedWorks() {
               ))}
             </Swiper>
             
-            {/* MINI NAV CONTROLS */}
+            {/* MINI NAV ARROWS */}
             <div className="flex gap-4 mt-6">
-              <button className="rail-prev text-white/20 hover:text-white"><ChevronLeft size={20} /></button>
-              <button className="rail-next text-white/20 hover:text-white"><ChevronRight size={20} /></button>
+              <button className="rail-prev p-2 border border-white/10 text-white/40 hover:text-white transition-all">
+                <ChevronLeft size={18} />
+              </button>
+              <button className="rail-next p-2 border border-white/10 text-white/40 hover:text-white transition-all">
+                <ChevronRight size={18} />
+              </button>
             </div>
           </div>
         </div>
@@ -191,20 +201,25 @@ export default function SelectedWorks() {
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-12 bg-black/98 backdrop-blur-2xl"
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/98 backdrop-blur-2xl"
           >
             <button onClick={() => setSelectedProject(null)} className="absolute top-8 right-8 text-white/50 hover:text-white"><X size={32} /></button>
             <div className="max-w-6xl w-full grid md:grid-cols-2 gap-12 items-center">
               <img src={selectedProject.image_url} className="w-full border border-white/10" alt="modal-view" />
               <div className="text-left">
                 <span className="text-accent text-xs font-black uppercase tracking-widest">{selectedProject.category}</span>
-                <h2 className="text-white text-4xl md:text-5xl font-black uppercase mt-4">{selectedProject.title}</h2>
-                <p className="text-white/60 mt-6 text-sm md:text-lg font-light leading-relaxed">{selectedProject.description}</p>
+                <h2 className="text-white text-5xl font-black uppercase mt-4">{selectedProject.title}</h2>
+                <p className="text-white/60 mt-6 text-lg font-light leading-relaxed">{selectedProject.description}</p>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </section>
   );
 }
