@@ -45,6 +45,7 @@ export default function SelectedWorks() {
 
   useEffect(() => { fetchWorks(); }, [fetchWorks]);
 
+  // GROUPING: Merge rows with same title into 1 unique card
   const projects = useMemo(() => {
     const unique: Project[] = [];
     const seen = new Set<string>();
@@ -75,29 +76,28 @@ export default function SelectedWorks() {
   const gallery = allData.filter(p => p.title === selectedTitle);
 
   return (
-    <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
+    <section id="works" className="relative h-screen w-full bg-black overflow-hidden">
       
-      <AnimatePresence mode="wait">
+      {/* 1. STABLE BACKGROUND */}
+      <div className="absolute inset-0 z-0">
         {current && (
-          <motion.div
-            key={`bg-${current.id}`}
+          <motion.img 
+            key={current.id}
+            src={current.image_url} 
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0 z-0"
-          >
-            <img src={current.image_url} className="w-full h-full object-cover opacity-40 pointer-events-none" alt="bg" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-          </motion.div>
+            animate={{ opacity: 0.4 }}
+            className="w-full h-full object-cover pointer-events-none" 
+            alt="bg" 
+          />
         )}
-      </AnimatePresence>
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+      </div>
 
       <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pb-12">
         
-        {/* FIX: GENRE PADDING - Higher top padding for mobile/desktop notches */}
-        <div className="flex gap-6 items-center pt-32 md:pt-40 justify-start overflow-x-auto no-scrollbar">
+        {/* 2. CATEGORIES - TOP LEFT FIX (HIGHER PADDING) */}
+        <div className="flex gap-6 items-center pt-28 md:pt-40 justify-start overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
@@ -111,12 +111,17 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* BOTTOM CONTENT BOX */}
-        <div className="mt-auto flex flex-col gap-10">
+        {/* 3. HERO + RAIL (ANCHORED BOTTOM) */}
+        <div className="mt-auto flex flex-col gap-8 md:gap-10">
           
           <div className="max-w-4xl">
             {current && (
-              <div className="transition-all duration-500">
+              <motion.div 
+                key={current.id}
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="transition-all duration-500"
+              >
                 <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
                   {current.category}
                 </span>
@@ -132,53 +137,48 @@ export default function SelectedWorks() {
                 >
                   <Play size={14} fill="black" /> View Project
                 </button>
-              </div>
+              </motion.div>
             )}
           </div>
 
-          {/* RAIL CONTAINER - Added touch-pan-y and fixed overflow for full scrolling */}
-          <div className="w-full relative select-none">
+          <div className="w-full relative">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">Up Next</h2>
+              <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">Portfolio Rail</h2>
               <div className="flex gap-4">
                 <button type="button" className="rail-prev text-white/40 hover:text-white"><ChevronLeft size={20} /></button>
                 <button type="button" className="rail-next text-white/40 hover:text-white"><ChevronRight size={20} /></button>
               </div>
             </div>
             
-            <div className="swiper-container-wrapper overflow-visible">
-              <Swiper
-                key={activeCategory} 
-                onSwiper={(s) => { swiperRef.current = s; }}
-                modules={[Navigation]}
-                spaceBetween={16}
-                slidesPerView={'auto'}
-                grabCursor={true}
-                observer={true}
-                observeParents={true}
-                navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
-                onSlideChange={(s) => setActiveIndex(s.realIndex)}
-                className="!overflow-visible touch-pan-y"
-              >
-                {projects.map((p, idx) => (
-                  <SwiperSlide key={p.id} className="!w-[140px] md:!w-[260px]">
-                    <div 
-                      onClick={() => swiperRef.current?.slideTo(idx)}
-                      className={`relative aspect-video cursor-pointer transition-all duration-500 border-2 rounded-sm overflow-hidden ${
-                        activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' : 'border-transparent opacity-40 grayscale hover:opacity-100'
-                      }`}
-                    >
-                      <img src={p.image_url} className="w-full h-full object-cover" alt="thumb" />
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
+            <Swiper
+              key={activeCategory} 
+              onSwiper={(s) => { swiperRef.current = s; }}
+              modules={[Navigation]}
+              spaceBetween={16}
+              slidesPerView={'auto'}
+              grabCursor={true}
+              navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
+              onSlideChange={(s) => setActiveIndex(s.realIndex)}
+              className="!overflow-visible"
+            >
+              {projects.map((p, idx) => (
+                <SwiperSlide key={p.id} className="!w-[140px] md:!w-[260px]">
+                  <div 
+                    onClick={() => swiperRef.current?.slideTo(idx)}
+                    className={`relative aspect-video cursor-pointer transition-all duration-500 border-2 rounded-sm overflow-hidden ${
+                      activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' : 'border-transparent opacity-40 grayscale hover:opacity-100'
+                    }`}
+                  >
+                    <img src={p.image_url} className="w-full h-full object-cover" alt="thumb" />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       </div>
 
-      {/* GALLERY MODAL */}
+      {/* 4. MODAL GALLERY */}
       <AnimatePresence>
         {selectedTitle && (
           <motion.div 
@@ -192,7 +192,7 @@ export default function SelectedWorks() {
             <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
               {gallery.map((img) => (
                 <div key={img.id}>
-                  <img src={img.image_url} className="w-full border border-white/10 shadow-2xl" alt="gallery" />
+                  <img src={img.image_url} className="w-full border border-white/10" alt="gallery" />
                 </div>
               ))}
             </div>
@@ -203,7 +203,6 @@ export default function SelectedWorks() {
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .swiper-slide { height: auto !important; }
       `}</style>
     </section>
   );
