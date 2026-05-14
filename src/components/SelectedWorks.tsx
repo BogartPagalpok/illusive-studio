@@ -67,14 +67,6 @@ export default function SelectedWorks() {
     });
     
     setFilteredProjects(uniqueProjects);
-    
-    if (swiperRef.current) {
-      const swiper = swiperRef.current as any;
-      if (typeof swiper.slideToLoop === 'function') {
-        swiper.slideToLoop(0, 0);
-      }
-      swiper.update();
-    }
     setActiveIndex(0);
   }, [activeCategory, projects]);
 
@@ -111,7 +103,7 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 h-screen min-h-[700px] flex flex-col px-6 md:px-16 py-8 md:py-12">
         
-        <div className="flex gap-6 md:gap-8 items-center mt-8 overflow-x-auto no-scrollbar pb-4">
+        <div className="flex gap-6 md:gap-8 items-center pt-0 mt-8 overflow-x-auto no-scrollbar pb-4">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
@@ -162,14 +154,18 @@ export default function SelectedWorks() {
             Up Next in Portfolio
           </h2>
           
-          <div className="relative w-full">
+          <div className="relative w-full pointer-events-auto">
+            {/* The KEY below forces Swiper to rebuild when category changes, fixing loop panic */}
             <Swiper
+              key={activeCategory}
               onSwiper={(s) => (swiperRef.current = s)}
               modules={[Navigation]}
               spaceBetween={16}
               slidesPerView={'auto'}
-              loop={filteredProjects.length > 1}
+              loop={filteredProjects.length > 3}
               loopedSlides={filteredProjects.length}
+              observer={true}
+              observeParents={true}
               onSlideChange={(s) => setActiveIndex(s.realIndex)}
               className="overflow-visible !pointer-events-auto"
             >
