@@ -108,7 +108,7 @@ export default function SelectedWorks() {
     : [];
 
   return (
-    <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden">
+    <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden font-sans">
       
       <AnimatePresence mode="wait">
         {currentProject && (
@@ -177,9 +177,9 @@ export default function SelectedWorks() {
                   <button 
                     type="button"
                     onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-2 bg-accent text-accent-foreground px-8 py-3 text-xs font-bold rounded-2xl hover:opacity-90 transition-all uppercase tracking-wider"
+                    className="flex items-center gap-3 bg-accent text-black px-10 py-3 text-xs font-bold rounded-2xl hover:drop-shadow-[0_0_20px_var(--accent)] transition-all uppercase tracking-widest"
                   >
-                    <Play size={16} fill="currentColor" /> View Project
+                    <Play size={16} fill="black" /> View Project
                   </button>
                 </motion.div>
               )}
@@ -266,7 +266,7 @@ export default function SelectedWorks() {
               <div className="text-left flex flex-col gap-6 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar pr-2">
                 <div>
                   <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
-                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2 leading-tight">{selectedProject.title}</h2>
+                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2LEADINGtight text">{selectedProject.title}</h2>
                   <p className="text-white/70 mt-4 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
                 </div>
 
