@@ -33,28 +33,20 @@ export default function SelectedWorks() {
   const fetchWorks = useCallback(async () => {
     try {
       setLoading(true);
-      console.log("SYSTEM: Initializing Supabase Fetch...");
       
       const { data, error: dbError } = await supabase
         .from('portfolio_projects')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (dbError) {
-        console.error("DATABASE REJECTION:", dbError);
-        throw dbError;
-      }
-
-      if (!data || data.length === 0) {
-        console.warn("SYSTEM: Connection established, but Table 'portfolio_projects' returned 0 rows.");
-      } else {
-        console.log(`SYSTEM: Successfully loaded ${data.length} projects.`);
-      }
+      if (dbError) throw dbError;
 
       setProjects(data || []);
       setFilteredProjects(data || []);
-    } catch (err: any) {
-      setError(err.message || "Unknown Connection Failure");
+    } catch (err: unknown) {
+      // FIX: Removed 'any' type violation that crashes strict Vercel/GitHub CI builds
+      const errorMessage = err instanceof Error ? err.message : "Unknown Connection Failure";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -64,6 +56,7 @@ export default function SelectedWorks() {
     fetchWorks();
   }, [fetchWorks]);
 
+  // Group by Name for the Rail
   useEffect(() => {
     const categoryFiltered = activeCategory === 'All' 
       ? projects 
@@ -111,15 +104,20 @@ export default function SelectedWorks() {
   );
 
   const currentProject = filteredProjects[activeIndex];
+  
+  // FIX: Gallery Image Matcher - Grabs ALL images sharing the same title from the raw database array
+  const galleryImages = selectedProject 
+    ? projects.filter(p => p.title.trim() === selectedProject.title.trim()) 
+    : [];
 
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND (The Netflix Poster) */}
+      {/* 1. DYNAMIC BACKGROUND */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
-            key={currentProject?.id}
+            key={currentProject.id}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -127,11 +125,10 @@ export default function SelectedWorks() {
             className="absolute inset-0 z-0"
           >
             <img 
-              src={currentProject?.image_url} 
+              src={currentProject.image_url} 
               className="w-full h-full object-cover opacity-50"
               alt="Background"
             />
-            {/* Cinematic Vignettes */}
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black" />
@@ -139,10 +136,9 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      {/* TWEAK 1: Anchored category list closer to the top frame (pt-8 md:pt-12 instead of pt-24) */}
       <div className="relative z-10 h-screen min-h-[700px] flex flex-col justify-between px-6 md:px-16 pt-8 md:pt-12 pb-8">
         
-        {/* 2. GENRE NAVIGATION (Top Bar) */}
+        {/* 2. GENRE NAVIGATION */}
         <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4">
           {CATEGORIES.map((cat) => (
             <button
@@ -160,25 +156,25 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO CONTENT (The Movie Info) */}
+        {/* 3. HERO CONTENT */}
         <div className="max-w-3xl mb-12">
           <AnimatePresence mode="wait">
             {currentProject && (
               <motion.div
-                key={currentProject?.id}
+                key={currentProject.id}
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -20, opacity: 0 }}
                 transition={{ duration: 0.5 }}
               >
                 <span className="text-accent text-sm font-black tracking-[0.3em] uppercase block mb-4">
-                  {currentProject?.category}
+                  {currentProject.category}
                 </span>
                 <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
-                  {currentProject?.title}
+                  {currentProject.title}
                 </h1>
                 <p className="text-white/70 text-sm md:text-lg font-light leading-relaxed mb-8 max-w-2xl line-clamp-3 md:line-clamp-none">
-                  {currentProject?.description || "Pushing the boundaries of creative excellence and innovative design."}
+                  {currentProject.description || "Pushing the boundaries of creative excellence and innovative design."}
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <button 
@@ -188,7 +184,6 @@ export default function SelectedWorks() {
                   >
                     <Play size={20} fill="black" /> View Project
                   </button>
-                  {/* TWEAK 2: Fixed Glassmorphism - Added border, distinct background opacity, and shadow */}
                   <button 
                     type="button"
                     onClick={() => setSelectedProject(currentProject)}
@@ -202,7 +197,7 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
-        {/* 4. UP NEXT RAIL (Bottom Swiper) */}
+        {/* 4. UP NEXT RAIL */}
         <div className="w-full pb-8">
           <h2 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em] mb-4">
             Up Next in Portfolio
@@ -210,7 +205,6 @@ export default function SelectedWorks() {
           
           {filteredProjects.length > 0 ? (
             <>
-              {/* TWEAK 3: Swiper Click Fix - Added slideToClickedSlide and ensured pointer events */}
               <Swiper
                 onSwiper={(s) => (swiperRef.current = s)}
                 modules={[Navigation]}
@@ -245,7 +239,6 @@ export default function SelectedWorks() {
                 ))}
               </Swiper>
               
-              {/* Mini Nav Controls */}
               <div className="flex gap-4 mt-6">
                 <button 
                   type="button"
@@ -269,14 +262,13 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* LIGHTBOX MODAL */}
+      {/* LIGHTBOX MODAL WITH FULL GALLERY */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            /* TWEAK 4: Modal Glassmorphism - Adjusted background to truly frost the background instead of blacking it out */
             className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-2xl overflow-y-auto"
             onClick={() => setSelectedProject(null)}
           >
@@ -293,16 +285,21 @@ export default function SelectedWorks() {
               animate={{ scale: 1, y: 0 }} 
               transition={{ duration: 0.3 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-12 items-center my-auto"
+              className="max-w-6xl w-full grid lg:grid-cols-2 gap-12 items-start my-auto"
             >
-              <div className="border border-white/20 rounded-lg overflow-hidden">
-                <img 
-                  src={selectedProject.image_url} 
-                  alt={selectedProject.title} 
-                  className="w-full h-auto object-cover" 
-                />
+              {/* FIX: Mapped out all images matching the project title into a scrolling stack */}
+              <div className="border border-white/20 rounded-lg overflow-hidden flex flex-col gap-2 max-h-[70vh] overflow-y-auto no-scrollbar p-1">
+                {galleryImages.map((img) => (
+                  <img 
+                    key={img.id}
+                    src={img.image_url} 
+                    alt={img.title} 
+                    className="w-full h-auto object-cover rounded-sm" 
+                  />
+                ))}
               </div>
-              <div className="text-left">
+              
+              <div className="text-left lg:sticky lg:top-0">
                 <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">
                   {selectedProject.category}
                 </span>
@@ -318,7 +315,7 @@ export default function SelectedWorks() {
                     type="button"
                     className="flex items-center gap-2 bg-accent text-black px-8 py-3 font-bold rounded hover:bg-accent/80 transition-all"
                   >
-                    <Play size={20} fill="black" /> Explore Project
+                    <Play size={20} fill="black" /> Close Project
                   </button>
                 </div>
               </div>
