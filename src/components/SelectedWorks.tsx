@@ -48,7 +48,6 @@ export default function SelectedWorks() {
 
   useEffect(() => { fetchWorks(); }, [fetchWorks]);
 
-  // STRICTOR GROUPING: Forces one card per title to stop clutter
   const projects = useMemo(() => {
     const unique: Project[] = [];
     const seen = new Set<string>();
@@ -72,7 +71,7 @@ export default function SelectedWorks() {
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-black">
-      <Loader2 className="w-10 h-10 text-amber-400 animate-spin" />
+      <Loader2 className="w-10 h-10 text-accent animate-spin" />
     </div>
   );
 
@@ -82,73 +81,72 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. BACKGROUND ENGINE */}
+      {/* 1. DYNAMIC BACKGROUND (Reduced Tint) */}
       <AnimatePresence mode="wait">
         {current && (
           <motion.div
             key={`bg-${current.id}`}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
+            animate={{ opacity: 0.7 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8 }}
             className="absolute inset-0 z-0"
           >
             <img src={current.image_url} className="w-full h-full object-cover" alt="bg" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pb-12">
+      <div className="relative z-10 h-full flex flex-col px-6 md:px-20 pb-12">
         
-        {/* 2. CATEGORIES - PINNED TOP LEFT */}
-        <div className="flex gap-6 items-center pt-32 md:pt-44 justify-start overflow-x-auto no-scrollbar">
+        {/* 2. CATEGORIES (Theme-aware and aligned) */}
+        <div className="flex gap-8 items-center pt-28 md:pt-40 justify-start overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
-                activeCategory === cat ? 'text-white border-b-2 border-amber-400 pb-1' : 'text-white/30 hover:text-white'
-              }`}
+              className={`text-[10px] md:text-xs font-black uppercase tracking-[0.3em] transition-all whitespace-nowrap border-b-2 ${
+                activeCategory === cat ? 'text-white border-accent' : 'text-white/20 border-transparent hover:text-white/50'
+              } pb-1`}
             >
               {cat}
             </button>
           ))}
         </div>
 
-        {/* 3. HERO + RAIL - PINNED TO BOTTOM */}
+        {/* 3. HERO + RAIL (ANCHORED BOTTOM) */}
         <div className="mt-auto flex flex-col gap-10">
           
-          <div className="max-w-4xl min-h-[160px]">
+          <div className="max-w-4xl min-h-[180px]">
             {current && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <span className="text-amber-400 text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
+              <div className="animate-in fade-in slide-in-from-left-4 duration-700">
+                <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-4">
                   {current.category}
                 </span>
-                {/* 4. DESKTOP FONT CAP */}
-                <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
+                <h1 className="text-white text-4xl sm:text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
                   {current.title}
                 </h1>
-                <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-8 max-w-xl line-clamp-3">
+                <p className="text-white/60 text-sm md:text-lg font-light leading-relaxed mb-8 max-w-2xl line-clamp-2">
                   {current.description}
                 </p>
                 <button 
                   onClick={() => setSelectedTitle(current.title)}
-                  className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 transition-all"
+                  className="flex items-center gap-3 bg-white text-black px-10 py-4 text-[11px] font-black uppercase tracking-[0.2em] hover:bg-accent transition-all"
                 >
-                  <Play size={14} fill="black" /> View Project
+                  <Play size={16} fill="currentColor" /> View Project
                 </button>
               </div>
             )}
           </div>
 
-          <div className="w-full relative select-none">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">Portfolio Rail</h2>
-              <div className="flex gap-4">
-                <button ref={setPrevEl} className="text-white/40 hover:text-white transition-all cursor-pointer"><ChevronLeft size={20} /></button>
-                <button ref={setNextEl} className="text-white/40 hover:text-white transition-all cursor-pointer"><ChevronRight size={20} /></button>
+          <div className="w-full relative">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-white/10 text-[10px] font-black uppercase tracking-[0.4em]">Portfolio Rail</h2>
+              <div className="flex gap-6">
+                <button ref={setPrevEl} className="text-white/30 hover:text-accent transition-all cursor-pointer"><ChevronLeft size={24} /></button>
+                <button ref={setNextEl} className="text-white/30 hover:text-accent transition-all cursor-pointer"><ChevronRight size={24} /></button>
               </div>
             </div>
             
@@ -156,21 +154,23 @@ export default function SelectedWorks() {
               key={activeCategory} 
               onSwiper={(s) => { swiperRef.current = s; }}
               modules={[Navigation]}
-              spaceBetween={16}
+              spaceBetween={24}
               slidesPerView={'auto'}
               grabCursor={true}
               observer={true}
               observeParents={true}
               navigation={{ prevEl, nextEl }}
               onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-              className="!overflow-visible touch-pan-y"
+              className="!overflow-visible w-full"
             >
               {projects.map((p, idx) => (
-                <SwiperSlide key={p.id} className="!w-[145px] md:!w-[260px]">
+                <SwiperSlide key={p.id} className="!w-[220px] md:!w-[380px]">
                   <div 
                     onClick={() => swiperRef.current?.slideTo(idx)}
                     className={`relative aspect-video cursor-pointer transition-all duration-500 border rounded-sm overflow-hidden ${
-                      activeIndex === idx ? 'border-amber-400 scale-105 shadow-[0_0_20px_rgba(251,191,36,0.15)] z-20 opacity-100' : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                      activeIndex === idx 
+                        ? 'border-accent scale-105 z-20 opacity-100 shadow-2xl' 
+                        : 'border-white/5 opacity-20 grayscale hover:opacity-100 hover:grayscale-0'
                     }`}
                   >
                     <img src={p.image_url} className="w-full h-full object-cover" alt="thumb" />
@@ -182,21 +182,21 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* 5. MODAL GALLERY */}
+      {/* 4. MODAL GALLERY (Theme-aware) */}
       <AnimatePresence>
         {selectedTitle && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] bg-black/98 backdrop-blur-3xl overflow-y-auto"
+            className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-3xl overflow-y-auto"
           >
-            <div className="sticky top-0 z-[1001] flex justify-between items-center px-8 py-8 bg-black/80 backdrop-blur-md">
+            <div className="sticky top-0 z-[1001] flex justify-between items-center px-8 py-8 bg-black/50 backdrop-blur-md border-b border-white/5">
               <h2 className="text-white text-2xl font-black uppercase tracking-tighter">{selectedTitle}</h2>
-              <button onClick={() => setSelectedTitle(null)} className="text-white/50 hover:text-white"><X size={32} /></button>
+              <button onClick={() => setSelectedTitle(null)} className="text-white/50 hover:text-accent"><X size={32} /></button>
             </div>
-            <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
+            <div className="max-w-6xl mx-auto px-6 py-16 flex flex-col gap-16">
               {gallery.map((img) => (
-                <div key={img.id}>
-                  <img src={img.image_url} className="w-full border border-white/10 shadow-2xl" alt="gallery-img" />
+                <div key={img.id} className="group">
+                  <img src={img.image_url} className="w-full border border-white/10 shadow-2xl group-hover:border-accent/50 transition-all" alt="gallery-img" />
                 </div>
               ))}
             </div>
