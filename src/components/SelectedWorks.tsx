@@ -89,7 +89,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND */}
+      {/* 1. DYNAMIC BACKGROUND - Lighter Tint */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -125,7 +125,7 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO CONTENT */}
+        {/* 3. HERO CONTENT - Bottom Left Corner Alignment */}
         <div className="max-w-3xl mt-auto mb-6 md:mb-8">
           <AnimatePresence mode="wait">
             {currentProject && (
@@ -142,7 +142,7 @@ export default function SelectedWorks() {
                 <h1 className="text-white text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.9] mb-3 md:mb-6">
                   {currentProject.title}
                 </h1>
-                <p className="text-white/70 text-xs sm:text-sm md:text-lg font-light leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3">
+                <p className="text-white/70 text-xs sm:text-sm md:text-lg font-light leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3 md:line-clamp-none">
                   {currentProject.description}
                 </p>
                 <button 
@@ -157,7 +157,7 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
-        {/* 4. UP NEXT RAIL */}
+        {/* 4. UP NEXT RAIL - Clickable fix */}
         <div className="w-full pb-4 md:pb-8 relative z-50">
           <h2 className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
             Up Next in Portfolio
@@ -197,7 +197,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* LIGHTBOX MODAL */}
+      {/* LIGHTBOX MODAL - Fixed Glassmorphism & Exit Z-index */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
@@ -235,3 +235,4 @@ export default function SelectedWorks() {
     </section>
   );
 }
+
