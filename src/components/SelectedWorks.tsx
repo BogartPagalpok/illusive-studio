@@ -37,7 +37,7 @@ export default function SelectedWorks() {
       if (error) throw error;
       setAllData(data || []);
     } catch (err) {
-      console.error("Supabase link failed");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ export default function SelectedWorks() {
 
   useEffect(() => { fetchWorks(); }, [fetchWorks]);
 
-  // GROUPING LOGIC: Merges same-named rows into 1 card
+  // GROUPING: Merge rows with same title into 1 card for the rail
   const projects = useMemo(() => {
     const unique: Project[] = [];
     const seen = new Set<string>();
@@ -120,7 +120,7 @@ export default function SelectedWorks() {
                   {current.category}
                 </span>
                 {/* 4. DESKTOP FONT SCALE FIX */}
-                <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
+                <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
                   {current.title}
                 </h1>
                 <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-8 max-w-xl line-clamp-3">
@@ -140,8 +140,8 @@ export default function SelectedWorks() {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">Up Next In Portfolio</h2>
               <div className="flex gap-4">
-                <button type="button" className="rail-prev text-white/40 hover:text-white"><ChevronLeft size={20} /></button>
-                <button type="button" className="rail-next text-white/40 hover:text-white"><ChevronRight size={20} /></button>
+                <button type="button" className="rail-prev text-white/40 hover:text-white transition-all"><ChevronLeft size={20} /></button>
+                <button type="button" className="rail-next text-white/40 hover:text-white transition-all"><ChevronRight size={20} /></button>
               </div>
             </div>
             
