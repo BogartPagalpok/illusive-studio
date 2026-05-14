@@ -64,6 +64,7 @@ export default function SelectedWorks() {
     fetchWorks();
   }, [fetchWorks]);
 
+  // TWEAK 1: Group by Name (1 card per project)
   useEffect(() => {
     const categoryFiltered = activeCategory === 'All' 
       ? projects 
@@ -79,7 +80,7 @@ export default function SelectedWorks() {
         uniqueProjects.push(p);
       }
     });
-    
+
     setFilteredProjects(uniqueProjects);
     
     if (swiperRef.current) {
@@ -139,6 +140,7 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
+      {/* TWEAK 2: Fixed Nav Padding (Raised higher, pt-24 instead of py-12 + pt-8) */}
       <div className="relative z-10 h-screen min-h-[700px] flex flex-col justify-between px-6 md:px-16 pt-24 pb-8">
         
         {/* 2. GENRE NAVIGATION (Top Bar) */}
@@ -173,6 +175,7 @@ export default function SelectedWorks() {
                 <span className="text-accent text-sm font-black tracking-[0.3em] uppercase block mb-4">
                   {currentProject?.category}
                 </span>
+                {/* TWEAK 3: Scaled down giant Hero font size */}
                 <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
                   {currentProject?.title}
                 </h1>
@@ -208,10 +211,11 @@ export default function SelectedWorks() {
           
           {filteredProjects.length > 0 ? (
             <>
+              {/* TWEAK 4: Added Mobile Responsive Observers to Swiper */}
               <Swiper
                 onSwiper={(s) => (swiperRef.current = s)}
                 modules={[Navigation]}
-                spaceBetween={16}
+                spaceBetween={20}
                 slidesPerView={'auto'}
                 observer={true}
                 observeParents={true}
@@ -299,10 +303,11 @@ export default function SelectedWorks() {
                 <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">
                   {selectedProject.category}
                 </span>
+                {/* TWEAK 3: Scaled down giant Modal font size */}
                 <h2 className="text-white text-3xl md:text-5xl font-black uppercase mt-4 leading-tight">
                   {selectedProject.title}
                 </h2>
-                <p className="text-white/60 mt-6 text-sm md:text-base leading-relaxed font-light">
+                <p className="text-white/60 mt-6 text-sm md:text-lg leading-relaxed font-light">
                   {selectedProject.description || "A stunning visual creation from our portfolio."}
                 </p>
                 <div className="mt-12 h-[1px] w-full bg-white/10" />
