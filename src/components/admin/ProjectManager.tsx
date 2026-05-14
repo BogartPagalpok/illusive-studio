@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil } from 'lucide-react';
 import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
 
@@ -11,7 +11,10 @@ interface Project {
   process: string;
   tools: string[];
   results: string;
-  image_url: string;
+  image_url: string; // Legacy / Main Gallery Image
+  card_thumbnail?: string; // New Field
+  hero_bg_desktop?: string; // New Field
+  hero_bg_mobile?: string; // New Field
   featured: boolean;
 }
 
@@ -23,6 +26,9 @@ const EMPTY_PROJECT: Project = {
   tools: [],
   results: '',
   image_url: '',
+  card_thumbnail: '',
+  hero_bg_desktop: '',
+  hero_bg_mobile: '',
   featured: true,
 };
 
@@ -31,7 +37,13 @@ export default function ProjectManager() {
   const [loading, setLoading] = useState(true);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  
+  // File States
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]); // For bulk/legacy gallery upload
+  const [cardFile, setCardFile] = useState<File | null>(null);
+  const [desktopFile, setDesktopFile] = useState<File | null>(null);
+  const [mobileFile, setMobileFile] = useState<File | null>(null);
+  
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
   useEffect(() => {
@@ -71,13 +83,20 @@ export default function ProjectManager() {
     const files = Array.from(e.target.files || []);
     setSelectedFiles(files);
     if (files.length === 1 && editingProject) {
-      // For a single file, we still show the URL in the input preview
       setEditingProject({ ...editingProject, image_url: files[0].name });
     }
   };
 
+  const clearForm = () => {
+    setEditingProject(null);
+    setSelectedFiles([]);
+    setCardFile(null);
+    setDesktopFile(null);
+    setMobileFile(null);
+  };
+
   const handleSave = async () => {
-    if (!editingProject || (!editingProject.image_url && selectedFiles.length === 0)) return;
+    if (!editingProject || (!editingProject.image_url && selectedFiles.length === 0 && !editingProject.id)) return;
     
     setIsSaving(true);
     try {
@@ -85,7 +104,26 @@ export default function ProjectManager() {
         ? editingProject.tools 
         : (editingProject.tools as string).split(',').map(t => t.trim());
 
-      // CASE 1: BULK UPLOAD (Multiple files selected in New Entry)
+      // 1. Upload Layout-Specific Assets
+      let cUrl = editingProject.card_thumbnail;
+      if (cardFile) cUrl = await uploadToStorage(cardFile);
+
+      let dUrl = editingProject.hero_bg_desktop;
+      if (desktopFile) dUrl = await uploadToStorage(desktopFile);
+
+      let mUrl = editingProject.hero_bg_mobile;
+      if (mobileFile) mUrl = await uploadToStorage(mobileFile);
+
+      // Base payload with new structural fields
+      const baseProjectData = {
+        ...editingProject,
+        card_thumbnail: cUrl,
+        hero_bg_desktop: dUrl,
+        hero_bg_mobile: mUrl,
+        tools: toolArray
+      };
+
+      // CASE 1: BULK UPLOAD (Multiple files selected in New Entry for generic image_url)
       if (selectedFiles.length > 1 && !editingProject.id) {
         setProgress({ current: 0, total: selectedFiles.length });
         const batchProjects = [];
@@ -94,9 +132,8 @@ export default function ProjectManager() {
           setProgress(prev => ({ ...prev, current: i + 1 }));
           const url = await uploadToStorage(selectedFiles[i]);
           batchProjects.push({
-            ...editingProject,
+            ...baseProjectData,
             image_url: url,
-            tools: toolArray
           });
         }
         const { error } = await supabase.from('portfolio_projects').insert(batchProjects);
@@ -109,7 +146,7 @@ export default function ProjectManager() {
           finalUrl = await uploadToStorage(selectedFiles[0]);
         }
 
-        const projectData = { ...editingProject, image_url: finalUrl, tools: toolArray };
+        const projectData = { ...baseProjectData, image_url: finalUrl };
         
         const { error } = editingProject.id 
           ? await supabase.from('portfolio_projects').update(projectData).eq('id', editingProject.id)
@@ -118,8 +155,7 @@ export default function ProjectManager() {
         if (error) throw error;
       }
 
-      setEditingProject(null);
-      setSelectedFiles([]);
+      clearForm();
       fetchProjects();
     } catch (error: any) {
       alert(`Operation failed: ${error.message}`);
@@ -163,7 +199,7 @@ export default function ProjectManager() {
       <div className="flex justify-between items-center relative z-10">
         <h2 className="text-xl font-heading font-bold tracking-widest uppercase text-white">Portfolio Manager</h2>
         <button 
-          onClick={() => { setEditingProject(EMPTY_PROJECT); setSelectedFiles([]); }} 
+          onClick={() => { clearForm(); setEditingProject(EMPTY_PROJECT); }} 
           className="btn-primary flex items-center gap-2"
           style={{ background: 'var(--accent)', backgroundImage: 'none' }}
         >
@@ -177,10 +213,11 @@ export default function ProjectManager() {
             <h3 className="font-heading font-black uppercase tracking-[0.2em] text-white text-sm">
               {editingProject.id ? 'Modify Details' : `New Entry ${selectedFiles.length > 1 ? `(${selectedFiles.length} files)` : ''}`}
             </h3>
-            <button onClick={() => setEditingProject(null)} className="text-white/20 hover:text-white"><X size={20} /></button>
+            <button onClick={clearForm} className="text-white/20 hover:text-white"><X size={20} /></button>
           </div>
 
           <div className="grid md:grid-cols-2 gap-10">
+            {/* Left Column: Basic Info & Legacy Image */}
             <div className="space-y-6">
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Project Title</label>
@@ -192,7 +229,7 @@ export default function ProjectManager() {
               </div>
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">
-                  Upload Assets {selectedFiles.length > 0 && <span className="text-accent ml-2">({selectedFiles.length} selected)</span>}
+                  Gallery / Main Asset {selectedFiles.length > 0 && <span className="text-accent ml-2">({selectedFiles.length} selected)</span>}
                 </label>
                 <div className="flex gap-2">
                   <div className="input-field flex-1 opacity-50 text-[10px] flex items-center overflow-hidden whitespace-nowrap">
@@ -210,22 +247,77 @@ export default function ProjectManager() {
               </div>
             </div>
             
+            {/* Right Column: Text Content */}
             <div className="space-y-6">
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Overview</label>
                 <textarea value={editingProject.description} onChange={e => setEditingProject({...editingProject, description: e.target.value})} rows={3} className="input-field resize-none custom-scrollbar" />
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Workflow</label>
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Workflow / Process</label>
                 <textarea value={editingProject.process} onChange={e => setEditingProject({...editingProject, process: e.target.value})} rows={3} className="input-field resize-none custom-scrollbar" />
               </div>
+              <div>
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Results</label>
+                <textarea value={editingProject.results} onChange={e => setEditingProject({...editingProject, results: e.target.value})} rows={2} className="input-field resize-none custom-scrollbar" />
+              </div>
             </div>
+          </div>
+
+          {/* New Media Section: Specific Layout Assets */}
+          <div className="border-t border-white/5 pt-8 mt-4 space-y-6">
+             <h4 className="text-[10px] font-heading font-black uppercase tracking-[0.2em] text-accent">Specific Layout Assets (Optional Fallbacks)</h4>
+             <div className="grid md:grid-cols-3 gap-6">
+                
+                {/* Card Thumbnail */}
+                <div>
+                  <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Card Thumbnail</label>
+                  <div className="flex gap-2">
+                    <div className="input-field flex-1 opacity-50 text-[10px] flex items-center overflow-hidden whitespace-nowrap" title={cardFile ? cardFile.name : editingProject.card_thumbnail}>
+                      {cardFile ? cardFile.name : (editingProject.card_thumbnail ? 'URL Exists' : 'Fallback to Main')}
+                    </div>
+                    <label className="btn-outline p-3 cursor-pointer flex-shrink-0">
+                      <Upload size={14} />
+                      <input type="file" accept="image/*" onChange={(e) => e.target.files && setCardFile(e.target.files[0])} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Hero Desktop */}
+                <div>
+                  <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Hero (Desktop)</label>
+                  <div className="flex gap-2">
+                    <div className="input-field flex-1 opacity-50 text-[10px] flex items-center overflow-hidden whitespace-nowrap" title={desktopFile ? desktopFile.name : editingProject.hero_bg_desktop}>
+                      {desktopFile ? desktopFile.name : (editingProject.hero_bg_desktop ? 'URL Exists' : 'Fallback to Main')}
+                    </div>
+                    <label className="btn-outline p-3 cursor-pointer flex-shrink-0">
+                      <Upload size={14} />
+                      <input type="file" accept="image/*" onChange={(e) => e.target.files && setDesktopFile(e.target.files[0])} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Hero Mobile */}
+                <div>
+                  <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-3">Hero (Mobile)</label>
+                  <div className="flex gap-2">
+                    <div className="input-field flex-1 opacity-50 text-[10px] flex items-center overflow-hidden whitespace-nowrap" title={mobileFile ? mobileFile.name : editingProject.hero_bg_mobile}>
+                      {mobileFile ? mobileFile.name : (editingProject.hero_bg_mobile ? 'URL Exists' : 'Fallback to Main')}
+                    </div>
+                    <label className="btn-outline p-3 cursor-pointer flex-shrink-0">
+                      <Upload size={14} />
+                      <input type="file" accept="image/*" onChange={(e) => e.target.files && setMobileFile(e.target.files[0])} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+
+             </div>
           </div>
 
           <button 
             onClick={handleSave} 
             disabled={isSaving}
-            className="btn-primary w-full py-5 text-xs flex flex-col items-center gap-1"
+            className="btn-primary w-full py-5 text-xs flex flex-col items-center gap-1 mt-4"
             style={{ background: 'var(--accent)', backgroundImage: 'none' }}
           >
             {isSaving ? (
@@ -234,7 +326,7 @@ export default function ProjectManager() {
                 {progress.total > 1 && <span>Processing {progress.current} of {progress.total}</span>}
               </>
             ) : (
-              <span className="flex items-center gap-2"><Save size={16} /> Finalize and Push to Production</span>
+              <span className="flex items-center gap-2 text-black"><Save size={16} /> Finalize and Push to Production</span>
             )}
           </button>
         </div>
@@ -245,7 +337,8 @@ export default function ProjectManager() {
           <div key={project.id} className="card-dark border-white/5 p-4 group hover:border-accent/30 transition-all flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="w-16 h-16 bg-white/5 border border-white/10 overflow-hidden flex-shrink-0 rounded-lg">
-                <img src={project.image_url} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500" />
+                {/* Visualizer prioritizes card thumbnail in the admin list if it exists */}
+                <img src={project.card_thumbnail || project.image_url} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500" alt={project.title} />
               </div>
               <div>
                 <h4 className="text-white font-bold tracking-widest uppercase text-xs mb-1">{project.title}</h4>
@@ -253,7 +346,7 @@ export default function ProjectManager() {
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => { setEditingProject(project); setSelectedFiles([]); }} className="p-3 text-white/20 hover:text-white transition-colors bg-white/5 rounded-lg"><Pencil size={16} /></button>
+              <button onClick={() => { clearForm(); setEditingProject(project); }} className="p-3 text-white/20 hover:text-white transition-colors bg-white/5 rounded-lg"><Pencil size={16} /></button>
               <button onClick={() => project.id && handleDelete(project.id)} className="p-3 text-white/20 hover:text-accent transition-colors bg-white/5 rounded-lg"><Trash2 size={16} /></button>
             </div>
           </div>
