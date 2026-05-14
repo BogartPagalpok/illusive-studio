@@ -6,7 +6,6 @@ import { Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
-// Swiper Styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -80,6 +79,14 @@ export default function SelectedWorks() {
   const galleryImages = selectedProject 
     ? projects.filter(p => p.title.trim() === selectedProject.title.trim())
     : [];
+
+  // Duplicate cards manually to prevent Swiper loop panic on small datasets
+  const loopProjects = [...filteredProjects];
+  if (loopProjects.length > 0 && loopProjects.length < 8) {
+    while (loopProjects.length < 8) {
+      loopProjects.push(...filteredProjects);
+    }
+  }
 
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
@@ -155,33 +162,36 @@ export default function SelectedWorks() {
           </h2>
           
           <div className="relative w-full pointer-events-auto">
-            {/* The KEY below forces Swiper to rebuild when category changes, fixing loop panic */}
-            <Swiper
-              key={activeCategory}
-              onSwiper={(s) => (swiperRef.current = s)}
-              modules={[Navigation]}
-              spaceBetween={16}
-              slidesPerView={'auto'}
-              loop={filteredProjects.length > 3}
-              loopedSlides={filteredProjects.length}
-              observer={true}
-              observeParents={true}
-              onSlideChange={(s) => setActiveIndex(s.realIndex)}
-              className="overflow-visible !pointer-events-auto"
-            >
-              {filteredProjects.map((project, idx) => (
-                <SwiperSlide key={`${project.id}-${idx}`} className="!w-[140px] sm:!w-[180px] md:!w-[240px]">
-                  <div 
-                    onClick={() => (swiperRef.current as any)?.slideToLoop?.(idx)}
-                    className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] pointer-events-auto ${
-                      activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
-                    }`}
-                  >
-                    <img src={project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+            {loopProjects.length > 0 && (
+              <Swiper
+                key={`swiper-${activeCategory}`}
+                onSwiper={(s) => (swiperRef.current = s)}
+                modules={[Navigation]}
+                spaceBetween={16}
+                slidesPerView={'auto'}
+                loop={true}
+                observer={true}
+                observeParents={true}
+                onSlideChange={(s) => setActiveIndex(s.realIndex)}
+                className="overflow-visible !pointer-events-auto"
+              >
+                {loopProjects.map((project, idx) => {
+                  const realIdx = idx % filteredProjects.length;
+                  return (
+                    <SwiperSlide key={`${project.id}-${idx}`} className="!w-[140px] sm:!w-[180px] md:!w-[240px]">
+                      <div 
+                        onClick={() => (swiperRef.current as any)?.slideToLoop(realIdx)}
+                        className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] pointer-events-auto ${
+                          activeIndex === realIdx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
+                        }`}
+                      >
+                        <img src={project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
+                      </div>
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
+            )}
           </div>
         </div>
       </div>
