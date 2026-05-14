@@ -81,6 +81,19 @@ export default function SelectedWorks() {
     setActiveIndex(0);
   }, [activeCategory, projects]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (selectedProject) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedProject]);
+
   if (loading) return (
     <div className="h-screen flex flex-col items-center justify-center bg-black gap-6">
       <Loader2 className="w-12 h-12 text-accent animate-spin" />
