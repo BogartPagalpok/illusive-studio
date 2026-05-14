@@ -23,26 +23,31 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
     <footer className="relative bg-transparent overflow-visible mt-10 font-heading">
       <div className="section-container relative pb-12">
         <div 
-          className="relative z-10 p-8 md:p-12 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
+          className="relative z-10 p-6 sm:p-8 md:p-12 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
           style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderColor: 'rgba(255, 255, 255, 0.12)' }}
         >
-          {/* WATERMARK: Exact 15px Gap (bottom-20), Flush Right */}
-          <div className="absolute bottom-[83px] left-0 w-full flex justify-end px-8 md:px-12 pointer-events-none select-none z-0">
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-none text-white tracking-tighter" style={{ opacity: 0.6, marginRight: '-0.07em' }}>
+          {/* WATERMARK: Adjusted bottom positioning for mobile stacking and used dynamic viewport width (vw) to prevent overflow */}
+          <div className="absolute bottom-[110px] md:bottom-[83px] left-0 w-full flex justify-end px-6 sm:px-8 md:px-12 pointer-events-none select-none z-0">
+            <h2 className="text-[13vw] sm:text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-none text-white tracking-tighter" style={{ opacity: 0.6, marginRight: '-0.07em' }}>
               IAN LESTER
             </h2>
           </div>
 
           <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start mb-16 md:mb-20 gap-10">
             {/* COLUMN 1: HOOK & BUTTON (Anchored) */}
-            <div className="flex flex-col justify-between h-full min-h-[160px] lg:w-1/3">
+            <div className="flex flex-col justify-between h-full min-h-[160px] lg:w-1/3 w-full">
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Sparkles size={14} className="text-accent" />
                   <span className="text-[10px] uppercase tracking-widest text-accent font-bold">Let's Talk</span>
                 </div>
-                <h3 className="text-2xl font-black uppercase mb-3 leading-tight text-white">{content?.hook_heading || "Want to elevate your visual identity? Let's collaborate."}</h3>
-                <p className="text-[11px] max-w-sm leading-relaxed text-white/60">{content?.hook_desc || "From brand systems to digital art — I bring ideas to life with precision and passion."}</p>
+                {/* Added break-words to prevent long words like COLLABORATE from breaking the padding on narrow screens */}
+                <h3 className="text-2xl md:text-3xl font-black uppercase mb-3 leading-tight text-white break-words w-full">
+                  {content?.hook_heading || "Want to elevate your visual identity? Let's collaborate."}
+                </h3>
+                <p className="text-[11px] max-w-sm leading-relaxed text-white/60">
+                  {content?.hook_desc || "From brand systems to digital art — I bring ideas to life with precision and passion."}
+                </p>
               </div>
               
               {/* BUTTON: Natural flow, no overlap */}
@@ -82,19 +87,19 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
           </div>
             
           {/* FLARE LINE */}
-          <div className="relative z-10 mt-2 pt-6 border-t flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] uppercase tracking-widest font-bold text-white" style={{ borderColor: 'rgba(255, 255, 255, 0.6)', opacity: 0.6 }}>
-            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6">
+          <div className="relative z-10 mt-2 pt-6 border-t flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4 text-[9px] uppercase tracking-widest font-bold text-white text-center md:text-left" style={{ borderColor: 'rgba(255, 255, 255, 0.6)', opacity: 0.6 }}>
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
               <button onClick={() => { clickCountRef.current++; if(clickCountRef.current >= 5) onAdminTrigger(); }}>{`© ${new Date().getFullYear()} Ian Lester Eclevia. All rights reserved.`}</button>
               
               {/* PRIVACY AND TERMS LINKS ADDED HERE */}
-              <div className="flex items-center gap-4 mt-2 md:mt-0">
+              <div className="flex items-center justify-center gap-4">
                 <a href="/privacy" className="hover:text-accent transition-colors">Privacy</a>
                 <span className="opacity-30">|</span>
                 <a href="/terms" className="hover:text-accent transition-colors">Terms</a>
               </div>
             </div>
 
-            <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors">Back to Top ↑</button>
+            <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors mt-2 md:mt-0">Back to Top ↑</button>
           </div>
         </div>
       </div>
