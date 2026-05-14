@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import { ChevronLeft, ChevronRight, Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
 import 'swiper/css';
+import 'swiper/css/navigation';
 
 interface Project {
   id: string;
@@ -23,8 +25,10 @@ export default function SelectedWorks() {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
-
+  
   const swiperRef = useRef<SwiperType | null>(null);
+  const [prevEl, setPrevEl] = useState<HTMLButtonElement | null>(null);
+  const [nextEl, setNextEl] = useState<HTMLButtonElement | null>(null);
 
   const fetchWorks = useCallback(async () => {
     try {
@@ -33,64 +37,55 @@ export default function SelectedWorks() {
         .from('portfolio_projects')
         .select('*')
         .order('created_at', { ascending: false });
-
+      
       if (error) throw error;
-      setAllData(data || []);
+      if (data) setAllData(data);
     } catch (err) {
-      console.error('Supabase Error: Failed to fetch', err);
+      console.error("Fetch failed");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchWorks();
+  useEffect(() => { 
+    fetchWorks(); 
   }, [fetchWorks]);
 
-  // One card per unique title
+  // MECHANICAL GROUPING: One card per unique title
   const projects = useMemo(() => {
-    const unique: Project[] = [];
-    const seen = new Set<string>();
-
-    for (const item of allData) {
-      if (seen.has(item.title)) continue;
-      // NOTE: we apply the category filter AFTER uniqueness based on your original logic
-      if (activeCategory !== 'All' && item.category !== activeCategory) continue;
-
-      seen.add(item.title);
-      unique.push(item);
-    }
-
-    // If category is All, above logic already includes all unique titles
-    if (activeCategory === 'All') {
-      return unique;
-    }
+    const unique = allData.reduce((acc: Project[], current) => {
+      const exists = acc.find(item => item.title.trim() === current.title.trim());
+      if (!exists) {
+        if (activeCategory === 'All' || current.category === activeCategory) {
+          acc.push(current);
+        }
+      }
+      return acc;
+    }, []);
     return unique;
   }, [allData, activeCategory]);
 
   useEffect(() => {
     setActiveIndex(0);
-    // wait a tick for swiper slides to reflect new list length
-    requestAnimationFrame(() => {
-      swiperRef.current?.slideTo(0, 0);
-      swiperRef.current?.update();
-    });
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(0, 0);
+      swiperRef.current.update();
+    }
   }, [activeCategory, projects.length]);
 
-  if (loading) {
-    return (
-      <div className="h-screen w-full flex items-center justify-center bg-black">
-        <Loader2 className="w-10 h-10 text-accent animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-black">
+      <Loader2 className="w-10 h-10 text-amber-400 animate-spin" />
+    </div>
+  );
 
   const current = projects[activeIndex] || projects[0] || null;
-  const gallery = selectedTitle ? allData.filter((p) => p.title === selectedTitle) : [];
+  const gallery = allData.filter(p => selectedTitle && p.title.trim() === selectedTitle.trim());
 
   return (
     <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
-      {/* BACKGROUND ENGINE */}
+      
+      {/* 1. BACKGROUND ENGINE */}
       <AnimatePresence mode="wait">
         {current && (
           <motion.div
@@ -99,13 +94,9 @@ export default function SelectedWorks() {
             animate={{ opacity: 0.4 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8 }}
-            className="absolute inset-0 z-0 pointer-events-none"
+            className="absolute inset-0 z-0"
           >
-            <img
-              src={current.image_url}
-              className="w-full h-full object-cover"
-              alt={`Background for ${current.title}`}
-            />
+            <img src={current.image_url} className="w-full h-full object-cover" alt="bg" />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
           </motion.div>
@@ -113,17 +104,15 @@ export default function SelectedWorks() {
       </AnimatePresence>
 
       <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pb-12">
-        {/* CATEGORIES - closer to top */}
-        <div className="flex gap-6 items-center pt-16 md:pt-20 justify-start overflow-x-auto no-scrollbar">
+        
+        {/* 2. CATEGORIES - TOP LEFT FIX (HIGHER PADDING) */}
+        <div className="flex gap-6 items-center pt-32 md:pt-44 justify-start overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
-              type="button"
               onClick={() => setActiveCategory(cat)}
               className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
-                activeCategory === cat
-                  ? 'text-white border-b-2 border-accent pb-1'
-                  : 'text-white/30 hover:text-white'
+                activeCategory === cat ? 'text-white border-b-2 border-amber-400 pb-1' : 'text-white/30 hover:text-white'
               }`}
             >
               {cat}
@@ -131,28 +120,25 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* HERO + RAIL */}
-        <div className="mt-auto flex flex-col gap-10 pt-6">
-          <div className="max-w-4xl">
+        {/* 3. HERO + RAIL (PINNED BOTTOM) */}
+        <div className="mt-auto flex flex-col gap-10">
+          
+          <div className="max-w-4xl min-h-[160px]">
             {current && (
-              <div className="transition-all duration-500">
-                <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <span className="text-amber-400 text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
                   {current.category}
                 </span>
-
+                {/* 4. FONT CAP FOR DESKTOP */}
                 <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
                   {current.title}
                 </h1>
-
                 <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-8 max-w-xl line-clamp-3">
                   {current.description}
                 </p>
-
-                {/* IMPORTANT: type="button" so it never submits a form */}
-                <button
-                  type="button"
+                <button 
                   onClick={() => setSelectedTitle(current.title)}
-                  className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
+                  className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 transition-all"
                 >
                   <Play size={14} fill="black" /> View Project
                 </button>
@@ -162,55 +148,35 @@ export default function SelectedWorks() {
 
           <div className="w-full relative select-none">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">
-                Portfolio
-              </h2>
-
+              <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">Portfolio Rail</h2>
               <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => swiperRef.current?.slidePrev()}
-                  className="text-white/40 hover:text-white transition-colors cursor-pointer"
-                  aria-label="Previous slide"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => swiperRef.current?.slideNext()}
-                  className="text-white/40 hover:text-white transition-colors cursor-pointer"
-                  aria-label="Next slide"
-                >
-                  <ChevronRight size={20} />
-                </button>
+                <button ref={setPrevEl} className="text-white/40 hover:text-white transition-all cursor-pointer"><ChevronLeft size={20} /></button>
+                <button ref={setNextEl} className="text-white/40 hover:text-white transition-all cursor-pointer"><ChevronRight size={20} /></button>
               </div>
             </div>
-
+            
             <Swiper
-              key={activeCategory}
-              onSwiper={(s) => {
-                swiperRef.current = s;
-              }}
+              key={activeCategory} 
+              onSwiper={(s) => { swiperRef.current = s; }}
+              modules={[Navigation]}
               spaceBetween={16}
-              slidesPerView="auto"
-              grabCursor
-              className="!overflow-visible touch-pan-y"
+              slidesPerView={'auto'}
+              grabCursor={true}
+              observer={true}
+              observeParents={true}
+              navigation={{ prevEl, nextEl }}
               onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+              className="!overflow-visible touch-pan-y"
             >
               {projects.map((p, idx) => (
-                <SwiperSlide key={p.id} className="!w-[140px] md:!w-[260px]">
-                  <div
-                    onClick={() => {
-                      setSelectedTitle(p.title); // makes sure click always opens project
-                      swiperRef.current?.slideTo(idx);
-                    }}
-                    className={`relative aspect-video cursor-pointer transition-all duration-500 border-2 rounded-sm overflow-hidden ${
-                      activeIndex === idx
-                        ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20 opacity-100'
-                        : 'border-transparent opacity-40 grayscale hover:opacity-100'
+                <SwiperSlide key={p.id} className="!w-[145px] md:!w-[260px]">
+                  <div 
+                    onClick={() => swiperRef.current?.slideTo(idx)}
+                    className={`relative aspect-video cursor-pointer transition-all duration-500 border rounded-sm overflow-hidden ${
+                      activeIndex === idx ? 'border-amber-400 scale-105 shadow-[0_0_20px_rgba(251,191,36,0.15)] z-20 opacity-100' : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
                     }`}
                   >
-                    <img src={p.image_url} className="w-full h-full object-cover" alt={p.title} />
+                    <img src={p.image_url} className="w-full h-full object-cover" alt="thumb" />
                   </div>
                 </SwiperSlide>
               ))}
@@ -219,44 +185,32 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* MODAL GALLERY */}
+      {/* 5. MODAL GALLERY */}
       <AnimatePresence>
         {selectedTitle && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/98 backdrop-blur-3xl overflow-y-auto"
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] bg-black/98 backdrop-blur-3xl overflow-y-auto"
           >
-            <div className="sticky top-0 z-[51] flex justify-between items-center px-6 md:px-8 py-8 bg-black/80 backdrop-blur-md">
-              <h2 className="text-white text-2xl md:text-3xl font-black uppercase tracking-tighter">
-                {selectedTitle}
-              </h2>
-
-              <button
-                type="button"
-                onClick={() => setSelectedTitle(null)}
-                className="text-white/50 hover:text-white transition-colors"
-                aria-label="Close modal"
-              >
-                <X size={32} />
-              </button>
+            <div className="sticky top-0 z-[1001] flex justify-between items-center px-8 py-8 bg-black/80 backdrop-blur-md">
+              <h2 className="text-white text-2xl font-black uppercase tracking-tighter">{selectedTitle}</h2>
+              <button onClick={() => setSelectedTitle(null)} className="text-white/50 hover:text-white"><X size={32} /></button>
             </div>
-
             <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
               {gallery.map((img) => (
                 <div key={img.id}>
-                  <img
-                    src={img.image_url}
-                    className="w-full border border-white/10 shadow-2xl"
-                    alt="gallery"
-                  />
+                  <img src={img.image_url} className="w-full border border-white/10 shadow-2xl" alt="gallery-img" />
                 </div>
               ))}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </section>
   );
 }
