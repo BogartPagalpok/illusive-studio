@@ -18,6 +18,10 @@ interface Project {
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
   image_url: string;
+  process?: string;
+  tools?: string[];
+  results?: string;
+  featured?: boolean;
 }
 
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
@@ -219,22 +223,22 @@ export default function SelectedWorks() {
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md overflow-y-auto"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto"
             onClick={() => setSelectedProject(null)}
           >
             <button 
               type="button" 
               onClick={() => setSelectedProject(null)} 
-              className="fixed top-24 right-4 md:top-8 md:right-8 text-white hover:text-accent transition-colors z-[10000]"
+              className="fixed top-6 right-6 md:top-10 md:right-10 text-white hover:text-accent transition-colors z-[10000] bg-black/50 p-2 rounded-full backdrop-blur-sm"
             >
-              <X size={32} />
+              <X size={24} />
             </button>
             <motion.div 
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 items-start my-auto mt-32 lg:mt-auto bg-white/5 border border-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-2xl shadow-2xl"
+              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 items-start my-auto mt-24 lg:mt-auto bg-black/40 border border-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-2xl shadow-2xl"
             >
-              <div className="border border-white/20 rounded-lg overflow-hidden flex flex-col gap-4 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto no-scrollbar bg-black/20">
+              <div className="border border-white/10 rounded-lg overflow-hidden flex flex-col gap-4 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar bg-black/20">
                  {galleryImages.map((img) => (
                     <img 
                       key={img.id} 
@@ -244,10 +248,39 @@ export default function SelectedWorks() {
                     />
                  ))}
               </div>
-              <div className="text-left">
-                <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
-                <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2 md:mt-4 leading-tight">{selectedProject.title}</h2>
-                <p className="text-white/60 mt-4 md:mt-8 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
+              <div className="text-left flex flex-col gap-6 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar pr-2">
+                <div>
+                  <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
+                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2 leading-tight">{selectedProject.title}</h2>
+                  <p className="text-white/60 mt-4 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
+                </div>
+
+                {selectedProject.tools && Array.isArray(selectedProject.tools) && selectedProject.tools.length > 0 && (
+                  <div>
+                    <h3 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-3">Tools Used</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProject.tools.map((tool, i) => (
+                        <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/70">
+                          {tool}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedProject.process && (
+                  <div>
+                    <h3 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Process</h3>
+                    <p className="text-white/70 text-sm md:text-base leading-relaxed">{selectedProject.process}</p>
+                  </div>
+                )}
+
+                {selectedProject.results && (
+                  <div>
+                    <h3 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Results</h3>
+                    <p className="text-white/70 text-sm md:text-base leading-relaxed">{selectedProject.results}</p>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>
