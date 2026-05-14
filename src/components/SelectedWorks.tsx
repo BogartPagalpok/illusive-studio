@@ -90,7 +90,8 @@ export default function SelectedWorks() {
     : [];
 
   return (
-    <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden font-sans">
+    {/* FONT FIX: Removed "font-sans" from this tag so it inherits your site's custom font */}
+    <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden">
       
       <AnimatePresence mode="wait">
         {currentProject && (
@@ -150,11 +151,9 @@ export default function SelectedWorks() {
                   <span className="text-accent text-[10px] md:text-sm font-black tracking-[0.3em] uppercase block mb-2 md:mb-4">
                     {currentProject.category}
                   </span>
-                  {/* FIX: Added line-clamp-2 to prevent long titles from taking up too much vertical space */}
                   <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-black uppercase tracking-tighter leading-[0.9] mb-3 md:mb-6 line-clamp-2">
                     {currentProject.title}
                   </h1>
-                  {/* FIX: Removed md:line-clamp-none and forced line-clamp-3 globally so long descriptions don't push the slider off screen */}
                   <p className="text-white/70 text-xs sm:text-sm md:text-lg font-light leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3">
                     {currentProject.description}
                   </p>
@@ -175,7 +174,8 @@ export default function SelectedWorks() {
               Up Next in Portfolio
             </h2>
             
-            <div className="relative w-full pointer-events-auto">
+            <div className="relative w-full">
+              {/* CLICK FIX: Removed all pointer-events hacks from Swiper elements */}
               <Swiper
                 onSwiper={(s) => (swiperRef.current = s)}
                 modules={[Navigation]}
@@ -185,18 +185,17 @@ export default function SelectedWorks() {
                 observer={true}
                 observeParents={true}
                 watchSlidesProgress={true}
-                onSlideChange={(s) => setActiveIndex(s.realIndex)}
-                className="overflow-visible !pointer-events-auto"
+                onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+                className="overflow-visible"
               >
                 {filteredProjects.map((project, idx) => (
-                  <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[240px] !pointer-events-auto">
+                  <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[240px]">
                     <div 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
+                      onClick={() => {
+                        setActiveIndex(idx);
                         swiperRef.current?.slideTo(idx);
                       }}
-                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] pointer-events-auto ${
+                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] ${
                         activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
                       }`}
                     >
