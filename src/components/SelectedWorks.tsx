@@ -87,7 +87,8 @@ export default function SelectedWorks() {
     : [];
 
   return (
-    <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
+    {/* FIX 1: Removed overflow-hidden from here so the window scroll event fires for your navbar */}
+    <section id="works" className="relative min-h-screen w-full bg-black font-sans">
       
       {/* 1. DYNAMIC BACKGROUND - Lighter Tint */}
       <AnimatePresence mode="wait">
@@ -107,7 +108,8 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 h-screen min-h-[700px] flex flex-col px-6 md:px-16 py-8 md:py-12">
+      {/* FIX 2: Changed py-8 to pt-28 pb-8 (and md:pt-32) to push the content down below the fixed navbar */}
+      <div className="relative z-10 h-screen min-h-[700px] flex flex-col px-6 md:px-16 pt-28 pb-8 md:pt-32 md:pb-12">
         
         {/* 2. GENRE NAVIGATION */}
         <div className="flex gap-6 md:gap-8 items-center pt-0 mt-8 overflow-x-auto no-scrollbar pb-4">
@@ -235,4 +237,3 @@ export default function SelectedWorks() {
     </section>
   );
 }
-
