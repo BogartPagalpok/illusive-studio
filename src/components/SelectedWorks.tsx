@@ -1,13 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
-import type { Swiper as SwiperType } from 'swiper';
-import { Play, Loader2, X } from 'lucide-react';
+import { Play, Loader2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
-
-import 'swiper/css';
-import 'swiper/css/navigation';
 
 interface Project {
   id: string;
@@ -26,7 +20,9 @@ export default function SelectedWorks() {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const swiperRef = useRef<SwiperType | null>(null);
+  
+  // Reference for our native CSS scrolling row
+  const railRef = useRef<HTMLDivElement>(null);
 
   const fetchWorks = useCallback(async () => {
     try {
@@ -68,13 +64,9 @@ export default function SelectedWorks() {
     setFilteredProjects(uniqueProjects);
     setActiveIndex(0);
     
-    // Reset swiper when category changes
-    if (swiperRef.current) {
-      const swiper = swiperRef.current as any;
-      if (typeof swiper.slideToLoop === 'function') {
-        swiper.slideToLoop(0, 0);
-      }
-      swiper.update();
+    // Reset scroll to left when category changes
+    if (railRef.current) {
+      railRef.current.scrollTo({ left: 0, behavior: 'smooth' });
     }
   }, [activeCategory, projects]);
 
@@ -89,9 +81,18 @@ export default function SelectedWorks() {
     ? projects.filter(p => p.title.trim() === selectedProject.title.trim())
     : [];
 
+  // Arrow button scrolling function
+  const scrollRail = (direction: 'left' | 'right') => {
+    if (railRef.current) {
+      const scrollAmount = direction === 'left' ? -300 : 300;
+      railRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
       
+      {/* 1. DYNAMIC BACKGROUND */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -111,13 +112,14 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 h-screen min-h-[700px] flex flex-col px-6 md:px-16 py-8 md:py-12">
         
+        {/* 2. GENRE NAVIGATION */}
         <div className="flex gap-6 md:gap-8 items-center pt-0 mt-8 overflow-x-auto no-scrollbar pb-4">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setActiveCategory(cat)}
-              className={`text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all ${
+              className={`text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
                 activeCategory === cat ? 'text-white scale-110' : 'text-white/40 hover:text-white'
               }`}
             >
@@ -126,6 +128,7 @@ export default function SelectedWorks() {
           ))}
         </div>
 
+        {/* 3. HERO CONTENT */}
         <div className="max-w-3xl mt-auto mb-6 md:mb-10">
           <AnimatePresence mode="wait">
             {currentProject && (
@@ -157,50 +160,60 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
+        {/* 4. NATIVE CSS UP NEXT RAIL (NO SWIPER) */}
         <div className="w-full pb-8 relative z-50">
           <h2 className="text-white/50 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">
             Up Next in Portfolio
           </h2>
           
           <div className="relative w-full">
-            <Swiper
-              key={`swiper-${activeCategory}-${filteredProjects.length}`}
-              onSwiper={(s) => (swiperRef.current = s)}
-              modules={[Navigation]}
-              spaceBetween={16}
-              slidesPerView={'auto'}
-              loop={filteredProjects.length > 2} // Safe loop trigger
-              onSlideChange={(s) => setActiveIndex(s.realIndex)}
-              // THE FIX: Intercept native Swiper clicks, bypass React dead zones
-              onClick={(swiper) => {
-                if (swiper.clickedSlide) {
-                  const realIndex = swiper.clickedSlide.getAttribute('data-swiper-slide-index');
-                  if (realIndex !== null) {
-                    const idx = parseInt(realIndex, 10);
-                    (swiper as any).slideToLoop(idx);
-                    setActiveIndex(idx);
-                  }
-                }
-              }}
-              className="overflow-visible"
+            {/* Native Scroll Container matched to the tutorial */}
+            <div 
+              ref={railRef}
+              className="flex overflow-x-auto no-scrollbar gap-4 scroll-smooth snap-x snap-mandatory pointer-events-auto pb-4"
             >
               {filteredProjects.map((project, idx) => (
-                <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[240px]">
-                  <div 
-                    // REMOVED React onClick entirely from here
-                    className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] pointer-events-auto ${
-                      activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
-                    }`}
-                  >
-                    <img src={project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
-                  </div>
-                </SwiperSlide>
+                <div 
+                  key={project.id}
+                  onClick={() => {
+                    setActiveIndex(idx);
+                    // Center the clicked item smoothly in the rail
+                    const children = railRef.current?.children;
+                    if (children && children[idx]) {
+                      children[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    }
+                  }}
+                  className={`flex-none w-[140px] sm:w-[180px] md:w-[240px] relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 snap-center ${
+                    activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
+                  }`}
+                >
+                  <img src={project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
+                </div>
               ))}
-            </Swiper>
+            </div>
+
+            {/* Custom Navigation Arrows */}
+            <div className="flex gap-4 mt-2">
+              <button 
+                type="button" 
+                onClick={() => scrollRail('left')}
+                className="text-white/30 hover:text-white transition-colors cursor-pointer z-[70] p-2 hover:bg-white/5 rounded-full"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button 
+                type="button" 
+                onClick={() => scrollRail('right')}
+                className="text-white/30 hover:text-white transition-colors cursor-pointer z-[70] p-2 hover:bg-white/5 rounded-full"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* LIGHTBOX MODAL */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
@@ -234,7 +247,16 @@ export default function SelectedWorks() {
           </motion.div>
         )}
       </AnimatePresence>
-      <style jsx global>{`.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
+
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar { 
+          display: none; 
+        } 
+        .no-scrollbar { 
+          -ms-overflow-style: none; 
+          scrollbar-width: none; 
+        }
+      `}</style>
     </section>
   );
-      }
+          }
