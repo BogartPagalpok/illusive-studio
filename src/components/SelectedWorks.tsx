@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
-import { ChevronLeft, ChevronRight, Play, Loader2, X } from 'lucide-react';
+import { Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
+// Swiper Styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -88,7 +89,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND - Lightened Opacity */}
+      {/* 1. DYNAMIC BACKGROUND */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -100,7 +101,6 @@ export default function SelectedWorks() {
             className="absolute inset-0 z-0"
           >
             <img src={currentProject.image_url} className="w-full h-full object-cover" alt="bg" />
-            {/* Softened Gradients to prevent "too dark" look */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
           </motion.div>
@@ -157,7 +157,7 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
-        {/* 4. UP NEXT RAIL - Fix for Clickability */}
+        {/* 4. UP NEXT RAIL */}
         <div className="w-full pb-4 md:pb-8 relative z-50">
           <h2 className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
             Up Next in Portfolio
@@ -173,7 +173,6 @@ export default function SelectedWorks() {
               observer={true}
               observeParents={true}
               watchSlidesProgress={true}
-              navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
               onSlideChange={(s) => setActiveIndex(s.realIndex)}
               className="overflow-visible !pointer-events-auto"
             >
@@ -194,15 +193,6 @@ export default function SelectedWorks() {
                 </SwiperSlide>
               ))}
             </Swiper>
-            
-            <div className="flex gap-4 mt-4 md:mt-6">
-              <button type="button" className="rail-prev text-white/30 hover:text-white transition-colors cursor-pointer relative z-[70]">
-                <ChevronLeft size={20} />
-              </button>
-              <button type="button" className="rail-next text-white/30 hover:text-white transition-colors cursor-pointer relative z-[70]">
-                <ChevronRight size={20} />
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -212,7 +202,7 @@ export default function SelectedWorks() {
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md overflow-y-auto"
             onClick={() => setSelectedProject(null)}
           >
             <button 
