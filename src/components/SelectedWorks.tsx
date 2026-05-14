@@ -14,8 +14,12 @@ interface Project {
   id: string;
   title: string;
   category: string;
-  image_url: string;
+  image_url: string; // Fallback for old projects
   description?: string;
+  // New Admin Upload Fields
+  card_thumbnail?: string;
+  hero_bg_desktop?: string;
+  hero_bg_mobile?: string;
 }
 
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
@@ -87,10 +91,10 @@ export default function SelectedWorks() {
     : [];
 
   return (
-    {/* FIX 1: Removed overflow-hidden from here so the window scroll event fires for your navbar */}
-    <section id="works" className="relative min-h-screen w-full bg-black font-sans">
+    {/* Navbar Fix: Changed overflow-hidden to overflow-x-hidden so vertical scrolling triggers the navbar */}
+    <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND - Lighter Tint */}
+      {/* 1. DYNAMIC BACKGROUND - Lighter Tint & Responsive Admin Images */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -101,14 +105,25 @@ export default function SelectedWorks() {
             transition={{ duration: 1 }}
             className="absolute inset-0 z-0"
           >
-            <img src={currentProject.image_url} className="w-full h-full object-cover" alt="bg" />
+            {/* Mobile Hero Background */}
+            <img 
+              src={currentProject.hero_bg_mobile || currentProject.image_url} 
+              className="w-full h-full object-cover md:hidden" 
+              alt="bg mobile" 
+            />
+            {/* Desktop Hero Background */}
+            <img 
+              src={currentProject.hero_bg_desktop || currentProject.image_url} 
+              className="hidden md:block w-full h-full object-cover" 
+              alt="bg desktop" 
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* FIX 2: Changed py-8 to pt-28 pb-8 (and md:pt-32) to push the content down below the fixed navbar */}
+      {/* Navbar Fix: Adjusted pt to clear the fixed navbar without overlapping */}
       <div className="relative z-10 h-screen min-h-[700px] flex flex-col px-6 md:px-16 pt-28 pb-8 md:pt-32 md:pb-12">
         
         {/* 2. GENRE NAVIGATION */}
@@ -190,7 +205,7 @@ export default function SelectedWorks() {
                       activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
                     }`}
                   >
-                    <img src={project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
+                    <img src={project.card_thumbnail || project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
                   </div>
                 </SwiperSlide>
               ))}
@@ -221,7 +236,7 @@ export default function SelectedWorks() {
             >
               <div className="border border-white/20 rounded-lg overflow-hidden flex flex-col gap-4 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto no-scrollbar">
                  {galleryImages.map((img) => (
-                    <img key={img.id} src={img.image_url} alt="project" className="w-full h-auto object-cover" />
+                    <img key={img.id} src={img.hero_bg_desktop || img.image_url} alt="project" className="w-full h-auto object-cover" />
                  ))}
               </div>
               <div className="text-left">
