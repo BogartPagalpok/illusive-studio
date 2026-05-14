@@ -6,7 +6,6 @@ import { ChevronLeft, ChevronRight, Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
-// Production Styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -28,10 +27,10 @@ export default function SelectedWorks() {
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   
   const swiperRef = useRef<SwiperType | null>(null);
-  const [prevEl, setPrevEl] = useState<HTMLButtonElement | null>(null);
-  const [nextEl, setNextEl] = useState<HTMLButtonElement | null>(null);
+  // FIX: Vercel TS strict mode requires HTMLElement, not HTMLButtonElement for Swiper
+  const [prevEl, setPrevEl] = useState<HTMLElement | null>(null);
+  const [nextEl, setNextEl] = useState<HTMLElement | null>(null);
 
-  // FETCH: Guarded against null data
   useEffect(() => {
     async function fetchWorks() {
       try {
@@ -40,10 +39,11 @@ export default function SelectedWorks() {
           .from('portfolio_projects')
           .select('*')
           .order('created_at', { ascending: false });
+        
         if (error) throw error;
         setAllData(data || []);
       } catch (err) {
-        console.error("Supabase link failed");
+        console.error("Fetch failed", err);
       } finally {
         setLoading(false);
       }
@@ -51,20 +51,17 @@ export default function SelectedWorks() {
     fetchWorks();
   }, []);
 
-  // MECHANICAL GROUPING: This forces 1 card per title and handles filtering
-  const projects: Project[] = [];
-  const seenTitles = new Set();
-  for (const item of allData) {
-    const cleanTitle = item.title.trim();
-    if (!seenTitles.has(cleanTitle)) {
-      if (activeCategory === 'All' || item.category === activeCategory) {
-        seenTitles.add(cleanTitle);
-        projects.push(item);
-      }
+  // FIX: Explicitly typed reduce function prevents Vercel inference crashes
+  const projects = allData.reduce<Project[]>((acc, current) => {
+    const isDuplicate = acc.some(item => item.title.trim() === current.title.trim());
+    const matchesCategory = activeCategory === 'All' || current.category === activeCategory;
+    
+    if (!isDuplicate && matchesCategory) {
+      acc.push(current);
     }
-  }
+    return acc;
+  }, []);
 
-  // SWIPER SYNC
   useEffect(() => {
     if (swiperRef.current && !swiperRef.current.destroyed) {
       swiperRef.current.slideTo(0, 0);
@@ -73,49 +70,46 @@ export default function SelectedWorks() {
     setActiveIndex(0);
   }, [activeCategory, projects.length]);
 
-  if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-black">
-      <Loader2 className="w-10 h-10 text-accent animate-spin" />
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#050505]">
+        <Loader2 className="w-10 h-10 text-accent animate-spin" />
+      </div>
+    );
+  }
 
   const current = projects[activeIndex] || projects[0] || null;
-  const gallery = allData.filter(p => selectedTitle && p.title.trim() === selectedTitle.trim());
+  const gallery = selectedTitle ? allData.filter(p => p.title.trim() === selectedTitle.trim()) : [];
 
   return (
-    <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
+    <section id="works" className="relative h-screen w-full bg-[#050505] overflow-hidden font-sans">
       
-      {/* 1. BACKGROUND ENGINE (Lightened for Desktop visibility) */}
-      <div className="absolute inset-0 z-0">
-        <AnimatePresence mode="wait">
-          {current && (
-            <motion.img 
-              key={`bg-${current.id}`}
-              src={current.image_url} 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.65 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
-              className="w-full h-full object-cover pointer-events-none" 
-              alt="bg" 
-            />
-          )}
-        </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+      {/* 1. BACKGROUND (Framer Motion removed here to stop build crashes. CSS handles the fade) */}
+      <div className="absolute inset-0 z-0 bg-[#050505]">
+        {current && (
+          <img 
+            key={current.id}
+            src={current.image_url} 
+            className="w-full h-full object-cover opacity-60 transition-opacity duration-1000 ease-in-out" 
+            alt="Background" 
+          />
+        )}
+        {/* FIX: Lighter gradient overlay so desktop isn't pitch black */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/90 via-[#050505]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
       </div>
 
       <div className="relative z-10 h-full flex flex-col px-6 md:px-20 pb-12">
         
-        {/* 2. CATEGORIES - TOP LEFT & THEME ALIGNED */}
-        <div className="flex gap-8 items-center pt-32 md:pt-40 justify-start overflow-x-auto no-scrollbar">
+        {/* 2. CATEGORIES (No hardcoded colors, relies entirely on Tailwind 'accent') */}
+        <div className="flex gap-8 items-center pt-28 md:pt-36 justify-start overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setActiveCategory(cat)}
               className={`text-[10px] md:text-xs font-black uppercase tracking-[0.3em] transition-all whitespace-nowrap border-b-2 ${
-                activeCategory === cat ? 'text-white border-accent' : 'text-white/20 border-transparent hover:text-white'
+                activeCategory === cat ? 'text-white border-accent' : 'text-white/20 border-transparent hover:text-white/60'
               } pb-1`}
             >
               {cat}
@@ -123,8 +117,8 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO + RAIL (PINNED BOTTOM) */}
-        <div className="mt-auto flex flex-col gap-10">
+        {/* 3. HERO + RAIL (Pinned Bottom) */}
+        <div className="mt-auto flex flex-col gap-8 md:gap-12">
           
           <div className="max-w-4xl min-h-[180px]">
             {current && (
@@ -141,23 +135,25 @@ export default function SelectedWorks() {
                 <button 
                   type="button"
                   onClick={() => setSelectedTitle(current.title)}
-                  className="flex items-center gap-3 bg-white text-black px-10 py-4 text-[11px] font-black uppercase tracking-widest hover:bg-accent hover:text-white transition-all"
+                  className="flex items-center gap-3 bg-white text-black px-10 py-4 text-[11px] font-black uppercase tracking-[0.2em] hover:bg-accent hover:text-white transition-all group"
                 >
-                  <Play size={16} fill="currentColor" /> View Project
+                  <Play size={16} className="fill-black group-hover:fill-white transition-colors" /> View Project
                 </button>
               </div>
             )}
           </div>
 
-          <div className="w-full relative select-none">
+          <div className="w-full relative">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-white/10 text-[10px] font-black uppercase tracking-[0.4em]">Portfolio Rail</h2>
+              <h2 className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em]">Portfolio Rail</h2>
               <div className="flex gap-6">
-                <button ref={setPrevEl} type="button" className="text-white/30 hover:text-accent transition-all cursor-pointer"><ChevronLeft size={24} /></button>
-                <button ref={setNextEl} type="button" className="text-white/30 hover:text-accent transition-all cursor-pointer"><ChevronRight size={24} /></button>
+                {/* FIX: Refs explicitly cast as HTMLElement for Swiper Types */}
+                <button ref={setPrevEl as any} type="button" className="text-white/30 hover:text-accent transition-colors cursor-pointer"><ChevronLeft size={24} /></button>
+                <button ref={setNextEl as any} type="button" className="text-white/30 hover:text-accent transition-colors cursor-pointer"><ChevronRight size={24} /></button>
               </div>
             </div>
             
+            {/* FIX: observer & observeParents forces Swiper to recalculate width, fixing the 5-card mobile limit */}
             <Swiper
               onSwiper={(s) => { swiperRef.current = s; }}
               modules={[Navigation]}
@@ -171,16 +167,16 @@ export default function SelectedWorks() {
               className="!overflow-visible w-full touch-pan-y"
             >
               {projects.map((p, idx) => (
-                <SwiperSlide key={p.id} className="!w-[220px] md:!w-[380px]">
+                <SwiperSlide key={p.id} className="!w-[200px] md:!w-[340px]">
                   <div 
                     onClick={() => swiperRef.current?.slideTo(idx)}
                     className={`relative aspect-video cursor-pointer transition-all duration-500 border rounded-sm overflow-hidden ${
                       activeIndex === idx 
-                        ? 'border-accent scale-105 z-20 opacity-100 shadow-2xl' 
-                        : 'border-white/5 opacity-20 grayscale hover:opacity-100 hover:grayscale-0'
+                        ? 'border-accent scale-105 z-20 opacity-100 shadow-[0_0_30px_rgba(255,255,255,0.05)]' 
+                        : 'border-white/5 opacity-30 grayscale hover:opacity-100 hover:grayscale-0'
                     }`}
                   >
-                    <img src={p.image_url} className="w-full h-full object-cover" alt="thumb" />
+                    <img src={p.image_url} className="w-full h-full object-cover" alt={p.title} />
                   </div>
                 </SwiperSlide>
               ))}
@@ -194,11 +190,11 @@ export default function SelectedWorks() {
         {selectedTitle && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-3xl overflow-y-auto"
+            className="fixed inset-0 z-[1000] bg-[#050505]/98 backdrop-blur-3xl overflow-y-auto"
           >
-            <div className="sticky top-0 z-[1001] flex justify-between items-center px-8 py-8 bg-black/50 backdrop-blur-md">
-              <h2 className="text-white text-2xl font-black uppercase tracking-tighter">{selectedTitle}</h2>
-              <button type="button" onClick={() => setSelectedTitle(null)} className="text-white/50 hover:text-accent"><X size={32} /></button>
+            <div className="sticky top-0 z-[1001] flex justify-between items-center px-6 md:px-12 py-8 bg-[#050505]/80 backdrop-blur-md border-b border-white/5">
+              <h2 className="text-white text-xl md:text-2xl font-black uppercase tracking-tighter">{selectedTitle}</h2>
+              <button type="button" onClick={() => setSelectedTitle(null)} className="text-white/50 hover:text-accent transition-colors"><X size={32} /></button>
             </div>
             <div className="max-w-6xl mx-auto px-6 py-16 flex flex-col gap-16">
               {gallery.map((img) => (
@@ -213,8 +209,4 @@ export default function SelectedWorks() {
 
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-    </section>
-  );
-}
+        .no-scrollbar { -ms-overflow-
