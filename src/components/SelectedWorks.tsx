@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
-import { Play, Loader2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Info, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
+// Swiper Styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -21,8 +22,10 @@ const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
 
 export default function SelectedWorks() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
@@ -30,77 +33,114 @@ export default function SelectedWorks() {
   const fetchWorks = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      console.log("SYSTEM: Initializing Supabase Fetch...");
+      
+      const { data, error: dbError } = await supabase
         .from('portfolio_projects')
         .select('*')
         .order('created_at', { ascending: false });
-      if (error) throw error;
+
+      if (dbError) {
+        console.error("DATABASE REJECTION:", dbError);
+        throw dbError;
+      }
+
+      if (!data || data.length === 0) {
+        console.warn("SYSTEM: Connection established, but Table 'portfolio_projects' returned 0 rows.");
+      } else {
+        console.log(`SYSTEM: Successfully loaded ${data.length} projects.`);
+      }
+
       setProjects(data || []);
-    } catch (err) {
-      console.error(err);
+      setFilteredProjects(data || []);
+    } catch (err: any) {
+      setError(err.message || "Unknown Connection Failure");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { fetchWorks(); }, [fetchWorks]);
-
-  const filteredProjects = useMemo(() => {
-    return activeCategory === 'All' 
-      ? projects 
-      : projects.filter(p => p.category === activeCategory);
-  }, [activeCategory, projects]);
+  useEffect(() => {
+    fetchWorks();
+  }, [fetchWorks]);
 
   useEffect(() => {
-    if (swiperRef.current) swiperRef.current.slideTo(0);
+    const filtered = activeCategory === 'All' 
+      ? projects 
+      : projects.filter(p => p.category === activeCategory);
+    
+    setFilteredProjects(filtered);
+    
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(0, 0);
+      swiperRef.current.update();
+    }
     setActiveIndex(0);
-  }, [activeCategory]);
+  }, [activeCategory, projects]);
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-black">
-      <Loader2 className="w-10 h-10 text-accent animate-spin" />
+    <div className="h-screen flex flex-col items-center justify-center bg-black gap-6">
+      <Loader2 className="w-12 h-12 text-accent animate-spin" />
+      <p className="text-white text-[10px] font-black uppercase tracking-[0.5em] animate-pulse">Syncing Engine</p>
+    </div>
+  );
+
+  if (error) return (
+    <div className="h-screen flex flex-col items-center justify-center bg-black p-12 text-center">
+      <h2 className="text-red-500 font-black uppercase text-2xl mb-4 tracking-tighter">System Error</h2>
+      <p className="text-white/40 text-xs font-mono mb-8 max-w-lg">{error}</p>
+      <button 
+        type="button"
+        onClick={() => fetchWorks()} 
+        className="px-10 py-4 bg-red-600 text-white font-black uppercase text-[10px] tracking-widest hover:bg-red-700 transition-all"
+      >
+        Force Re-Sync
+      </button>
     </div>
   );
 
   const currentProject = filteredProjects[activeIndex];
 
   return (
-    <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
+    <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. BACKGROUND ENGINE */}
+      {/* 1. DYNAMIC BACKGROUND (The Netflix Poster) */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
-            key={`bg-${currentProject.id}`}
+            key={currentProject?.id}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1 }}
             className="absolute inset-0 z-0"
           >
             <img 
-              src={currentProject.image_url} 
-              className="w-full h-full object-cover opacity-40 pointer-events-none"
+              src={currentProject?.image_url} 
+              className="w-full h-full object-cover opacity-50"
               alt="Background"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
+            {/* Cinematic Vignettes */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black" />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 2. MAIN UI CONTAINER */}
-      <div className="relative z-10 h-full flex flex-col px-6 md:px-12 pb-10">
+      <div className="relative z-10 h-screen min-h-[700px] flex flex-col justify-between px-8 md:px-16 py-12">
         
-        {/* TOP GENRE NAV - Safe area for mobile */}
-        <div className="flex gap-6 items-center pt-24 md:pt-32 overflow-x-auto no-scrollbar">
+        {/* 2. GENRE NAVIGATION (Top Bar) */}
+        <div className="flex gap-6 md:gap-8 items-center pt-8 overflow-x-auto pb-4">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setActiveCategory(cat)}
-              className={`text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
-                activeCategory === cat ? 'text-white scale-110' : 'text-white/30 hover:text-white'
+              className={`text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+                activeCategory === cat 
+                  ? 'text-white scale-110' 
+                  : 'text-white/40 hover:text-white'
               }`}
             >
               {cat}
@@ -108,95 +148,161 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* BOTTOM STACK - Hero Info + Rail pinned together at bottom */}
-        <div className="mt-auto flex flex-col gap-8 md:gap-12">
-          
-          {/* HERO CONTENT - Scaled for Desktop & Mobile */}
-          <div className="max-w-4xl">
-            <AnimatePresence mode="wait">
-              {currentProject && (
-                <motion.div
-                  key={`hero-${currentProject.id}`}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -10, opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-2">
-                    {currentProject.category}
-                  </span>
-                  {/* FIX: Title font size reigned in for Desktop (max 6xl) */}
-                  <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
-                    {currentProject.title}
-                  </h1>
-                  <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-6 max-w-xl line-clamp-3">
-                    {currentProject.description || "Experimental visual design and digital texture reconstruction."}
-                  </p>
+        {/* 3. HERO CONTENT (The Movie Info) */}
+        <div className="max-w-3xl mb-12">
+          <AnimatePresence mode="wait">
+            {currentProject && (
+              <motion.div
+                key={currentProject?.id}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -20, opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <span className="text-accent text-sm font-black tracking-[0.3em] uppercase block mb-4">
+                  {currentProject?.category}
+                </span>
+                <h1 className="text-white text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
+                  {currentProject?.title}
+                </h1>
+                <p className="text-white/70 text-lg md:text-xl font-light leading-relaxed mb-8 max-w-2xl">
+                  {currentProject?.description || "Pushing the boundaries of creative excellence and innovative design."}
+                </p>
+                <div className="flex flex-wrap gap-4">
                   <button 
                     type="button"
                     onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-2 bg-white text-black px-6 py-2.5 md:px-8 md:py-3 text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
+                    className="flex items-center gap-2 bg-white text-black px-8 py-3 font-bold rounded hover:bg-white/80 transition-all"
                   >
-                    <Play size={14} fill="black" /> View Project
+                    <Play size={20} fill="black" /> View Project
                   </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                  <button 
+                    type="button"
+                    onClick={() => setSelectedProject(currentProject)}
+                    className="flex items-center gap-2 bg-white/20 text-white px-8 py-3 font-bold rounded backdrop-blur-md hover:bg-white/30 transition-all"
+                  >
+                    <Info size={20} /> Details
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-          {/* UP NEXT RAIL - Clutter Fix */}
-          <div className="w-full">
-            <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em] mb-4">
-              Up Next In Portfolio
-            </h2>
-            
-            <div className="relative">
+        {/* 4. UP NEXT RAIL (Bottom Swiper) */}
+        <div className="w-full pb-8">
+          <h2 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em] mb-4">
+            Up Next in Portfolio
+          </h2>
+          
+          {filteredProjects.length > 0 ? (
+            <>
               <Swiper
-                key={activeCategory} 
                 onSwiper={(s) => (swiperRef.current = s)}
                 modules={[Navigation]}
-                spaceBetween={12}
+                spaceBetween={20}
                 slidesPerView={'auto'}
                 navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
                 onSlideChange={(s) => setActiveIndex(s.realIndex)}
-                className="!overflow-visible"
+                className="overflow-visible"
               >
                 {filteredProjects.map((project, idx) => (
-                  <SwiperSlide key={project.id} className="!w-[120px] md:!w-[220px]">
+                  <SwiperSlide key={project.id} className="!w-[160px] md:!w-[240px]">
                     <div 
                       onClick={() => swiperRef.current?.slideTo(idx)}
                       className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
                         activeIndex === idx 
-                          ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' 
-                          : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                          ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' 
+                          : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
                       }`}
                     >
-                      <img src={project.image_url} className="w-full h-full object-cover" alt="thumbnail" />
+                      <img 
+                        src={project.image_url} 
+                        className="w-full h-full object-cover" 
+                        alt={project.title} 
+                      />
                     </div>
                   </SwiperSlide>
                 ))}
               </Swiper>
+              
+              {/* Mini Nav Controls */}
+              <div className="flex gap-4 mt-6">
+                <button 
+                  type="button"
+                  className="rail-prev text-white/20 hover:text-white transition-colors"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <button 
+                  type="button"
+                  className="rail-next text-white/20 hover:text-white transition-colors"
+                >
+                  <ChevronRight size={24} />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="text-white/10 text-xs font-black uppercase tracking-[0.2em]">
+              No projects available
             </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* MODAL LIGHTBOX */}
+      {/* LIGHTBOX MODAL */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/98 backdrop-blur-2xl"
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/95 backdrop-blur-lg"
+            onClick={() => setSelectedProject(null)}
           >
-            <button onClick={() => setSelectedProject(null)} className="absolute top-10 right-10 text-white/50 hover:text-white"><X size={32} /></button>
-            <div className="max-w-6xl w-full grid md:grid-cols-2 gap-12 items-center px-4">
-              <img src={selectedProject.image_url} className="w-full border border-white/10" alt="modal-view" />
-              <div className="text-left">
-                <span className="text-accent text-xs font-black uppercase tracking-widest">{selectedProject.category}</span>
-                <h2 className="text-white text-4xl md:text-5xl font-black uppercase mt-4">{selectedProject.title}</h2>
-                <p className="text-white/60 mt-6 text-sm md:text-lg font-light leading-relaxed">{selectedProject.description}</p>
+            <button 
+              type="button"
+              onClick={() => setSelectedProject(null)} 
+              className="absolute top-8 right-8 text-white hover:text-accent transition-colors z-[1001]"
+            >
+              <X size={40} />
+            </button>
+            
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }} 
+              animate={{ scale: 1, y: 0 }} 
+              transition={{ duration: 0.3 }}
+              onClick={(e) => e.stopPropagation()}
+              className="max-w-6xl w-full grid lg:grid-cols-2 gap-12 items-center"
+            >
+              <div className="border border-white/20 rounded-lg overflow-hidden">
+                <img 
+                  src={selectedProject.image_url} 
+                  alt={selectedProject.title} 
+                  className="w-full h-auto object-cover" 
+                />
               </div>
-            </div>
+              <div className="text-left">
+                <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">
+                  {selectedProject.category}
+                </span>
+                <h2 className="text-white text-5xl md:text-7xl font-black uppercase mt-4 leading-tight">
+                  {selectedProject.title}
+                </h2>
+                <p className="text-white/60 mt-8 text-lg leading-relaxed font-light">
+                  {selectedProject.description || "A stunning visual creation from our portfolio."}
+                </p>
+                <div className="mt-12 h-[1px] w-full bg-white/10" />
+                <div className="mt-8">
+                  <button 
+                    type="button"
+                    className="flex items-center gap-2 bg-accent text-black px-8 py-3 font-bold rounded hover:bg-accent/80 transition-all"
+                  >
+                    <Play size={20} fill="black" /> Explore Project
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
