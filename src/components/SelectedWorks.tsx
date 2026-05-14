@@ -70,7 +70,7 @@ export default function SelectedWorks() {
     
     if (swiperRef.current) {
       const swiper = swiperRef.current as any;
-      if (swiper.slideToLoop) {
+      if (typeof swiper.slideToLoop === 'function') {
         swiper.slideToLoop(0, 0);
       }
       swiper.update();
@@ -97,7 +97,7 @@ export default function SelectedWorks() {
           <motion.div
             key={currentProject.id}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
+            animate={{ opacity: 0.7 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
             className="absolute inset-0 z-0"
@@ -135,9 +135,8 @@ export default function SelectedWorks() {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -20, opacity: 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex flex-col"
               >
-                <span className="text-accent text-[9px] md:text-sm font-black tracking-[0.3em] uppercase block mb-3">
+                <span className="text-accent text-[10px] md:text-sm font-black tracking-[0.3em] uppercase block mb-2">
                   {currentProject.category}
                 </span>
                 <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-4">
@@ -146,15 +145,13 @@ export default function SelectedWorks() {
                 <p className="text-white/70 text-xs sm:text-sm md:text-lg font-light leading-relaxed mb-6 max-w-2xl line-clamp-3">
                   {currentProject.description}
                 </p>
-                <div className="flex">
-                  <button 
-                    type="button"
-                    onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-bold rounded hover:bg-white/80 transition-all uppercase tracking-widest"
-                  >
-                    <Play size={16} fill="black" /> View Project
-                  </button>
-                </div>
+                <button 
+                  type="button"
+                  onClick={() => setSelectedProject(currentProject)}
+                  className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-bold rounded hover:bg-white/80 transition-all uppercase tracking-widest"
+                >
+                  <Play size={16} fill="black" /> View Project
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
@@ -174,7 +171,7 @@ export default function SelectedWorks() {
               loop={filteredProjects.length > 1}
               loopedSlides={filteredProjects.length}
               onSlideChange={(s) => setActiveIndex(s.realIndex)}
-              className="overflow-visible"
+              className="overflow-visible !pointer-events-auto"
             >
               {filteredProjects.map((project, idx) => (
                 <SwiperSlide key={`${project.id}-${idx}`} className="!w-[140px] sm:!w-[180px] md:!w-[240px]">
@@ -229,4 +226,4 @@ export default function SelectedWorks() {
       <style jsx global>{`.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
     </section>
   );
-                }
+}
