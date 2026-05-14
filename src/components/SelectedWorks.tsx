@@ -6,7 +6,6 @@ import { Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
-// Swiper Styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -69,7 +68,8 @@ export default function SelectedWorks() {
     setFilteredProjects(uniqueProjects);
     
     if (swiperRef.current) {
-      swiperRef.current.slideToLoop(0, 0);
+      // Use any to prevent TS build errors on Vercel for loop-specific methods
+      (swiperRef.current as any).slideToLoop?.(0, 0);
       swiperRef.current.update();
     }
     setActiveIndex(0);
@@ -89,7 +89,6 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -109,7 +108,6 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 h-screen min-h-[700px] flex flex-col px-6 md:px-16 py-8 md:py-12">
         
-        {/* 2. GENRE NAVIGATION */}
         <div className="flex gap-6 md:gap-8 items-center pt-0 mt-8 overflow-x-auto no-scrollbar pb-4">
           {CATEGORIES.map((cat) => (
             <button
@@ -125,7 +123,6 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO CONTENT */}
         <div className="max-w-3xl mt-auto mb-6 md:mb-8">
           <AnimatePresence mode="wait">
             {currentProject && (
@@ -157,7 +154,7 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
-        {/* 4. UP NEXT RAIL - Infinite Loop Fix */}
+        {/* 4. UP NEXT RAIL - Infinite Loop & Click Fix */}
         <div className="w-full pb-4 md:pb-8 relative z-50">
           <h2 className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
             Up Next in Portfolio
@@ -169,9 +166,8 @@ export default function SelectedWorks() {
               modules={[Navigation]}
               spaceBetween={16}
               slidesPerView={'auto'}
-              loop={filteredProjects.length >= 3} /* Infinite Loop */
-              loopedSlides={5} /* Buffers slides for smooth infinite scrolling */
-              centeredSlides={false}
+              loop={filteredProjects.length >= 3}
+              loopedSlides={5}
               observer={true}
               observeParents={true}
               watchSlidesProgress={true}
@@ -179,9 +175,9 @@ export default function SelectedWorks() {
               className="overflow-visible !pointer-events-auto"
             >
               {filteredProjects.map((project, idx) => (
-                <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[240px] !pointer-events-auto">
+                <SwiperSlide key={`${project.id}-${idx}`} className="!w-[140px] sm:!w-[180px] md:!w-[240px] !pointer-events-auto">
                   <div 
-                    onClick={() => swiperRef.current?.slideToLoop(idx)}
+                    onClick={() => (swiperRef.current as any)?.slideToLoop?.(idx)}
                     className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] pointer-events-auto ${
                       activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
                     }`}
@@ -232,4 +228,5 @@ export default function SelectedWorks() {
       <style jsx global>{`.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
     </section>
   );
-}
+                      }
+                
