@@ -177,7 +177,7 @@ export default function SelectedWorks() {
                   <button 
                     type="button"
                     onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-2 bg-accent text-accent-foreground px-6 py-2.5 md:px-8 md:py-3 text-xs font-bold rounded-full hover:opacity-90 transition-all uppercase tracking-wider"
+                    className="flex items-center gap-2 bg-accent text-accent-foreground px-8 py-3 text-xs font-bold rounded-2xl hover:opacity-90 transition-all uppercase tracking-wider"
                   >
                     <Play size={16} fill="currentColor" /> View Project
                   </button>
@@ -238,36 +238,36 @@ export default function SelectedWorks() {
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md overflow-y-auto"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xl overflow-y-auto"
             onClick={() => setSelectedProject(null)}
           >
             <button 
               type="button" 
               onClick={() => setSelectedProject(null)} 
-              className="fixed top-24 right-4 md:top-8 md:right-8 text-white hover:text-accent transition-colors z-[10000]"
+              className="fixed top-6 right-6 md:top-10 md:right-10 text-white hover:text-accent transition-colors z-[10000] bg-white/5 p-2 rounded-2xl backdrop-blur-md border border-white/10"
             >
-              <X size={32} />
+              <X size={24} />
             </button>
             <motion.div 
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 items-start my-auto mt-32 lg:mt-auto bg-white/5 border border-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-2xl shadow-2xl"
+              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 items-start my-auto mt-24 lg:mt-auto bg-white/5 border border-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
             >
-              <div className="border border-white/20 rounded-lg overflow-hidden flex flex-col gap-4 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto no-scrollbar">
+              <div className="border border-white/10 rounded-2xl overflow-hidden flex flex-col gap-4 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar bg-white/5 p-2">
                  {galleryImages.map((img) => (
                     <img 
                       key={img.id} 
                       src={img.hero_bg_desktop || img.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
                       alt="project" 
-                      className="w-full h-auto object-cover" 
+                      className="w-full h-auto object-cover rounded-xl shadow-lg" 
                     />
                  ))}
               </div>
-              <div className="text-left flex flex-col gap-6 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto no-scrollbar pr-2">
+              <div className="text-left flex flex-col gap-6 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar pr-2">
                 <div>
                   <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
-                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2 md:mt-4 leading-tight">{selectedProject.title}</h2>
-                  <p className="text-white/60 mt-4 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
+                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2 leading-tight">{selectedProject.title}</h2>
+                  <p className="text-white/70 mt-4 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
                 </div>
 
                 {selectedProject.tools && Array.isArray(selectedProject.tools) && selectedProject.tools.length > 0 && (
@@ -275,7 +275,7 @@ export default function SelectedWorks() {
                     <h3 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-3">Tools Used</h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedProject.tools.map((tool, i) => (
-                        <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/70">
+                        <span key={i} className="px-3 py-1 bg-white/10 border border-white/20 rounded-2xl text-xs text-white/80 backdrop-blur-md">
                           {tool}
                         </span>
                       ))}
@@ -286,14 +286,14 @@ export default function SelectedWorks() {
                 {selectedProject.process && (
                   <div>
                     <h3 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Process</h3>
-                    <p className="text-white/70 text-sm md:text-base leading-relaxed">{selectedProject.process}</p>
+                    <p className="text-white/70 text-sm md:text-base leading-relaxed whitespace-pre-wrap">{selectedProject.process}</p>
                   </div>
                 )}
 
                 {selectedProject.results && (
                   <div>
                     <h3 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Results</h3>
-                    <p className="text-white/70 text-sm md:text-base leading-relaxed">{selectedProject.results}</p>
+                    <p className="text-white/70 text-sm md:text-base leading-relaxed whitespace-pre-wrap">{selectedProject.results}</p>
                   </div>
                 )}
               </div>
