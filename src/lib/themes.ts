@@ -150,6 +150,9 @@ function getContrastYIQ(hexcolor: string) {
 export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   const root = document.documentElement;
   
+  // Set data attribute for global CSS targeting
+  root.setAttribute('data-theme', theme.id);
+  
   root.style.setProperty('--bg-primary', theme.bgPrimary);
   root.style.setProperty('--bg-secondary', theme.bgSecondary);
   root.style.setProperty('--bg-gradient', theme.bgGradient);
@@ -161,6 +164,9 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
 
   const accentContrast = getContrastYIQ(theme.accent);
   root.style.setProperty('--accent-contrast', accentContrast === 'white' ? '#FFFFFF' : '#000000');
+
+  // Save the theme locally immediately to prevent flashes on next load
+  localStorage.setItem('portfolio-theme', theme.id);
 
   window.dispatchEvent(new Event('storage'));
   setTimeout(() => { ScrollTrigger.refresh(); }, 150);
@@ -188,7 +194,19 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
 }
 
 export async function loadSavedTheme() {
-  console.log("[Theme Load] Fetching initial theme from database...");
+  console.log("[Theme Load] Fetching theme...");
+  
+  // 1. Immediately apply the local theme to bridge the gap while Supabase loads
+  const localThemeId = localStorage.getItem('portfolio-theme');
+  if (localThemeId) {
+    const localTheme = themePresets.find((t) => t.id === localThemeId);
+    if (localTheme) {
+      console.log(`[Theme Load] Applying local fallback: ${localTheme.id}`);
+      applyTheme(localTheme, false);
+    }
+  }
+
+  // 2. Then check Supabase for the global master theme
   try {
     const { data, error } = await supabase
       .from('site_config')
@@ -200,21 +218,27 @@ export async function loadSavedTheme() {
       console.error("[Theme Load] Failed to fetch theme:", error.message);
     } else if (data?.active_theme) {
       console.log(`[Theme Load] Found theme in DB: ${data.active_theme}`);
-      const theme = themePresets.find((t) => t.id === data.active_theme);
-      if (theme) {
-        applyTheme(theme, false);
-        return;
+      // Only apply if the DB theme is DIFFERENT from what we just loaded locally
+      if (data.active_theme !== localThemeId) {
+        const theme = themePresets.find((t) => t.id === data.active_theme);
+        if (theme) {
+          applyTheme(theme, false);
+          return;
+        }
       } else {
-        console.warn(`[Theme Load] Theme '${data.active_theme}' not found in presets array!`);
+        return; // They match, do nothing.
       }
     }
   } catch (error) {
     console.error("[Theme Load] Critical fetch crash:", error);
   }
 
-  console.log("[Theme Load] Falling back to default VOID theme.");
-  const defaultTheme = themePresets.find((t) => t.id === 'VOID');
-  if (defaultTheme) applyTheme(defaultTheme, false);
+  // 3. Absolute fallback only if both Local AND Supabase fail/are empty
+  if (!localThemeId) {
+    console.log("[Theme Load] Falling back to default VOID theme.");
+    const defaultTheme = themePresets.find((t) => t.id === 'VOID');
+    if (defaultTheme) applyTheme(defaultTheme, false);
+  }
 }
 
 export function subscribeToThemeChanges() {
