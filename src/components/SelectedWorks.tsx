@@ -64,7 +64,6 @@ export default function SelectedWorks() {
     fetchWorks();
   }, [fetchWorks]);
 
-  // TWEAK 1: Group by Name (1 card per project)
   useEffect(() => {
     const categoryFiltered = activeCategory === 'All' 
       ? projects 
@@ -80,7 +79,7 @@ export default function SelectedWorks() {
         uniqueProjects.push(p);
       }
     });
-
+    
     setFilteredProjects(uniqueProjects);
     
     if (swiperRef.current) {
@@ -140,8 +139,8 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      {/* TWEAK 2: Fixed Nav Padding (Raised higher, pt-24 instead of py-12 + pt-8) */}
-      <div className="relative z-10 h-screen min-h-[700px] flex flex-col justify-between px-6 md:px-16 pt-24 pb-8">
+      {/* TWEAK 1: Anchored category list closer to the top frame (pt-8 md:pt-12 instead of pt-24) */}
+      <div className="relative z-10 h-screen min-h-[700px] flex flex-col justify-between px-6 md:px-16 pt-8 md:pt-12 pb-8">
         
         {/* 2. GENRE NAVIGATION (Top Bar) */}
         <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4">
@@ -175,7 +174,6 @@ export default function SelectedWorks() {
                 <span className="text-accent text-sm font-black tracking-[0.3em] uppercase block mb-4">
                   {currentProject?.category}
                 </span>
-                {/* TWEAK 3: Scaled down giant Hero font size */}
                 <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
                   {currentProject?.title}
                 </h1>
@@ -190,10 +188,11 @@ export default function SelectedWorks() {
                   >
                     <Play size={20} fill="black" /> View Project
                   </button>
+                  {/* TWEAK 2: Fixed Glassmorphism - Added border, distinct background opacity, and shadow */}
                   <button 
                     type="button"
                     onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-2 bg-white/20 text-white px-8 py-3 font-bold rounded backdrop-blur-md hover:bg-white/30 transition-all"
+                    className="flex items-center gap-2 bg-white/10 border border-white/20 text-white px-8 py-3 font-bold rounded backdrop-blur-md shadow-lg hover:bg-white/20 transition-all"
                   >
                     <Info size={20} /> Details
                   </button>
@@ -211,7 +210,7 @@ export default function SelectedWorks() {
           
           {filteredProjects.length > 0 ? (
             <>
-              {/* TWEAK 4: Added Mobile Responsive Observers to Swiper */}
+              {/* TWEAK 3: Swiper Click Fix - Added slideToClickedSlide and ensured pointer events */}
               <Swiper
                 onSwiper={(s) => (swiperRef.current = s)}
                 modules={[Navigation]}
@@ -219,6 +218,9 @@ export default function SelectedWorks() {
                 slidesPerView={'auto'}
                 observer={true}
                 observeParents={true}
+                slideToClickedSlide={true}
+                preventClicks={false}
+                preventClicksPropagation={false}
                 navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
                 onSlideChange={(s) => setActiveIndex(s.realIndex)}
                 className="overflow-visible touch-pan-y"
@@ -227,9 +229,9 @@ export default function SelectedWorks() {
                   <SwiperSlide key={project.id} className="!w-[160px] md:!w-[240px]">
                     <div 
                       onClick={() => swiperRef.current?.slideTo(idx)}
-                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
+                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 pointer-events-auto ${
                         activeIndex === idx 
-                          ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' 
+                          ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20' 
                           : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
                       }`}
                     >
@@ -247,13 +249,13 @@ export default function SelectedWorks() {
               <div className="flex gap-4 mt-6">
                 <button 
                   type="button"
-                  className="rail-prev text-white/20 hover:text-white transition-colors"
+                  className="rail-prev text-white/20 hover:text-white transition-colors cursor-pointer relative z-50"
                 >
                   <ChevronLeft size={24} />
                 </button>
                 <button 
                   type="button"
-                  className="rail-next text-white/20 hover:text-white transition-colors"
+                  className="rail-next text-white/20 hover:text-white transition-colors cursor-pointer relative z-50"
                 >
                   <ChevronRight size={24} />
                 </button>
@@ -274,7 +276,8 @@ export default function SelectedWorks() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/95 backdrop-blur-lg overflow-y-auto"
+            /* TWEAK 4: Modal Glassmorphism - Adjusted background to truly frost the background instead of blacking it out */
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-2xl overflow-y-auto"
             onClick={() => setSelectedProject(null)}
           >
             <button 
@@ -303,11 +306,10 @@ export default function SelectedWorks() {
                 <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">
                   {selectedProject.category}
                 </span>
-                {/* TWEAK 3: Scaled down giant Modal font size */}
                 <h2 className="text-white text-3xl md:text-5xl font-black uppercase mt-4 leading-tight">
                   {selectedProject.title}
                 </h2>
-                <p className="text-white/60 mt-6 text-sm md:text-lg leading-relaxed font-light">
+                <p className="text-white/60 mt-6 text-sm md:text-base leading-relaxed font-light">
                   {selectedProject.description || "A stunning visual creation from our portfolio."}
                 </p>
                 <div className="mt-12 h-[1px] w-full bg-white/10" />
