@@ -67,6 +67,15 @@ export default function SelectedWorks() {
     
     setFilteredProjects(uniqueProjects);
     setActiveIndex(0);
+    
+    // Reset swiper when category changes
+    if (swiperRef.current) {
+      const swiper = swiperRef.current as any;
+      if (typeof swiper.slideToLoop === 'function') {
+        swiper.slideToLoop(0, 0);
+      }
+      swiper.update();
+    }
   }, [activeCategory, projects]);
 
   if (loading) return (
@@ -79,14 +88,6 @@ export default function SelectedWorks() {
   const galleryImages = selectedProject 
     ? projects.filter(p => p.title.trim() === selectedProject.title.trim())
     : [];
-
-  // Duplicate cards manually to prevent Swiper loop panic on small datasets
-  const loopProjects = [...filteredProjects];
-  if (loopProjects.length > 0 && loopProjects.length < 8) {
-    while (loopProjects.length < 8) {
-      loopProjects.push(...filteredProjects);
-    }
-  }
 
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
@@ -161,37 +162,41 @@ export default function SelectedWorks() {
             Up Next in Portfolio
           </h2>
           
-          <div className="relative w-full pointer-events-auto">
-            {loopProjects.length > 0 && (
-              <Swiper
-                key={`swiper-${activeCategory}`}
-                onSwiper={(s) => (swiperRef.current = s)}
-                modules={[Navigation]}
-                spaceBetween={16}
-                slidesPerView={'auto'}
-                loop={true}
-                observer={true}
-                observeParents={true}
-                onSlideChange={(s) => setActiveIndex(s.realIndex)}
-                className="overflow-visible !pointer-events-auto"
-              >
-                {loopProjects.map((project, idx) => {
-                  const realIdx = idx % filteredProjects.length;
-                  return (
-                    <SwiperSlide key={`${project.id}-${idx}`} className="!w-[140px] sm:!w-[180px] md:!w-[240px]">
-                      <div 
-                        onClick={() => (swiperRef.current as any)?.slideToLoop(realIdx)}
-                        className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] pointer-events-auto ${
-                          activeIndex === realIdx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
-                        }`}
-                      >
-                        <img src={project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
-                      </div>
-                    </SwiperSlide>
-                  );
-                })}
-              </Swiper>
-            )}
+          <div className="relative w-full">
+            <Swiper
+              key={`swiper-${activeCategory}-${filteredProjects.length}`}
+              onSwiper={(s) => (swiperRef.current = s)}
+              modules={[Navigation]}
+              spaceBetween={16}
+              slidesPerView={'auto'}
+              loop={filteredProjects.length > 2} // Safe loop trigger
+              onSlideChange={(s) => setActiveIndex(s.realIndex)}
+              // THE FIX: Intercept native Swiper clicks, bypass React dead zones
+              onClick={(swiper) => {
+                if (swiper.clickedSlide) {
+                  const realIndex = swiper.clickedSlide.getAttribute('data-swiper-slide-index');
+                  if (realIndex !== null) {
+                    const idx = parseInt(realIndex, 10);
+                    (swiper as any).slideToLoop(idx);
+                    setActiveIndex(idx);
+                  }
+                }
+              }}
+              className="overflow-visible"
+            >
+              {filteredProjects.map((project, idx) => (
+                <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[240px]">
+                  <div 
+                    // REMOVED React onClick entirely from here
+                    className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] pointer-events-auto ${
+                      activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
+                    }`}
+                  >
+                    <img src={project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       </div>
@@ -232,4 +237,4 @@ export default function SelectedWorks() {
       <style jsx global>{`.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
     </section>
   );
-}
+      }
