@@ -64,7 +64,6 @@ export default function SelectedWorks() {
     fetchWorks();
   }, [fetchWorks]);
 
-  // FIX 1: Group projects by name so only one card shows per project
   useEffect(() => {
     const categoryFiltered = activeCategory === 'All' 
       ? projects 
@@ -83,7 +82,7 @@ export default function SelectedWorks() {
     
     setFilteredProjects(uniqueProjects);
     
-    if (swiperRef.current && !swiperRef.current.destroyed) {
+    if (swiperRef.current) {
       swiperRef.current.slideTo(0, 0);
       swiperRef.current.update();
     }
@@ -114,7 +113,7 @@ export default function SelectedWorks() {
   const currentProject = filteredProjects[activeIndex];
 
   return (
-    <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
+    <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
       
       {/* 1. DYNAMIC BACKGROUND (The Netflix Poster) */}
       <AnimatePresence mode="wait">
@@ -140,19 +139,18 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      {/* FIX 2: Fixed padding/margins so nav sits higher and layout stays contained */}
-      <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pt-20 pb-8 md:pb-12">
+      <div className="relative z-10 h-screen min-h-[700px] flex flex-col justify-between px-6 md:px-16 pt-24 pb-8">
         
         {/* 2. GENRE NAVIGATION (Top Bar) */}
-        <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-2">
+        <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setActiveCategory(cat)}
-              className={`text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+              className={`text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
                 activeCategory === cat 
-                  ? 'text-white scale-105 border-b-2 border-accent pb-1' 
+                  ? 'text-white scale-110' 
                   : 'text-white/40 hover:text-white'
               }`}
             >
@@ -161,105 +159,107 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. BOTTOM STACK (Hero + Rail) */}
-        <div className="mt-auto flex flex-col gap-8 md:gap-12">
-          
-          <div className="max-w-3xl">
-            <AnimatePresence mode="wait">
-              {currentProject && (
-                <motion.div
-                  key={currentProject?.id}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -20, opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.3em] uppercase block mb-3 md:mb-4">
-                    {currentProject?.category}
-                  </span>
-                  {/* FIX 3: Reduced giant font sizes */}
-                  <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[1] mb-4 md:mb-6">
-                    {currentProject?.title}
-                  </h1>
-                  <p className="text-white/70 text-sm md:text-lg font-light leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3 md:line-clamp-none">
-                    {currentProject?.description || "Pushing the boundaries of creative excellence and innovative design."}
-                  </p>
-                  <div className="flex flex-wrap gap-3 md:gap-4">
-                    <button 
-                      type="button"
-                      onClick={() => setSelectedProject(currentProject)}
-                      className="flex items-center gap-2 bg-white text-black px-6 py-2.5 md:px-8 md:py-3 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-white/80 transition-all"
-                    >
-                      <Play size={16} fill="black" /> View Project
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => setSelectedProject(currentProject)}
-                      className="flex items-center gap-2 bg-white/10 text-white px-6 py-2.5 md:px-8 md:py-3 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-sm backdrop-blur-md hover:bg-white/20 transition-all"
-                    >
-                      <Info size={16} /> Details
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* 4. UP NEXT RAIL (Bottom Swiper) */}
-          <div className="w-full">
-            <h2 className="text-white/50 text-[9px] md:text-xs font-bold uppercase tracking-[0.2em] mb-3 md:mb-4">
-              Up Next in Portfolio
-            </h2>
-            
-            {filteredProjects.length > 0 ? (
-              <div className="relative">
-                <Swiper
-                  onSwiper={(s) => (swiperRef.current = s)}
-                  modules={[Navigation]}
-                  spaceBetween={16}
-                  slidesPerView={'auto'}
-                  observer={true}
-                  observeParents={true}
-                  navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
-                  onSlideChange={(s) => setActiveIndex(s.realIndex)}
-                  className="!overflow-visible touch-pan-y"
-                >
-                  {filteredProjects.map((project, idx) => (
-                    <SwiperSlide key={project.id} className="!w-[140px] md:!w-[240px]">
-                      <div 
-                        onClick={() => swiperRef.current?.slideTo(idx)}
-                        className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
-                          activeIndex === idx 
-                            ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)] z-20 opacity-100' 
-                            : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
-                        }`}
-                      >
-                        <img 
-                          src={project.image_url} 
-                          className="w-full h-full object-cover" 
-                          alt={project.title} 
-                        />
-                      </div>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-                
-                {/* Mini Nav Controls */}
-                <div className="absolute right-0 -top-8 flex gap-2">
-                  <button type="button" className="rail-prev text-white/30 hover:text-white transition-colors">
-                    <ChevronLeft size={20} />
+        {/* 3. HERO CONTENT (The Movie Info) */}
+        <div className="max-w-3xl mb-12">
+          <AnimatePresence mode="wait">
+            {currentProject && (
+              <motion.div
+                key={currentProject?.id}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -20, opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <span className="text-accent text-sm font-black tracking-[0.3em] uppercase block mb-4">
+                  {currentProject?.category}
+                </span>
+                <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
+                  {currentProject?.title}
+                </h1>
+                <p className="text-white/70 text-sm md:text-lg font-light leading-relaxed mb-8 max-w-2xl line-clamp-3 md:line-clamp-none">
+                  {currentProject?.description || "Pushing the boundaries of creative excellence and innovative design."}
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <button 
+                    type="button"
+                    onClick={() => setSelectedProject(currentProject)}
+                    className="flex items-center gap-2 bg-white text-black px-8 py-3 font-bold rounded hover:bg-white/80 transition-all"
+                  >
+                    <Play size={20} fill="black" /> View Project
                   </button>
-                  <button type="button" className="rail-next text-white/30 hover:text-white transition-colors">
-                    <ChevronRight size={20} />
+                  <button 
+                    type="button"
+                    onClick={() => setSelectedProject(currentProject)}
+                    className="flex items-center gap-2 bg-white/20 text-white px-8 py-3 font-bold rounded backdrop-blur-md hover:bg-white/30 transition-all"
+                  >
+                    <Info size={20} /> Details
                   </button>
                 </div>
-              </div>
-            ) : (
-              <div className="text-white/10 text-[10px] font-black uppercase tracking-[0.2em]">
-                No projects available
-              </div>
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
+        </div>
+
+        {/* 4. UP NEXT RAIL (Bottom Swiper) */}
+        <div className="w-full pb-8">
+          <h2 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em] mb-4">
+            Up Next in Portfolio
+          </h2>
+          
+          {filteredProjects.length > 0 ? (
+            <>
+              <Swiper
+                onSwiper={(s) => (swiperRef.current = s)}
+                modules={[Navigation]}
+                spaceBetween={16}
+                slidesPerView={'auto'}
+                observer={true}
+                observeParents={true}
+                navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
+                onSlideChange={(s) => setActiveIndex(s.realIndex)}
+                className="overflow-visible touch-pan-y"
+              >
+                {filteredProjects.map((project, idx) => (
+                  <SwiperSlide key={project.id} className="!w-[160px] md:!w-[240px]">
+                    <div 
+                      onClick={() => swiperRef.current?.slideTo(idx)}
+                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 ${
+                        activeIndex === idx 
+                          ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' 
+                          : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
+                      }`}
+                    >
+                      <img 
+                        src={project.image_url} 
+                        className="w-full h-full object-cover" 
+                        alt={project.title} 
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              
+              {/* Mini Nav Controls */}
+              <div className="flex gap-4 mt-6">
+                <button 
+                  type="button"
+                  className="rail-prev text-white/20 hover:text-white transition-colors"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <button 
+                  type="button"
+                  className="rail-next text-white/20 hover:text-white transition-colors"
+                >
+                  <ChevronRight size={24} />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="text-white/10 text-xs font-black uppercase tracking-[0.2em]">
+              No projects available
+            </div>
+          )}
         </div>
       </div>
 
@@ -270,25 +270,25 @@ export default function SelectedWorks() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl overflow-y-auto"
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/95 backdrop-blur-lg overflow-y-auto"
             onClick={() => setSelectedProject(null)}
           >
             <button 
               type="button"
               onClick={() => setSelectedProject(null)} 
-              className="fixed top-6 right-6 md:top-10 md:right-10 text-white/50 hover:text-accent transition-colors z-[1001]"
+              className="absolute top-8 right-8 text-white hover:text-accent transition-colors z-[1001]"
             >
-              <X size={32} />
+              <X size={40} />
             </button>
             
             <motion.div 
-              initial={{ scale: 0.95, y: 10 }} 
+              initial={{ scale: 0.9, y: 20 }} 
               animate={{ scale: 1, y: 0 }} 
               transition={{ duration: 0.3 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 items-center my-auto"
+              className="max-w-6xl w-full grid lg:grid-cols-2 gap-12 items-center my-auto"
             >
-              <div className="border border-white/10 rounded-sm overflow-hidden shadow-2xl">
+              <div className="border border-white/20 rounded-lg overflow-hidden">
                 <img 
                   src={selectedProject.image_url} 
                   alt={selectedProject.title} 
@@ -296,23 +296,22 @@ export default function SelectedWorks() {
                 />
               </div>
               <div className="text-left">
-                <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase">
+                <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">
                   {selectedProject.category}
                 </span>
-                {/* FIX 3: Reduced giant modal font sizes */}
                 <h2 className="text-white text-3xl md:text-5xl font-black uppercase mt-4 leading-tight">
                   {selectedProject.title}
                 </h2>
                 <p className="text-white/60 mt-6 text-sm md:text-base leading-relaxed font-light">
                   {selectedProject.description || "A stunning visual creation from our portfolio."}
                 </p>
-                <div className="mt-10 h-[1px] w-full bg-white/10" />
+                <div className="mt-12 h-[1px] w-full bg-white/10" />
                 <div className="mt-8">
                   <button 
                     type="button"
-                    className="flex items-center gap-2 bg-accent text-black px-8 py-3 text-xs font-black uppercase tracking-widest rounded-sm hover:bg-accent/80 transition-all"
+                    className="flex items-center gap-2 bg-accent text-black px-8 py-3 font-bold rounded hover:bg-accent/80 transition-all"
                   >
-                    <Play size={16} fill="black" /> Explore Project
+                    <Play size={20} fill="black" /> Explore Project
                   </button>
                 </div>
               </div>
@@ -320,7 +319,7 @@ export default function SelectedWorks() {
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
