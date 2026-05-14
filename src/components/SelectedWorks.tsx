@@ -6,7 +6,6 @@ import { Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
-// Swiper Styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -90,7 +89,6 @@ export default function SelectedWorks() {
     : [];
 
   return (
-    {/* FONT FIX: Removed "font-sans" from this tag so it inherits your site's custom font */}
     <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden">
       
       <AnimatePresence mode="wait">
@@ -175,7 +173,6 @@ export default function SelectedWorks() {
             </h2>
             
             <div className="relative w-full">
-              {/* CLICK FIX: Removed all pointer-events hacks from Swiper elements */}
               <Swiper
                 onSwiper={(s) => (swiperRef.current = s)}
                 modules={[Navigation]}
