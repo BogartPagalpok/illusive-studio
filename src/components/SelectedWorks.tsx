@@ -89,6 +89,7 @@ export default function SelectedWorks() {
     : [];
 
   return (
+    {/* Removed hardcoded font-sans so your global theme applies naturally */}
     <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden">
       
       <AnimatePresence mode="wait">
@@ -102,12 +103,12 @@ export default function SelectedWorks() {
             className="absolute inset-0 z-0"
           >
             <img 
-              src={currentProject.hero_bg_mobile || currentProject.image_url} 
+              src={currentProject.hero_bg_mobile || currentProject.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
               className="w-full h-full object-cover md:hidden" 
               alt="bg mobile" 
             />
             <img 
-              src={currentProject.hero_bg_desktop || currentProject.image_url} 
+              src={currentProject.hero_bg_desktop || currentProject.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
               className="hidden md:block w-full h-full object-cover" 
               alt="bg desktop" 
             />
@@ -125,7 +126,7 @@ export default function SelectedWorks() {
               key={cat}
               type="button"
               onClick={() => setActiveCategory(cat)}
-              className={`text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+              className={`text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
                 activeCategory === cat ? 'text-white scale-110' : 'text-white/40 hover:text-white'
               }`}
             >
@@ -146,19 +147,21 @@ export default function SelectedWorks() {
                   exit={{ y: -20, opacity: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <span className="text-accent text-[10px] md:text-sm font-black tracking-[0.3em] uppercase block mb-2 md:mb-4">
+                  <span className="text-accent text-xs font-bold tracking-[0.2em] uppercase block mb-2 md:mb-4">
                     {currentProject.category}
                   </span>
-                  <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-black uppercase tracking-tighter leading-[0.9] mb-3 md:mb-6 line-clamp-2">
+                  {/* Changed font-black to font-bold, softened sizing slightly */}
+                  <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight leading-none mb-3 md:mb-4 line-clamp-2">
                     {currentProject.title}
                   </h1>
-                  <p className="text-white/70 text-xs sm:text-sm md:text-lg font-light leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3">
+                  {/* Standardized to text-sm md:text-base, removed font-light */}
+                  <p className="text-white/70 text-sm md:text-base leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3">
                     {currentProject.description}
                   </p>
                   <button 
                     type="button"
                     onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-2 bg-white text-black px-6 py-2.5 md:px-8 md:py-3 text-[10px] md:text-xs font-bold rounded hover:bg-white/80 transition-all uppercase tracking-widest"
+                    className="flex items-center gap-2 bg-white text-black px-6 py-2.5 md:px-8 md:py-3 text-xs font-bold rounded hover:bg-white/80 transition-all uppercase tracking-wider"
                   >
                     <Play size={16} fill="black" /> View Project
                   </button>
@@ -168,7 +171,7 @@ export default function SelectedWorks() {
           </div>
 
           <div className="w-full relative z-50">
-            <h2 className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
+            <h2 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em] mb-4">
               Up Next in Portfolio
             </h2>
             
@@ -192,15 +195,19 @@ export default function SelectedWorks() {
                         setActiveIndex(idx);
                         swiperRef.current?.slideTo(idx);
                       }}
-                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] ${
+                      className={`relative aspect-video bg-white/5 cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] flex items-center justify-center ${
                         activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
                       }`}
                     >
-                      <img 
-                        src={project.card_thumbnail || project.image_url} 
-                        className="w-full h-full object-cover pointer-events-none" 
-                        alt="thumb" 
-                      />
+                      {(project.card_thumbnail || project.image_url) ? (
+                        <img 
+                          src={project.card_thumbnail || project.image_url} 
+                          className="w-full h-full object-cover pointer-events-none" 
+                          alt={project.title} 
+                        />
+                      ) : (
+                        <span className="text-white/20 text-xs">No Image</span>
+                      )}
                     </div>
                   </SwiperSlide>
                 ))}
@@ -230,15 +237,20 @@ export default function SelectedWorks() {
               onClick={(e) => e.stopPropagation()}
               className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 items-start my-auto mt-32 lg:mt-auto bg-white/5 border border-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-2xl shadow-2xl"
             >
-              <div className="border border-white/20 rounded-lg overflow-hidden flex flex-col gap-4 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto no-scrollbar">
+              <div className="border border-white/20 rounded-lg overflow-hidden flex flex-col gap-4 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto no-scrollbar bg-black/20">
                  {galleryImages.map((img) => (
-                    <img key={img.id} src={img.hero_bg_desktop || img.image_url} alt="project" className="w-full h-auto object-cover" />
+                    <img 
+                      key={img.id} 
+                      src={img.hero_bg_desktop || img.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
+                      alt="project" 
+                      className="w-full h-auto object-cover" 
+                    />
                  ))}
               </div>
               <div className="text-left">
-                <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase">{selectedProject.category}</span>
-                <h2 className="text-white text-3xl sm:text-4xl lg:text-6xl font-black uppercase mt-2 md:mt-4 leading-tight">{selectedProject.title}</h2>
-                <p className="text-white/60 mt-4 md:mt-8 text-sm md:text-lg leading-relaxed font-light">{selectedProject.description}</p>
+                <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
+                <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2 md:mt-4 leading-tight">{selectedProject.title}</h2>
+                <p className="text-white/60 mt-4 md:mt-8 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
               </div>
             </motion.div>
           </motion.div>
