@@ -45,7 +45,7 @@ export default function SelectedWorks() {
 
   useEffect(() => { fetchWorks(); }, [fetchWorks]);
 
-  // MECHANICAL GROUPING: This is the logic to stop the clutter.
+  // STRICT GROUPING: Merges rows with the same name into 1 unique card
   const projects = useMemo(() => {
     const unique: Project[] = [];
     const seen = new Set<string>();
@@ -78,7 +78,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* BACKGROUND ENGINE */}
+      {/* 1. BACKGROUND */}
       <div className="absolute inset-0 z-0">
         {current && (
           <motion.img 
@@ -86,7 +86,6 @@ export default function SelectedWorks() {
             src={current.image_url} 
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.4 }}
-            transition={{ duration: 0.8 }}
             className="w-full h-full object-cover pointer-events-none" 
             alt="bg" 
           />
@@ -97,7 +96,7 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pb-12">
         
-        {/* FIX: CATEGORIES TOP-LEFT & HIGHER PADDING */}
+        {/* 2. CATEGORIES - TOP LEFT FIXED */}
         <div className="flex gap-6 items-center pt-32 md:pt-40 justify-start overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
@@ -112,21 +111,16 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* FIX: HERO + RAIL PINNED TO BOTTOM */}
+        {/* 3. HERO + RAIL PINNED TO BOTTOM */}
         <div className="mt-auto flex flex-col gap-10">
           
           <div className="max-w-4xl">
             {current && (
-              <motion.div 
-                key={`hero-${current.id}`}
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className="transition-all duration-500"
-              >
+              <div className="transition-all duration-500">
                 <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
                   {current.category}
                 </span>
-                {/* FIX: DESKTOP FONT CAP */}
+                {/* 4. FONT CAP FOR DESKTOP */}
                 <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
                   {current.title}
                 </h1>
@@ -139,12 +133,11 @@ export default function SelectedWorks() {
                 >
                   <Play size={14} fill="black" /> View Project
                 </button>
-              </motion.div>
+              </div>
             )}
           </div>
 
-          {/* RAIL ENGINE */}
-          <div className="w-full relative select-none">
+          <div className="w-full">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">Portfolio Rail</h2>
               <div className="flex gap-4">
@@ -181,7 +174,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* GALLERY MODAL */}
+      {/* 5. GALLERY MODAL */}
       <AnimatePresence>
         {selectedTitle && (
           <motion.div 
@@ -189,13 +182,13 @@ export default function SelectedWorks() {
             className="fixed inset-0 z-[1000] bg-black/98 backdrop-blur-3xl overflow-y-auto"
           >
             <div className="sticky top-0 z-[1001] flex justify-between items-center px-8 py-8 bg-black/80 backdrop-blur-md">
-              <h2 className="text-white text-2xl font-black uppercase">{selectedTitle}</h2>
+              <h2 className="text-white text-2xl font-black uppercase tracking-tighter">{selectedTitle}</h2>
               <button onClick={() => setSelectedTitle(null)} className="text-white/50 hover:text-white"><X size={32} /></button>
             </div>
             <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
               {gallery.map((img) => (
                 <div key={img.id}>
-                  <img src={img.image_url} className="w-full border border-white/10 shadow-2xl" alt="gallery" />
+                  <img src={img.image_url} className="w-full border border-white/10" alt="gallery-img" />
                 </div>
               ))}
             </div>
