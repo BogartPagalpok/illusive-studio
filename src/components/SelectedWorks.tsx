@@ -35,9 +35,9 @@ export default function SelectedWorks() {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      if (data) setAllData(data);
+      setAllData(data || []);
     } catch (err) {
-      console.error("Fetch failed");
+      console.error("Supabase link failed");
     } finally {
       setLoading(false);
     }
@@ -45,14 +45,14 @@ export default function SelectedWorks() {
 
   useEffect(() => { fetchWorks(); }, [fetchWorks]);
 
-  // GROUPING: Merge rows with same title into one card for the rail
+  // GROUPING LOGIC: Merges same-named rows into 1 card
   const projects = useMemo(() => {
     const unique: Project[] = [];
     const seen = new Set<string>();
-    allData.forEach(p => {
-      if (!seen.has(p.title)) {
-        seen.add(p.title);
-        unique.push(p);
+    allData.forEach(item => {
+      if (!seen.has(item.title)) {
+        seen.add(item.title);
+        unique.push(item);
       }
     });
     return activeCategory === 'All' ? unique : unique.filter(p => p.category === activeCategory);
@@ -79,7 +79,7 @@ export default function SelectedWorks() {
       <AnimatePresence mode="wait">
         {current && (
           <motion.div
-            key={current.id}
+            key={`bg-${current.id}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -110,17 +110,17 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO + RAIL - PINNED TO BOTTOM */}
+        {/* 3. HERO + RAIL ANCHORED BOTTOM */}
         <div className="mt-auto flex flex-col gap-10">
           
           <div className="max-w-4xl">
             {current && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="transition-all duration-500">
                 <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
                   {current.category}
                 </span>
                 {/* 4. DESKTOP FONT SCALE FIX */}
-                <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
+                <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
                   {current.title}
                 </h1>
                 <p className="text-white/60 text-xs md:text-base font-light leading-relaxed mb-8 max-w-xl line-clamp-3">
@@ -140,8 +140,8 @@ export default function SelectedWorks() {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-white/20 text-[9px] font-black uppercase tracking-[0.3em]">Up Next In Portfolio</h2>
               <div className="flex gap-4">
-                <button type="button" className="rail-prev text-white/40 hover:text-white transition-all"><ChevronLeft size={20} /></button>
-                <button type="button" className="rail-next text-white/40 hover:text-white transition-all"><ChevronRight size={20} /></button>
+                <button type="button" className="rail-prev text-white/40 hover:text-white"><ChevronLeft size={20} /></button>
+                <button type="button" className="rail-next text-white/40 hover:text-white"><ChevronRight size={20} /></button>
               </div>
             </div>
             
@@ -186,7 +186,7 @@ export default function SelectedWorks() {
             <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-12">
               {gallery.map((img) => (
                 <div key={img.id}>
-                  <img src={img.image_url} className="w-full border border-white/10 shadow-2xl" alt="gallery" />
+                  <img src={img.image_url} className="w-full border border-white/10 shadow-2xl" alt="gallery-img" />
                 </div>
               ))}
             </div>
