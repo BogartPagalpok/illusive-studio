@@ -1,96 +1,40 @@
-import { useEffect } from 'react';
-
-export function useHoveringPenFavicon() {
-  useEffect(() => {
-    const canvas = document.createElement('canvas');
-    // 64x64 ensures it remains sharp on high-DPI retina displays
-    canvas.width = 64;
-    canvas.height = 64;
-    const ctx = canvas.getContext('2d');
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ian Lester Eclevia | Designer & Virtual Assistant</title>
     
-    let link = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
-    if (!link) {
-      link = document.createElement('link');
-      document.head.appendChild(link);
-    }
-    link.type = 'image/png';
-    link.rel = 'icon';
-
-    let animationId: number;
-
-    const animate = () => {
-      if (!ctx) return;
-
-      // Dynamically pull the active theme's accent color
-      const rootStyle = getComputedStyle(document.documentElement);
-      const accent = rootStyle.getPropertyValue('--accent').trim() || '#00ffcc';
-      // Use a secondary contrasting color for the bezier nodes (defaulting to purple)
-      const nodeColor = '#a855f7'; 
-
-      ctx.clearRect(0, 0, 64, 64);
-
-      // --- 1. Draw Bezier Curve & Nodes (Static Background) ---
-      ctx.beginPath();
-      ctx.moveTo(12, 44);
-      ctx.bezierCurveTo(12, 20, 52, 20, 52, 44);
-      ctx.strokeStyle = nodeColor;
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      // Square Nodes
-      ctx.fillStyle = nodeColor;
-      ctx.fillRect(8, 40, 8, 8);  // Left
-      ctx.fillRect(48, 40, 8, 8); // Right
-      ctx.fillRect(28, 16, 8, 8); // Top Center
-
-      // --- 2. Calculate Smooth Hover Offset ---
-      // Divisor controls speed; multiplier controls height
-      const time = Date.now() / 250; 
-      const yOffset = Math.sin(time) * 4; 
-
-      // --- 3. Draw Pen Tool (Hovering Element) ---
-      ctx.save();
-      ctx.translate(0, yOffset);
-
-      // Outer Pen Shape
-      ctx.beginPath();
-      ctx.moveTo(32, 24); // Sharp Tip
-      ctx.lineTo(44, 46); // Right Edge
-      ctx.lineTo(38, 46); // Right Inner Base
-      ctx.lineTo(38, 56); // Right Bottom
-      ctx.lineTo(26, 56); // Left Bottom
-      ctx.lineTo(26, 46); // Left Inner Base
-      ctx.lineTo(20, 46); // Left Edge
-      ctx.closePath();
-
-      ctx.strokeStyle = accent;
-      ctx.lineWidth = 4;
-      ctx.lineJoin = 'round';
-      ctx.stroke();
-
-      // Center Vertical Line
-      ctx.beginPath();
-      ctx.moveTo(32, 24);
-      ctx.lineTo(32, 46);
-      ctx.stroke();
-
-      // Bottom Horizontal Detail Line
-      ctx.beginPath();
-      ctx.moveTo(26, 51);
-      ctx.lineTo(38, 51);
-      ctx.stroke();
-
-      ctx.restore();
-
-      // Apply the generated frame to the browser tab
-      link.href = canvas.toDataURL('image/png');
-      
-      // Loop the animation
-      animationId = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => cancelAnimationFrame(animationId);
-  }, []);
-}
+    <meta name="description" content="Professional portfolio of Ian Lester Eclevia, specializing in graphic design, photography, and digital brand systems." />
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Ian Lester Eclevia | Designer & Virtual Assistant" />
+    <meta property="og:description" content="Professional portfolio of Ian Lester Eclevia, specializing in graphic design, photography, and digital brand systems." />
+    <meta property="og:image" content="https://bolt.new/static/og_default.png" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Ian Lester Eclevia | Designer & Virtual Assistant" />
+    <meta name="twitter:description" content="Professional portfolio of Ian Lester Eclevia, specializing in graphic design, photography, and digital brand systems." />
+    <meta name="twitter:image" content="https://bolt.new/static/og_default.png" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@400;500;600;700;800;900&family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700;900&family=Manrope:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Nunito:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Raleway:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=VT323&display=swap" rel="stylesheet" />
+    <script>
+      (function() {
+        try {
+          var storedTheme = localStorage.getItem('portfolio-theme');
+          if (storedTheme) {
+            document.documentElement.setAttribute('data-theme', storedTheme);
+            document.documentElement.classList.add(storedTheme);
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
