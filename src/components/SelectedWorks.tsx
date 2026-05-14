@@ -14,9 +14,8 @@ interface Project {
   id: string;
   title: string;
   category: string;
-  image_url: string; // Fallback for old projects
+  image_url: string; 
   description?: string;
-  // New Admin Upload Fields
   card_thumbnail?: string;
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
@@ -91,10 +90,8 @@ export default function SelectedWorks() {
     : [];
 
   return (
-    {/* Navbar Fix: Changed overflow-hidden to overflow-x-hidden so vertical scrolling triggers the navbar */}
     <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND - Lighter Tint & Responsive Admin Images */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -105,13 +102,11 @@ export default function SelectedWorks() {
             transition={{ duration: 1 }}
             className="absolute inset-0 z-0"
           >
-            {/* Mobile Hero Background */}
             <img 
               src={currentProject.hero_bg_mobile || currentProject.image_url} 
               className="w-full h-full object-cover md:hidden" 
               alt="bg mobile" 
             />
-            {/* Desktop Hero Background */}
             <img 
               src={currentProject.hero_bg_desktop || currentProject.image_url} 
               className="hidden md:block w-full h-full object-cover" 
@@ -123,10 +118,8 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      {/* Navbar Fix: Adjusted pt to clear the fixed navbar without overlapping */}
       <div className="relative z-10 h-screen min-h-[700px] flex flex-col px-6 md:px-16 pt-28 pb-8 md:pt-32 md:pb-12">
         
-        {/* 2. GENRE NAVIGATION */}
         <div className="flex gap-6 md:gap-8 items-center pt-0 mt-8 overflow-x-auto no-scrollbar pb-4">
           {CATEGORIES.map((cat) => (
             <button
@@ -142,7 +135,6 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO CONTENT - Bottom Left Corner Alignment */}
         <div className="max-w-3xl mt-auto mb-6 md:mb-8">
           <AnimatePresence mode="wait">
             {currentProject && (
@@ -174,7 +166,6 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
-        {/* 4. UP NEXT RAIL - Clickable fix */}
         <div className="w-full pb-4 md:pb-8 relative z-50">
           <h2 className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
             Up Next in Portfolio
@@ -214,7 +205,6 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* LIGHTBOX MODAL - Fixed Glassmorphism & Exit Z-index */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
