@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
-import { Play, Loader2, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
@@ -40,7 +40,7 @@ export default function SelectedWorks() {
       if (dbError) throw dbError;
       setProjects(data || []);
     } catch (err: unknown) {
-      console.error("DB Error:", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -69,8 +69,11 @@ export default function SelectedWorks() {
     setFilteredProjects(uniqueProjects);
     
     if (swiperRef.current) {
-      (swiperRef.current as any).slideToLoop?.(0, 0);
-      swiperRef.current.update();
+      const swiper = swiperRef.current as any;
+      if (swiper.slideToLoop) {
+        swiper.slideToLoop(0, 0);
+      }
+      swiper.update();
     }
     setActiveIndex(0);
   }, [activeCategory, projects]);
@@ -89,7 +92,6 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -109,7 +111,6 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 h-screen min-h-[700px] flex flex-col px-6 md:px-16 py-8 md:py-12">
         
-        {/* 2. GENRE NAVIGATION */}
         <div className="flex gap-6 md:gap-8 items-center mt-8 overflow-x-auto no-scrollbar pb-4">
           {CATEGORIES.map((cat) => (
             <button
@@ -125,7 +126,6 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO CONTENT */}
         <div className="max-w-3xl mt-auto mb-6 md:mb-10">
           <AnimatePresence mode="wait">
             {currentProject && (
@@ -137,7 +137,7 @@ export default function SelectedWorks() {
                 transition={{ duration: 0.5 }}
                 className="flex flex-col"
               >
-                <span className="text-accent text-[9px] md:text-sm font-black tracking-[0.3em] uppercase block mb-3 md:mb-4">
+                <span className="text-accent text-[9px] md:text-sm font-black tracking-[0.3em] uppercase block mb-3">
                   {currentProject.category}
                 </span>
                 <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-4">
@@ -160,7 +160,6 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
-        {/* 4. UP NEXT RAIL */}
         <div className="w-full pb-8 relative z-50">
           <h2 className="text-white/50 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">
             Up Next in Portfolio
@@ -174,7 +173,6 @@ export default function SelectedWorks() {
               slidesPerView={'auto'}
               loop={filteredProjects.length > 1}
               loopedSlides={filteredProjects.length}
-              navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
               onSlideChange={(s) => setActiveIndex(s.realIndex)}
               className="overflow-visible"
             >
@@ -191,20 +189,10 @@ export default function SelectedWorks() {
                 </SwiperSlide>
               ))}
             </Swiper>
-            
-            <div className="flex gap-4 mt-4">
-              <button type="button" className="rail-prev text-white/30 hover:text-white transition-colors cursor-pointer z-[70]">
-                <ChevronLeft size={20} />
-              </button>
-              <button type="button" className="rail-next text-white/30 hover:text-white transition-colors cursor-pointer z-[70]">
-                <ChevronRight size={20} />
-              </button>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* LIGHTBOX MODAL */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
@@ -233,10 +221,6 @@ export default function SelectedWorks() {
                 <span className="text-accent text-[10px] md:text-xs font-black tracking-[0.4em] uppercase">{selectedProject.category}</span>
                 <h2 className="text-white text-3xl sm:text-4xl lg:text-6xl font-black uppercase mt-2 md:mt-4 leading-tight">{selectedProject.title}</h2>
                 <p className="text-white/60 mt-4 md:mt-8 text-sm md:text-lg leading-relaxed font-light">{selectedProject.description}</p>
-                <div className="mt-8 h-[1px] w-full bg-white/10" />
-                <button type="button" onClick={() => setSelectedProject(null)} className="mt-8 flex items-center gap-2 bg-accent text-black px-8 py-3 text-[10px] font-bold rounded uppercase tracking-widest">
-                   <Play size={16} fill="black" /> Close
-                </button>
               </div>
             </motion.div>
           </motion.div>
@@ -245,4 +229,4 @@ export default function SelectedWorks() {
       <style jsx global>{`.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
     </section>
   );
-}
+                }
