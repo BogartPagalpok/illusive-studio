@@ -14,8 +14,11 @@ interface Project {
   id: string;
   title: string;
   category: string;
-  image_url: string;
   description?: string;
+  card_thumbnail?: string;
+  hero_bg_desktop?: string;
+  hero_bg_mobile?: string;
+  image_url: string;
 }
 
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
@@ -89,7 +92,6 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND - Lighter Tint */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -100,17 +102,25 @@ export default function SelectedWorks() {
             transition={{ duration: 1 }}
             className="absolute inset-0 z-0"
           >
-            <img src={currentProject.image_url} className="w-full h-full object-cover" alt="bg" />
+            <img 
+              src={currentProject.hero_bg_mobile || currentProject.image_url} 
+              className="w-full h-full object-cover md:hidden" 
+              alt="bg mobile" 
+            />
+            <img 
+              src={currentProject.hero_bg_desktop || currentProject.image_url} 
+              className="hidden md:block w-full h-full object-cover" 
+              alt="bg desktop" 
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 h-screen min-h-[700px] flex flex-col px-6 md:px-16 pt-28 pb-8 md:pt-32 md:pb-12">
+      <div className="relative z-10 min-h-screen flex flex-col px-6 md:px-16 pt-24 pb-8 md:pt-28 md:pb-12">
         
-        {/* 2. GENRE NAVIGATION */}
-        <div className="flex gap-6 md:gap-8 items-center pt-0 mt-8 overflow-x-auto no-scrollbar pb-4">
+        <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4 shrink-0">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
@@ -125,78 +135,86 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO CONTENT - Bottom Left Corner Alignment */}
-        <div className="max-w-3xl mt-auto mb-6 md:mb-8">
-          <AnimatePresence mode="wait">
-            {currentProject && (
-              <motion.div
-                key={currentProject.id}
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -20, opacity: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <span className="text-accent text-[10px] md:text-sm font-black tracking-[0.3em] uppercase block mb-2 md:mb-4">
-                  {currentProject.category}
-                </span>
-                <h1 className="text-white text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.9] mb-3 md:mb-6">
-                  {currentProject.title}
-                </h1>
-                <p className="text-white/70 text-xs sm:text-sm md:text-lg font-light leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3 md:line-clamp-none">
-                  {currentProject.description}
-                </p>
-                <button 
-                  type="button"
-                  onClick={() => setSelectedProject(currentProject)}
-                  className="flex items-center gap-2 bg-white text-black px-6 py-2.5 md:px-8 md:py-3 text-[10px] md:text-xs font-bold rounded hover:bg-white/80 transition-all uppercase tracking-widest"
-                >
-                  <Play size={16} fill="black" /> View Project
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* 4. UP NEXT RAIL - Clickable fix */}
-        <div className="w-full pb-4 md:pb-8 relative z-50">
-          <h2 className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
-            Up Next in Portfolio
-          </h2>
+        <div className="mt-auto flex flex-col w-full">
           
-          <div className="relative w-full pointer-events-auto">
-            <Swiper
-              onSwiper={(s) => (swiperRef.current = s)}
-              modules={[Navigation]}
-              spaceBetween={16}
-              slidesPerView={'auto'}
-              slidesOffsetAfter={100}
-              observer={true}
-              observeParents={true}
-              watchSlidesProgress={true}
-              onSlideChange={(s) => setActiveIndex(s.realIndex)}
-              className="overflow-visible !pointer-events-auto"
-            >
-              {filteredProjects.map((project, idx) => (
-                <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[240px] !pointer-events-auto">
-                  <div 
-                    onClick={() => {
-                      setActiveIndex(idx);
-                      swiperRef.current?.slideTo(idx);
-                    }}
-                    className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] pointer-events-auto ${
-                      activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
-                    }`}
+          <div className="max-w-3xl mb-6 md:mb-8">
+            <AnimatePresence mode="wait">
+              {currentProject && (
+                <motion.div
+                  key={currentProject.id}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <span className="text-accent text-[10px] md:text-sm font-black tracking-[0.3em] uppercase block mb-2 md:mb-4">
+                    {currentProject.category}
+                  </span>
+                  {/* FIX: Added line-clamp-2 to prevent long titles from taking up too much vertical space */}
+                  <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-black uppercase tracking-tighter leading-[0.9] mb-3 md:mb-6 line-clamp-2">
+                    {currentProject.title}
+                  </h1>
+                  {/* FIX: Removed md:line-clamp-none and forced line-clamp-3 globally so long descriptions don't push the slider off screen */}
+                  <p className="text-white/70 text-xs sm:text-sm md:text-lg font-light leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3">
+                    {currentProject.description}
+                  </p>
+                  <button 
+                    type="button"
+                    onClick={() => setSelectedProject(currentProject)}
+                    className="flex items-center gap-2 bg-white text-black px-6 py-2.5 md:px-8 md:py-3 text-[10px] md:text-xs font-bold rounded hover:bg-white/80 transition-all uppercase tracking-widest"
                   >
-                    <img src={project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                    <Play size={16} fill="black" /> View Project
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="w-full relative z-50">
+            <h2 className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
+              Up Next in Portfolio
+            </h2>
+            
+            <div className="relative w-full pointer-events-auto">
+              <Swiper
+                onSwiper={(s) => (swiperRef.current = s)}
+                modules={[Navigation]}
+                spaceBetween={16}
+                slidesPerView={'auto'}
+                slidesOffsetAfter={100}
+                observer={true}
+                observeParents={true}
+                watchSlidesProgress={true}
+                onSlideChange={(s) => setActiveIndex(s.realIndex)}
+                className="overflow-visible !pointer-events-auto"
+              >
+                {filteredProjects.map((project, idx) => (
+                  <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[240px] !pointer-events-auto">
+                    <div 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        swiperRef.current?.slideTo(idx);
+                      }}
+                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] pointer-events-auto ${
+                        activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
+                      }`}
+                    >
+                      <img 
+                        src={project.card_thumbnail || project.image_url} 
+                        className="w-full h-full object-cover pointer-events-none" 
+                        alt="thumb" 
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
           </div>
         </div>
+
       </div>
 
-      {/* LIGHTBOX MODAL - Fixed Glassmorphism & Exit Z-index */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
@@ -218,7 +236,7 @@ export default function SelectedWorks() {
             >
               <div className="border border-white/20 rounded-lg overflow-hidden flex flex-col gap-4 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto no-scrollbar">
                  {galleryImages.map((img) => (
-                    <img key={img.id} src={img.image_url} alt="project" className="w-full h-auto object-cover" />
+                    <img key={img.id} src={img.hero_bg_desktop || img.image_url} alt="project" className="w-full h-auto object-cover" />
                  ))}
               </div>
               <div className="text-left">
