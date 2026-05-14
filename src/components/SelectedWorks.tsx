@@ -81,16 +81,18 @@ export default function SelectedWorks() {
     setActiveIndex(0);
   }, [activeCategory, projects]);
 
-  // Lock body scroll when modal is open
   useEffect(() => {
     if (selectedProject) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
 
     return () => {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
   }, [selectedProject]);
 
@@ -175,9 +177,9 @@ export default function SelectedWorks() {
                   <button 
                     type="button"
                     onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-2 bg-white text-black px-6 py-2.5 md:px-8 md:py-3 text-xs font-bold rounded hover:bg-white/80 transition-all uppercase tracking-wider"
+                    className="flex items-center gap-2 bg-accent text-accent-foreground px-6 py-2.5 md:px-8 md:py-3 text-xs font-bold rounded-full hover:opacity-90 transition-all uppercase tracking-wider"
                   >
-                    <Play size={16} fill="black" /> View Project
+                    <Play size={16} fill="currentColor" /> View Project
                   </button>
                 </motion.div>
               )}
@@ -236,22 +238,22 @@ export default function SelectedWorks() {
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md overflow-y-auto"
             onClick={() => setSelectedProject(null)}
           >
             <button 
               type="button" 
               onClick={() => setSelectedProject(null)} 
-              className="fixed top-6 right-6 md:top-10 md:right-10 text-white hover:text-accent transition-colors z-[10000] bg-black/50 p-2 rounded-full backdrop-blur-sm"
+              className="fixed top-24 right-4 md:top-8 md:right-8 text-white hover:text-accent transition-colors z-[10000]"
             >
-              <X size={24} />
+              <X size={32} />
             </button>
             <motion.div 
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 items-start my-auto mt-24 lg:mt-auto bg-black/40 border border-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-2xl shadow-2xl"
+              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 items-start my-auto mt-32 lg:mt-auto bg-white/5 border border-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-2xl shadow-2xl"
             >
-              <div className="border border-white/10 rounded-lg overflow-hidden flex flex-col gap-4 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar bg-black/20">
+              <div className="border border-white/20 rounded-lg overflow-hidden flex flex-col gap-4 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto no-scrollbar">
                  {galleryImages.map((img) => (
                     <img 
                       key={img.id} 
@@ -261,10 +263,10 @@ export default function SelectedWorks() {
                     />
                  ))}
               </div>
-              <div className="text-left flex flex-col gap-6 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar pr-2">
+              <div className="text-left flex flex-col gap-6 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto no-scrollbar pr-2">
                 <div>
                   <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
-                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2 leading-tight">{selectedProject.title}</h2>
+                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2 md:mt-4 leading-tight">{selectedProject.title}</h2>
                   <p className="text-white/60 mt-4 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
                 </div>
 
