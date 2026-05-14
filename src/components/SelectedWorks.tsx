@@ -14,11 +14,8 @@ interface Project {
   id: string;
   title: string;
   category: string;
-  image_url: string; 
+  image_url: string;
   description?: string;
-  card_thumbnail?: string;
-  hero_bg_desktop?: string;
-  hero_bg_mobile?: string;
 }
 
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
@@ -92,6 +89,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden font-sans">
       
+      {/* 1. DYNAMIC BACKGROUND - Lighter Tint */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -102,16 +100,7 @@ export default function SelectedWorks() {
             transition={{ duration: 1 }}
             className="absolute inset-0 z-0"
           >
-            <img 
-              src={currentProject.hero_bg_mobile || currentProject.image_url} 
-              className="w-full h-full object-cover md:hidden" 
-              alt="bg mobile" 
-            />
-            <img 
-              src={currentProject.hero_bg_desktop || currentProject.image_url} 
-              className="hidden md:block w-full h-full object-cover" 
-              alt="bg desktop" 
-            />
+            <img src={currentProject.image_url} className="w-full h-full object-cover" alt="bg" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
           </motion.div>
@@ -120,6 +109,7 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 h-screen min-h-[700px] flex flex-col px-6 md:px-16 pt-28 pb-8 md:pt-32 md:pb-12">
         
+        {/* 2. GENRE NAVIGATION */}
         <div className="flex gap-6 md:gap-8 items-center pt-0 mt-8 overflow-x-auto no-scrollbar pb-4">
           {CATEGORIES.map((cat) => (
             <button
@@ -135,6 +125,7 @@ export default function SelectedWorks() {
           ))}
         </div>
 
+        {/* 3. HERO CONTENT - Bottom Left Corner Alignment */}
         <div className="max-w-3xl mt-auto mb-6 md:mb-8">
           <AnimatePresence mode="wait">
             {currentProject && (
@@ -166,6 +157,7 @@ export default function SelectedWorks() {
           </AnimatePresence>
         </div>
 
+        {/* 4. UP NEXT RAIL - Clickable fix */}
         <div className="w-full pb-4 md:pb-8 relative z-50">
           <h2 className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
             Up Next in Portfolio
@@ -187,16 +179,15 @@ export default function SelectedWorks() {
               {filteredProjects.map((project, idx) => (
                 <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[240px] !pointer-events-auto">
                   <div 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
+                    onClick={() => {
+                      setActiveIndex(idx);
                       swiperRef.current?.slideTo(idx);
                     }}
                     className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] pointer-events-auto ${
                       activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
                     }`}
                   >
-                    <img src={project.card_thumbnail || project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
+                    <img src={project.image_url} className="w-full h-full object-cover pointer-events-none" alt="thumb" />
                   </div>
                 </SwiperSlide>
               ))}
@@ -205,6 +196,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
+      {/* LIGHTBOX MODAL - Fixed Glassmorphism & Exit Z-index */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
@@ -226,7 +218,7 @@ export default function SelectedWorks() {
             >
               <div className="border border-white/20 rounded-lg overflow-hidden flex flex-col gap-4 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto no-scrollbar">
                  {galleryImages.map((img) => (
-                    <img key={img.id} src={img.hero_bg_desktop || img.image_url} alt="project" className="w-full h-auto object-cover" />
+                    <img key={img.id} src={img.image_url} alt="project" className="w-full h-auto object-cover" />
                  ))}
               </div>
               <div className="text-left">
