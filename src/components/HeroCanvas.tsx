@@ -11,7 +11,8 @@ export default function HeroCanvas() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastDrawnFrameRef = useRef<number>(0);
 
-  const totalFrames = 288;
+  // CHANGED: Reduced frame count to 261
+  const totalFrames = 261;
   const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${SCROLL_SEQUENCE_BUCKET}/`;
 
   // Helper to draw a frame to the canvas
