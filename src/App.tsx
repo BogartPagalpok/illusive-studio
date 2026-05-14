@@ -8,6 +8,7 @@ import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import { motion } from 'framer-motion';
+import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 
 function AtmosphereGradient() {
   return (
@@ -35,6 +36,7 @@ function AtmosphereGradient() {
 }
 
 function App() {
+  useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -112,3 +114,4 @@ function App() {
 }
 
 export default App;
+          
