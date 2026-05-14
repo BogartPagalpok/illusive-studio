@@ -89,7 +89,6 @@ export default function SelectedWorks() {
     : [];
 
   return (
-    {/* Removed hardcoded font-sans so your global theme applies naturally */}
     <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden">
       
       <AnimatePresence mode="wait">
@@ -150,11 +149,9 @@ export default function SelectedWorks() {
                   <span className="text-accent text-xs font-bold tracking-[0.2em] uppercase block mb-2 md:mb-4">
                     {currentProject.category}
                   </span>
-                  {/* Changed font-black to font-bold, softened sizing slightly */}
                   <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight leading-none mb-3 md:mb-4 line-clamp-2">
                     {currentProject.title}
                   </h1>
-                  {/* Standardized to text-sm md:text-base, removed font-light */}
                   <p className="text-white/70 text-sm md:text-base leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3">
                     {currentProject.description}
                   </p>
