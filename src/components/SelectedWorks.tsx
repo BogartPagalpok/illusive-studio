@@ -89,7 +89,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-hidden font-sans">
       
-      {/* 1. DYNAMIC BACKGROUND - Tint Fix */}
+      {/* 1. DYNAMIC BACKGROUND */}
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -125,7 +125,7 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO CONTENT - Corner Fixed */}
+        {/* 3. HERO CONTENT */}
         <div className="max-w-3xl mt-auto mb-6 md:mb-10">
           <AnimatePresence mode="wait">
             {currentProject && (
@@ -135,8 +135,9 @@ export default function SelectedWorks() {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -20, opacity: 0 }}
                 transition={{ duration: 0.5 }}
+                className="flex flex-col"
               >
-                <span className="text-accent text-[10px] md:text-sm font-black tracking-[0.3em] uppercase block mb-2">
+                <span className="text-accent text-[9px] md:text-sm font-black tracking-[0.3em] uppercase block mb-3 md:mb-4">
                   {currentProject.category}
                 </span>
                 <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-4">
@@ -145,32 +146,34 @@ export default function SelectedWorks() {
                 <p className="text-white/70 text-xs sm:text-sm md:text-lg font-light leading-relaxed mb-6 max-w-2xl line-clamp-3">
                   {currentProject.description}
                 </p>
-                <button 
-                  type="button"
-                  onClick={() => setSelectedProject(currentProject)}
-                  className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-bold rounded hover:bg-white/80 transition-all uppercase tracking-widest"
-                >
-                  <Play size={16} fill="black" /> View Project
-                </button>
+                <div className="flex">
+                  <button 
+                    type="button"
+                    onClick={() => setSelectedProject(currentProject)}
+                    className="flex items-center gap-2 bg-white text-black px-8 py-3 text-[10px] font-bold rounded hover:bg-white/80 transition-all uppercase tracking-widest"
+                  >
+                    <Play size={16} fill="black" /> View Project
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* 4. UP NEXT RAIL - Infinite & Clickable */}
+        {/* 4. UP NEXT RAIL */}
         <div className="w-full pb-8 relative z-50">
           <h2 className="text-white/50 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">
             Up Next in Portfolio
           </h2>
           
-          <div className="relative w-full group">
+          <div className="relative w-full">
             <Swiper
               onSwiper={(s) => (swiperRef.current = s)}
               modules={[Navigation]}
               spaceBetween={16}
               slidesPerView={'auto'}
-              loop={filteredProjects.length >= 3}
-              loopedSlides={5}
+              loop={filteredProjects.length > 1}
+              loopedSlides={filteredProjects.length}
               navigation={{ nextEl: '.rail-next', prevEl: '.rail-prev' }}
               onSlideChange={(s) => setActiveIndex(s.realIndex)}
               className="overflow-visible"
@@ -189,7 +192,6 @@ export default function SelectedWorks() {
               ))}
             </Swiper>
             
-            {/* Nav Arrows - Included to ensure lucide imports are used */}
             <div className="flex gap-4 mt-4">
               <button type="button" className="rail-prev text-white/30 hover:text-white transition-colors cursor-pointer z-[70]">
                 <ChevronLeft size={20} />
@@ -202,7 +204,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* LIGHTBOX MODAL - Glassmorphism Restored */}
+      {/* LIGHTBOX MODAL */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
