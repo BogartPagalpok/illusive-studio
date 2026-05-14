@@ -37,32 +37,29 @@ export default function SelectedWorks() {
         .from('portfolio_projects')
         .select('*')
         .order('created_at', { ascending: false });
-      
       if (error) throw error;
-      if (data) setAllData(data);
+      setAllData(data || []);
     } catch (err) {
-      console.error("Fetch failed");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { 
-    fetchWorks(); 
-  }, [fetchWorks]);
+  useEffect(() => { fetchWorks(); }, [fetchWorks]);
 
-  // MECHANICAL GROUPING: One card per unique title
+  // STRICTOR GROUPING: Forces one card per title to stop clutter
   const projects = useMemo(() => {
-    const unique = allData.reduce((acc: Project[], current) => {
-      const exists = acc.find(item => item.title.trim() === current.title.trim());
-      if (!exists) {
-        if (activeCategory === 'All' || current.category === activeCategory) {
-          acc.push(current);
-        }
+    const unique: Project[] = [];
+    const seen = new Set<string>();
+    allData.forEach(p => {
+      const cleanTitle = p.title.trim();
+      if (!seen.has(cleanTitle)) {
+        seen.add(cleanTitle);
+        unique.push(p);
       }
-      return acc;
-    }, []);
-    return unique;
+    });
+    return activeCategory === 'All' ? unique : unique.filter(p => p.category === activeCategory);
   }, [allData, activeCategory]);
 
   useEffect(() => {
@@ -105,7 +102,7 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 h-full flex flex-col px-6 md:px-16 pb-12">
         
-        {/* 2. CATEGORIES - TOP LEFT FIX (HIGHER PADDING) */}
+        {/* 2. CATEGORIES - PINNED TOP LEFT */}
         <div className="flex gap-6 items-center pt-32 md:pt-44 justify-start overflow-x-auto no-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
@@ -120,7 +117,7 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3. HERO + RAIL (PINNED BOTTOM) */}
+        {/* 3. HERO + RAIL - PINNED TO BOTTOM */}
         <div className="mt-auto flex flex-col gap-10">
           
           <div className="max-w-4xl min-h-[160px]">
@@ -129,7 +126,7 @@ export default function SelectedWorks() {
                 <span className="text-amber-400 text-[10px] md:text-xs font-black tracking-[0.4em] uppercase block mb-3">
                   {current.category}
                 </span>
-                {/* 4. FONT CAP FOR DESKTOP */}
+                {/* 4. DESKTOP FONT CAP */}
                 <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-tight mb-4 max-w-[850px]">
                   {current.title}
                 </h1>
