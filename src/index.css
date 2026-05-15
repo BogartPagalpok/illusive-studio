@@ -3,95 +3,18 @@
 @tailwind utilities;
 
 @layer base {
-  /* 1. DEFAULT: VOID (Deep Web3 Purple) */
   :root {
+    /* These will be overridden by applyTheme, but we keep them as fallbacks */
     --bg-primary: #030305;
-    --bg-secondary: rgba(255, 255, 255, 0.03); 
-    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(157, 0, 255, 0.15) 0%, rgba(3, 3, 5, 0) 70%);
+    --bg-secondary: #0A0A0A;
+    --bg-gradient: none;
     --text-primary: #FAFAFA;
     --text-secondary: #8E8E93;
     --accent: #9D00FF;
-    --accent-contrast: #FFFFFF; 
-    --secondary-contrast: #FFFFFF;
-    /* SYSTEM-NATIVE PREMIUM FONT STACK */
-    --font-display: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Arial Black", sans-serif;
-    --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif;
-  }
-
-  /* 2. LIGHT: CLEAN (App Interface / Cyber Pink) */
-  [data-theme='light'], body[data-theme='light'] {
-    --bg-primary: #F0F0F3;
-    --bg-secondary: #FFFFFF;
-    --bg-gradient: none;
-    --text-primary: #09090B;
-    --text-secondary: #6B6B70;
-    --accent: #FF3366; 
     --accent-contrast: #FFFFFF;
-    --secondary-contrast: #09090B;
-  }
-
-  /* 3. MAGMA: AGGRESSIVE (Industrial Cyberpunk Orange) */
-  [data-theme='magma'], body[data-theme='magma'] {
-    --bg-primary: #050303;
-    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 69, 0, 0.12) 0%, rgba(5, 3, 3, 0) 70%);
-    --accent: #FF4500;
-    --accent-contrast: #FFFFFF;
-  }
-
-  /* 4. TOXIC: TECHWEAR (Acid Lime) */
-  [data-theme='toxic'], body[data-theme='toxic'] {
-    --bg-primary: #030503;
-    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(57, 255, 20, 0.12) 0%, rgba(3, 5, 3, 0) 70%);
-    --accent: #D4FF00;
-    --accent-contrast: #000000;
-  }
-
-  /* 5. OCEAN: CRYPTO (Deep Sea Cyan) */
-  [data-theme='ocean'], body[data-theme='ocean'] {
-    --bg-primary: #010609;
-    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(0, 255, 255, 0.12) 0%, rgba(1, 6, 9, 0) 70%);
-    --accent: #00FFFF;
-    --accent-contrast: #000000;
-  }
-
-  /* 6. GOLD: LUXURY (Metallic NFT Gold) */
-  [data-theme='gold'], body[data-theme='gold'] {
-    --bg-primary: #050402;
-    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 215, 0, 0.12) 0%, rgba(5, 4, 2, 0) 70%);
-    --accent: #FFD700;
-    --accent-contrast: #000000;
-  }
-
-  /* 7. SYNTH: RETROWAVE (Hot Pink) */
-  [data-theme='synth'], body[data-theme='synth'] {
-    --bg-primary: #070205;
-    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(255, 0, 128, 0.15) 0%, rgba(7, 2, 5, 0) 70%);
-    --accent: #FF0080;
-    --accent-contrast: #FFFFFF;
-  }
-
-  /* 8. GLITCH: HACKER (Crimson Red) */
-  [data-theme='glitch'], body[data-theme='glitch'] {
-    --bg-primary: #050000;
-    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(220, 20, 60, 0.15) 0%, rgba(5, 0, 0, 0) 70%);
-    --accent: #DC143C;
-    --accent-contrast: #FFFFFF;
-  }
-
-  /* 9. ICE: FROST (Arctic Blue) */
-  [data-theme='ice'], body[data-theme='ice'] {
-    --bg-primary: #020508;
-    --bg-gradient: radial-gradient(circle at 50% -20%, rgba(135, 206, 250, 0.12) 0%, rgba(2, 5, 8, 0) 70%);
-    --accent: #87CEFA;
-    --accent-contrast: #000000;
-  }
-
-  /* 10. BRUTAL: MONOCHROME (Pure High Contrast) */
-  [data-theme='brutal'], body[data-theme='brutal'] {
-    --bg-primary: #000000;
-    --bg-gradient: none;
-    --accent: #FFFFFF;
-    --accent-contrast: #000000;
+    --font-display: 'Orbitron', sans-serif;
+    --font-sans: 'Inter', sans-serif;
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
   }
 
   html {
@@ -99,177 +22,64 @@
   }
 
   body {
-    /* FIXED: Added !important to brute-force the gradient over any standard Tailwind body classes */
     background-color: var(--bg-primary) !important;
-    background-image: var(--bg-gradient) !important;
-    background-attachment: fixed !important;
     color: var(--text-secondary);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+    margin: 0;
+    /* Added SVG Noise for that high-end studio texture */
+    background-image: 
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
+    background-blend-mode: overlay;
+    background-attachment: fixed;
   }
 
-  /* FIXED: Ensures the React root container doesn't accidentally block the body background */
-  #root, #__next {
-    background-color: transparent !important;
-  }
-
+  /* Ensures content is readable and theme transitions are smooth */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     color: var(--text-primary);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: -0.02em;
   }
 
-  ::selection {
-    background-color: var(--accent);
-    color: var(--accent-contrast);
-  }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background-color: var(--bg-primary);
-  }
-
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background-color: var(--bg-primary); }
   ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 0px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: rgba(var(--accent-rgb), 0.3);
+    border-radius: 10px;
   }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--accent);
-  }
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--accent); }
 }
 
 @layer components {
-  .section-container {
-    @apply max-w-7xl mx-auto px-6 lg:px-8;
-  }
+  .section-container { @apply max-w-7xl mx-auto px-6 lg:px-8; }
+  .section-padding { @apply py-24 lg:py-32; }
 
-  .section-padding {
-    @apply py-24 lg:py-32;
-  }
-
-  /* --- MODERN GRADIENT BUTTONS --- */
   .btn-primary {
-    font-family: var(--font-display);
     @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold flex items-center justify-center gap-3
-           uppercase tracking-[0.2em] text-[10px]
-           transition-all duration-300;
-    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent), black 40%) 100%) !important;
+           uppercase tracking-[0.2em] text-[10px] transition-all duration-300;
+    background: var(--accent) !important;
     color: var(--accent-contrast);
-    box-shadow: 0 4px 15px color-mix(in srgb, var(--accent), transparent 80%);
-    border: none;
+    box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
   }
 
   .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px -5px var(--accent);
-    filter: brightness(1.2);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.5);
+    filter: brightness(1.1);
   }
 
-  .btn-outline {
-    font-family: var(--font-display);
-    @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold
-           uppercase tracking-[0.2em] text-[10px] border border-white/20
-           transition-all duration-300 backdrop-blur-md;
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.03);
-  }
-
-  .btn-outline:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent);
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-  }
-
-  /* --- CONTACT FORM INPUTS --- */
-  .input-field {
-    @apply w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4
-           transition-all duration-300 backdrop-blur-md;
-    color: var(--text-primary);
-    @apply placeholder:text-opacity-30 focus:outline-none focus:border-[var(--accent)];
-    font-family: var(--font-sans);
-  }
-
-  /* --- MODERN GLASSMORPHISM CARDS --- */
   .card-dark {
-    @apply p-8 rounded-2xl relative overflow-hidden transition-all duration-500;
+    @apply p-8 rounded-3xl transition-all duration-500 backdrop-blur-xl border;
     background-color: var(--bg-secondary);
-    color: var(--secondary-contrast);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
-  .card-dark:hover {
-    transform: translateY(-8px);
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 0 1px var(--accent);
-  }
-
-  .card-dark::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(circle at top right, var(--accent), transparent 60%);
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .card-dark:hover::before {
-    opacity: 0.08; 
-  }
-
-  .card-dark > * {
-    position: relative;
-    z-index: 1;
-  }
-
+  /* Impactful Mecha-style typography */
   .heading-xl {
-    @apply text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tighter;
+    @apply text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tighter italic;
   }
 
-  .heading-lg {
-    @apply text-3xl md:text-4xl lg:text-5xl font-bold uppercase leading-none tracking-tight;
-  }
-
-  .text-accent {
-    color: var(--accent);
-  }
-}
-
-.works-swiper {
-  padding: 40px 0 80px !important;
-}
-
-.works-swiper .swiper-slide img {
-  @apply object-cover transition-transform duration-700;
-}
-
-.works-swiper .swiper-slide-active img {
-  @apply scale-105;
-}
-
-.works-swiper .swiper-pagination-bullet {
-  @apply w-1 h-1 bg-white/20 opacity-100 rounded-none transition-all duration-500;
-}
-
-.works-swiper .swiper-pagination-bullet-active {
-  @apply bg-[var(--accent)] w-12 h-1;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--accent);
+  .text-accent { color: var(--accent); }
 }
