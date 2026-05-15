@@ -97,7 +97,7 @@ export default function SelectedWorks() {
   }, [selectedProject]);
 
   if (loading) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-black gap-6">
+    <div className="h-screen flex flex-col items-center justify-center bg-transparent gap-6">
       <Loader2 className="w-12 h-12 text-accent animate-spin" />
     </div>
   );
@@ -108,187 +108,185 @@ export default function SelectedWorks() {
     : [];
 
   return (
-    <section id="works" className="relative w-full bg-black overflow-x-hidden font-sans">
+    <section id="works" className="relative z-10 bg-transparent min-h-screen py-10 overflow-hidden flex flex-col justify-center">
       
-      {/* SECTION TITLE - MATCHES ABOUT SECTION EXACTLY */}
-      <div className="relative z-50 w-full text-center pt-20 md:pt-24 mb-12 md:mb-20">
+      {/* TITLE TRANSITION BRIDGE - PLACED OUTSIDE THE MAIN CONTENT WRAPPER */}
+      <div className="relative z-50 w-full text-center pt-24 mb-12">
         <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
           Portfolio
         </p>
-        <h2 className="font-bold tracking-tighter heading-lg" style={{ color: '#ffffff' }}>
-          SELECTED WORKS
+        <h2 className="font-bold tracking-tighter heading-lg uppercase" style={{ color: '#ffffff' }}>
+          Selected Works
         </h2>
         <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
       </div>
 
-      <div className="relative w-full min-h-[75vh] md:min-h-screen flex flex-col">
-        {/* BACKGROUND LAYER */}
-        <AnimatePresence mode="wait">
-          {currentProject && (
-            <motion.div
-              key={currentProject.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.7 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1 }}
-              className="absolute inset-0 z-0"
-            >
-              <img 
-                src={currentProject.hero_bg_mobile || currentProject.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
-                className="w-full h-full object-cover md:hidden" 
-                alt="bg mobile" 
-              />
-              <img 
-                src={currentProject.hero_bg_desktop || currentProject.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
-                className="hidden md:block w-full h-full object-cover" 
-                alt="bg desktop" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/40 md:via-black/20 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <AnimatePresence mode="wait">
+        {currentProject && (
+          <motion.div
+            key={currentProject.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.7 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0 z-0"
+          >
+            <img 
+              src={currentProject.hero_bg_mobile || currentProject.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
+              className="w-full h-full object-cover md:hidden" 
+              alt="bg mobile" 
+            />
+            <img 
+              src={currentProject.hero_bg_desktop || currentProject.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
+              className="hidden md:block w-full h-full object-cover" 
+              alt="bg desktop" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* CONTENT LAYER */}
-        <div className="relative z-10 flex flex-col px-6 md:px-16 pb-12 flex-1">
+      <div className="relative z-10 flex flex-col px-6 md:px-16 pt-12 pb-8 md:pt-16 md:pb-12 max-w-[1400px] mx-auto w-full">
+        
+        <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4 shrink-0">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setActiveCategory(cat)}
+              className={`text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+                activeCategory === cat ? 'text-white scale-110' : 'text-white/40 hover:text-white'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-auto flex flex-col w-full">
           
-          <div className="flex gap-4 md:gap-8 items-center overflow-x-auto no-scrollbar pb-6 shrink-0">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setActiveCategory(cat)}
-                className={`text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
-                  activeCategory === cat ? 'text-white scale-110' : 'text-white/40 hover:text-white'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="max-w-3xl mb-6 md:mb-8">
+            <AnimatePresence mode="wait">
+              {currentProject && (
+                <motion.div
+                  key={currentProject.id}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <span className="text-accent text-xs font-bold tracking-[0.2em] uppercase block mb-2 md:mb-4">
+                    {currentProject.category}
+                  </span>
+                  <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight leading-none mb-3 md:mb-4 line-clamp-2">
+                    {currentProject.title}
+                  </h1>
+                  <p className="text-white/70 text-sm md:text-base leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3">
+                    {currentProject.description}
+                  </p>
+                  <button 
+                    type="button"
+                    onClick={() => setSelectedProject(currentProject)}
+                    className="flex items-center gap-3 bg-accent text-black px-10 py-3 text-xs font-bold rounded-2xl hover:drop-shadow-[0_0_20px_var(--accent)] transition-all uppercase tracking-widest"
+                  >
+                    <Play size={16} fill="black" /> View Project
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          <div className="mt-auto flex flex-col w-full pt-8 md:pt-0">
-            <div className="max-w-3xl mb-10 md:mb-14">
-              <AnimatePresence mode="wait">
-                {currentProject && (
-                  <motion.div
-                    key={currentProject.id}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -20, opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <span className="text-accent text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase block mb-3 md:mb-4">
-                      {currentProject.category}
-                    </span>
-                    <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-bold uppercase tracking-tight leading-none mb-4 md:mb-6 line-clamp-2">
-                      {currentProject.title}
-                    </h1>
-                    <p className="text-white/70 text-sm md:text-base leading-relaxed mb-8 md:mb-12 max-w-2xl line-clamp-3">
-                      {currentProject.description}
-                    </p>
-                    <button 
-                      type="button"
-                      onClick={() => setSelectedProject(currentProject)}
-                      className="flex items-center gap-3 bg-accent text-black px-10 py-3.5 text-[10px] md:text-xs font-bold rounded-2xl hover:drop-shadow-[0_0_20px_var(--accent)] transition-all uppercase tracking-widest"
+          <div className="w-full relative z-50">
+            <h2 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em] mb-4">
+              Up Next in Portfolio
+            </h2>
+            
+            <div className="relative w-full">
+              <Swiper
+                onSwiper={(s) => (swiperRef.current = s)}
+                modules={[Navigation]}
+                spaceBetween={16}
+                slidesPerView={'auto'}
+                slidesOffsetAfter={100}
+                observer={true}
+                observeParents={true}
+                watchSlidesProgress={true}
+                onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+                className="overflow-visible"
+              >
+                {filteredProjects.map((project, idx) => (
+                  <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[240px]">
+                    <div 
+                      onClick={() => {
+                        setActiveIndex(idx);
+                        swiperRef.current?.slideTo(idx);
+                      }}
+                      className={`relative aspect-video bg-white/5 cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] flex items-center justify-center ${
+                        activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
+                      }`}
                     >
-                      <Play size={14} fill="black" /> View Project
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <div className="w-full relative z-50">
-              <h2 className="text-white/40 text-[9px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
-                UP NEXT IN PORTFOLIO
-              </h2>
-              
-              <div className="relative w-full">
-                <Swiper
-                  onSwiper={(s) => (swiperRef.current = s)}
-                  modules={[Navigation]}
-                  spaceBetween={14}
-                  slidesPerView={'auto'}
-                  slidesOffsetAfter={100}
-                  observer={true}
-                  observeParents={true}
-                  watchSlidesProgress={true}
-                  onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-                  className="overflow-visible"
-                >
-                  {filteredProjects.map((project, idx) => (
-                    <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[260px]">
-                      <div 
-                        onClick={() => {
-                          setActiveIndex(idx);
-                          swiperRef.current?.slideTo(idx);
-                        }}
-                        className={`relative aspect-video bg-white/5 cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] flex items-center justify-center ${
-                          activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_15px_var(--accent)]' : 'border-transparent opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
-                        }`}
-                      >
-                        {(project.card_thumbnail || project.image_url) ? (
-                          <img 
-                            src={project.card_thumbnail || project.image_url} 
-                            className="w-full h-full object-cover pointer-events-none" 
-                            alt={project.title} 
-                          />
-                        ) : (
-                          <span className="text-white/20 text-[10px]">No Image</span>
-                        )}
-                      </div>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-              </div>
+                      {(project.card_thumbnail || project.image_url) ? (
+                        <img 
+                          src={project.card_thumbnail || project.image_url} 
+                          className="w-full h-full object-cover pointer-events-none" 
+                          alt={project.title} 
+                        />
+                      ) : (
+                        <span className="text-white/20 text-xs">No Image</span>
+                      )}
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
             </div>
           </div>
         </div>
+
       </div>
 
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-xl overflow-y-auto"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xl overflow-y-auto"
             onClick={() => setSelectedProject(null)}
           >
             <button 
               type="button" 
               onClick={() => setSelectedProject(null)} 
-              className="fixed top-6 right-6 text-white hover:text-accent transition-colors z-[10000] bg-white/5 p-2 rounded-xl backdrop-blur-md border border-white/10"
+              className="fixed top-6 right-6 md:top-10 md:right-10 text-white hover:text-accent transition-colors z-[10000] bg-white/5 p-2 rounded-2xl backdrop-blur-md border border-white/10"
             >
-              <X size={20} />
+              <X size={24} />
             </button>
             <motion.div 
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-6 md:gap-12 items-start my-auto mt-20 lg:mt-auto bg-white/5 border border-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-2xl shadow-2xl"
+              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 items-start my-auto mt-24 lg:mt-auto bg-white/5 border border-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
             >
-              <div className="border border-white/10 rounded-xl overflow-hidden flex flex-col gap-4 max-h-[40vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar bg-white/5 p-2">
+              <div className="border border-white/10 rounded-2xl overflow-hidden flex flex-col gap-4 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar bg-white/5 p-2">
                  {galleryImages.map((img) => (
                     <img 
                       key={img.id} 
                       src={img.hero_bg_desktop || img.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
                       alt="project" 
-                      className="w-full h-auto object-cover rounded-lg shadow-lg" 
+                      className="w-full h-auto object-cover rounded-xl shadow-lg" 
                     />
                  ))}
               </div>
-              <div className="text-left flex flex-col gap-6 md:gap-8 max-h-[45vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar pr-2">
+              <div className="text-left flex flex-col gap-6 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar pr-2">
                 <div>
-                  <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
-                  <h2 className="text-white text-3xl md:text-5xl font-bold uppercase mt-2 leading-tight">{selectedProject.title}</h2>
+                  <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
+                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2 leading-tight">{selectedProject.title}</h2>
                   <p className="text-white/70 mt-4 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
                 </div>
 
                 {selectedProject.tools && Array.isArray(selectedProject.tools) && selectedProject.tools.length > 0 && (
                   <div>
-                    <h3 className="text-white/40 text-[9px] font-bold uppercase tracking-[0.2em] mb-3">Tech Stack</h3>
+                    <h3 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-3">Tools Used</h3>
                     <div className="flex flex-wrap gap-2">
                       {selectedProject.tools.map((tool, i) => (
-                        <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[9px] text-white/80 backdrop-blur-md">
+                        <span key={i} className="px-3 py-1 bg-white/10 border border-white/20 rounded-2xl text-xs text-white/80 backdrop-blur-md">
                           {tool}
                         </span>
                       ))}
