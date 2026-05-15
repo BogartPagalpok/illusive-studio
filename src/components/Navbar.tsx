@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
 const navLinks = [
@@ -22,7 +21,7 @@ export default function Navbar() {
       const current = window.scrollY;
       setScrolled(current > 50);
 
-      // Auto-hide logic: Hide on scroll down, show on scroll up
+      // Snappy Auto-Hide: Hide on scroll down, show on scroll up
       if (current > lastScrollY.current && current > 120) {
         setVisible(false);
       } else {
@@ -34,14 +33,18 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     async function fetchNav() {
-      const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
-      if (data) {
-        const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
-        data.forEach(row => {
-          if (row.key === 'logo_text') mapped.logo_text = row.value;
-          if (row.key === 'cta_text') mapped.cta_text = row.value;
-        });
-        setContent(mapped);
+      try {
+        const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
+        if (data) {
+          const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
+          data.forEach(row => {
+            if (row.key === 'logo_text') mapped.logo_text = row.value;
+            if (row.key === 'cta_text') mapped.cta_text = row.value;
+          });
+          setContent(mapped);
+        }
+      } catch (e) {
+        console.warn('Nav fallback used');
       }
     }
 
@@ -55,26 +58,23 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
-  // Show if scroll up OR hovering the sensor
-  const isNavShown = visible || isHovered || mobileOpen;
+  // Nav is visible if scroll logic says so OR hovering top trigger zone
+  const showNav = visible || isHovered || mobileOpen;
 
   return (
     <>
-      {/* SENSOR ZONE */}
+      {/* INVISIBLE HOVER SENSOR - Always at the top */}
       <div 
         className="fixed top-0 left-0 right-0 h-4 z-[998] bg-transparent"
         onMouseEnter={() => setIsHovered(true)}
       />
 
-      <motion.nav
+      <nav
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        initial={{ y: 0 }}
-        animate={{ y: isNavShown ? 0 : -100 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-[999] h-20 flex items-center transition-colors duration-500 ${
-          scrolled ? 'backdrop-blur-xl bg-black/40 border-b border-white/5 shadow-2xl' : 'bg-transparent'
-        }`}
+        className={`fixed top-0 left-0 right-0 z-[999] h-20 flex items-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          scrolled ? 'backdrop-blur-xl bg-black/40 border-b border-white/5' : 'bg-transparent'
+        } ${showNav ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-16">
           <button 
@@ -84,6 +84,7 @@ export default function Navbar() {
             {content.logo_text}
           </button>
 
+          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
               <button
@@ -92,46 +93,41 @@ export default function Navbar() {
                 className="group relative text-[11px] font-bold tracking-[0.25em] uppercase text-white/50 hover:text-white transition-colors"
               >
                 {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-accent group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-accent group-hover:w-full transition-all duration-300 shadow-[0_0_8px_var(--accent)]" />
               </button>
             ))}
             <button 
               onClick={() => handleNavClick('#contact')}
-              className="bg-white text-black text-[11px] py-3 px-8 font-black uppercase tracking-widest hover:bg-accent hover:text-white transition-all"
+              className="bg-white text-black text-[11px] py-3 px-8 font-black uppercase tracking-widest hover:bg-accent hover:text-white transition-all transform active:scale-95"
             >
               {content.cta_text}
             </button>
           </div>
 
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white p-2">
-             <span className="text-[10px] font-black tracking-widest">{mobileOpen ? 'CLOSE' : 'MENU'}</span>
+          {/* MOBILE TOGGLE */}
+          <button 
+            onClick={() => setMobileOpen(!mobileOpen)} 
+            className="md:hidden text-white font-black text-[10px] tracking-widest border border-white/10 px-4 py-2"
+          >
+            {mobileOpen ? 'CLOSE' : 'MENU'}
           </button>
         </div>
 
-        {/* MOBILE MENU */}
-        <AnimatePresence>
-          {mobileOpen && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="absolute top-20 left-0 w-full bg-black/95 backdrop-blur-2xl border-t border-white/10 overflow-hidden"
-            >
-              <div className="p-10 flex flex-col gap-8">
-                {navLinks.map((link) => (
-                  <button 
-                    key={link.href} 
-                    onClick={() => handleNavClick(link.href)} 
-                    className="text-white text-4xl font-black uppercase text-left tracking-tighter"
-                  >
-                    {link.label}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.nav>
+        {/* MOBILE OVERLAY */}
+        <div className={`md:hidden absolute top-20 left-0 w-full bg-black/95 backdrop-blur-2xl border-t border-white/10 transition-all duration-500 overflow-hidden ${mobileOpen ? 'max-h-screen' : 'max-h-0'}`}>
+          <div className="p-10 flex flex-col gap-8">
+            {navLinks.map((link) => (
+              <button 
+                key={link.href} 
+                onClick={() => handleNavClick(link.href)} 
+                className="text-white text-4xl font-black uppercase text-left tracking-tighter hover:text-accent transition-colors"
+              >
+                {link.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
     </>
   );
 }
