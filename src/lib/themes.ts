@@ -20,6 +20,32 @@ export interface ThemePreset {
 
 export const themePresets: ThemePreset[] = [
   {
+    id: 'GUNDAM',
+    name: 'GUNDAM',
+    tagline: 'RX-78-2 PROTOTYPE',
+    bgPrimary: '#F2F4F7', // Mecha Off-White
+    bgSecondary: '#FFFFFF',
+    accent: '#0055FF', // Cobalt Blue
+    bgGradient: 'radial-gradient(circle at 20% 20%, rgba(0, 85, 255, 0.05) 0%, transparent 40%), radial-gradient(circle at 80% 80%, rgba(255, 0, 0, 0.05) 0%, transparent 40%)',
+    textPrimary: '#1A1A1B',
+    textSecondary: '#64748B',
+    fontDisplay: "'Orbitron', sans-serif",
+    fontSans: "'Inter', sans-serif",
+  },
+  {
+    id: 'IMPACT',
+    name: 'IMPACT',
+    tagline: 'EVA UNIT-01',
+    bgPrimary: '#0A0118', // Deep Midnight Purple
+    bgSecondary: '#1A0B2E', 
+    accent: '#BFFF00', // Neon Lime
+    bgGradient: 'radial-gradient(circle at 0% 0%, rgba(45, 28, 66, 0.4) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(241, 211, 2, 0.1) 0%, transparent 50%)',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#A78BFA',
+    fontDisplay: "'Orbitron', sans-serif",
+    fontSans: "'Inter', sans-serif",
+  },
+  {
     id: 'AURORA',
     name: 'AURORA',
     tagline: 'ENIGMATIC & PASSIONATE',
@@ -33,28 +59,15 @@ export const themePresets: ThemePreset[] = [
     fontSans: "'Inter', sans-serif",
   },
   {
-    id: 'LOTUS',
-    name: 'LOTUS',
-    tagline: 'ENDLESS & CAPTIVATING',
-    bgPrimary: '#0B2249',
-    bgSecondary: '#0C1F41',
-    accent: '#7184CB',
-    bgGradient: 'linear-gradient(180deg, #0B2249 0%, #5985BD 100%)',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#2C5C93',
-    fontDisplay: "'Orbitron', sans-serif",
-    fontSans: "'Plus Jakarta Sans', sans-serif",
-  },
-  {
     id: 'TACTICAL',
     name: 'TACTICAL',
     tagline: 'OPERATOR RED',
-    bgPrimary: '#1C1D22',
-    bgSecondary: '#313B44',
+    bgPrimary: '#121212',
+    bgSecondary: '#1C1C1C',
     accent: '#E62815',
-    bgGradient: 'radial-gradient(circle at bottom left, rgba(230, 40, 21, 0.1) 0%, transparent 70%)',
-    textPrimary: '#AAA8AD',
-    textSecondary: '#606467',
+    bgGradient: 'radial-gradient(circle at bottom left, rgba(230, 40, 21, 0.15) 0%, transparent 70%)',
+    textPrimary: '#F2F2F2',
+    textSecondary: '#808080',
     fontDisplay: "'Space Grotesk', sans-serif",
     fontSans: "'Inter', sans-serif",
   },
@@ -63,9 +76,9 @@ export const themePresets: ThemePreset[] = [
     name: 'AMBER',
     tagline: 'CLARITY OVER COMPLEXITY',
     bgPrimary: '#000101',
-    bgSecondary: '#172531',
+    bgSecondary: '#0A1118',
     accent: '#F3BD68',
-    bgGradient: 'radial-gradient(ellipse at top right, #C7843B 0%, transparent 60%)',
+    bgGradient: 'radial-gradient(ellipse at top right, rgba(243, 189, 104, 0.1) 0%, transparent 60%)',
     textPrimary: '#F3BD68',
     textSecondary: '#4D6473',
     fontDisplay: "'Montserrat', sans-serif",
@@ -76,39 +89,13 @@ export const themePresets: ThemePreset[] = [
     name: 'EUCALYPTUS',
     tagline: 'TEAL & TANGERINE',
     bgPrimary: '#020C0F',
-    bgSecondary: '#053A41',
+    bgSecondary: '#051A1F',
     accent: '#FC931F',
-    bgGradient: 'linear-gradient(135deg, #020C0F 0%, #2A9DA6 100%)',
+    bgGradient: 'linear-gradient(135deg, rgba(2, 12, 15, 1) 0%, rgba(28, 124, 132, 0.2) 100%)',
     textPrimary: '#FC931F',
-    textSecondary: '#1C7C84',
+    textSecondary: '#2A9DA6',
     fontDisplay: "'Anton', sans-serif",
     fontSans: "'Roboto Condensed', sans-serif",
-  },
-  {
-    id: 'IMPACT',
-    name: 'IMPACT',
-    tagline: 'EVA UNIT-01',
-    bgPrimary: '#000000',
-    bgSecondary: '#2D1C42',
-    accent: '#BFFF00',
-    bgGradient: 'radial-gradient(circle at top right, rgba(191, 255, 0, 0.1) 0%, transparent 100%)',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#7A5498',
-    fontDisplay: "'Orbitron', sans-serif",
-    fontSans: "'Inter', sans-serif",
-  },
-  {
-    id: 'CRIMSON',
-    name: 'CRIMSON',
-    tagline: 'MIDNIGHT ROSE & CLAY',
-    bgPrimary: '#0D0202',
-    bgSecondary: '#6A0409',
-    accent: '#E12D33',
-    bgGradient: 'linear-gradient(180deg, #0D0202 0%, #6A0409 100%)',
-    textPrimary: '#FDFBFA',
-    textSecondary: '#9D3737',
-    fontDisplay: "'Playfair Display', serif",
-    fontSans: "'Raleway', sans-serif",
   }
 ];
 
@@ -134,11 +121,17 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   root.style.setProperty('--font-display', theme.fontDisplay);
   root.style.setProperty('--font-sans', theme.fontSans);
 
+  // Helper for RGB values to use in rgba() CSS functions
+  const hexToRgb = (hex: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 255, 255';
+  };
+  root.style.setProperty('--accent-rgb', hexToRgb(theme.accent));
+
   const accentContrast = getContrastYIQ(theme.accent);
   root.style.setProperty('--accent-contrast', accentContrast === 'white' ? '#FFFFFF' : '#000000');
 
   localStorage.setItem('portfolio-theme', theme.id);
-
   window.dispatchEvent(new Event('storage'));
   setTimeout(() => { ScrollTrigger.refresh(); }, 150);
 
@@ -179,7 +172,7 @@ export async function loadSavedTheme() {
     console.error("[Theme Load] Error:", error);
   }
 
-  if (!localThemeId && !themePresets.some(t => t.id === 'VOID')) {
+  if (!localThemeId && !themePresets.some(t => t.id === 'GUNDAM')) {
       const fallback = themePresets[0];
       if (fallback) applyTheme(fallback, false);
   }
