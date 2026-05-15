@@ -4,59 +4,89 @@
 
 @layer base {
   :root {
-    --bg-primary: #030305;
-    --bg-secondary: #0A0A0A;
-    --text-primary: #FAFAFA;
-    --text-secondary: #8E8E93;
-    --accent: #9D00FF;
-    --font-display: 'Orbitron', sans-serif;
-    --font-sans: 'Inter', sans-serif;
-    transition: background-color 0.5s ease, color 0.5s ease;
+    /* Dynamics - Syncs with applyTheme() in themes.ts */
+    --bg-primary: #000000;
+    --bg-secondary: #111111;
+    --text-primary: #FFFFFF;
+    --text-secondary: #888888;
+    --accent: #FFFFFF;
+    --font-display: sans-serif;
+    --font-sans: sans-serif;
+    --heading-tracking: -0.02em;
+    transition: background-color 0.4s ease;
   }
 
   body {
     background-color: var(--bg-primary) !important;
-    background-image: 
-      var(--bg-gradient),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
-    background-blend-mode: overlay;
-    background-attachment: fixed;
+    background-image: var(--bg-gradient) !important;
     color: var(--text-secondary);
     font-family: var(--font-sans);
-    min-height: 100vh;
+    /* No hardcoded height - content dictates length */
+    min-height: 100dvh;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  /* Responsive Container - No Stretching */
+  section {
+    @apply w-full max-w-screen-xl mx-auto py-[clamp(2rem,8vh,6rem)] px-[clamp(1rem,5vw,2.5rem)] 
+           flex flex-col gap-12 relative !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     color: var(--text-primary);
     text-transform: uppercase;
-    letter-spacing: -0.02em;
+    letter-spacing: var(--heading-tracking);
+    line-height: 0.9;
   }
 }
 
 @layer components {
-  .btn-primary {
-    @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold flex items-center justify-center gap-3
-           uppercase tracking-[0.2em] text-[10px] transition-all duration-300;
-    background: var(--accent) !important;
-    color: var(--accent-contrast);
-    box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.5);
-    filter: brightness(1.1);
-  }
-
-  /* GLASSMOPHISM UTILITY */
+  /* THE PANEL (Card) - Fully Dynamic */
   .card-glass {
-    @apply p-10 rounded-[2.5rem] border transition-all duration-500 backdrop-blur-[24px] saturate-[180%] relative overflow-hidden;
+    /* Use clamp for padding so it shrinks on mobile but stays roomy on desktop */
+    @apply p-[clamp(1.5rem,4vw,2.5rem)] border transition-all duration-500 backdrop-blur-[16px] relative;
+    
     background-color: var(--glass-bg);
     border-color: var(--glass-border);
+    
+    /* Variable-driven Notch: Corner size scales with card size */
+    --notchSize: clamp(15px, 3vw, 30px);
+    clip-path: polygon(
+      0 0, 
+      calc(100% - var(--notchSize)) 0, 100% var(--notchSize), 
+      100% 100%, 
+      var(--notchSize) 100%, 0 calc(100% - var(--notchSize))
+    );
+    
+    /* Ensures cards don't touch the screen edge on mobile */
+    margin: 0 0.5rem;
+  }
+
+  /* Mechanical Indicator - Uses dynamic accent */
+  .card-glass::before {
+    content: '';
+    @apply absolute top-0 left-[10%] w-[20%] h-[2px];
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
+  }
+
+  .btn-primary {
+    @apply relative overflow-hidden px-[clamp(1.5rem,3vw,2.5rem)] py-[clamp(0.75rem,2vw,1.25rem)] 
+           font-bold flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[10px];
+    
+    background: var(--accent) !important;
+    color: var(--accent-contrast) !important;
+    
+    /* Matching industrial notch */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
   }
 
   .heading-xl {
-    @apply text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tighter italic;
+    /* Fluid size: never too big for mobile, never too small for 4K */
+    font-size: clamp(2.5rem, 10vw, 8rem);
+    @apply font-black italic tracking-tighter;
   }
-}
+  }
+  
