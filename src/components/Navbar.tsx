@@ -9,11 +9,6 @@ const navLinks = [
   { label: 'Contact', href: '#contact' },
 ];
 
-function scrollToId(id: string) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth' });
-}
-
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -26,19 +21,13 @@ export default function Navbar() {
   useEffect(() => {
     const onScroll = () => {
       const current = window.scrollY;
-      
-      // 1. Background styling
       setScrolled(current > 50);
 
-      // 2. STRICTOR AUTO-HIDE LOGIC
-      // If we scroll down at all past the start, hide it. 
-      // If we scroll up by more than 10px, show it.
       if (current > lastScrollY.current && current > 100) {
         setVisible(false);
       } else if (current < lastScrollY.current || current < 20) {
         setVisible(true);
       }
-
       lastScrollY.current = current;
     };
 
@@ -51,14 +40,14 @@ export default function Navbar() {
     const observer = new MutationObserver(checkModal);
     observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
 
-    const fetchContent = async () => {
+    async function fetchContent() {
       try {
         const { data, error } = await supabase
           .from('site_content')
           .select('key, value')
           .eq('section', 'navbar');
 
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
           data.forEach(row => {
             if (row.key === 'logo_text') mapped.logo_text = row.value;
@@ -66,10 +55,10 @@ export default function Navbar() {
           });
           setContent(mapped);
         }
-      } catch (err) {
-        console.error("Content fetch failed");
+      } catch (e) {
+        console.warn('Nav fallback used');
       }
-    };
+    }
 
     fetchContent();
     return () => {
@@ -78,20 +67,19 @@ export default function Navbar() {
     };
   }, []);
 
-  const handleNavClick = (e: React.MouseEvent, href: string) => {
-    e.preventDefault();
-    scrollToId(href.replace('#', ''));
+  const handleNavClick = (href: string) => {
+    const el = document.getElementById(href.replace('#', ''));
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
     setMobileOpen(false);
   };
 
-  // Only show if the scroll logic says so, OR if the mouse is in that top h-20 zone
   const isActuallyVisible = (visible || isHovered || mobileOpen) && !isModalOpen;
 
   return (
     <>
-      {/* TRIGGER ZONE: Limited to the exact height of the navbar (h-20) */}
+      {/* TRIGGER ZONE */}
       <div
-        className="fixed top-0 left-0 right-0 h-20 z-[110] pointer-events-auto"
+        className="fixed top-0 left-0 right-0 h-20 z-[110] bg-transparent pointer-events-auto"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       />
@@ -103,11 +91,11 @@ export default function Navbar() {
           scrolled ? 'backdrop-blur-md shadow-lg bg-[var(--bg-primary)]/95' : 'bg-transparent'
         } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
-        <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6 md:px-16">
           
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="group relative font-heading font-black text-xl tracking-wider uppercase text-[var(--text-primary)]"
+            className="group relative font-bold text-xl tracking-wider uppercase text-white"
           >
             {content.logo_text.includes('.') ? (
               <>
@@ -119,60 +107,54 @@ export default function Navbar() {
 
           <div className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
-              <a
+              <button
                 key={link.href}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-[var(--text-primary)]"
+                onClick={() => handleNavClick(link.href)}
+                className="group relative px-1 py-2 text-[10px] font-bold tracking-[0.2em] uppercase text-white"
               >
                 <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
                   {link.label}
                 </span>
                 <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-accent opacity-0 group-hover:opacity-100 group-hover:w-full transition-all duration-300 shadow-[0_0_10px_var(--accent)]" />
-              </a>
+              </button>
             ))}
             
-            <a
-              href="#contact"
-              onClick={(e) => handleNavClick(e, '#contact')}
+            <button
+              onClick={() => handleNavClick('#contact')}
               className="btn-primary text-[10px] py-3 px-8 font-black"
             >
               {content.cta_text}
-            </a>
+            </button>
           </div>
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 hover:text-accent text-[var(--text-primary)]"
-            aria-label="Toggle menu"
+            className="md:hidden p-2 text-white"
           >
-            {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
         {/* MOBILE MENU */}
         <div className={`md:hidden overflow-hidden transition-all duration-500 bg-[var(--bg-primary)]/98 backdrop-blur-xl ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
-          <div className="section-container py-10 flex flex-col gap-8 px-6">
+          <div className="py-10 flex flex-col gap-8 px-6">
             {navLinks.map((link) => (
-              <a
+              <button
                 key={link.href}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="group relative inline-block text-2xl font-heading font-black tracking-widest uppercase text-[var(--text-primary)]"
+                onClick={() => handleNavClick(link.href)}
+                className="group relative inline-block text-2xl font-black tracking-widest uppercase text-white text-left"
               >
-                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
+                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent">
                   {link.label}
                 </span>
-                <span className="absolute -bottom-1 left-0 w-0 h-[3px] bg-accent opacity-0 group-hover:opacity-100 group-hover:w-12 transition-all duration-300" />
-              </a>
+              </button>
             ))}
-            <a
-              href="#contact"
-              onClick={(e) => handleNavClick(e, '#contact')}
+            <button
+              onClick={() => handleNavClick('#contact')}
               className="btn-primary text-sm py-4 px-6 justify-center mt-6 font-black"
             >
               {content.cta_text}
-            </a>
+            </button>
           </div>
         </div>
       </nav>
