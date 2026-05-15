@@ -110,8 +110,8 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden font-sans">
       
-      {/* TITLE PLACED OUTSIDE THE MAIN CONTAINER AS A TRANSITION BRIDGE */}
-      <div className="relative z-50 w-full text-center pt-24">
+      {/* TITLE TRANSITION BRIDGE - MOVED OUTSIDE THE LAYOUT CONTAINER */}
+      <div className="relative z-50 w-full text-center pt-24 mb-12">
         <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
           Portfolio
         </p>
@@ -147,7 +147,7 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 min-h-screen flex flex-col px-6 md:px-16 pt-24 pb-8 md:pt-28 md:pb-12">
+      <div className="relative z-10 min-h-screen flex flex-col px-6 md:px-16 pt-12 pb-8 md:pb-12">
         
         <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4 shrink-0">
           {CATEGORIES.map((cat) => (
