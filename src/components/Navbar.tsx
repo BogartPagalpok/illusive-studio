@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Menu, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const navLinks = [
@@ -13,29 +14,38 @@ export default function Navbar() {
   const [visible, setVisible] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
   const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const handleScroll = () => {
+    const onScroll = () => {
       const current = window.scrollY;
       setScrolled(current > 50);
 
-      // Snappy Auto-Hide: Hide on scroll down, show on scroll up
-      if (current > lastScrollY.current && current > 120) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
+      // Snappy Auto-hide logic: Hides on downscroll, shows on upscroll
+      const isScrollingDown = current > lastScrollY.current && current > 150;
+      setVisible(!isScrollingDown || current < 20);
+
       lastScrollY.current = current;
     };
+    window.addEventListener('scroll', onScroll, { passive: true });
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    const checkModal = () => {
+      setIsModalOpen(document.body.style.overflow === 'hidden');
+    };
 
-    async function fetchNav() {
+    const observer = new MutationObserver(checkModal);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+
+    const fetchContent = async () => {
       try {
-        const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
-        if (data) {
+        const { data, error } = await supabase
+          .from('site_content')
+          .select('key, value')
+          .eq('section', 'navbar');
+
+        if (!error && data && data.length > 0) {
           const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
           data.forEach(row => {
             if (row.key === 'logo_text') mapped.logo_text = row.value;
@@ -43,13 +53,16 @@ export default function Navbar() {
           });
           setContent(mapped);
         }
-      } catch (e) {
-        console.warn('Nav fallback used');
+      } catch (err) {
+        console.error("Content fetch failed, using defaults.");
       }
-    }
+    };
 
-    fetchNav();
-    return () => window.removeEventListener('scroll', handleScroll);
+    fetchContent();
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      observer.disconnect();
+    };
   }, []);
 
   const handleNavClick = (href: string) => {
@@ -58,69 +71,71 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
-  // Nav is visible if scroll logic says so OR hovering top trigger zone
-  const showNav = visible || isHovered || mobileOpen;
+  // Combining scroll visibility, top hover, and mobile state
+  const isActuallyVisible = (visible || isHovered || mobileOpen) && !isModalOpen;
 
   return (
     <>
-      {/* INVISIBLE HOVER SENSOR - Always at the top */}
-      <div 
-        className="fixed top-0 left-0 right-0 h-4 z-[998] bg-transparent"
+      {/* TRIGGER ZONE: Invisible sensor at the very top (h-4) */}
+      <div
+        className="fixed top-0 left-0 right-0 h-4 z-[110] bg-transparent"
         onMouseEnter={() => setIsHovered(true)}
       />
 
       <nav
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`fixed top-0 left-0 right-0 z-[999] h-20 flex items-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          scrolled ? 'backdrop-blur-xl bg-black/40 border-b border-white/5' : 'bg-transparent'
-        } ${showNav ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          scrolled ? 'backdrop-blur-md shadow-lg bg-black/80' : 'bg-transparent'
+        } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-6 md:px-16">
-          <button 
+        <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
+          
+          <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="font-black text-2xl uppercase text-white tracking-tighter"
+            className="group relative font-heading font-black text-xl tracking-wider uppercase text-white"
           >
             {content.logo_text}
+            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full shadow-[0_0_8px_var(--accent)]" />
           </button>
 
-          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
               <button
                 key={link.href}
                 onClick={() => handleNavClick(link.href)}
-                className="group relative text-[11px] font-bold tracking-[0.25em] uppercase text-white/50 hover:text-white transition-colors"
+                className="group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-white/70 hover:text-white transition-all duration-300"
               >
                 {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-accent group-hover:w-full transition-all duration-300 shadow-[0_0_8px_var(--accent)]" />
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-accent opacity-0 group-hover:opacity-100 group-hover:w-full transition-all duration-300 shadow-[0_0_10px_var(--accent)]" />
               </button>
             ))}
-            <button 
+            
+            <button
               onClick={() => handleNavClick('#contact')}
-              className="bg-white text-black text-[11px] py-3 px-8 font-black uppercase tracking-widest hover:bg-accent hover:text-white transition-all transform active:scale-95"
+              className="bg-white text-black text-[10px] py-3 px-8 font-black uppercase tracking-widest hover:bg-accent hover:text-white transition-all transform active:scale-95"
             >
               {content.cta_text}
             </button>
           </div>
 
-          {/* MOBILE TOGGLE */}
-          <button 
-            onClick={() => setMobileOpen(!mobileOpen)} 
-            className="md:hidden text-white font-black text-[10px] tracking-widest border border-white/10 px-4 py-2"
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden p-2 text-white"
+            aria-label="Toggle menu"
           >
-            {mobileOpen ? 'CLOSE' : 'MENU'}
+            {mobileOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
 
-        {/* MOBILE OVERLAY */}
-        <div className={`md:hidden absolute top-20 left-0 w-full bg-black/95 backdrop-blur-2xl border-t border-white/10 transition-all duration-500 overflow-hidden ${mobileOpen ? 'max-h-screen' : 'max-h-0'}`}>
-          <div className="p-10 flex flex-col gap-8">
+        {/* MOBILE MENU */}
+        <div className={`md:hidden overflow-hidden transition-all duration-500 bg-black/95 backdrop-blur-xl ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
+          <div className="section-container py-10 flex flex-col gap-8 px-6">
             {navLinks.map((link) => (
-              <button 
-                key={link.href} 
-                onClick={() => handleNavClick(link.href)} 
-                className="text-white text-4xl font-black uppercase text-left tracking-tighter hover:text-accent transition-colors"
+              <button
+                key={link.href}
+                onClick={() => handleNavClick(link.href)}
+                className="text-white text-2xl font-heading font-black tracking-widest uppercase text-left"
               >
                 {link.label}
               </button>
