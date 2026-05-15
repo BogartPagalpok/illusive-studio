@@ -165,7 +165,7 @@ export default function Contact() {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm"
                   style={inputStyle}
-                  placeholder="IDENTIFY ORIGIN"
+                  placeholder="Your Name"
                 />
               </div>
               <div>
@@ -192,7 +192,7 @@ export default function Contact() {
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
                   className="w-full bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm resize-none custom-scrollbar"
                   style={inputStyle}
-                  placeholder="TRANSMIT PAYLOAD..."
+                  placeholder="Tell me about your project..."
                 />
               </div>
               
