@@ -70,11 +70,11 @@ export default function Contact() {
     setSending(true);
     try {
       const { error } = await supabase.from('contact_messages').insert([
-        { 
-          name: form.name, 
-          email: form.email, 
+        {
+          name: form.name,
+          email: form.email,
           message: form.message,
-          user_id: user.id 
+          user_id: user.id
         },
       ]);
       if (error) throw error;
@@ -87,12 +87,10 @@ export default function Contact() {
     setSending(false);
   };
 
-  // REFINED GLASSMOPHISM STYLE FOR INPUTS
+  // Theme‑aware input base – uses the global glass variables
   const inputStyle = {
-    backgroundColor: 'rgba(var(--accent-rgb), 0.03)',
-    borderColor: 'rgba(var(--accent-rgb), 0.15)',
-    backdropFilter: 'blur(10px)',
-    WebkitBackdropFilter: 'blur(10px)',
+    backgroundColor: 'var(--glass-bg)',
+    borderColor: 'var(--glass-border)',
     color: 'var(--text-primary)',
   };
 
@@ -105,17 +103,21 @@ export default function Contact() {
 
       <div ref={ref} className="section-container relative">
         <div className="grid lg:grid-cols-2 gap-16 items-start max-w-5xl mx-auto">
-          {/* Left — Messaging */}
+          
+          {/* Left – Messaging */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
             className="lg:sticky lg:top-32"
           >
-            <p className="text-[10px] font-heading tracking-[0.4em] uppercase text-accent mb-4 font-black">
+            {/* Subtitle – uses global section-subtitle with size override */}
+            <span className="section-subtitle !text-[10px] !tracking-[0.4em] !mb-4 font-black">
               {content.subtitle}
-            </p>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl italic font-black uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>
+            </span>
+
+            {/* Heading – keeps its unique italic style but uses theme text color */}
+            <h2 className="text-5xl md:text-6xl lg:text-7xl italic font-black uppercase tracking-tighter text-[var(--text-primary)]">
               {content.heading.split(' ').length > 1 ? (
                 <>
                   {content.heading.split(' ').slice(0, -1).join(' ')}{' '}
@@ -125,27 +127,25 @@ export default function Contact() {
                 content.heading
               )}
             </h2>
-            <p className="mt-6 mb-8 leading-relaxed text-sm" style={{ color: 'var(--text-secondary)' }}>
+
+            <p className="mt-6 mb-8 leading-relaxed text-sm text-[var(--text-secondary)]">
               {content.description}
             </p>
-            <div className="w-16 h-1 bg-accent" />
+            <div className="w-16 h-0.5 bg-[var(--accent)]" />
           </motion.div>
 
-          {/* Right — Form */}
+          {/* Right – Form Card (uses global card-glass, custom shadow & radius) */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="p-10 rounded-[2.5rem] border transition-all duration-500 backdrop-blur-[40px] saturate-[180%]"
-            style={{ 
-              backgroundColor: 'rgba(var(--accent-rgb), 0.02)',
-              borderColor: 'rgba(var(--accent-rgb), 0.1)',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)'
-            }}
+            className="card-glass rounded-[2.5rem]"
+            style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
           >
             <div className="flex flex-col gap-1 mb-8">
-              <p className="text-[10px] uppercase tracking-[0.3em] font-bold" style={{ color: 'var(--text-secondary)', opacity: 0.5 }}>Secure Channel</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-[var(--text-secondary)]/50">
+                Secure Channel
+              </p>
               {user && (
                 <p className="text-[9px] text-accent uppercase tracking-[0.2em] font-black italic">
                   Authenticated: {user.email}
@@ -155,7 +155,7 @@ export default function Contact() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>
+                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
                   Name
                 </label>
                 <input
@@ -169,7 +169,7 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>
+                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
                   Email
                 </label>
                 <input
@@ -182,7 +182,7 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>
+                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
                   Message
                 </label>
                 <textarea
@@ -196,11 +196,11 @@ export default function Contact() {
                 />
               </div>
               
+              {/* Submit Button – now fully reliant on global btn-primary */}
               <button
                 type="submit"
                 disabled={sending}
-                className="btn-primary w-full py-5 rounded-2xl disabled:opacity-30 flex items-center justify-center gap-3 group"
-                style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
+                className="btn-primary w-full py-5 !rounded-2xl disabled:opacity-30 flex items-center justify-center gap-3 group"
               >
                 {sending ? (
                   <span className="flex items-center gap-2">
@@ -218,10 +218,11 @@ export default function Contact() {
               </button>
             </form>
 
+            {/* Ambient glow */}
             <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-accent/5 blur-[50px] rounded-full pointer-events-none" />
           </motion.div>
         </div>
       </div>
     </section>
   );
-                                  }
+}
