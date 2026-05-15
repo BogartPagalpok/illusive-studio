@@ -138,6 +138,16 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 min-h-screen flex flex-col px-6 md:px-16 pt-24 pb-8 md:pt-28 md:pb-12">
         
+        {/* MISSING TITLE RESTORED HERE */}
+        <div className="mb-8 md:mb-12 shrink-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-accent mb-2">
+            Portfolio
+          </p>
+          <h2 className="text-white text-4xl md:text-6xl font-black uppercase italic tracking-tighter leading-none">
+            Selected Works
+          </h2>
+        </div>
+
         <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4 shrink-0">
           {CATEGORIES.map((cat) => (
             <button
@@ -304,4 +314,4 @@ export default function SelectedWorks() {
       <style jsx global>{`.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
     </section>
   );
-}
+                        }
