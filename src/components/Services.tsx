@@ -1,317 +1,195 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
-import type { Swiper as SwiperType } from 'swiper';
-import { Play, Loader2, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useRef, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
+import FloatingCube from './FloatingCube';
 
-import 'swiper/css';
-import 'swiper/css/navigation';
+gsap.registerPlugin(ScrollTrigger);
 
-interface Project {
-  id: string;
-  title: string;
-  category: string;
-  description?: string;
-  card_thumbnail?: string;
-  hero_bg_desktop?: string;
-  hero_bg_mobile?: string;
-  image_url: string;
-  process?: string;
-  tools?: string[];
-  results?: string;
-  featured?: boolean;
+const defaultServices = [
+  {
+    icon: 'line-md:edit-twotone',
+    title: 'Brand Identity',
+    description: 'Complete visual identity systems — logos, color palettes, typography, and brand guidelines that make your business unforgettable.',
+  },
+  {
+    icon: 'line-md:image-twotone',
+    title: 'Photography',
+    description: 'Professional photo sessions from portraits to product photography, with expert post-processing in Adobe Lightroom.',
+  },
+  {
+    icon: 'line-md:paint-palette-twotone',
+    title: 'Digital Painting',
+    description: 'Custom digital illustrations and concept art that bring imagination to canvas with meticulous detail and artistry.',
+  },
+  {
+    icon: 'line-md:clipboard-list-twotone',
+    title: 'Admin Support',
+    description: 'Reliable virtual assistance — email management, scheduling, data entry, and operational support to keep your business running smoothly.',
+  },
+  {
+    icon: 'line-md:document-list-twotone',
+    title: 'Graphic Design',
+    description: 'Stunning layouts for social media, print materials, presentations, and marketing collateral using Photoshop and Canva.',
+  },
+  {
+    icon: 'line-md:video-twotone',
+    title: 'Videography',
+    description: 'Creative video production and editing that tells your story with cinematic quality and compelling narrative flow.',
+  },
+];
+
+interface ServicesContent {
+  subtitle: string;
+  heading: string;
 }
 
-const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
+const defaultContent: ServicesContent = {
+  subtitle: 'What I Do',
+  heading: 'Services & Expertise',
+};
 
-export default function SelectedWorks() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [loading, setLoading] = useState(true);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const swiperRef = useRef<SwiperType | null>(null);
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
 
-  const fetchWorks = useCallback(async () => {
-    try {
-      setLoading(true);
-      const { data, error: dbError } = await supabase
-        .from('portfolio_projects')
-        .select('*')
-        .order('created_at', { ascending: false });
+const itemVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
 
-      if (dbError) throw dbError;
-      setProjects(data || []);
-    } catch (err: unknown) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+export default function Services() {
+  const { ref, isVisible } = useScrollReveal();
+  const sectionRef = useRef<HTMLElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+  const [content, setContent] = useState<ServicesContent>(defaultContent);
+  const [servicesData, setServicesData] = useState(defaultServices);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('site_content')
+          .select('key, value')
+          .eq('section', 'services');
+
+        if (!error && data && data.length > 0) {
+          const mappedContent = { ...defaultContent };
+          const mappedServices = [...defaultServices];
+          data.forEach((row) => {
+            const key = row.key.toLowerCase();
+            if (key === 'subtitle') mappedContent.subtitle = row.value;
+            if (key === 'heading') mappedContent.heading = row.value;
+            for (let i = 1; i <= 6; i++) {
+              if (key === `service${i}_title`) mappedServices[i - 1].title = row.value;
+              if (key === `service${i}_desc`) mappedServices[i - 1].description = row.value;
+            }
+          });
+          setContent(mappedContent);
+          setServicesData(mappedServices);
+        }
+      } catch (e) {
+        console.warn('Syncing default content...');
+      }
+    };
+    fetchContent();
   }, []);
 
   useEffect(() => {
-    fetchWorks();
-  }, [fetchWorks]);
-
-  useEffect(() => {
-    const categoryFiltered = activeCategory === 'All' 
-      ? projects 
-      : projects.filter(p => p.category === activeCategory);
-    
-    const uniqueProjects: Project[] = [];
-    const seenTitles = new Set<string>();
-
-    categoryFiltered.forEach(p => {
-      const cleanTitle = p.title.trim();
-      if (!seenTitles.has(cleanTitle)) {
-        seenTitles.add(cleanTitle);
-        uniqueProjects.push(p);
-      }
+    const ctx = gsap.context(() => {
+      gsap.fromTo(bgRef.current, { yPercent: 0 }, {
+        yPercent: -20,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      });
     });
-    
-    setFilteredProjects(uniqueProjects);
-    
-    if (swiperRef.current) {
-      swiperRef.current.slideTo(0, 0);
-      swiperRef.current.update();
-    }
-    setActiveIndex(0);
-  }, [activeCategory, projects]);
-
-  useEffect(() => {
-    if (selectedProject) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    };
-  }, [selectedProject]);
-
-  if (loading) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-black gap-6">
-      <Loader2 className="w-12 h-12 text-accent animate-spin" />
-    </div>
-  );
-
-  const currentProject = filteredProjects[activeIndex];
-  const galleryImages = selectedProject 
-    ? projects.filter(p => p.title.trim() === selectedProject.title.trim())
-    : [];
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden font-sans">
-      
-      <AnimatePresence mode="wait">
-        {currentProject && (
-          <motion.div
-            key={currentProject.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.7 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
-            className="absolute inset-0 z-0"
-          >
-            <img 
-              src={currentProject.hero_bg_mobile || currentProject.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
-              className="w-full h-full object-cover md:hidden" 
-              alt="bg mobile" 
-            />
-            <img 
-              src={currentProject.hero_bg_desktop || currentProject.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
-              className="hidden md:block w-full h-full object-cover" 
-              alt="bg desktop" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <section ref={sectionRef} className="section-padding relative overflow-visible z-40 bg-transparent">
+      <div id="services" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
 
-      <div className="relative z-10 min-h-screen flex flex-col px-6 md:px-16 pt-24 pb-8 md:pt-28 md:pb-12">
-        
-        {/* MISSING TITLE RESTORED HERE */}
-        <div className="mb-8 md:mb-12 shrink-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-accent mb-2">
-            Portfolio
-          </p>
-          <h2 className="text-white text-4xl md:text-6xl font-black uppercase italic tracking-tighter leading-none">
-            Selected Works
-          </h2>
-        </div>
+      {/* Floating 3D Identities */}
+      <FloatingCube type="Ps" size={120} top="10%" right="5%" blur="4px" delay={0.5} duration={7} />
+      <FloatingCube type="Ai" size={60} bottom="20%" left="5%" blur="1px" delay={1.5} duration={5} />
 
-        <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4 shrink-0">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setActiveCategory(cat)}
-              className={`text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
-                activeCategory === cat ? 'text-white scale-110' : 'text-white/40 hover:text-white'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-auto flex flex-col w-full">
-          
-          <div className="max-w-3xl mb-6 md:mb-8">
-            <AnimatePresence mode="wait">
-              {currentProject && (
-                <motion.div
-                  key={currentProject.id}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -20, opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <span className="text-accent text-xs font-bold tracking-[0.2em] uppercase block mb-2 md:mb-4">
-                    {currentProject.category}
-                  </span>
-                  <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight leading-none mb-3 md:mb-4 line-clamp-2">
-                    {currentProject.title}
-                  </h1>
-                  <p className="text-white/70 text-sm md:text-base leading-relaxed mb-6 md:mb-8 max-w-2xl line-clamp-3">
-                    {currentProject.description}
-                  </p>
-                  <button 
-                    type="button"
-                    onClick={() => setSelectedProject(currentProject)}
-                    className="flex items-center gap-3 bg-accent text-black px-10 py-3 text-xs font-bold rounded-2xl hover:drop-shadow-[0_0_20px_var(--accent)] transition-all uppercase tracking-widest"
-                  >
-                    <Play size={16} fill="black" /> View Project
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <div className="w-full relative z-50">
-            <h2 className="text-white/50 text-xs font-bold uppercase tracking-[0.2em] mb-4">
-              Up Next in Portfolio
-            </h2>
-            
-            <div className="relative w-full">
-              <Swiper
-                onSwiper={(s) => (swiperRef.current = s)}
-                modules={[Navigation]}
-                spaceBetween={16}
-                slidesPerView={'auto'}
-                slidesOffsetAfter={100}
-                observer={true}
-                observeParents={true}
-                watchSlidesProgress={true}
-                onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-                className="overflow-visible"
-              >
-                {filteredProjects.map((project, idx) => (
-                  <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[240px]">
-                    <div 
-                      onClick={() => {
-                        setActiveIndex(idx);
-                        swiperRef.current?.slideTo(idx);
-                      }}
-                      className={`relative aspect-video bg-white/5 cursor-pointer transition-all duration-500 rounded-sm overflow-hidden border-2 z-[60] flex items-center justify-center ${
-                        activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_20px_var(--accent)]' : 'border-transparent opacity-50 grayscale hover:opacity-100 hover:grayscale-0'
-                      }`}
-                    >
-                      {(project.card_thumbnail || project.image_url) ? (
-                        <img 
-                          src={project.card_thumbnail || project.image_url} 
-                          className="w-full h-full object-cover pointer-events-none" 
-                          alt={project.title} 
-                        />
-                      ) : (
-                        <span className="text-white/20 text-xs">No Image</span>
-                      )}
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-          </div>
-        </div>
-
+      <div ref={bgRef} className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--accent))] opacity-[0.05] blur-[100px]" />
       </div>
 
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xl overflow-y-auto"
-            onClick={() => setSelectedProject(null)}
-          >
-            <button 
-              type="button" 
-              onClick={() => setSelectedProject(null)} 
-              className="fixed top-6 right-6 md:top-10 md:right-10 text-white hover:text-accent transition-colors z-[10000] bg-white/5 p-2 rounded-2xl backdrop-blur-md border border-white/10"
-            >
-              <X size={24} />
-            </button>
+      <div ref={ref} className="section-container relative">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          className="text-center mb-20"
+        >
+          <p className="text-[10px] font-heading tracking-[0.4em] uppercase text-accent mb-4 font-black">
+            {content.subtitle}
+          </p>
+          <h2 className="font-bold tracking-tighter heading-lg uppercase italic" style={{ color: 'var(--text-primary)' }}>
+            {content.heading}
+          </h2>
+          <div className="mt-6 w-12 h-1 bg-accent mx-auto" />
+        </motion.div>
+
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate={isVisible ? 'visible' : 'hidden'}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {servicesData.map((service, index) => (
             <motion.div 
-              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 items-start my-auto mt-24 lg:mt-auto bg-white/5 border border-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
+              key={index} 
+              variants={itemVariants} 
+              className="group p-10 rounded-[2.5rem] border transition-all duration-500 relative overflow-hidden flex flex-col items-start"
+              style={{ 
+                 // FROSTED GLASS LOGIC
+                 backgroundColor: 'rgba(var(--accent-rgb), 0.03)', 
+                 borderColor: 'rgba(var(--accent-rgb), 0.1)',
+                 backdropFilter: 'blur(25px) saturate(160%)',
+                 WebkitBackdropFilter: 'blur(25px) saturate(160%)',
+                 boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+              }}
             >
-              <div className="border border-white/10 rounded-2xl overflow-hidden flex flex-col gap-4 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar bg-white/5 p-2">
-                 {galleryImages.map((img) => (
-                    <img 
-                      key={img.id} 
-                      src={img.hero_bg_desktop || img.image_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='} 
-                      alt="project" 
-                      className="w-full h-auto object-cover rounded-xl shadow-lg" 
-                    />
-                 ))}
+              {/* Specular highlight (top edge) */}
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50" />
+
+              {/* ICON CONTAINER */}
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-all duration-500 bg-white/5 border border-white/10 group-hover:scale-110 group-hover:bg-accent group-hover:border-accent group-hover:shadow-[0_0_25px_var(--accent)]">
+                <iconify-icon 
+                  icon={service.icon} 
+                  style={{ 
+                    fontSize: '32px', 
+                    color: 'var(--accent)',
+                    transition: 'color 0.5s ease'
+                  }}
+                  className="group-hover:!text-[var(--accent-contrast)]"
+                />
               </div>
-              <div className="text-left flex flex-col gap-6 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar pr-2">
-                <div>
-                  <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
-                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2LEADINGtight text">{selectedProject.title}</h2>
-                  <p className="text-white/70 mt-4 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
-                </div>
+              
+              <h3 className="font-black tracking-tight text-2xl mb-4 uppercase italic transition-colors duration-300 group-hover:text-accent" style={{ color: 'var(--text-primary)' }}>
+                {service.title}
+              </h3>
+              <p className="text-sm leading-relaxed transition-colors duration-300" style={{ color: 'var(--text-secondary)' }}>
+                {service.description}
+              </p>
 
-                {selectedProject.tools && Array.isArray(selectedProject.tools) && selectedProject.tools.length > 0 && (
-                  <div>
-                    <h3 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-3">Tools Used</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedProject.tools.map((tool, i) => (
-                        <span key={i} className="px-3 py-1 bg-white/10 border border-white/20 rounded-2xl text-xs text-white/80 backdrop-blur-md">
-                          {tool}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {selectedProject.process && (
-                  <div>
-                    <h3 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Process</h3>
-                    <p className="text-white/70 text-sm md:text-base leading-relaxed whitespace-pre-wrap">{selectedProject.process}</p>
-                  </div>
-                )}
-
-                {selectedProject.results && (
-                  <div>
-                    <h3 className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Results</h3>
-                    <p className="text-white/70 text-sm md:text-base leading-relaxed whitespace-pre-wrap">{selectedProject.results}</p>
-                  </div>
-                )}
-              </div>
+              {/* Decorative radial glow following the icon color */}
+              <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-accent/5 blur-[50px] rounded-full group-hover:bg-accent/15 transition-colors duration-700" />
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <style jsx global>{`.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
+          ))}
+        </motion.div>
+      </div>
     </section>
   );
 }
