@@ -138,14 +138,15 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 min-h-screen flex flex-col px-6 md:px-16 pt-24 pb-8 md:pt-28 md:pb-12">
         
-        <div className="text-center mb-12 md:mb-16 relative z-50 shrink-0">
-          <p className="text-[10px] font-display tracking-[0.4em] uppercase text-accent mb-4 font-black">
+        {/* CORRECTED SECTION TITLE - Matches About & Skills typography exactly */}
+        <div className="w-full text-center mb-10 md:mb-16 relative z-50 shrink-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-accent mb-4">
             Portfolio
           </p>
-          <h2 className="font-black tracking-tighter text-4xl md:text-6xl uppercase italic text-[var(--text-primary)]">
+          <h2 className="text-white text-3xl md:text-4xl font-bold uppercase tracking-wider">
             Selected Works
           </h2>
-          <div className="mt-6 w-12 h-1 bg-accent mx-auto" />
+          <div className="mt-4 w-12 h-1 bg-accent mx-auto" />
         </div>
 
         <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4 shrink-0">
@@ -276,7 +277,7 @@ export default function SelectedWorks() {
               <div className="text-left flex flex-col gap-6 max-h-[50vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar pr-2">
                 <div>
                   <span className="text-accent text-xs font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
-                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2LEADINGtight text">{selectedProject.title}</h2>
+                  <h2 className="text-white text-3xl sm:text-4xl lg:text-5xl font-bold uppercase mt-2 leading-tight">{selectedProject.title}</h2>
                   <p className="text-white/70 mt-4 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
                 </div>
 
@@ -314,5 +315,4 @@ export default function SelectedWorks() {
       <style jsx global>{`.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
     </section>
   );
-            }
-                                                     
+}
