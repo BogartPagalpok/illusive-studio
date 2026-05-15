@@ -138,14 +138,14 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 min-h-screen flex flex-col px-6 md:px-16 pt-24 pb-8 md:pt-28 md:pb-12">
         
-        {/* MISSING TITLE RESTORED HERE */}
-        <div className="mb-8 md:mb-12 shrink-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-accent mb-2">
+        <div className="text-center mb-12 md:mb-16 relative z-50 shrink-0">
+          <p className="text-[10px] font-display tracking-[0.4em] uppercase text-accent mb-4 font-black">
             Portfolio
           </p>
-          <h2 className="text-white text-4xl md:text-6xl font-black uppercase italic tracking-tighter leading-none">
+          <h2 className="font-black tracking-tighter text-4xl md:text-6xl uppercase italic text-[var(--text-primary)]">
             Selected Works
           </h2>
+          <div className="mt-6 w-12 h-1 bg-accent mx-auto" />
         </div>
 
         <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4 shrink-0">
@@ -314,4 +314,5 @@ export default function SelectedWorks() {
       <style jsx global>{`.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
     </section>
   );
-                        }
+            }
+                                                     
