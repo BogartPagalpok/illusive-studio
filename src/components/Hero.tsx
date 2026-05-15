@@ -41,12 +41,9 @@ export default function Hero() {
     offset: ['start start', 'end start'],
   });
 
+  // 1. Main Hero Text: Fades out quickly (0% to 15% of scroll) to reveal the background
   const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 0.15], ['0%', '-20%']);
-
-  const flavorOpacity = useTransform(scrollYProgress, [0.25, 0.35, 0.85, 0.95], [0, 1, 1, 0]);
-  const flavorScale = useTransform(scrollYProgress, [0.25, 0.95], [0.9, 1.1]);
-  const flavorY = useTransform(scrollYProgress, [0.25, 0.95], ['50px', '-100px']);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -71,6 +68,7 @@ export default function Hero() {
     fetchContent();
   }, []);
 
+  // GSAP SCROLL FIX (Long scroll length maintained)
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
@@ -102,7 +100,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="hero" className="w-full bg-black overflow-hidden relative flex flex-col items-center">
+    <section ref={sectionRef} id="hero" className="w-full bg-black overflow-hidden relative">
       <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 4 : 6}>
         
         <div className="hidden md:block">
@@ -110,22 +108,21 @@ export default function Hero() {
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
         </div>
 
-        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px] w-full max-w-[100vw] overflow-hidden flex flex-col items-center justify-center">
+        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
           
           <div className="absolute inset-0 bg-black/40 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none z-0" />
 
           {/* LAYER 1: MAIN HERO TEXT */}
-          {/* FIX: Removed px-6 from the main wrapper, enforced text-center strictly, and constrained width to prevent off-center alignment on mobile */}
           <motion.div 
             style={{ opacity: heroOpacity, y: heroY }}
-            className="absolute z-10 flex flex-col items-center justify-center w-full max-w-5xl mx-auto px-4 md:px-8 pointer-events-auto text-center"
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto"
           >
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-[9px] sm:text-[10px] md:text-xs font-heading tracking-[0.3em] sm:tracking-[0.4em] uppercase mb-6 md:mb-8 text-white/70 text-center w-full"
+              className="text-[9px] md:text-xs font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-white/70 text-center w-full"
             >
               {content.subtitle}
             </motion.p>
@@ -156,42 +153,15 @@ export default function Hero() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 1 }}
-              className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-4 justify-center w-full"
+              className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full"
             >
-              <a href="#works" onClick={(e) => scrollToId(e, 'works')} className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] inline-flex justify-center w-auto mx-auto sm:mx-0">
+              <a href="#works" onClick={(e) => scrollToId(e, 'works')} className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">
                 View Works
               </a>
-              <a href="#contact" onClick={(e) => scrollToId(e, 'contact')} className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] bg-black/40 backdrop-blur-md inline-flex justify-center w-auto mx-auto sm:mx-0">
+              <a href="#contact" onClick={(e) => scrollToId(e, 'contact')} className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] bg-black/40 backdrop-blur-md text-center w-full sm:w-auto">
                 Get in Touch
               </a>
             </motion.div>
-          </motion.div>
-
-          {/* LAYER 2: FLAVOR TEXT / SCROLL BRIDGE */}
-          <motion.div
-            style={{ opacity: flavorOpacity, scale: flavorScale, y: flavorY }}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none px-6 w-full text-center"
-          >
-            <div className="flex flex-col items-center gap-6 w-full">
-              <div className="w-px h-16 md:h-24 bg-gradient-to-b from-transparent to-accent" />
-              
-              <h2 className="text-2xl md:text-4xl font-heading font-black tracking-widest uppercase text-white text-center leading-tight">
-                Engineering <br />
-                <span style={{ WebkitTextStroke: '1px rgba(255,255,255,0.4)', color: 'transparent' }}>
-                  Visual Reality
-                </span>
-              </h2>
-              
-              <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-8 text-[8px] md:text-[10px] font-heading font-black tracking-[0.3em] sm:tracking-[0.4em] uppercase text-accent w-full">
-                <span>Identity</span>
-                <span className="opacity-40">//</span>
-                <span>Motion</span>
-                <span className="opacity-40">//</span>
-                <span>Pixels</span>
-              </div>
-              
-              <div className="w-px h-16 md:h-24 bg-gradient-to-b from-accent to-transparent" />
-            </div>
           </motion.div>
 
           {/* FIXED SCROLL INDICATOR */}
@@ -199,7 +169,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.3 }}
-            className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-auto z-20 w-full"
+            className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-auto z-20"
           >
             <button
               onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
