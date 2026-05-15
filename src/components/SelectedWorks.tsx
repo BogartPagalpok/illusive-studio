@@ -71,9 +71,16 @@ export default function SelectedWorks() {
     });
 
     setFilteredProjects(uniqueProjects);
-    swiperRef.current?.slideToLoop(0, 0);
-    swiperRef.current?.update();
     setActiveIndex(0);
+
+    // Swiper loop fix: destroy loop, slide to first, recreate
+    if (swiperRef.current) {
+      const swiper = swiperRef.current;
+      swiper.loopDestroy();
+      swiper.slideTo(0, 0);
+      swiper.loopCreate();
+      swiper.update();
+    }
   }, [activeCategory, projects]);
 
   useEffect(() => {
@@ -98,6 +105,9 @@ export default function SelectedWorks() {
     ? projects.filter(p => p.title.trim() === selectedProject.title.trim())
     : [];
 
+  // Only enable infinite loop when enough slides exist
+  const enableLoop = filteredProjects.length >= 3;
+
   return (
     <section id="works" className="relative section-padding overflow-visible z-40 bg-transparent">
       <div className="section-container relative">
@@ -115,20 +125,20 @@ export default function SelectedWorks() {
           <div className="section-divider" />
         </motion.div>
 
-        {/* HERO CARD – fixed height, infinite loop, keyboard enabled */}
+        {/* HERO CARD – fixed height, infinite loop when enough slides */}
         <div className="relative w-full rounded-[40px] overflow-hidden card-glass flex flex-col"
              style={{ 
                height: 'clamp(600px, 80vh, 900px)',
                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' 
              }}>
 
-          {/* Background image with lighter overlays to show more image */}
+          {/* Background image with lighter overlays */}
           <AnimatePresence mode="wait">
             {currentProject && (
               <motion.div
                 key={currentProject.id}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}          // slightly more visible
+                animate={{ opacity: 0.5 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.8 }}
                 className="absolute inset-0 z-0 pointer-events-none"
@@ -138,7 +148,6 @@ export default function SelectedWorks() {
                   className="w-full h-full object-cover"
                   alt=""
                 />
-                {/* Lighter gradients: left side fades less, bottom fades but not fully opaque */}
                 <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-primary)]/60 via-[var(--bg-primary)]/10 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)]/80 via-transparent to-transparent" />
               </motion.div>
@@ -165,7 +174,7 @@ export default function SelectedWorks() {
               </div>
             </div>
 
-            {/* SCROLLABLE CONTENT BLOCK – moved to bottom-left, smaller titles */}
+            {/* SCROLLABLE CONTENT BLOCK – bottom left, smaller titles */}
             <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mb-6 flex items-end">
               <AnimatePresence mode="wait">
                 {currentProject && (
@@ -174,12 +183,11 @@ export default function SelectedWorks() {
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: 20, opacity: 0 }}
-                    className="max-w-xl"   // limit width so it doesn't stretch too far
+                    className="max-w-xl"
                   >
                     <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-2">
                       {currentProject.category}
                     </span>
-                    {/* Reduced font sizes across breakpoints */}
                     <h3 className="text-[var(--text-primary)] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tighter leading-[1.1] break-words">
                       {currentProject.title}
                     </h3>
@@ -200,16 +208,15 @@ export default function SelectedWorks() {
                 </button>
               </div>
 
-              {/* Swiper with keyboard + infinite loop fixes */}
               <Swiper
                 onSwiper={(s) => (swiperRef.current = s)}
                 modules={[Navigation, Keyboard]}
                 spaceBetween={16}
                 slidesPerView={'auto'}
-                loop={true}
-                loopAdditionalSlides={3}        // ensures enough duplicates for right-side loop
-                keyboard={{ enabled: true }}     // enable arrow keys
-                onSlideChange={(s) => setActiveIndex(s.realIndex)}
+                loop={enableLoop}
+                loopAdditionalSlides={enableLoop ? 3 : 0}
+                keyboard={{ enabled: true }}
+                onSlideChange={(s) => setActiveIndex(enableLoop ? s.realIndex : s.activeIndex)}
                 className="w-full !pb-2"
               >
                 {filteredProjects.map((project, idx) => (
@@ -217,7 +224,13 @@ export default function SelectedWorks() {
                     <div
                       onClick={() => {
                         setActiveIndex(idx);
-                        swiperRef.current?.slideToLoop(idx);
+                        if (swiperRef.current) {
+                          if (enableLoop) {
+                            swiperRef.current.slideToLoop(idx);
+                          } else {
+                            swiperRef.current.slideTo(idx);
+                          }
+                        }
                       }}
                       className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-xl overflow-hidden border-2 ${
                         activeIndex === idx
@@ -235,7 +248,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* PROJECT MODAL – with tools, process, results */}
+      {/* PROJECT MODAL – unchanged */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -256,7 +269,6 @@ export default function SelectedWorks() {
               onClick={(e) => e.stopPropagation()}
               className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
             >
-              {/* LEFT: Gallery */}
               <div className="space-y-6">
                 {galleryImages.map((img) => (
                   <img
@@ -268,7 +280,6 @@ export default function SelectedWorks() {
                 ))}
               </div>
 
-              {/* RIGHT: Info + details */}
               <div className="space-y-6 lg:sticky lg:top-0 h-fit">
                 <div>
                   <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">
