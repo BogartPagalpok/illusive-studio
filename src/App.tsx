@@ -12,25 +12,34 @@ import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 
 function AtmosphereGradient() {
   return (
-    <div className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none bg-[#020204]">
+    <div 
+      className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none transition-colors duration-700"
+      style={{ backgroundColor: 'var(--bg-primary)' }}
+    >
       <motion.div 
         animate={{ x: ['-5%', '5%', '-5%'], y: ['-2%', '2%', '-2%'] }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full opacity-30 blur-[80px] will-change-transform"
+        className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full opacity-20 blur-[100px] will-change-transform"
         style={{ 
           background: 'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)',
-          filter: 'saturate(1.5)'
+          filter: 'saturate(1.2)'
         }}
       />
       <motion.div 
         animate={{ x: ['5%', '-5%', '5%'], y: ['2%', '-2%', '2%'] }}
         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full opacity-20 blur-[70px] will-change-transform"
+        className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full opacity-10 blur-[90px] will-change-transform"
         style={{ 
           background: 'radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--accent), #4000ff 40%) 0%, transparent 70%)',
         }}
       />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.85)_100%)]" />
+      <div 
+        className="absolute inset-0 transition-opacity duration-700" 
+        style={{ 
+          background: 'var(--bg-gradient)',
+          opacity: 0.8
+        }} 
+      />
     </div>
   );
 }
@@ -42,10 +51,7 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Ignition: Load the Global Master Theme from Supabase site_config
     loadSavedTheme();
-
-    // 2. Real-time Bridge: Listen for theme updates from other devices
     const themeSubscription = subscribeToThemeChanges();
 
     const initAuth = async () => {
@@ -56,7 +62,6 @@ function App() {
       } catch (err) {
         console.error('Supabase connection failed:', err);
       } finally {
-        // Only stop loading once auth AND initial theme load are handled
         setLoading(false);
       }
     };
@@ -69,7 +74,7 @@ function App() {
 
     return () => {
       authSubscription.unsubscribe();
-      themeSubscription.unsubscribe(); // Clean up Real-time listener
+      themeSubscription.unsubscribe();
     };
   }, []);
 
