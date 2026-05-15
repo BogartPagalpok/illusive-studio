@@ -116,17 +116,18 @@ export default function Services() {
       </div>
 
       <div ref={ref} className="section-container relative">
-        {/* REPLICATED TITLE BLOCK FROM ABOUT.TSX */}
+        
+        {/* UNIVERSAL TITLE STANDARD */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-20"
+          className="text-center mb-20 flex flex-col items-center"
         >
-          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
+          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4 font-bold">
             {content.subtitle}
           </p>
-          <h2 className="font-bold tracking-tighter heading-lg uppercase" style={{ color: '#ffffff' }}>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter text-white">
             {content.heading.split(' ').map((word, i, arr) => (
               <span key={i}>
                 {word === '&' ? <span className="text-accent">&</span> : word}
@@ -134,7 +135,7 @@ export default function Services() {
               </span>
             ))}
           </h2>
-          <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
+          <div className="mt-8 w-16 h-1 bg-accent rounded-full" />
         </motion.div>
 
         {/* REPLICATED GRID & CARD STRUCTURE FROM ABOUT.TSX */}
