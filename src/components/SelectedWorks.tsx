@@ -91,16 +91,21 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative section-padding overflow-visible z-40 bg-transparent">
       <div className="section-container relative">
-        {/* UNIFIED TITLE BLOCK */}
+        
+        {/* UNIFIED TITLE BLOCK - Fixed to match About & Contact scales */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16 md:mb-24"
+          className="text-center mb-20"
         >
-          <span className="section-subtitle">Portfolio</span>
-          <h2 className="section-title">Selected Works</h2>
-          <div className="section-divider" />
+          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-6 font-black">
+            Portfolio
+          </p>
+          <h2 className="heading-lg italic font-black uppercase tracking-tighter leading-[0.9] mb-10" style={{ color: 'var(--text-primary)' }}>
+            SELECTED <span className="text-accent">WORKS</span>
+          </h2>
+          <div className="w-20 h-1 bg-accent mx-auto" />
         </motion.div>
 
         {/* HERO CARD */}
@@ -199,52 +204,3 @@ export default function SelectedWorks() {
                       }`}
                     >
                       <img src={project.card_thumbnail || project.image_url} className="w-full h-full object-cover" alt="" />
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* PROJECT MODAL */}
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-background/90 backdrop-blur-2xl"
-            onClick={() => setSelectedProject(null)}
-          >
-            <button onClick={() => setSelectedProject(null)} className="fixed top-8 right-8 text-primary bg-surface p-4 rounded-full border border-border hover:bg-accent hover:text-black transition-colors"><X size={24} /></button>
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-12 bg-surface border border-border p-10 rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh]"
-            >
-              <div className="space-y-6">
-                 {galleryImages.map((img) => (
-                    <img key={img.id} src={img.hero_bg_desktop || img.image_url} className="w-full rounded-[24px] shadow-lg" alt="" />
-                 ))}
-              </div>
-              <div className="space-y-8 sticky top-0 h-fit">
-                <div>
-                  <span className="text-accent text-xs font-bold tracking-[0.4em] uppercase">{selectedProject.category}</span>
-                  <h2 className="text-primary text-5xl font-black uppercase mt-4 tracking-tighter leading-tight">{selectedProject.title}</h2>
-                  <p className="text-secondary text-lg leading-relaxed mt-6">{selectedProject.description}</p>
-                </div>
-                {selectedProject.tools && (
-                  <div className="flex flex-wrap gap-3">
-                    {selectedProject.tools.map((t) => (
-                      <span key={t} className="px-4 py-2 bg-background border border-border rounded-lg text-[10px] uppercase text-secondary font-bold tracking-widest">{t}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </section>
-  );
-}
