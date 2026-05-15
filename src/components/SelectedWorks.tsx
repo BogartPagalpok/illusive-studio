@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
+import { Navigation, Keyboard } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import { Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -71,7 +71,6 @@ export default function SelectedWorks() {
     });
 
     setFilteredProjects(uniqueProjects);
-    // Use slideToLoop to work with infinite loop
     swiperRef.current?.slideToLoop(0, 0);
     swiperRef.current?.update();
     setActiveIndex(0);
@@ -116,19 +115,20 @@ export default function SelectedWorks() {
           <div className="section-divider" />
         </motion.div>
 
-        {/* HERO CARD – fixed height, infinite loop */}
+        {/* HERO CARD – fixed height, infinite loop, keyboard enabled */}
         <div className="relative w-full rounded-[40px] overflow-hidden card-glass flex flex-col"
              style={{ 
                height: 'clamp(600px, 80vh, 900px)',
                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' 
              }}>
 
+          {/* Background image with lighter overlays to show more image */}
           <AnimatePresence mode="wait">
             {currentProject && (
               <motion.div
                 key={currentProject.id}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
+                animate={{ opacity: 0.5 }}          // slightly more visible
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.8 }}
                 className="absolute inset-0 z-0 pointer-events-none"
@@ -138,8 +138,9 @@ export default function SelectedWorks() {
                   className="w-full h-full object-cover"
                   alt=""
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-primary)]/95 via-[var(--bg-primary)]/20 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)] via-transparent to-transparent" />
+                {/* Lighter gradients: left side fades less, bottom fades but not fully opaque */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-primary)]/60 via-[var(--bg-primary)]/10 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)]/80 via-transparent to-transparent" />
               </motion.div>
             )}
           </AnimatePresence>
@@ -164,8 +165,8 @@ export default function SelectedWorks() {
               </div>
             </div>
 
-            {/* SCROLLABLE CONTENT BLOCK */}
-            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mb-6">
+            {/* SCROLLABLE CONTENT BLOCK – moved to bottom-left, smaller titles */}
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mb-6 flex items-end">
               <AnimatePresence mode="wait">
                 {currentProject && (
                   <motion.div
@@ -173,14 +174,16 @@ export default function SelectedWorks() {
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: 20, opacity: 0 }}
+                    className="max-w-xl"   // limit width so it doesn't stretch too far
                   >
                     <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-2">
                       {currentProject.category}
                     </span>
-                    <h3 className="text-[var(--text-primary)] text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-[1.1] break-words">
+                    {/* Reduced font sizes across breakpoints */}
+                    <h3 className="text-[var(--text-primary)] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tighter leading-[1.1] break-words">
                       {currentProject.title}
                     </h3>
-                    <p className="text-[var(--text-secondary)] text-sm md:text-base leading-relaxed mt-3 max-w-2xl">
+                    <p className="text-[var(--text-secondary)] text-sm md:text-base leading-relaxed mt-3">
                       {currentProject.description}
                     </p>
                   </motion.div>
@@ -197,12 +200,15 @@ export default function SelectedWorks() {
                 </button>
               </div>
 
+              {/* Swiper with keyboard + infinite loop fixes */}
               <Swiper
                 onSwiper={(s) => (swiperRef.current = s)}
-                modules={[Navigation]}
+                modules={[Navigation, Keyboard]}
                 spaceBetween={16}
                 slidesPerView={'auto'}
                 loop={true}
+                loopAdditionalSlides={3}        // ensures enough duplicates for right-side loop
+                keyboard={{ enabled: true }}     // enable arrow keys
                 onSlideChange={(s) => setActiveIndex(s.realIndex)}
                 className="w-full !pb-2"
               >
