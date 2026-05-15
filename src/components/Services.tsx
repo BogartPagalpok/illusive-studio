@@ -1,11 +1,7 @@
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const defaultServices = [
   { title: 'Brand Identity', description: 'Complete visual identity systems — logos, color palettes, and typography.', color: 'rgba(157, 0, 255, 0.05)' },
@@ -18,34 +14,42 @@ const defaultServices = [
 
 export default function Services() {
   const { ref, isVisible } = useScrollReveal();
-  const sectionRef = useRef<HTMLElement>(null);
   const [content, setContent] = useState({ subtitle: 'What I Do', heading: 'Services & Expertise' });
   const [servicesData, setServicesData] = useState(defaultServices);
 
   useEffect(() => {
     async function fetchContent() {
-      const { data, error } = await supabase.from('site_content').select('key, value').eq('section', 'services');
-      if (!error && data && data.length > 0) {
-        const mapped = { ...content };
-        const mappedServices = [...servicesData];
-        data.forEach((row) => {
-          const key = row.key.toLowerCase();
-          if (key === 'subtitle') mapped.subtitle = row.value;
-          if (key === 'heading') mapped.heading = row.value;
-          for (let i = 1; i <= 6; i++) {
-            if (key === `service${i}_title`) mappedServices[i - 1].title = row.value;
-            if (key === `service${i}_desc`) mappedServices[i - 1].description = row.value;
-          }
-        });
-        setContent(mapped);
-        setServicesData(mappedServices);
+      try {
+        const { data, error } = await supabase
+          .from('site_content')
+          .select('key, value')
+          .eq('section', 'services');
+
+        if (!error && data && data.length > 0) {
+          const mapped = { subtitle: 'What I Do', heading: 'Services & Expertise' };
+          const mappedServices = [...defaultServices];
+          
+          data.forEach((row) => {
+            const key = row.key.toLowerCase();
+            if (key === 'subtitle') mapped.subtitle = row.value;
+            if (key === 'heading') mapped.heading = row.value;
+            for (let i = 1; i <= 6; i++) {
+              if (key === `service${i}_title`) mappedServices[i - 1].title = row.value;
+              if (key === `service${i}_desc`) mappedServices[i - 1].description = row.value;
+            }
+          });
+          setContent(mapped);
+          setServicesData(mappedServices);
+        }
+      } catch (err) {
+        console.error('Supabase fetch error:', err);
       }
     }
     fetchContent();
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-24 lg:py-32 overflow-hidden bg-transparent">
+    <section className="relative py-24 lg:py-32 overflow-hidden bg-transparent">
       <div id="services" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
 
       <div ref={ref} className="max-w-7xl mx-auto px-6 lg:px-8 relative">
@@ -71,7 +75,7 @@ export default function Services() {
           <div className="mt-6 w-12 h-1 bg-accent rounded-full" />
         </motion.div>
 
-        {/* CARDS */}
+        {/* CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {servicesData.map((service, index) => (
             <motion.div
