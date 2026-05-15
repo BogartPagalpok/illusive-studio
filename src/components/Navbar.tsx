@@ -27,7 +27,7 @@ export default function Navbar() {
       const current = window.scrollY;
       setScrolled(current > 50);
 
-      // Auto-hide: Hide on scroll down (>150px), show on scroll up
+      // Auto-hide logic: Hides on downscroll (>150px), shows on upscroll
       const isScrollingDown = current > lastScrollY.current && current > 150;
       setVisible(!isScrollingDown || current < 20);
 
@@ -51,7 +51,7 @@ export default function Navbar() {
           setContent(mapped);
         }
       } catch (err) {
-        // Fallback handled
+        // Silent fallback to avoid build console noise
       }
     }
 
@@ -65,11 +65,12 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
+  // Combining states for visibility
   const isActuallyVisible = visible || isHovered || mobileOpen;
 
   return (
     <>
-      {/* TRIGGER ZONE: Catches hover even when nav is translated out */}
+      {/* 2px TOP TRIGGER: Only for hover reveal when hidden */}
       <div 
         className="fixed top-0 left-0 right-0 h-1 z-[110] bg-transparent" 
         onMouseEnter={() => setIsHovered(true)} 
@@ -128,6 +129,7 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* MOBILE MENU */}
         <div className={`md:hidden overflow-hidden transition-all duration-500 bg-[var(--bg-primary)]/98 backdrop-blur-xl ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
           <div className="section-container py-10 flex flex-col gap-8 px-6">
             {navLinks.map((link) => (
