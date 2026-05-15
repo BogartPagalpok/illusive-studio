@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Keyboard } from 'swiper/modules';
+import { Navigation } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import { Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -33,7 +33,6 @@ export default function SelectedWorks() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
-  const heroCardRef = useRef<HTMLDivElement>(null);
 
   const fetchWorks = useCallback(async () => {
     try {
@@ -74,10 +73,8 @@ export default function SelectedWorks() {
     setFilteredProjects(uniqueProjects);
     setActiveIndex(0);
 
-    // Simply slide to first slide, no loop logic
     if (swiperRef.current) {
       swiperRef.current.slideTo(0, 0);
-      swiperRef.current.el.focus();   // keep focus for keyboard nav
     }
   }, [activeCategory, projects]);
 
@@ -91,15 +88,6 @@ export default function SelectedWorks() {
       document.body.style.overflow = 'unset';
     };
   }, [selectedProject]);
-
-  // Focus swiper on arrow key press inside the card
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-      if (swiperRef.current) {
-        swiperRef.current.el.focus();
-      }
-    }
-  };
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-transparent">
@@ -130,8 +118,6 @@ export default function SelectedWorks() {
 
         {/* Hero Card */}
         <div
-          ref={heroCardRef}
-          onKeyDown={handleKeyDown}
           className="relative w-full rounded-[40px] overflow-hidden card-glass flex flex-col"
           style={{
             height: 'clamp(600px, 80vh, 900px)',
@@ -215,15 +201,10 @@ export default function SelectedWorks() {
               </div>
 
               <Swiper
-                onSwiper={(s) => {
-                  swiperRef.current = s;
-                  s.el.tabIndex = 0;
-                  s.el.focus();
-                }}
-                modules={[Navigation, Keyboard]}
+                onSwiper={(s) => { swiperRef.current = s; }}
+                modules={[Navigation]}
                 spaceBetween={16}
                 slidesPerView={'auto'}
-                keyboard={{ enabled: true }}
                 onSlideChange={(s) => setActiveIndex(s.activeIndex)}
                 className="w-full !pb-2"
               >
@@ -237,7 +218,7 @@ export default function SelectedWorks() {
                       className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-xl overflow-hidden border-2 ${
                         activeIndex === idx
                           ? 'border-accent scale-105 shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]'
-                          : 'border-transparent grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
+                          : 'border-white/5 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
                       }`}
                     >
                       <img src={project.card_thumbnail || project.image_url} className="w-full h-full object-cover" alt="" />
