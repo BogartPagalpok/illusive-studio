@@ -138,15 +138,15 @@ export default function SelectedWorks() {
 
       <div className="relative z-10 min-h-screen flex flex-col px-6 md:px-16 pt-24 pb-8 md:pt-28 md:pb-12">
         
-        {/* CORRECTED SECTION TITLE - Matches About & Skills typography exactly */}
-        <div className="w-full text-center mb-10 md:mb-16 relative z-50 shrink-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-accent mb-4">
+        {/* EXACT STYLING MIRRORED FROM ABOUT.TSX */}
+        <div className="text-center mb-20 relative z-50 shrink-0">
+          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
             Portfolio
           </p>
-          <h2 className="text-white text-3xl md:text-4xl font-bold uppercase tracking-wider">
+          <h2 className="font-bold tracking-tighter heading-lg uppercase" style={{ color: '#ffffff' }}>
             Selected Works
           </h2>
-          <div className="mt-4 w-12 h-1 bg-accent mx-auto" />
+          <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
         </div>
 
         <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4 shrink-0">
