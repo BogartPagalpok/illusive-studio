@@ -11,32 +11,27 @@ const navLinks = [
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [visible, setVisible] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
-  const lastScrollY = useRef(0);
 
+  // ✅ Update scrolled state ONLY for styling (backdrop, shadow)
   useEffect(() => {
     const onScroll = () => {
-      const current = window.scrollY;
-      setScrolled(current > 50);
-
-      // Auto-hide logic: Hides on downscroll (>150px), shows on upscroll
-      const isScrollingDown = current > lastScrollY.current && current > 150;
-      setVisible(!isScrollingDown || current < 20);
-
-      lastScrollY.current = current;
+      setScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
+  // Fetch navbar content (unchanged)
+  useEffect(() => {
     const fetchContent = async () => {
       try {
         const { data } = await supabase
           .from('site_content')
           .select('key, value')
           .eq('section', 'navbar');
-
         if (data) {
           const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
           data.forEach(row => {
@@ -46,12 +41,10 @@ export default function Navbar() {
           setContent(mapped);
         }
       } catch (err) {
-        // Fallback handled
+        // fallback handled
       }
     };
-
     fetchContent();
-    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   const handleNavClick = (id: string) => {
@@ -60,14 +53,16 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
-  const isActuallyVisible = visible || isHovered || mobileOpen;
+  // ✅ Visibility now depends ONLY on hover or mobile menu
+  const isActuallyVisible = isHovered || mobileOpen;
 
   return (
     <>
-      {/* TRIGGER ZONE */}
-      <div 
-        className="fixed top-0 left-0 right-0 h-1 z-[110] bg-transparent" 
-        onMouseEnter={() => setIsHovered(true)} 
+      {/* TRIGGER ZONE – wider height for easier hovering */}
+      <div
+        className="fixed top-0 left-0 right-0 h-8 z-[110] bg-transparent"
+        onMouseEnter={() => setIsHovered(true)}
+        // Optional: hide navbar when leaving the trigger zone directly (but we’ll keep it until mouse leaves the nav)
       />
 
       <nav
@@ -77,8 +72,8 @@ export default function Navbar() {
           scrolled ? 'backdrop-blur-md shadow-lg bg-[var(--bg-primary)]/95' : 'bg-transparent'
         } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
+        {/* ... rest of your JSX remains identical ... */}
         <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
-          
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="group relative font-heading font-black text-xl tracking-wider uppercase text-[var(--text-primary)]"
@@ -99,7 +94,6 @@ export default function Navbar() {
                 </span>
               </button>
             ))}
-            
             <button
               onClick={() => handleNavClick('#contact')}
               className="btn-primary text-[10px] py-3 px-8 font-black uppercase tracking-widest hover:scale-105 transition-all"
@@ -116,7 +110,11 @@ export default function Navbar() {
           </button>
         </div>
 
-        <div className={`md:hidden overflow-hidden transition-all duration-500 bg-[var(--bg-primary)] ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
+        <div
+          className={`md:hidden overflow-hidden transition-all duration-500 bg-[var(--bg-primary)] ${
+            mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'
+          }`}
+        >
           <div className="section-container py-10 flex flex-col gap-8 px-6">
             {navLinks.map((link) => (
               <button
