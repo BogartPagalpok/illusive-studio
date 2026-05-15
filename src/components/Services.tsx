@@ -12,32 +12,32 @@ const defaultServices = [
   {
     title: 'Brand Identity',
     description: 'Complete visual identity systems — logos, color palettes, typography, and brand guidelines.',
-    color: 'rgba(157, 0, 255, 0.05)' // Purple tint
+    color: 'rgba(157, 0, 255, 0.05)' 
   },
   {
     title: 'Photography',
     description: 'Professional photo sessions from portraits to product photography, with expert post-processing.',
-    color: 'rgba(0, 255, 157, 0.05)' // Green tint
+    color: 'rgba(0, 255, 157, 0.05)' 
   },
   {
     title: 'Digital Painting',
     description: 'Custom digital illustrations and concept art that bring imagination to canvas.',
-    color: 'rgba(0, 157, 255, 0.05)' // Blue tint
+    color: 'rgba(0, 157, 255, 0.05)' 
   },
   {
     title: 'Admin Support',
     description: 'Reliable virtual assistance — email management, scheduling, and operational support.',
-    color: 'rgba(255, 157, 0, 0.05)' // Orange tint
+    color: 'rgba(255, 157, 0, 0.05)' 
   },
   {
     title: 'Graphic Design',
     description: 'Stunning layouts for social media, print materials, and marketing collateral.',
-    color: 'rgba(255, 0, 157, 0.05)' // Pink tint
+    color: 'rgba(255, 0, 157, 0.05)' 
   },
   {
     title: 'Videography',
     description: 'Creative video production and editing that tells your story with cinematic quality.',
-    color: 'rgba(255, 255, 255, 0.05)' // White/Gray tint
+    color: 'rgba(255, 255, 255, 0.05)' 
   },
 ];
 
@@ -155,7 +155,6 @@ export default function Services() {
                 {service.description}
               </p>
 
-              {/* Subtle hover accent line at bottom */}
               <div className="absolute bottom-0 left-0 w-0 h-1 bg-accent transition-all duration-500 group-hover:w-full" />
             </motion.div>
           ))}
