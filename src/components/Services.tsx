@@ -8,7 +8,6 @@ import FloatingCube from './FloatingCube';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Mapping of icons from line-md library
 const defaultServices = [
   {
     icon: 'line-md:edit-twotone',
@@ -54,24 +53,13 @@ const defaultContent: ServicesContent = {
 
 const containerVariants = {
   hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.1 },
-  },
+  visible: { transition: { staggerChildren: 0.1 } },
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
 };
-
-// Declaring custom element for TypeScript
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'iconify-icon': any;
-    }
-  }
-}
 
 export default function Services() {
   const { ref, isVisible } = useScrollReveal();
@@ -88,56 +76,41 @@ export default function Services() {
           .select('key, value')
           .eq('section', 'services');
 
-        if (error) throw error;
-
-        if (data && data.length > 0) {
+        if (!error && data && data.length > 0) {
           const mappedContent = { ...defaultContent };
           const mappedServices = [...defaultServices];
-
           data.forEach((row) => {
             const key = row.key.toLowerCase();
             if (key === 'subtitle') mappedContent.subtitle = row.value;
             if (key === 'heading') mappedContent.heading = row.value;
-
             for (let i = 1; i <= 6; i++) {
               if (key === `service${i}_title`) mappedServices[i - 1].title = row.value;
               if (key === `service${i}_desc`) mappedServices[i - 1].description = row.value;
             }
           });
-
           setContent(mappedContent);
           setServicesData(mappedServices);
         }
-      } catch (e: any) {
-        console.warn('Using default services content:', e.message);
+      } catch (e) {
+        console.warn('Syncing default content...');
       }
     };
-
     fetchContent();
   }, []);
 
   useEffect(() => {
-    const section = sectionRef.current;
-    const bg = bgRef.current;
-    if (!section || !bg) return;
-
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        bg,
-        { yPercent: 0 },
-        {
-          yPercent: -20,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1,
-          },
-        }
-      );
+      gsap.fromTo(bgRef.current, { yPercent: 0 }, {
+        yPercent: -20,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      });
     });
-
     return () => ctx.revert();
   }, []);
 
@@ -145,79 +118,76 @@ export default function Services() {
     <section ref={sectionRef} className="section-padding relative overflow-visible z-40 bg-transparent">
       <div id="services" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
 
+      {/* Floating 3D Identities */}
       <FloatingCube type="Ps" size={120} top="10%" right="5%" blur="4px" delay={0.5} duration={7} />
       <FloatingCube type="Ai" size={60} bottom="20%" left="5%" blur="1px" delay={1.5} duration={5} />
 
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--accent))] opacity-[0.05] blur-[100px]" />
       </div>
 
       <div ref={ref} className="section-container relative">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
-          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
+          <p className="text-[10px] font-heading tracking-[0.4em] uppercase text-accent mb-4 font-black">
             {content.subtitle}
           </p>
-          <h2 className="font-bold tracking-tighter heading-lg" style={{ color: '#ffffff' }}>
-            {content.heading.split(' ').map((word, i, arr) => (
-              <span key={i}>
-                {word === '&' ? <span className="text-accent">&</span> : word}
-                {i < arr.length - 1 ? ' ' : ''}
-              </span>
-            ))}
+          <h2 className="font-bold tracking-tighter heading-lg uppercase italic" style={{ color: 'var(--text-primary)' }}>
+            {content.heading}
           </h2>
-          <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
+          <div className="mt-6 w-12 h-1 bg-accent mx-auto" />
         </motion.div>
 
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate={isVisible ? 'visible' : 'hidden'}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {servicesData.map((service, index) => {
-            return (
-              <motion.div 
-                key={index} 
-                variants={itemVariants} 
-                className="group p-8 rounded-3xl border transition-all duration-500 backdrop-blur-[32px] saturate-[180%] relative overflow-hidden"
-                style={{ 
-                   backgroundColor: 'rgba(255, 255, 255, 0.03)', 
-                   borderColor: 'rgba(255, 255, 255, 0.12)',
-                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-                   WebkitBackdropFilter: 'blur(32px) saturate(180%)'
-                }}
-              >
-                {/* ICON CONTAINER */}
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 bg-[var(--text-primary)]/5 border border-[var(--text-primary)]/10 group-hover:scale-110 group-hover:bg-accent group-hover:border-accent group-hover:shadow-[0_0_20px_var(--accent)]">
-                  {/* ICONIFY WEB COMPONENT */}
-                  <iconify-icon 
-                    icon={service.icon} 
-                    style={{ 
-                      fontSize: '28px', 
-                      color: 'var(--accent)',
-                      transition: 'color 0.5s ease'
-                    }}
-                    className="group-hover:!text-[var(--accent-contrast)]"
-                  />
-                </div>
-                
-                <h3 className="font-bold tracking-tighter text-xl mb-3 transition-colors duration-300 group-hover:text-accent" style={{ color: '#ffffff' }}>
-                  {service.title}
-                </h3>
-                <p className="text-sm leading-relaxed transition-colors duration-300 group-hover:text-[#ffffff]" style={{ color: '#efefef' }}>
-                  {service.description}
-                </p>
+          {servicesData.map((service, index) => (
+            <motion.div 
+              key={index} 
+              variants={itemVariants} 
+              className="group p-10 rounded-[2.5rem] border transition-all duration-500 relative overflow-hidden flex flex-col items-start"
+              style={{ 
+                 // FROSTED GLASS LOGIC
+                 backgroundColor: 'rgba(var(--accent-rgb), 0.03)', 
+                 borderColor: 'rgba(var(--accent-rgb), 0.1)',
+                 backdropFilter: 'blur(25px) saturate(160%)',
+                 WebkitBackdropFilter: 'blur(25px) saturate(160%)',
+                 boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+              }}
+            >
+              {/* Specular highlight (top edge) */}
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50" />
 
-                {/* Subtle decorative glow */}
-                <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-accent/5 blur-[40px] rounded-full group-hover:bg-accent/20 transition-colors duration-500" />
-              </motion.div>
-            );
-          })}
+              {/* ICON CONTAINER */}
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-all duration-500 bg-white/5 border border-white/10 group-hover:scale-110 group-hover:bg-accent group-hover:border-accent group-hover:shadow-[0_0_25px_var(--accent)]">
+                <iconify-icon 
+                  icon={service.icon} 
+                  style={{ 
+                    fontSize: '32px', 
+                    color: 'var(--accent)',
+                    transition: 'color 0.5s ease'
+                  }}
+                  className="group-hover:!text-[var(--accent-contrast)]"
+                />
+              </div>
+              
+              <h3 className="font-black tracking-tight text-2xl mb-4 uppercase italic transition-colors duration-300 group-hover:text-accent" style={{ color: 'var(--text-primary)' }}>
+                {service.title}
+              </h3>
+              <p className="text-sm leading-relaxed transition-colors duration-300" style={{ color: 'var(--text-secondary)' }}>
+                {service.description}
+              </p>
+
+              {/* Decorative radial glow following the icon color */}
+              <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-accent/5 blur-[50px] rounded-full group-hover:bg-accent/15 transition-colors duration-700" />
+            </motion.div>
+          ))}
         </motion.div>
       </div>
     </section>
