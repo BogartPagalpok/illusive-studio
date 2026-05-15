@@ -14,24 +14,28 @@ export default function Navbar() {
   const [isHovered, setIsHovered] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
-
-  // ✅ Track whether the user has scrolled past the top even once
   const [hasScrolledDown, setHasScrolledDown] = useState(false);
 
-  // Update scrolled for styling AND permanently disable auto‑visibility after first scroll
+  // Scroll effect: styling + one-time hide + auto-close mobile menu
   useEffect(() => {
     const onScroll = () => {
       const current = window.scrollY;
       setScrolled(current > 50);
 
-      // Once the user scrolls down even a little, lock the navbar out of view
+      // Permanently hide navbar after first scroll away from top
       if (current > 0 && !hasScrolledDown) {
         setHasScrolledDown(true);
       }
+
+      // ✅ Automatically close mobile menu when user scrolls
+      if (mobileOpen) {
+        setMobileOpen(false);
+      }
     };
+
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [hasScrolledDown]);
+  }, [hasScrolledDown, mobileOpen]);
 
   // Fetch navbar content
   useEffect(() => {
@@ -62,12 +66,10 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
-  // 👇 Show navbar if hovered, mobile menu open, OR user hasn't scrolled down yet (initial top position)
   const isActuallyVisible = isHovered || mobileOpen || !hasScrolledDown;
 
   return (
     <>
-      {/* Transparent hover trigger zone – adjust height as needed */}
       <div
         className="fixed top-0 left-0 right-0 h-6 z-[110] bg-transparent"
         onMouseEnter={() => setIsHovered(true)}
