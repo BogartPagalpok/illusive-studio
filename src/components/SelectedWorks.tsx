@@ -110,18 +110,18 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative w-full bg-black overflow-x-hidden font-sans">
       
-      {/* MOBILE RESPONSIVE TITLE BRIDGE */}
-      <div className="relative z-50 w-full text-center pt-16 md:pt-24 pb-6 md:pb-12">
-        <p className="text-[10px] md:text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
+      {/* SECTION TITLE - MATCHES ABOUT SECTION EXACTLY */}
+      <div className="relative z-50 w-full text-center pt-20 md:pt-24 mb-12 md:mb-20">
+        <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
           Portfolio
         </p>
-        <h2 className="font-bold tracking-tighter text-3xl md:text-5xl lg:text-6xl uppercase" style={{ color: '#ffffff' }}>
-          Selected Works
+        <h2 className="font-bold tracking-tighter heading-lg" style={{ color: '#ffffff' }}>
+          SELECTED WORKS
         </h2>
-        <div className="mt-4 md:mt-6 w-16 md:w-20 h-0.5 bg-accent mx-auto" />
+        <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
       </div>
 
-      <div className="relative w-full min-h-[70vh] md:min-h-screen flex flex-col">
+      <div className="relative w-full min-h-[75vh] md:min-h-screen flex flex-col">
         {/* BACKGROUND LAYER */}
         <AnimatePresence mode="wait">
           {currentProject && (
@@ -143,14 +143,14 @@ export default function SelectedWorks() {
                 className="hidden md:block w-full h-full object-cover" 
                 alt="bg desktop" 
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/30 md:via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/40 md:via-black/20 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* CONTENT LAYER - Adjusted padding for mobile */}
-        <div className="relative z-10 flex flex-col px-6 md:px-16 pt-4 pb-12 flex-1">
+        {/* CONTENT LAYER */}
+        <div className="relative z-10 flex flex-col px-6 md:px-16 pb-12 flex-1">
           
           <div className="flex gap-4 md:gap-8 items-center overflow-x-auto no-scrollbar pb-6 shrink-0">
             {CATEGORIES.map((cat) => (
@@ -167,8 +167,8 @@ export default function SelectedWorks() {
             ))}
           </div>
 
-          <div className="mt-auto flex flex-col w-full pt-10 md:pt-0">
-            <div className="max-w-3xl mb-8 md:mb-12">
+          <div className="mt-auto flex flex-col w-full pt-8 md:pt-0">
+            <div className="max-w-3xl mb-10 md:mb-14">
               <AnimatePresence mode="wait">
                 {currentProject && (
                   <motion.div
@@ -181,16 +181,16 @@ export default function SelectedWorks() {
                     <span className="text-accent text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase block mb-3 md:mb-4">
                       {currentProject.category}
                     </span>
-                    <h1 className="text-white text-2xl sm:text-4xl md:text-5xl font-bold uppercase tracking-tight leading-none mb-4 md:mb-6 line-clamp-2">
+                    <h1 className="text-white text-3xl sm:text-4xl md:text-6xl font-bold uppercase tracking-tight leading-none mb-4 md:mb-6 line-clamp-2">
                       {currentProject.title}
                     </h1>
-                    <p className="text-white/70 text-xs md:text-base leading-relaxed mb-6 md:mb-10 max-w-2xl line-clamp-3">
+                    <p className="text-white/70 text-sm md:text-base leading-relaxed mb-8 md:mb-12 max-w-2xl line-clamp-3">
                       {currentProject.description}
                     </p>
                     <button 
                       type="button"
                       onClick={() => setSelectedProject(currentProject)}
-                      className="flex items-center gap-3 bg-accent text-black px-8 md:px-10 py-3 text-[10px] md:text-xs font-bold rounded-2xl hover:drop-shadow-[0_0_20px_var(--accent)] transition-all uppercase tracking-widest"
+                      className="flex items-center gap-3 bg-accent text-black px-10 py-3.5 text-[10px] md:text-xs font-bold rounded-2xl hover:drop-shadow-[0_0_20px_var(--accent)] transition-all uppercase tracking-widest"
                     >
                       <Play size={14} fill="black" /> View Project
                     </button>
@@ -201,14 +201,14 @@ export default function SelectedWorks() {
 
             <div className="w-full relative z-50">
               <h2 className="text-white/40 text-[9px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4">
-                Up Next
+                UP NEXT IN PORTFOLIO
               </h2>
               
               <div className="relative w-full">
                 <Swiper
                   onSwiper={(s) => (swiperRef.current = s)}
                   modules={[Navigation]}
-                  spaceBetween={12}
+                  spaceBetween={14}
                   slidesPerView={'auto'}
                   slidesOffsetAfter={100}
                   observer={true}
@@ -218,7 +218,7 @@ export default function SelectedWorks() {
                   className="overflow-visible"
                 >
                   {filteredProjects.map((project, idx) => (
-                    <SwiperSlide key={project.id} className="!w-[130px] sm:!w-[180px] md:!w-[240px]">
+                    <SwiperSlide key={project.id} className="!w-[140px] sm:!w-[180px] md:!w-[260px]">
                       <div 
                         onClick={() => {
                           setActiveIndex(idx);
@@ -276,11 +276,11 @@ export default function SelectedWorks() {
                     />
                  ))}
               </div>
-              <div className="text-left flex flex-col gap-5 md:gap-8 max-h-[45vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar pr-2">
+              <div className="text-left flex flex-col gap-6 md:gap-8 max-h-[45vh] lg:max-h-[75vh] overflow-y-auto no-scrollbar pr-2">
                 <div>
                   <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
-                  <h2 className="text-white text-2xl md:text-5xl font-bold uppercase mt-2 leading-tight">{selectedProject.title}</h2>
-                  <p className="text-white/70 mt-4 text-xs md:text-base leading-relaxed">{selectedProject.description}</p>
+                  <h2 className="text-white text-3xl md:text-5xl font-bold uppercase mt-2 leading-tight">{selectedProject.title}</h2>
+                  <p className="text-white/70 mt-4 text-sm md:text-base leading-relaxed">{selectedProject.description}</p>
                 </div>
 
                 {selectedProject.tools && Array.isArray(selectedProject.tools) && selectedProject.tools.length > 0 && (
@@ -293,13 +293,6 @@ export default function SelectedWorks() {
                         </span>
                       ))}
                     </div>
-                  </div>
-                )}
-
-                {selectedProject.process && (
-                  <div>
-                    <h3 className="text-white/40 text-[9px] font-bold uppercase tracking-[0.2em] mb-2">Process</h3>
-                    <p className="text-white/70 text-xs md:text-base leading-relaxed whitespace-pre-wrap">{selectedProject.process}</p>
                   </div>
                 )}
               </div>
