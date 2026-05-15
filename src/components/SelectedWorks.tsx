@@ -110,6 +110,17 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative min-h-screen w-full bg-black overflow-x-hidden font-sans">
       
+      {/* TITLE PLACED OUTSIDE THE MAIN CONTAINER AS A TRANSITION BRIDGE */}
+      <div className="relative z-50 w-full text-center pt-24">
+        <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
+          Portfolio
+        </p>
+        <h2 className="font-bold tracking-tighter heading-lg uppercase" style={{ color: '#ffffff' }}>
+          Selected Works
+        </h2>
+        <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
+      </div>
+
       <AnimatePresence mode="wait">
         {currentProject && (
           <motion.div
@@ -136,19 +147,7 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      {/* EXACT TITLE BLOCK - NOW PLACED OUTSIDE THE FLEX CONTAINER */}
-      <div className="w-full text-center relative z-50 pt-24 md:pt-32">
-        <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
-          Portfolio
-        </p>
-        <h2 className="font-bold tracking-tighter heading-lg uppercase" style={{ color: '#ffffff' }}>
-          Selected Works
-        </h2>
-        <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
-      </div>
-
-      {/* Main Flex Container (Padding reduced slightly at top to account for the title above it) */}
-      <div className="relative z-10 min-h-screen flex flex-col px-6 md:px-16 pt-12 pb-8 md:pt-16 md:pb-12">
+      <div className="relative z-10 min-h-screen flex flex-col px-6 md:px-16 pt-24 pb-8 md:pt-28 md:pb-12">
         
         <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-4 shrink-0">
           {CATEGORIES.map((cat) => (
