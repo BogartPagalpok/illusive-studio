@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Palette, Camera, PenTool, Headphones, LayoutGrid as Layout, Video } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrollReveal } from '../hooks/useScrollReveal';
@@ -9,34 +8,35 @@ import FloatingCube from './FloatingCube';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Mapping of icons from line-md library
 const defaultServices = [
   {
-    icon: Palette,
+    icon: 'line-md:edit-twotone',
     title: 'Brand Identity',
     description: 'Complete visual identity systems — logos, color palettes, typography, and brand guidelines that make your business unforgettable.',
   },
   {
-    icon: Camera,
+    icon: 'line-md:image-twotone',
     title: 'Photography',
     description: 'Professional photo sessions from portraits to product photography, with expert post-processing in Adobe Lightroom.',
   },
   {
-    icon: PenTool,
+    icon: 'line-md:paint-palette-twotone',
     title: 'Digital Painting',
     description: 'Custom digital illustrations and concept art that bring imagination to canvas with meticulous detail and artistry.',
   },
   {
-    icon: Headphones,
+    icon: 'line-md:clipboard-list-twotone',
     title: 'Admin Support',
     description: 'Reliable virtual assistance — email management, scheduling, data entry, and operational support to keep your business running smoothly.',
   },
   {
-    icon: Layout,
+    icon: 'line-md:document-list-twotone',
     title: 'Graphic Design',
     description: 'Stunning layouts for social media, print materials, presentations, and marketing collateral using Photoshop and Canva.',
   },
   {
-    icon: Video,
+    icon: 'line-md:video-twotone',
     title: 'Videography',
     description: 'Creative video production and editing that tells your story with cinematic quality and compelling narrative flow.',
   },
@@ -63,6 +63,15 @@ const itemVariants = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
 };
+
+// Declaring custom element for TypeScript
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'iconify-icon': any;
+    }
+  }
+}
 
 export default function Services() {
   const { ref, isVisible } = useScrollReveal();
@@ -100,7 +109,7 @@ export default function Services() {
           setServicesData(mappedServices);
         }
       } catch (e: any) {
-        console.warn('Using default services content due to fetch error:', e.message);
+        console.warn('Using default services content:', e.message);
       }
     };
 
@@ -134,14 +143,11 @@ export default function Services() {
 
   return (
     <section ref={sectionRef} className="section-padding relative overflow-visible z-40 bg-transparent">
-      {/* ANCHOR FIX */}
       <div id="services" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
 
-      {/* Floating 3D Identities */}
       <FloatingCube type="Ps" size={120} top="10%" right="5%" blur="4px" delay={0.5} duration={7} />
       <FloatingCube type="Ai" size={60} bottom="20%" left="5%" blur="1px" delay={1.5} duration={5} />
 
-      {/* Parallax depth layer */}
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
       </div>
@@ -174,12 +180,11 @@ export default function Services() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {servicesData.map((service, index) => {
-            const Icon = service.icon;
             return (
               <motion.div 
                 key={index} 
                 variants={itemVariants} 
-                className="group p-8 rounded-3xl border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
+                className="group p-8 rounded-3xl border transition-all duration-500 backdrop-blur-[32px] saturate-[180%] relative overflow-hidden"
                 style={{ 
                    backgroundColor: 'rgba(255, 255, 255, 0.03)', 
                    borderColor: 'rgba(255, 255, 255, 0.12)',
@@ -187,8 +192,18 @@ export default function Services() {
                    WebkitBackdropFilter: 'blur(32px) saturate(180%)'
                 }}
               >
+                {/* ICON CONTAINER */}
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 bg-[var(--text-primary)]/5 border border-[var(--text-primary)]/10 group-hover:scale-110 group-hover:bg-accent group-hover:border-accent group-hover:shadow-[0_0_20px_var(--accent)]">
-                  <Icon size={28} className="text-accent transition-colors duration-500 group-hover:text-[var(--accent-contrast)]" />
+                  {/* ICONIFY WEB COMPONENT */}
+                  <iconify-icon 
+                    icon={service.icon} 
+                    style={{ 
+                      fontSize: '28px', 
+                      color: 'var(--accent)',
+                      transition: 'color 0.5s ease'
+                    }}
+                    className="group-hover:!text-[var(--accent-contrast)]"
+                  />
                 </div>
                 
                 <h3 className="font-bold tracking-tighter text-xl mb-3 transition-colors duration-300 group-hover:text-accent" style={{ color: '#ffffff' }}>
@@ -197,6 +212,9 @@ export default function Services() {
                 <p className="text-sm leading-relaxed transition-colors duration-300 group-hover:text-[#ffffff]" style={{ color: '#efefef' }}>
                   {service.description}
                 </p>
+
+                {/* Subtle decorative glow */}
+                <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-accent/5 blur-[40px] rounded-full group-hover:bg-accent/20 transition-colors duration-500" />
               </motion.div>
             );
           })}
