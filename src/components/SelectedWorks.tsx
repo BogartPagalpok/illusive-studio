@@ -9,6 +9,9 @@ import { supabase } from '../lib/supabase';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
+// FIXED: Defining CATEGORIES so the ReferenceError is gone
+const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
+
 interface Project {
   id: string;
   title: string;
@@ -44,6 +47,7 @@ export default function SelectedWorks() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
 
+  // Dynamic Content Fetch
   useEffect(() => {
     const fetchContent = async () => {
       try {
@@ -138,7 +142,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative z-10 bg-transparent min-h-screen py-10 overflow-hidden flex flex-col justify-center">
       
-      {/* TRANSITION TITLE BRIDGE - MATCHES ABOUT STYLE EXACTLY */}
+      {/* TITLE BRIDGE - Using About.tsx exact typography/classes */}
       <div className="text-center mb-16 relative z-50 shrink-0">
         <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
           {content.subtitle}
@@ -176,6 +180,7 @@ export default function SelectedWorks() {
       </AnimatePresence>
 
       <div className="max-w-[1400px] mx-auto px-4 w-full relative z-20">
+        {/* CATEGORIES BAR */}
         <div className="flex gap-6 md:gap-8 items-center overflow-x-auto no-scrollbar pb-8 shrink-0">
           {CATEGORIES.map((cat) => (
             <button
@@ -257,6 +262,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
+      {/* CASE STUDY MODAL */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div 
@@ -275,7 +281,7 @@ export default function SelectedWorks() {
                     <img key={img.id} src={img.hero_bg_desktop || img.image_url} className="w-full rounded-xl" alt="" />
                  ))}
               </div>
-              <div className="space-y-8">
+              <div className="space-y-8 text-left">
                 <div>
                   <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">{selectedProject.category}</span>
                   <h2 className="text-white text-5xl font-bold uppercase mt-4 tracking-tighter">{selectedProject.title}</h2>
