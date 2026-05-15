@@ -20,121 +20,95 @@ export interface ThemePreset {
 
 export const themePresets: ThemePreset[] = [
   {
-    id: 'VOID',
-    name: 'VOID',
-    tagline: 'DEEP WEB3 PURPLE',
-    bgPrimary: '#0A0A0A',
-    bgSecondary: '#141414',
-    accent: '#8B5CF6',
-    bgGradient: 'radial-gradient(circle at top right, rgba(139, 92, 246, 0.1) 0%, rgba(10, 10, 10, 0) 50%)',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#D1D5DB',
-    fontDisplay: "'Orbitron', sans-serif",
-    fontSans: "'Inter', sans-serif",
-  },
-  {
-    id: 'CLEAN',
-    name: 'CLEAN',
-    tagline: 'APP INTERFACE',
-    bgPrimary: '#F3F4F6',
-    bgSecondary: '#FFFFFF',
-    accent: '#EF4444',
-    bgGradient: 'linear-gradient(135deg, rgba(243, 244, 246, 1) 0%, rgba(229, 231, 235, 1) 100%)',
-    textPrimary: '#111827',
-    textSecondary: '#374151',
-    fontDisplay: "'Inter', sans-serif",
-    fontSans: "'Inter', sans-serif",
-  },
-  {
-    id: 'MAGMA',
-    name: 'MAGMA',
-    tagline: 'INDUSTRIAL CYBERPUNK',
-    bgPrimary: '#0D0202',
-    bgSecondary: '#1A0A0A',
-    accent: '#FF4500',
-    bgGradient: 'radial-gradient(circle at top right, rgba(255, 69, 0, 0.1) 0%, transparent 50%)',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#94A3B8',
-    fontDisplay: "'Orbitron', sans-serif",
-    fontSans: "'Inter', sans-serif",
-  },
-  {
-    id: 'TOXIC',
-    name: 'TOXIC',
-    tagline: 'ACID TECHWEAR',
-    bgPrimary: '#050A05',
-    bgSecondary: '#0A140A',
-    accent: '#BFFF00',
-    bgGradient: 'radial-gradient(circle at top right, rgba(191, 255, 0, 0.08) 0%, transparent 50%)',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#D1D5DB',
-    fontDisplay: "'Space Grotesk', sans-serif",
-    fontSans: "'Inter', sans-serif",
-  },
-  {
-    id: 'OCEAN',
-    name: 'OCEAN',
-    tagline: 'DEEP SEA CRYPTO',
-    bgPrimary: '#00080B',
-    bgSecondary: '#00141A',
-    accent: '#22D3EE',
-    bgGradient: 'radial-gradient(circle at top right, rgba(34, 211, 238, 0.1) 0%, transparent 50%)',
-    textPrimary: '#F4FFFB',
-    textSecondary: '#A3A3A3',
+    id: 'AURORA',
+    name: 'AURORA',
+    tagline: 'ENIGMATIC & PASSIONATE',
+    bgPrimary: '#053931',
+    bgSecondary: '#072928',
+    accent: '#CBEFEB',
+    bgGradient: 'radial-gradient(circle at top center, rgba(203, 239, 235, 0.15) 0%, #053931 100%)',
+    textPrimary: '#CBEFEB',
+    textSecondary: '#48A89A',
     fontDisplay: "'Syne', sans-serif",
-    fontSans: "'Manrope', sans-serif",
-  },
-  {
-    id: 'GOLD',
-    name: 'GOLD',
-    tagline: 'METALLIC LUXURY',
-    bgPrimary: '#0A0A05',
-    bgSecondary: '#14140A',
-    accent: '#D0FF00',
-    bgGradient: 'radial-gradient(circle at 50% -20%, rgba(208, 255, 0, 0.1) 0%, transparent 70%)',
-    textPrimary: '#FEFFFC',
-    textSecondary: '#6B7280',
-    fontDisplay: "'Space Grotesk', sans-serif",
     fontSans: "'Inter', sans-serif",
   },
   {
-    id: 'SYNTH',
-    name: 'SYNTH',
-    tagline: 'RETROWAVE NEON',
-    bgPrimary: '#0D0221',
-    bgSecondary: 'rgba(45, 0, 94, 0.5)',
-    accent: '#FF007A',
-    bgGradient: 'radial-gradient(circle at bottom left, rgba(255, 0, 122, 0.1) 0%, transparent 100%)',
+    id: 'LOTUS',
+    name: 'LOTUS',
+    tagline: 'ENDLESS & CAPTIVATING',
+    bgPrimary: '#0B2249',
+    bgSecondary: '#0C1F41',
+    accent: '#7184CB',
+    bgGradient: 'linear-gradient(180deg, #0B2249 0%, #5985BD 100%)',
     textPrimary: '#FFFFFF',
-    textSecondary: '#BE95FF',
-    fontDisplay: "'Syncopate', sans-serif",
+    textSecondary: '#2C5C93',
+    fontDisplay: "'Orbitron', sans-serif",
     fontSans: "'Plus Jakarta Sans', sans-serif",
   },
   {
-    id: 'GLITCH',
-    name: 'GLITCH',
-    tagline: 'CRIMSON HACKER',
-    bgPrimary: '#000000',
-    bgSecondary: 'rgba(17, 17, 17, 0.8)',
-    accent: '#EF4444',
-    bgGradient: 'radial-gradient(circle at top center, rgba(239, 68, 68, 0.1) 0%, #000 80%)',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#6B7280',
-    fontDisplay: "'Orbitron', sans-serif",
-    fontSans: "'Manrope', sans-serif",
+    id: 'TACTICAL',
+    name: 'TACTICAL',
+    tagline: 'OPERATOR RED',
+    bgPrimary: '#1C1D22',
+    bgSecondary: '#313B44',
+    accent: '#E62815',
+    bgGradient: 'radial-gradient(circle at bottom left, rgba(230, 40, 21, 0.1) 0%, transparent 70%)',
+    textPrimary: '#AAA8AD',
+    textSecondary: '#606467',
+    fontDisplay: "'Space Grotesk', sans-serif",
+    fontSans: "'Inter', sans-serif",
   },
   {
-    id: 'ICE',
-    name: 'ICE',
-    tagline: 'ARCTIC FROST',
-    bgPrimary: '#0F172A',
-    bgSecondary: 'rgba(14, 116, 144, 0.3)',
-    accent: '#BAE6FD',
-    bgGradient: 'linear-gradient(to bottom right, rgba(15, 23, 42, 1) 0%, rgba(14, 116, 144, 0.2) 100%)',
-    textPrimary: '#F1F5F9',
-    textSecondary: '#94A3B8',
-    fontDisplay: "'Outfit', sans-serif",
+    id: 'AMBER_OCEAN',
+    name: 'AMBER',
+    tagline: 'CLARITY OVER COMPLEXITY',
+    bgPrimary: '#000101',
+    bgSecondary: '#172531',
+    accent: '#F3BD68',
+    bgGradient: 'radial-gradient(ellipse at top right, #C7843B 0%, transparent 60%)',
+    textPrimary: '#F3BD68',
+    textSecondary: '#4D6473',
+    fontDisplay: "'Montserrat', sans-serif",
+    fontSans: "'Open Sans', sans-serif",
+  },
+  {
+    id: 'EUCALYPTUS',
+    name: 'EUCALYPTUS',
+    tagline: 'TEAL & TANGERINE',
+    bgPrimary: '#020C0F',
+    bgSecondary: '#053A41',
+    accent: '#FC931F',
+    bgGradient: 'linear-gradient(135deg, #020C0F 0%, #2A9DA6 100%)',
+    textPrimary: '#FC931F',
+    textSecondary: '#1C7C84',
+    fontDisplay: "'Anton', sans-serif",
+    fontSans: "'Roboto Condensed', sans-serif",
+  },
+  {
+    id: 'IMPACT',
+    name: 'IMPACT',
+    tagline: 'EVA UNIT-01',
+    bgPrimary: '#000000',
+    bgSecondary: '#2D1C42',
+    accent: '#BFFF00',
+    bgGradient: 'radial-gradient(circle at top right, rgba(191, 255, 0, 0.1) 0%, transparent 100%)',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#7A5498',
+    fontDisplay: "'Orbitron', sans-serif",
     fontSans: "'Inter', sans-serif",
+  },
+  {
+    id: 'CRIMSON',
+    name: 'CRIMSON',
+    tagline: 'MIDNIGHT ROSE & CLAY',
+    bgPrimary: '#0D0202',
+    bgSecondary: '#6A0409',
+    accent: '#E12D33',
+    bgGradient: 'linear-gradient(180deg, #0D0202 0%, #6A0409 100%)',
+    textPrimary: '#FDFBFA',
+    textSecondary: '#9D3737',
+    fontDisplay: "'Playfair Display', serif",
+    fontSans: "'Raleway', sans-serif",
   }
 ];
 
@@ -149,8 +123,6 @@ function getContrastYIQ(hexcolor: string) {
 
 export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   const root = document.documentElement;
-  
-  // Set data attribute for global CSS targeting
   root.setAttribute('data-theme', theme.id);
   
   root.style.setProperty('--bg-primary', theme.bgPrimary);
@@ -165,113 +137,67 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   const accentContrast = getContrastYIQ(theme.accent);
   root.style.setProperty('--accent-contrast', accentContrast === 'white' ? '#FFFFFF' : '#000000');
 
-  // Save the theme locally immediately to prevent flashes on next load
   localStorage.setItem('portfolio-theme', theme.id);
 
   window.dispatchEvent(new Event('storage'));
   setTimeout(() => { ScrollTrigger.refresh(); }, 150);
 
   if (syncToCloud) {
-    console.log(`[Theme Sync] Attempting to push ${theme.id} to Supabase...`);
     try {
-      const { error } = await supabase
+      await supabase
         .from('site_config')
         .update({ 
           active_theme: theme.id, 
           updated_at: new Date().toISOString() 
         })
         .eq('id', 1);
-        
-      if (error) {
-        console.error("[Theme Sync] Database blocked the update (Check RLS Policies!):", error.message);
-      } else {
-        console.log(`[Theme Sync] Successfully saved ${theme.id} to Database!`);
-      }
     } catch (err) {
-      console.error("[Theme Sync] Network or try/catch failure:", err);
+      console.error("[Theme Sync] Error:", err);
     }
   }
 }
 
 export async function loadSavedTheme() {
-  console.log("[Theme Load] Fetching theme...");
-  
-  // 1. Immediately apply the local theme to bridge the gap while Supabase loads
   const localThemeId = localStorage.getItem('portfolio-theme');
   if (localThemeId) {
     const localTheme = themePresets.find((t) => t.id === localThemeId);
-    if (localTheme) {
-      console.log(`[Theme Load] Applying local fallback: ${localTheme.id}`);
-      applyTheme(localTheme, false);
-    }
+    if (localTheme) applyTheme(localTheme, false);
   }
 
-  // 2. Then check Supabase for the global master theme
   try {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('site_config')
       .select('active_theme')
       .eq('id', 1)
       .maybeSingle();
     
-    if (error) {
-      console.error("[Theme Load] Failed to fetch theme:", error.message);
-    } else if (data?.active_theme) {
-      console.log(`[Theme Load] Found theme in DB: ${data.active_theme}`);
-      // Only apply if the DB theme is DIFFERENT from what we just loaded locally
-      if (data.active_theme !== localThemeId) {
-        const theme = themePresets.find((t) => t.id === data.active_theme);
-        if (theme) {
-          applyTheme(theme, false);
-          return;
-        }
-      } else {
-        return; // They match, do nothing.
-      }
+    if (data?.active_theme && data.active_theme !== localThemeId) {
+      const theme = themePresets.find((t) => t.id === data.active_theme);
+      if (theme) applyTheme(theme, false);
     }
   } catch (error) {
-    console.error("[Theme Load] Critical fetch crash:", error);
+    console.error("[Theme Load] Error:", error);
   }
 
-  // 3. Absolute fallback only if both Local AND Supabase fail/are empty
-  if (!localThemeId) {
-    console.log("[Theme Load] Falling back to default VOID theme.");
-    const defaultTheme = themePresets.find((t) => t.id === 'VOID');
-    if (defaultTheme) applyTheme(defaultTheme, false);
+  if (!localThemeId && !themePresets.some(t => t.id === 'VOID')) {
+      const fallback = themePresets[0];
+      if (fallback) applyTheme(fallback, false);
   }
 }
 
 export function subscribeToThemeChanges() {
-  console.log("[Theme Listener] Initializing connection to Supabase Realtime...");
-  
   return supabase
     .channel('global-theme-changes')
     .on(
       'postgres_changes',
-      { 
-        event: 'UPDATE', 
-        schema: 'public', 
-        table: 'site_config', 
-        filter: 'id=eq.1' 
-      },
+      { event: 'UPDATE', schema: 'public', table: 'site_config', filter: 'id=eq.1' },
       (payload) => {
-        console.log("[Theme Listener] Realtime Ping Received!", payload);
         const newThemeId = payload.new.active_theme;
-        
         if (newThemeId) {
           const theme = themePresets.find(t => t.id === newThemeId);
-          if (theme) {
-            console.log(`[Theme Listener] Applying new theme across network: ${theme.id}`);
-            applyTheme(theme, false); 
-          }
+          if (theme) applyTheme(theme, false); 
         }
       }
     )
-    .subscribe((status, err) => {
-      if (err) {
-        console.error("[Theme Listener] Failed to connect to channel:", err);
-      } else {
-        console.log(`[Theme Listener] Channel Status: ${status}`);
-      }
-    });
+    .subscribe();
 }
