@@ -13,7 +13,9 @@
     --accent-contrast: #FFFFFF;
     --font-display: 'Orbitron', sans-serif;
     --font-sans: 'Inter', sans-serif;
-    /* Added transition for the glow effect */
+    /* Added glass variables for clean UI logic */
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --accent-rgb: 157, 0, 255;
     transition: all 0.5s ease;
   }
 
@@ -42,13 +44,19 @@
   .section-container { @apply max-w-7xl mx-auto px-6 lg:px-8; }
   .section-padding { @apply py-24 lg:py-32; }
 
-  /* YOUR ORIGINAL BUTTON - Now adapts to any theme color */
+  /* UNIFIED BUTTON DNA */
   .btn-primary {
-    @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold flex items-center justify-center gap-3
-           uppercase tracking-[0.2em] text-[10px] transition-all duration-300;
+    @apply relative overflow-hidden rounded-full px-12 py-3.5 font-bold flex items-center justify-center gap-3
+           uppercase tracking-[0.2em] text-[11px] transition-all duration-300;
     background: var(--accent) !important;
-    color: var(--accent-contrast);
+    /* This ensures the text color is always readable based on your theme's contrast variable */
+    color: var(--accent-contrast) !important;
     box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
+  }
+
+  /* Force icons inside buttons to match the text color */
+  .btn-primary svg {
+    @apply fill-current text-inherit;
   }
 
   .btn-primary:hover {
@@ -57,23 +65,35 @@
     filter: brightness(1.1);
   }
 
-  /* YOUR ORIGINAL CARD + THE HOVERING GLOW */
+  /* UNIFIED HEADER STYLE (The DNA from your About section) */
+  .section-subtitle {
+    @apply text-sm font-heading tracking-[0.3em] uppercase mb-4 block;
+    color: var(--accent);
+  }
+
+  .section-title {
+    @apply font-bold tracking-tighter uppercase;
+    color: var(--text-primary);
+    font-size: clamp(2rem, 5vw, 4rem); /* heading-lg logic */
+  }
+
+  .section-divider {
+    @apply mt-6 w-20 h-0.5 mx-auto;
+    background-color: var(--accent);
+  }
+
   .card-dark {
     @apply p-8 rounded-3xl transition-all duration-500 backdrop-blur-xl border relative overflow-hidden;
     background-color: var(--bg-secondary);
-    /* Uses the theme's glass-border variable */
     border-color: var(--glass-border); 
   }
 
-  /* The Hovering Glow logic you asked for */
   .card-dark:hover {
     border-color: var(--accent);
-    /* Dynamic glow using the theme's accent color */
     box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.15);
     transform: translateY(-5px);
   }
 
-  /* Subtitle glow effect inside the glass */
   .card-dark::after {
     content: '';
     @apply absolute -inset-full opacity-0 transition-opacity duration-500;
