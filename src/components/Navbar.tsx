@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const navLinks = [
@@ -40,27 +39,19 @@ export default function Navbar() {
     const observer = new MutationObserver(checkModal);
     observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
 
-    async function fetchContent() {
-      try {
-        const { data, error } = await supabase
-          .from('site_content')
-          .select('key, value')
-          .eq('section', 'navbar');
-
-        if (!error && data) {
-          const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
-          data.forEach(row => {
-            if (row.key === 'logo_text') mapped.logo_text = row.value;
-            if (row.key === 'cta_text') mapped.cta_text = row.value;
-          });
-          setContent(mapped);
-        }
-      } catch (e) {
-        console.warn('Nav fallback used');
+    async function fetchNavContent() {
+      const { data } = await supabase.from('site_content').select('key, value').eq('section', 'navbar');
+      if (data) {
+        const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
+        data.forEach(row => {
+          if (row.key === 'logo_text') mapped.logo_text = row.value;
+          if (row.key === 'cta_text') mapped.cta_text = row.value;
+        });
+        setContent(mapped);
       }
     }
 
-    fetchContent();
+    fetchNavContent();
     return () => {
       window.removeEventListener('scroll', onScroll);
       observer.disconnect();
@@ -77,9 +68,8 @@ export default function Navbar() {
 
   return (
     <>
-      {/* TRIGGER ZONE */}
       <div
-        className="fixed top-0 left-0 right-0 h-20 z-[110] bg-transparent pointer-events-auto"
+        className="fixed top-0 left-0 right-0 h-20 z-[110] bg-transparent"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       />
@@ -88,75 +78,39 @@ export default function Navbar() {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className={`fixed top-0 left-0 right-0 z-[120] transition-all duration-500 ease-in-out ${
-          scrolled ? 'backdrop-blur-md shadow-lg bg-[var(--bg-primary)]/95' : 'bg-transparent'
+          scrolled ? 'backdrop-blur-md bg-black/90' : 'bg-transparent'
         } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6 md:px-16">
-          
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="group relative font-bold text-xl tracking-wider uppercase text-white"
-          >
-            {content.logo_text.includes('.') ? (
-              <>
-                {content.logo_text.split('.')[0]}<span className="text-accent group-hover:animate-pulse">.</span>{content.logo_text.split('.')[1]}
-              </>
-            ) : content.logo_text}
-            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full shadow-[0_0_8px_var(--accent)]" />
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6">
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="font-bold text-xl uppercase text-white">
+            {content.logo_text}
           </button>
 
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => handleNavClick(link.href)}
-                className="group relative px-1 py-2 text-[10px] font-bold tracking-[0.2em] uppercase text-white"
-              >
-                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
-                  {link.label}
-                </span>
-                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-accent opacity-0 group-hover:opacity-100 group-hover:w-full transition-all duration-300 shadow-[0_0_10px_var(--accent)]" />
+              <button key={link.href} onClick={() => handleNavClick(link.href)} className="text-[10px] font-bold uppercase tracking-widest text-white/60 hover:text-accent transition-colors">
+                {link.label}
               </button>
             ))}
-            
-            <button
-              onClick={() => handleNavClick('#contact')}
-              className="btn-primary text-[10px] py-3 px-8 font-black"
-            >
+            <button onClick={() => handleNavClick('#contact')} className="btn-primary text-[10px] py-2 px-6">
               {content.cta_text}
             </button>
           </div>
 
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 text-white"
-          >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white font-bold text-xs uppercase tracking-tighter">
+            {mobileOpen ? '[ CLOSE ]' : '[ MENU ]'}
           </button>
         </div>
 
-        {/* MOBILE MENU */}
-        <div className={`md:hidden overflow-hidden transition-all duration-500 bg-[var(--bg-primary)]/98 backdrop-blur-xl ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
-          <div className="py-10 flex flex-col gap-8 px-6">
+        {mobileOpen && (
+          <div className="md:hidden bg-black border-t border-white/10 p-6 flex flex-col gap-6">
             {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => handleNavClick(link.href)}
-                className="group relative inline-block text-2xl font-black tracking-widest uppercase text-white text-left"
-              >
-                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent">
-                  {link.label}
-                </span>
+              <button key={link.href} onClick={() => handleNavClick(link.href)} className="text-white text-2xl font-black uppercase text-left">
+                {link.label}
               </button>
             ))}
-            <button
-              onClick={() => handleNavClick('#contact')}
-              className="btn-primary text-sm py-4 px-6 justify-center mt-6 font-black"
-            >
-              {content.cta_text}
-            </button>
           </div>
-        </div>
+        )}
       </nav>
     </>
   );
