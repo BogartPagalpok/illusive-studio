@@ -27,7 +27,7 @@ export default function Navbar() {
       const current = window.scrollY;
       setScrolled(current > 50);
 
-      // Auto-hide logic: Hides on downscroll (threshold 150px), shows on upscroll or near top
+      // Auto-hide: Hide on scroll down (>150px), show on scroll up
       const isScrollingDown = current > lastScrollY.current && current > 150;
       setVisible(!isScrollingDown || current < 20);
 
@@ -35,14 +35,14 @@ export default function Navbar() {
     };
     window.addEventListener('scroll', onScroll, { passive: true });
 
-    const fetchContent = async () => {
+    async function fetchContent() {
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('site_content')
           .select('key, value')
           .eq('section', 'navbar');
 
-        if (!error && data && data.length > 0) {
+        if (data) {
           const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
           data.forEach(row => {
             if (row.key === 'logo_text') mapped.logo_text = row.value;
@@ -53,7 +53,7 @@ export default function Navbar() {
       } catch (err) {
         // Fallback handled
       }
-    };
+    }
 
     fetchContent();
     return () => window.removeEventListener('scroll', onScroll);
@@ -65,12 +65,11 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
-  // Logic: Show if scroll says so, if mouse is hovering top edge, or if mobile menu is open
   const isActuallyVisible = visible || isHovered || mobileOpen;
 
   return (
     <>
-      {/* 4px TOP TRIGGER ZONE: Only catches hover to pull nav down when hidden */}
+      {/* TRIGGER ZONE: Catches hover even when nav is translated out */}
       <div 
         className="fixed top-0 left-0 right-0 h-1 z-[110] bg-transparent" 
         onMouseEnter={() => setIsHovered(true)} 
@@ -85,7 +84,6 @@ export default function Navbar() {
       >
         <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
           
-          {/* LOGO */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="group relative font-heading font-black text-xl tracking-wider uppercase transition-colors text-[var(--text-primary)]"
@@ -98,7 +96,6 @@ export default function Navbar() {
             <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full shadow-[0_0_8px_var(--accent)]" />
           </button>
 
-          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
               <a
@@ -123,17 +120,14 @@ export default function Navbar() {
             </a>
           </div>
 
-          {/* MOBILE TOGGLE */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden p-2 hover:text-accent transition-colors duration-300 text-[var(--text-primary)]"
-            aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
 
-        {/* MOBILE MENU OVERLAY */}
         <div className={`md:hidden overflow-hidden transition-all duration-500 bg-[var(--bg-primary)]/98 backdrop-blur-xl ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
           <div className="section-container py-10 flex flex-col gap-8 px-6">
             {navLinks.map((link) => (
@@ -143,7 +137,7 @@ export default function Navbar() {
                 onClick={(e) => handleNavClick(e, link.href)}
                 className="group relative inline-block text-2xl font-heading font-black tracking-widest uppercase transition-all duration-300 text-[var(--text-primary)]"
               >
-                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
+                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent">
                   {link.label}
                 </span>
               </a>
