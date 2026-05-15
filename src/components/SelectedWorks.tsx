@@ -21,8 +21,8 @@ interface Project {
   hero_bg_mobile?: string;
   image_url: string;
   tools?: string[];
-  process?: string;   // newly supported
-  results?: string;   // newly supported
+  process?: string;
+  results?: string;
 }
 
 export default function SelectedWorks() {
@@ -71,7 +71,8 @@ export default function SelectedWorks() {
     });
 
     setFilteredProjects(uniqueProjects);
-    swiperRef.current?.slideTo(0, 0);
+    // Use slideToLoop to work with infinite loop
+    swiperRef.current?.slideToLoop(0, 0);
     swiperRef.current?.update();
     setActiveIndex(0);
   }, [activeCategory, projects]);
@@ -115,9 +116,12 @@ export default function SelectedWorks() {
           <div className="section-divider" />
         </motion.div>
 
-        {/* HERO CARD – Netflix‑style: flexible height, background image, overlays */}
-        <div className="relative w-full rounded-[40px] overflow-hidden card-glass flex flex-col min-h-[600px] md:min-h-[700px] max-h-[900px]"
-             style={{ boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
+        {/* HERO CARD – fixed height, infinite loop */}
+        <div className="relative w-full rounded-[40px] overflow-hidden card-glass flex flex-col"
+             style={{ 
+               height: 'clamp(600px, 80vh, 900px)',
+               boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' 
+             }}>
 
           <AnimatePresence mode="wait">
             {currentProject && (
@@ -140,11 +144,9 @@ export default function SelectedWorks() {
             )}
           </AnimatePresence>
 
-          {/* Content layer – uses flex to push swiper to bottom */}
           <div className="relative z-10 flex flex-col h-full p-6 md:p-10">
-            {/* Top area: categories + main info */}
+            {/* Top area: categories */}
             <div className="flex-none">
-              {/* CATEGORIES */}
               <div className="flex gap-6 md:gap-10 items-center overflow-x-auto no-scrollbar mb-6 border-b border-[var(--glass-border)] pb-3">
                 {CATEGORIES.map((cat) => (
                   <button
@@ -160,8 +162,10 @@ export default function SelectedWorks() {
                   </button>
                 ))}
               </div>
+            </div>
 
-              {/* Title & description – Netflix style: large, bold, responsive */}
+            {/* SCROLLABLE CONTENT BLOCK */}
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mb-6">
               <AnimatePresence mode="wait">
                 {currentProject && (
                   <motion.div
@@ -169,7 +173,6 @@ export default function SelectedWorks() {
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: 20, opacity: 0 }}
-                    className="mb-6"
                   >
                     <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-2">
                       {currentProject.category}
@@ -185,16 +188,10 @@ export default function SelectedWorks() {
               </AnimatePresence>
             </div>
 
-            {/* Flexible spacer to push the swiper to the bottom */}
-            <div className="flex-1 min-h-[20px]" />
-
-            {/* Bottom action area – stays at bottom */}
-            <div className="flex-none mt-4 pt-6 border-t border-[var(--glass-border)] flex flex-col gap-6">
+            {/* Bottom action area – always visible */}
+            <div className="flex-none pt-6 border-t border-[var(--glass-border)] flex flex-col gap-6">
               <div className="flex items-center">
-                <button
-                  onClick={() => setSelectedProject(currentProject)}
-                  className="btn-primary group"
-                >
+                <button onClick={() => setSelectedProject(currentProject)} className="btn-primary group">
                   <Play size={14} />
                   <span>View Project</span>
                 </button>
@@ -205,7 +202,8 @@ export default function SelectedWorks() {
                 modules={[Navigation]}
                 spaceBetween={16}
                 slidesPerView={'auto'}
-                onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+                loop={true}
+                onSlideChange={(s) => setActiveIndex(s.realIndex)}
                 className="w-full !pb-2"
               >
                 {filteredProjects.map((project, idx) => (
@@ -213,7 +211,7 @@ export default function SelectedWorks() {
                     <div
                       onClick={() => {
                         setActiveIndex(idx);
-                        swiperRef.current?.slideTo(idx);
+                        swiperRef.current?.slideToLoop(idx);
                       }}
                       className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-xl overflow-hidden border-2 ${
                         activeIndex === idx
@@ -231,7 +229,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* PROJECT MODAL – now includes process & results */}
+      {/* PROJECT MODAL – with tools, process, results */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -252,7 +250,7 @@ export default function SelectedWorks() {
               onClick={(e) => e.stopPropagation()}
               className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
             >
-              {/* LEFT SIDE: GALLERY */}
+              {/* LEFT: Gallery */}
               <div className="space-y-6">
                 {galleryImages.map((img) => (
                   <img
@@ -264,7 +262,7 @@ export default function SelectedWorks() {
                 ))}
               </div>
 
-              {/* RIGHT SIDE: CONTENT + TOOLS + PROCESS + RESULTS */}
+              {/* RIGHT: Info + details */}
               <div className="space-y-6 lg:sticky lg:top-0 h-fit">
                 <div>
                   <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">
@@ -278,7 +276,6 @@ export default function SelectedWorks() {
                   </p>
                 </div>
 
-                {/* Tools */}
                 {selectedProject.tools && selectedProject.tools.length > 0 && (
                   <div>
                     <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Tools</h4>
@@ -295,23 +292,17 @@ export default function SelectedWorks() {
                   </div>
                 )}
 
-                {/* Process */}
                 {selectedProject.process && (
                   <div>
                     <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Process</h4>
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                      {selectedProject.process}
-                    </p>
+                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{selectedProject.process}</p>
                   </div>
                 )}
 
-                {/* Results */}
                 {selectedProject.results && (
                   <div>
                     <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Results</h4>
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                      {selectedProject.results}
-                    </p>
+                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{selectedProject.results}</p>
                   </div>
                 )}
               </div>
