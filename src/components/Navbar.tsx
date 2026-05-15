@@ -15,16 +15,25 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
 
-  // ✅ Update scrolled state ONLY for styling (backdrop, shadow)
+  // ✅ Track whether the user has scrolled past the top even once
+  const [hasScrolledDown, setHasScrolledDown] = useState(false);
+
+  // Update scrolled for styling AND permanently disable auto‑visibility after first scroll
   useEffect(() => {
     const onScroll = () => {
-      setScrolled(window.scrollY > 50);
+      const current = window.scrollY;
+      setScrolled(current > 50);
+
+      // Once the user scrolls down even a little, lock the navbar out of view
+      if (current > 0 && !hasScrolledDown) {
+        setHasScrolledDown(true);
+      }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [hasScrolledDown]);
 
-  // Fetch navbar content (unchanged)
+  // Fetch navbar content
   useEffect(() => {
     const fetchContent = async () => {
       try {
@@ -41,7 +50,7 @@ export default function Navbar() {
           setContent(mapped);
         }
       } catch (err) {
-        // fallback handled
+        // fallback
       }
     };
     fetchContent();
@@ -53,16 +62,15 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
-  // ✅ Visibility now depends ONLY on hover or mobile menu
-  const isActuallyVisible = isHovered || mobileOpen;
+  // 👇 Show navbar if hovered, mobile menu open, OR user hasn't scrolled down yet (initial top position)
+  const isActuallyVisible = isHovered || mobileOpen || !hasScrolledDown;
 
   return (
     <>
-      {/* TRIGGER ZONE – wider height for easier hovering */}
+      {/* Transparent hover trigger zone – adjust height as needed */}
       <div
-        className="fixed top-0 left-0 right-0 h-8 z-[110] bg-transparent"
+        className="fixed top-0 left-0 right-0 h-6 z-[110] bg-transparent"
         onMouseEnter={() => setIsHovered(true)}
-        // Optional: hide navbar when leaving the trigger zone directly (but we’ll keep it until mouse leaves the nav)
       />
 
       <nav
@@ -72,7 +80,6 @@ export default function Navbar() {
           scrolled ? 'backdrop-blur-md shadow-lg bg-[var(--bg-primary)]/95' : 'bg-transparent'
         } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
-        {/* ... rest of your JSX remains identical ... */}
         <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
