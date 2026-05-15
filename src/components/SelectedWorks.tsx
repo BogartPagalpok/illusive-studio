@@ -97,15 +97,21 @@ export default function SelectedWorks() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-6 font-black">
+          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
             Portfolio
           </p>
-          <h2 className="heading-lg italic font-black uppercase tracking-tighter leading-[0.9] mb-10" style={{ color: 'var(--text-primary)' }}>
-            SELECTED <span className="text-accent">WORKS</span>
+          <h2 className="font-bold tracking-tighter heading-lg" style={{ color: '#ffffff' }}>
+            {'SELECTED WORKS'.split(' ').map((word, i, arr) => (
+              <span key={i}>
+                {word === '&' ? <span className="text-accent">&</span> : word}
+                {i < arr.length - 1 ? ' ' : ''}
+              </span>
+            ))}
           </h2>
-          <div className="w-20 h-1 bg-accent mx-auto" />
+          <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
         </motion.div>
 
         {/* HERO CARD */}
