@@ -106,13 +106,13 @@ export default function SelectedWorks() {
     <section id="works" className="relative section-padding overflow-visible z-40 bg-transparent">
       
       <div className="section-container relative">
-        {/* UNIFIED HEADER: Matches About.tsx structure exactly */}
+        {/* HEADER BLOCK - EXACTLY LIKE ABOUT SECTION */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 md:mb-20"
+          className="text-center mb-12"
         >
           <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
             Portfolio
@@ -123,8 +123,8 @@ export default function SelectedWorks() {
           <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
         </motion.div>
 
-        {/* CONTENT AREA: Removing the 'min-h-screen' that was making it look random/stretched */}
-        <div className="relative w-full flex flex-col">
+        {/* COMPACT CONTENT WRAPPER - REMOVED MIN-H-SCREEN */}
+        <div className="relative w-full rounded-[40px] overflow-hidden bg-surface border border-border">
           
           <AnimatePresence mode="wait">
             {currentProject && (
@@ -138,17 +138,18 @@ export default function SelectedWorks() {
               >
                 <img 
                   src={currentProject.hero_bg_desktop || currentProject.image_url} 
-                  className="w-full h-full object-cover rounded-[40px]" 
+                  className="w-full h-full object-cover" 
                   alt="" 
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/40 to-transparent rounded-[40px]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent rounded-[40px]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="relative z-20 w-full p-8 md:p-16">
-            <div className="flex gap-4 md:gap-8 items-center overflow-x-auto no-scrollbar pb-10 shrink-0 border-b border-border mb-12">
+          <div className="relative z-10 p-8 md:p-12">
+            {/* CATEGORIES */}
+            <div className="flex gap-4 md:gap-8 items-center overflow-x-auto no-scrollbar mb-8 shrink-0">
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
@@ -162,58 +163,57 @@ export default function SelectedWorks() {
               ))}
             </div>
 
-            <div className="grid lg:grid-cols-1 gap-12 items-end">
+            {/* HERO INFO - REDUCED MARGINS TO PREVENT SCREEN OVERFLOW */}
+            <div className="max-w-2xl mb-10">
               <AnimatePresence mode="wait">
                 {currentProject && (
                   <motion.div
                     key={currentProject.id}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -20, opacity: 0 }}
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: 20, opacity: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="max-w-4xl"
                   >
-                    <span className="text-accent text-xs font-bold tracking-[0.2em] uppercase block mb-4">
+                    <span className="text-accent text-xs font-bold tracking-[0.2em] uppercase block mb-2">
                       {currentProject.category}
                     </span>
-                    <h1 className="text-primary text-4xl md:text-6xl font-bold uppercase tracking-tight leading-none mb-6">
+                    <h3 className="text-primary text-3xl md:text-5xl font-bold uppercase tracking-tight leading-none mb-4">
                       {currentProject.title}
-                    </h1>
-                    <p className="text-secondary text-base md:text-lg leading-relaxed mb-10 max-w-2xl">
+                    </h3>
+                    <p className="text-secondary text-sm md:text-base leading-relaxed mb-8 line-clamp-3">
                       {currentProject.description}
                     </p>
                     <button 
                       onClick={() => setSelectedProject(currentProject)}
-                      className="flex items-center gap-4 bg-accent text-background px-12 py-4 text-xs font-black rounded-full hover:drop-shadow-[0_0_25px_var(--accent)] transition-all uppercase tracking-widest"
+                      className="inline-flex items-center gap-4 bg-accent text-background px-8 py-3 text-xs font-black rounded-full transition-all uppercase tracking-widest hover:drop-shadow-[0_0_20px_var(--accent)]"
                     >
-                      <Play size={18} fill="currentColor" /> View Project
+                      <Play size={16} fill="currentColor" /> View Project
                     </button>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
-            <div className="mt-20 w-full">
-              <h2 className="text-primary/40 text-[10px] font-bold uppercase tracking-[0.3em] mb-8">
-                Up Next in Portfolio
-              </h2>
+            {/* SWIPER - RE-SIZED TO FIT */}
+            <div className="w-full">
+              <h4 className="text-primary/40 text-[10px] font-bold uppercase tracking-[0.3em] mb-4">Up Next</h4>
               <Swiper
                 onSwiper={(s) => (swiperRef.current = s)}
                 modules={[Navigation]}
-                spaceBetween={24}
+                spaceBetween={16}
                 slidesPerView={'auto'}
                 onSlideChange={(s) => setActiveIndex(s.activeIndex)}
                 className="overflow-visible"
               >
                 {filteredProjects.map((project, idx) => (
-                  <SwiperSlide key={project.id} className="!w-[180px] md:!w-[320px]">
+                  <SwiperSlide key={project.id} className="!w-[140px] md:!w-[200px]">
                     <div 
                       onClick={() => {
                         setActiveIndex(idx);
                         swiperRef.current?.slideTo(idx);
                       }}
-                      className={`relative aspect-video bg-surface cursor-pointer transition-all duration-500 rounded-2xl overflow-hidden border-2 ${
-                        activeIndex === idx ? 'border-accent scale-105 shadow-[0_0_25px_var(--accent)]' : 'border-border opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-xl overflow-hidden border-2 ${
+                        activeIndex === idx ? 'border-accent shadow-[0_0_15px_var(--accent)]' : 'border-border grayscale opacity-50 hover:opacity-100 hover:grayscale-0'
                       }`}
                     >
                       <img src={project.card_thumbnail || project.image_url} className="w-full h-full object-cover" alt="" />
@@ -233,26 +233,26 @@ export default function SelectedWorks() {
             className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-background/80 backdrop-blur-2xl overflow-y-auto"
             onClick={() => setSelectedProject(null)}
           >
-            <button onClick={() => setSelectedProject(null)} className="fixed top-8 right-8 text-primary bg-surface p-4 rounded-full border border-border transition-all hover:bg-accent hover:text-background"><X size={28} /></button>
+            <button onClick={() => setSelectedProject(null)} className="fixed top-8 right-8 text-primary bg-surface p-4 rounded-full border border-border"><X size={24} /></button>
             <motion.div 
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-12 bg-surface border border-border p-8 md:p-12 rounded-[48px] shadow-2xl"
+              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 bg-surface border border-border p-8 rounded-[40px] shadow-2xl"
             >
-              <div className="rounded-[32px] overflow-hidden space-y-6 max-h-[70vh] overflow-y-auto no-scrollbar bg-background p-3 border border-border">
+              <div className="rounded-[24px] overflow-hidden space-y-4 max-h-[60vh] overflow-y-auto no-scrollbar bg-background p-2 border border-border">
                  {galleryImages.map((img) => (
-                    <img key={img.id} src={img.hero_bg_desktop || img.image_url} className="w-full rounded-[24px]" alt="" />
+                    <img key={img.id} src={img.hero_bg_desktop || img.image_url} className="w-full rounded-[16px]" alt="" />
                  ))}
               </div>
-              <div className="space-y-10 text-left">
+              <div className="space-y-6 text-left">
                 <div>
                   <span className="text-accent text-xs font-black tracking-[0.4em] uppercase">{selectedProject.category}</span>
-                  <h2 className="text-primary text-5xl font-bold uppercase mt-4 tracking-tighter leading-tight">{selectedProject.title}</h2>
-                  <p className="text-secondary text-lg leading-relaxed mt-8">{selectedProject.description}</p>
+                  <h2 className="text-primary text-4xl font-bold uppercase mt-2 tracking-tighter leading-tight">{selectedProject.title}</h2>
+                  <p className="text-secondary text-base leading-relaxed mt-4">{selectedProject.description}</p>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   {selectedProject.tools?.map((t: string) => (
-                    <span key={t} className="px-5 py-2.5 bg-background border border-border rounded-xl text-[10px] uppercase text-secondary font-bold tracking-widest">{t}</span>
+                    <span key={t} className="px-4 py-2 bg-background border border-border rounded-lg text-[10px] uppercase text-secondary font-bold tracking-widest">{t}</span>
                   ))}
                 </div>
               </div>
