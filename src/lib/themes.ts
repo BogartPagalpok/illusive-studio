@@ -1,3 +1,25 @@
+import { supabase } from '../lib/supabase';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+
+export interface ThemePreset {
+  id: string;
+  name: string;
+  tagline: string;
+  // Mechanical Layering System - using the full palettes from your images
+  colors: string[]; 
+  bgPrimary: string;
+  bgSecondary: string;
+  textPrimary: string;
+  textSecondary: string;
+  accent: string;
+  bgGradient: string;
+  fontDisplay: string;
+  fontSans: string;
+}
+
 export const themePresets: ThemePreset[] = [
   {
     id: 'GUNDAM',
@@ -210,3 +232,76 @@ export const themePresets: ThemePreset[] = [
     fontSans: "'JetBrains Mono', monospace",
   }
 ];
+
+function getContrastYIQ(hexcolor: string) {
+  hexcolor = hexcolor.replace("#", "");
+  const r = parseInt(hexcolor.substr(0, 2), 16);
+  const g = parseInt(hexcolor.substr(2, 2), 16);
+  const b = parseInt(hexcolor.substr(4, 2), 16);
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 128 ? 'black' : 'white';
+}
+
+export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
+  const root = document.documentElement;
+  const isLight = getContrastYIQ(theme.bgPrimary) === 'black';
+
+  // Inject Base Variables
+  root.style.setProperty('--bg-primary', theme.bgPrimary);
+  root.style.setProperty('--bg-secondary', theme.bgSecondary);
+  root.style.setProperty('--bg-gradient', theme.bgGradient);
+  root.style.setProperty('--text-primary', theme.textPrimary);
+  root.style.setProperty('--text-secondary', theme.textSecondary);
+  root.style.setProperty('--accent', theme.accent);
+  root.style.setProperty('--font-display', theme.fontDisplay);
+  root.style.setProperty('--font-sans', theme.fontSans);
+
+  // Inject full palette as indexed variables for complex UI parts
+  theme.colors.forEach((color, index) => {
+    root.style.setProperty(`--palette-${index + 1}`, color);
+  });
+
+  const hexToRgb = (hex: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '255, 255, 255';
+  };
+  root.style.setProperty('--accent-rgb', hexToRgb(theme.accent));
+
+  // Adaptive Glass logic based on chassis brightness
+  root.style.setProperty('--glass-bg', isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.03)');
+  root.style.setProperty('--glass-border', isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.12)');
+  root.style.setProperty('--accent-contrast', getContrastYIQ(theme.accent) === 'white' ? '#FFFFFF' : '#000000');
+
+  localStorage.setItem('portfolio-theme', theme.id);
+  window.dispatchEvent(new Event('storage'));
+  setTimeout(() => { ScrollTrigger.refresh(); }, 150);
+
+  if (syncToCloud) {
+    try {
+      await supabase.from('site_config').update({ 
+        active_theme: theme.id, 
+        updated_at: new Date().toISOString() 
+      }).eq('id', 1);
+    } catch (err) { console.error(err); }
+  }
+}
+
+export async function loadSavedTheme() {
+  const localThemeId = localStorage.getItem('portfolio-theme');
+  const theme = themePresets.find(t => t.id === localThemeId) || themePresets[0];
+  applyTheme(theme, false);
+}
+
+export function subscribeToThemeChanges() {
+  return supabase.channel('global-theme-changes')
+    .on('postgres_changes', { 
+      event: 'UPDATE', 
+      schema: 'public', 
+      table: 'site_config', 
+      filter: 'id=eq.1' 
+    }, (payload) => {
+      const theme = themePresets.find(t => t.id === payload.new.active_theme);
+      if (theme) applyTheme(theme, false);
+    }).subscribe();
+}
+  
