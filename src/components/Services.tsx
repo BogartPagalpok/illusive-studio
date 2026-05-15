@@ -10,32 +10,26 @@ gsap.registerPlugin(ScrollTrigger);
 
 const defaultServices = [
   {
-    icon: 'line-md:edit-twotone',
     title: 'Brand Identity',
     description: 'Complete visual identity systems — logos, color palettes, typography, and brand guidelines that make your business unforgettable.',
   },
   {
-    icon: 'line-md:image-twotone',
     title: 'Photography',
     description: 'Professional photo sessions from portraits to product photography, with expert post-processing in Adobe Lightroom.',
   },
   {
-    icon: 'line-md:paint-palette-twotone',
     title: 'Digital Painting',
     description: 'Custom digital illustrations and concept art that bring imagination to canvas with meticulous detail and artistry.',
   },
   {
-    icon: 'line-md:clipboard-list-twotone',
     title: 'Admin Support',
     description: 'Reliable virtual assistance — email management, scheduling, data entry, and operational support to keep your business running smoothly.',
   },
   {
-    icon: 'line-md:document-list-twotone',
     title: 'Graphic Design',
     description: 'Stunning layouts for social media, print materials, presentations, and marketing collateral using Photoshop and Canva.',
   },
   {
-    icon: 'line-md:video-twotone',
     title: 'Videography',
     description: 'Creative video production and editing that tells your story with cinematic quality and compelling narrative flow.',
   },
@@ -118,7 +112,6 @@ export default function Services() {
     <section ref={sectionRef} className="section-padding relative overflow-visible z-40 bg-transparent">
       <div id="services" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
 
-      {/* Floating 3D Identities */}
       <FloatingCube type="Ps" size={120} top="10%" right="5%" blur="4px" delay={0.5} duration={7} />
       <FloatingCube type="Ai" size={60} bottom="20%" left="5%" blur="1px" delay={1.5} duration={5} />
 
@@ -135,7 +128,7 @@ export default function Services() {
           <p className="text-[10px] font-heading tracking-[0.4em] uppercase text-accent mb-4 font-black">
             {content.subtitle}
           </p>
-          <h2 className="font-bold tracking-tighter heading-lg uppercase italic" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="font-bold tracking-tighter heading-lg uppercase italic text-[var(--text-primary)]">
             {content.heading}
           </h2>
           <div className="mt-6 w-12 h-1 bg-accent mx-auto" />
@@ -151,9 +144,8 @@ export default function Services() {
             <motion.div 
               key={index} 
               variants={itemVariants} 
-              className="group p-10 rounded-[2.5rem] border transition-all duration-500 relative overflow-hidden flex flex-col items-start"
+              className="group p-10 rounded-[2.5rem] border transition-all duration-700 relative overflow-hidden flex flex-col items-start min-h-[380px] justify-end cursor-default"
               style={{ 
-                 // FROSTED GLASS LOGIC
                  backgroundColor: 'rgba(var(--accent-rgb), 0.03)', 
                  borderColor: 'rgba(var(--accent-rgb), 0.1)',
                  backdropFilter: 'blur(25px) saturate(160%)',
@@ -161,31 +153,30 @@ export default function Services() {
                  boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
               }}
             >
-              {/* Specular highlight (top edge) */}
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50" />
-
-              {/* ICON CONTAINER */}
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-all duration-500 bg-white/5 border border-white/10 group-hover:scale-110 group-hover:bg-accent group-hover:border-accent group-hover:shadow-[0_0_25px_var(--accent)]">
-                <iconify-icon 
-                  icon={service.icon} 
-                  style={{ 
-                    fontSize: '32px', 
-                    color: 'var(--accent)',
-                    transition: 'color 0.5s ease'
-                  }}
-                  className="group-hover:!text-[var(--accent-contrast)]"
+              {/* DYNAMIC BG IMAGE LAYER */}
+              <div className="absolute inset-0 z-0">
+                <img 
+                  src={`https://source.unsplash.com/featured/800x1200?${encodeURIComponent(service.title)},dark,minimal`}
+                  alt=""
+                  loading="lazy"
+                  className="w-full h-full object-cover grayscale opacity-10 transition-all duration-1000 group-hover:scale-105 group-hover:opacity-30 group-hover:grayscale-0"
                 />
+                {/* HEAVIER GRADIENT MASK FOR BETTER READABILITY WITHOUT ICONS */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-secondary)] via-[var(--bg-secondary)]/95 to-transparent" />
               </div>
-              
-              <h3 className="font-black tracking-tight text-2xl mb-4 uppercase italic transition-colors duration-300 group-hover:text-accent" style={{ color: 'var(--text-primary)' }}>
-                {service.title}
-              </h3>
-              <p className="text-sm leading-relaxed transition-colors duration-300" style={{ color: 'var(--text-secondary)' }}>
-                {service.description}
-              </p>
 
-              {/* Decorative radial glow following the icon color */}
-              <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-accent/5 blur-[50px] rounded-full group-hover:bg-accent/15 transition-colors duration-700" />
+              {/* CONTENT LAYER - NO ICONS */}
+              <div className="relative z-10 w-full">
+                <h3 className="font-black tracking-tight text-3xl mb-4 uppercase italic transition-colors duration-300 text-[var(--text-primary)] group-hover:text-accent">
+                  {service.title}
+                </h3>
+                <p className="text-sm leading-relaxed transition-colors duration-300 text-[var(--text-secondary)] opacity-90">
+                  {service.description}
+                </p>
+              </div>
+
+              {/* ACCENT GLOW HOVER */}
+              <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-accent/5 blur-[50px] rounded-full group-hover:bg-accent/20 transition-colors duration-700 pointer-events-none" />
             </motion.div>
           ))}
         </motion.div>
