@@ -101,17 +101,15 @@ export default function About() {
 
       <div ref={ref} className="section-container relative">
         
-        {/* UNIVERSAL TITLE STANDARD */}
+        {/* UNIVERSAL TITLE STANDARD – now using global classes */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-20 flex flex-col items-center"
+          className="text-center mb-16 flex flex-col items-center"
         >
-          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4 font-bold">
-            {content.subtitle}
-          </p>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter text-white">
+          <span className="section-subtitle">{content.subtitle}</span>
+          <h2 className="section-title">
             {content.heading.split(' ').map((word, i, arr) => (
               <span key={i}>
                 {word === '&' ? <span className="text-accent">&</span> : word}
@@ -119,7 +117,7 @@ export default function About() {
               </span>
             ))}
           </h2>
-          <div className="mt-8 w-16 h-1 bg-accent rounded-full" />
+          <div className="section-divider" />
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-20 items-start">
@@ -128,15 +126,9 @@ export default function About() {
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            {/* MASTER GLASSMORPHISM TEMPLATE */}
-            <div className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
-                 style={{ 
-                   backgroundColor: 'rgba(255, 255, 255, 0.03)', 
-                   borderColor: 'rgba(255, 255, 255, 0.12)',
-                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-                   WebkitBackdropFilter: 'blur(32px) saturate(180%)'
-                 }}>
-              <h3 className="font-bold tracking-tighter text-2xl mb-8 leading-tight" style={{ color: '#ffffff' }}>
+            {/* THEME‑ADAPTIVE GLASS CARD */}
+            <div className="card-glass">
+              <h3 className="font-bold tracking-tighter text-2xl mb-8 leading-tight text-[var(--text-primary)]">
                 {content.subheading.includes('.') ? (
                   <>
                     {content.subheading.split('.')[0]}. <span className="text-accent">{content.subheading.split('.')[1].trim()}</span>
@@ -145,10 +137,12 @@ export default function About() {
                   content.subheading
                 )}
               </h3>
-              <div className="space-y-6 text-lg font-light" style={{ color: '#efefef' }}>
-                <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-accent first-letter:mr-3 first-letter:float-left">{content.description_line1}</p>
+              <div className="space-y-6 text-lg font-light text-[var(--text-secondary)]">
+                <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-accent first-letter:mr-3 first-letter:float-left">
+                  {content.description_line1}
+                </p>
                 <p>{content.description_line2}</p>
-                <p className="italic" style={{ color: '#ffffff', opacity: 0.9 }}>{content.description_line3}</p>
+                <p className="italic opacity-90">{content.description_line3}</p>
               </div>
             </div>
           </motion.div>
@@ -159,24 +153,23 @@ export default function About() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="space-y-12"
           >
-            <h3 className="text-2xl font-black uppercase tracking-tighter text-white">
+            <h3 className="text-2xl font-black uppercase tracking-tighter text-[var(--text-primary)]">
               Skills <span className="text-accent">&</span> Proficiency
             </h3>
 
-            {/* TWO-COLUMN GRID: STOPS THE POWERPOINT LOOK */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
               {skills.map((skill, i) => (
                 <div key={skill.name} className="group">
                   <div className="flex justify-between items-end mb-3">
-                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/50 group-hover:text-accent transition-colors duration-300">
+                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[var(--text-primary)]/50 group-hover:text-accent transition-colors duration-300">
                       {skill.name}
                     </span>
-                    <span className="text-xs font-black text-white/90">
+                    <span className="text-xs font-black text-[var(--text-primary)]/90">
                       {skill.level}%
                     </span>
                   </div>
                   
-                  <div className="h-[4px] w-full bg-white/5 rounded-full overflow-hidden border border-white/5 relative">
+                  <div className="h-[4px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)] relative">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={isVisible ? { width: `${skill.level}%` } : {}}
