@@ -42,7 +42,7 @@ export default function Services() {
           setServicesData(mappedServices);
         }
       } catch (err) {
-        console.error('Supabase fetch error:', err);
+        console.warn('Syncing fallback content...');
       }
     }
     fetchContent();
@@ -75,7 +75,7 @@ export default function Services() {
           <div className="mt-6 w-12 h-1 bg-accent rounded-full" />
         </motion.div>
 
-        {/* CARDS GRID */}
+        {/* GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {servicesData.map((service, index) => (
             <motion.div
