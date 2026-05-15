@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
 
 const defaultServices = [
@@ -13,7 +12,6 @@ const defaultServices = [
 ];
 
 export default function Services() {
-  const { ref, isVisible } = useScrollReveal();
   const [content, setContent] = useState({ subtitle: 'What I Do', heading: 'Services & Expertise' });
   const [servicesData, setServicesData] = useState(defaultServices);
 
@@ -42,7 +40,7 @@ export default function Services() {
           setServicesData(mappedServices);
         }
       } catch (err) {
-        console.warn('Using fallback content...');
+        console.warn('Fallback active');
       }
     }
     fetchContent();
@@ -52,16 +50,17 @@ export default function Services() {
     <section className="relative py-24 lg:py-32 overflow-hidden bg-transparent">
       <div id="services" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
 
-      <div ref={ref} className="max-w-7xl mx-auto px-6 lg:px-8 relative">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
         
-        {/* HEADER */}
+        {/* HEADER - SCALED DOWN */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="text-center mb-16 flex flex-col items-center"
         >
-          <p className="text-xs font-bold tracking-[0.4em] uppercase text-accent mb-4">
+          <p className="text-[10px] font-bold tracking-[0.4em] uppercase text-accent mb-4">
             {content.subtitle}
           </p>
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter text-white">
@@ -81,8 +80,9 @@ export default function Services() {
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
-              animate={isVisible ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.1 + index * 0.05 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.05 }}
               className="p-8 rounded-2xl border transition-all duration-500 backdrop-blur-xl h-full flex flex-col group relative overflow-hidden"
               style={{ 
                 backgroundColor: service.color, 
@@ -96,7 +96,7 @@ export default function Services() {
                 {service.description}
               </p>
               
-              {/* ACCENT HOVER LINE */}
+              {/* HOVER ACCENT */}
               <div className="absolute bottom-0 left-0 w-0 h-1 bg-accent transition-all duration-500 group-hover:w-full" />
             </motion.div>
           ))}
