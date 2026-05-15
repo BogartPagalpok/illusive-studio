@@ -27,6 +27,7 @@ export default function Navbar() {
       const current = window.scrollY;
       setScrolled(current > 50);
 
+      // Fix: Hardware-accelerated auto-hide logic
       const isScrollingDown = current > lastScrollY.current && current > 150;
       setVisible(!isScrollingDown || current < 20);
 
@@ -64,10 +65,12 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
+  // Logic check for visibility
   const isActuallyVisible = visible || isHovered || mobileOpen;
 
   return (
     <>
+      {/* 2px SENSOR ZONE: Triggers hover even when navbar is hidden */}
       <div 
         className="fixed top-0 left-0 right-0 h-1 z-[110] bg-transparent" 
         onMouseEnter={() => setIsHovered(true)} 
@@ -121,6 +124,7 @@ export default function Navbar() {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden p-2 hover:text-accent transition-colors duration-300 text-[var(--text-primary)]"
+            aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
