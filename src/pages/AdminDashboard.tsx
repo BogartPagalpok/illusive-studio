@@ -1,12 +1,9 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react'; // Added missing useState
 import { ArrowLeft, Palette, Check } from 'lucide-react';
+import { motion } from 'framer-motion'; // Added missing motion import
 import MessageManager from '../components/admin/MessageManager';
 import SiteContentManager from '../components/admin/SiteContentManager';
 import ProjectManager from '../components/admin/ProjectManager';
-import { supabase } from '../lib/supabase';
-
-// 1. IMPORT THE MASTER ENGINE AND PRESETS
 import { applyTheme, themePresets } from '../lib/themes';
 
 interface AdminDashboardProps {
@@ -17,6 +14,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [tab, setTab] = useState<'content' | 'projects' | 'messages' | 'media' | 'theme'>('content');
   const [message, setMessage] = useState('');
   
+  // Track active theme state
   const [activeThemeId, setActiveThemeId] = useState(() => {
     return localStorage.getItem('portfolio-theme') || 'VOID';
   });
@@ -27,14 +25,12 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   };
 
   const handleThemeSelect = async (theme: typeof themePresets[0]) => {
-    // 1. Update UI state for the green checkmark
+    // 1. Update UI state immediately
     setActiveThemeId(theme.id);
-    localStorage.setItem('portfolio-theme', theme.id);
     
     showMessage(`Syncing Engine: ${theme.name}...`);
 
     // 2. FIRE THE MASTER ENGINE
-    // This updates local CSS variables AND pushes to site_config to ping other devices
     try {
       await applyTheme(theme, true);
       showMessage(`Global Sync Complete: ${theme.name}`);
@@ -52,10 +48,10 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   ];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header */}
-      <div className="border-b" style={{ borderColor: 'var(--text-secondary)', opacity: 0.1 }}>
-        <div className="section-container flex items-center justify-between h-20">
+      <div className="border-b" style={{ borderColor: 'rgba(128,128,128,0.1)' }}>
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-20">
           <button
             onClick={onLogout}
             className="flex items-center gap-2 text-[10px] font-heading tracking-widest uppercase transition-colors"
@@ -86,8 +82,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         </motion.div>
       )}
 
-      <div className="section-container py-12">
-        <div className="flex gap-2 mb-12 overflow-x-auto pb-4">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex gap-2 mb-12 overflow-x-auto pb-4 no-scrollbar">
           {tabs.map((t) => (
             <button
               key={t.key}
@@ -111,7 +107,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         {tab === 'theme' && (
           <div className="space-y-12">
             <div className="flex items-center gap-6">
-              <div className="p-5 rounded-2xl" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--text-secondary)' }}>
+              <div className="p-5 rounded-2xl border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'rgba(128,128,128,0.1)' }}>
                 <Palette size={24} style={{ color: 'var(--accent)' }} />
               </div>
               <div>
@@ -121,7 +117,6 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* 3. MAP OVER themePresets INSTEAD OF LOCAL ARRAY */}
               {themePresets.map((theme) => (
                 <button
                   key={theme.id}
@@ -160,8 +155,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                     <div 
                       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[65%] rounded-lg border flex items-center justify-center shadow-2xl" 
                       style={{ 
-                        backgroundColor: 'rgba(128, 128, 128, 0.05)', 
-                        borderColor: 'rgba(128, 128, 128, 0.15)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)', 
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
                         backdropFilter: 'blur(8px)',
                         WebkitBackdropFilter: 'blur(8px)'
                       }}
@@ -169,8 +164,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                       <div 
                         className="w-[50%] h-[35%] rounded-md" 
                         style={{ 
-                          background: `linear-gradient(135deg, ${theme.accent} 0%, color-mix(in srgb, ${theme.accent}, black 40%) 100%)`, 
-                          boxShadow: `0 4px 15px color-mix(in srgb, ${theme.accent}, transparent 80%)` 
+                          background: theme.accent, 
+                          boxShadow: `0 4px 15px ${theme.accent}44` 
                         }} 
                       />
                     </div>
