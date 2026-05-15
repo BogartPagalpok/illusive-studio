@@ -78,6 +78,16 @@ function App() {
     };
   }, []);
 
+  // ====== NEW: scroll reset & browser scroll restoration disable ======
+  useEffect(() => {
+    // Force scroll to top after everything renders
+    window.scrollTo(0, 0);
+    // Prevent browser from restoring scroll position on reload
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center relative">
