@@ -22,18 +22,15 @@ export default function Navbar() {
       const current = window.scrollY;
       setScrolled(current > 50);
 
-      // Simple, robust hide/show logic
-      if (current > lastScrollY.current && current > 150) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
+      // Auto-hide logic: Hides on downscroll (>150px), shows on upscroll
+      const isScrollingDown = current > lastScrollY.current && current > 150;
+      setVisible(!isScrollingDown || current < 20);
+
       lastScrollY.current = current;
     };
-
     window.addEventListener('scroll', onScroll, { passive: true });
 
-    async function fetchContent() {
+    const fetchContent = async () => {
       try {
         const { data } = await supabase
           .from('site_content')
@@ -49,9 +46,9 @@ export default function Navbar() {
           setContent(mapped);
         }
       } catch (err) {
-        // Fallback handled internally
+        // Fallback handled
       }
-    }
+    };
 
     fetchContent();
     return () => window.removeEventListener('scroll', onScroll);
