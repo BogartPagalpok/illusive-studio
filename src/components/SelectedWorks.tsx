@@ -77,6 +77,18 @@ export default function SelectedWorks() {
     setActiveIndex(0);
   }, [activeCategory, projects]);
 
+  useEffect(() => {
+    if (selectedProject) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedProject]);
+
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-transparent">
       <Loader2 className="w-12 h-12 text-accent animate-spin" />
@@ -92,18 +104,18 @@ export default function SelectedWorks() {
     <section id="works" className="relative section-padding overflow-visible z-40 bg-transparent">
       <div className="section-container relative">
         
-        {/* UNIFIED TITLE BLOCK - Fixed to match About & Contact scales */}
+        {/* UNIVERSAL TITLE STANDARD */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-20"
+          className="text-center mb-20 flex flex-col items-center"
         >
-          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
+          <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4 font-bold">
             Portfolio
           </p>
-          <h2 className="font-bold tracking-tighter heading-lg" style={{ color: '#ffffff' }}>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter text-white">
             {'SELECTED WORKS'.split(' ').map((word, i, arr) => (
               <span key={i}>
                 {word === '&' ? <span className="text-accent">&</span> : word}
@@ -111,7 +123,7 @@ export default function SelectedWorks() {
               </span>
             ))}
           </h2>
-          <div className="mt-6 w-20 h-0.5 bg-accent mx-auto" />
+          <div className="mt-8 w-16 h-1 bg-accent rounded-full" />
         </motion.div>
 
         {/* HERO CARD */}
