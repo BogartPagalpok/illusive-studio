@@ -148,7 +148,7 @@ export default function SelectedWorks() {
               ))}
             </div>
 
-            {/* INFO BLOCK */}
+            {/* INFO BLOCK - Scrollable if description is too long, but leaves space for swiper area */}
             <div className="max-w-2xl w-full flex-1 min-h-0 overflow-y-auto no-scrollbar py-4">
               <AnimatePresence mode="wait">
                 {currentProject && (
@@ -172,7 +172,7 @@ export default function SelectedWorks() {
               </AnimatePresence>
             </div>
 
-            {/* ACTION AREA & SWIPER */}
+            {/* ACTION AREA - VIEW PROJECT FIXED AT BOTTOM */}
             <div className="mt-8 pt-8 border-t border-white/5 flex flex-col gap-8 shrink-0">
               <div className="flex items-center">
                 <button 
@@ -252,6 +252,12 @@ export default function SelectedWorks() {
           </motion.div>
         )}
       </AnimatePresence>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .no-scrollbar::-webkit-scrollbar { display: none; }
+          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        `
+      }} />
     </section>
   );
 }
