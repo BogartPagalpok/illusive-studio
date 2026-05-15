@@ -24,20 +24,26 @@ export default function Navbar() {
   const lastScrollY = useRef(0);
 
   useEffect(() => {
-    // 1. Scroll tracking for background transition & auto-hide
     const onScroll = () => {
       const current = window.scrollY;
+      
+      // 1. Background styling
       setScrolled(current > 50);
 
-      // Auto-hide logic: hide when scrolling down past 150px, show when scrolling up or near top
-      const isScrollingDown = current > lastScrollY.current && current > 150;
-      setVisible(!isScrollingDown || current < 20);
+      // 2. STRICTOR AUTO-HIDE LOGIC
+      // If we scroll down at all past the start, hide it. 
+      // If we scroll up by more than 10px, show it.
+      if (current > lastScrollY.current && current > 100) {
+        setVisible(false);
+      } else if (current < lastScrollY.current || current < 20) {
+        setVisible(true);
+      }
 
       lastScrollY.current = current;
     };
+
     window.addEventListener('scroll', onScroll, { passive: true });
 
-    // 2. High-performance Modal Detection (Replaces polling)
     const checkModal = () => {
       setIsModalOpen(document.body.style.overflow === 'hidden');
     };
@@ -45,7 +51,6 @@ export default function Navbar() {
     const observer = new MutationObserver(checkModal);
     observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
 
-    // 3. Dynamic content fetch
     const fetchContent = async () => {
       try {
         const { data, error } = await supabase
@@ -62,7 +67,7 @@ export default function Navbar() {
           setContent(mapped);
         }
       } catch (err) {
-        console.error("Content fetch failed, using defaults.");
+        console.error("Content fetch failed");
       }
     };
 
@@ -79,29 +84,30 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
+  // Only show if the scroll logic says so, OR if the mouse is in that top h-20 zone
   const isActuallyVisible = (visible || isHovered || mobileOpen) && !isModalOpen;
 
   return (
     <>
-      {/* Invisible hover zone at top */}
+      {/* TRIGGER ZONE: Limited to the exact height of the navbar (h-20) */}
       <div
-        className="fixed top-0 left-0 right-0 h-4 z-[110]"
+        className="fixed top-0 left-0 right-0 h-20 z-[110] pointer-events-auto"
         onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       />
 
       <nav
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-[120] transition-all duration-500 ease-in-out ${
           scrolled ? 'backdrop-blur-md shadow-lg bg-[var(--bg-primary)]/95' : 'bg-transparent'
         } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
         <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
           
-          {/* LOGO WITH PULSE & UNDERLINE */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="group relative font-heading font-black text-xl tracking-wider uppercase transition-colors text-[var(--text-primary)]"
+            className="group relative font-heading font-black text-xl tracking-wider uppercase text-[var(--text-primary)]"
           >
             {content.logo_text.includes('.') ? (
               <>
@@ -111,14 +117,13 @@ export default function Navbar() {
             <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full shadow-[0_0_8px_var(--accent)]" />
           </button>
 
-          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center gap-10">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className="group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase transition-all duration-300 text-[var(--text-primary)]"
+                className="group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-[var(--text-primary)]"
               >
                 <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
                   {link.label}
@@ -130,23 +135,22 @@ export default function Navbar() {
             <a
               href="#contact"
               onClick={(e) => handleNavClick(e, '#contact')}
-              className="btn-primary text-[10px] py-3 px-8 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_var(--accent)] font-black"
+              className="btn-primary text-[10px] py-3 px-8 font-black"
             >
               {content.cta_text}
             </a>
           </div>
 
-          {/* MOBILE TOGGLE */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 hover:text-accent transition-colors duration-300 text-[var(--text-primary)]"
+            className="md:hidden p-2 hover:text-accent text-[var(--text-primary)]"
             aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
 
-        {/* MOBILE MENU OVERLAY */}
+        {/* MOBILE MENU */}
         <div className={`md:hidden overflow-hidden transition-all duration-500 bg-[var(--bg-primary)]/98 backdrop-blur-xl ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
           <div className="section-container py-10 flex flex-col gap-8 px-6">
             {navLinks.map((link) => (
@@ -154,7 +158,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className="group relative inline-block text-2xl font-heading font-black tracking-widest uppercase transition-all duration-300 text-[var(--text-primary)]"
+                className="group relative inline-block text-2xl font-heading font-black tracking-widest uppercase text-[var(--text-primary)]"
               >
                 <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
                   {link.label}
