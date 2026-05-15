@@ -21,28 +21,44 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
   const lastScrollY = useRef(0);
+  const scrollAccumulator = useRef(0);
 
   useEffect(() => {
     const onScroll = () => {
       const current = window.scrollY;
+      const delta = current - lastScrollY.current;
+      
       setScrolled(current > 50);
 
-      // Snappy Auto-hide logic
-      const isScrollingDown = current > lastScrollY.current && current > 150;
-      setVisible(!isScrollingDown || current < 20);
+      // Auto-hide logic with intentionality buffer
+      if (current < 50) {
+        setVisible(true);
+        scrollAccumulator.current = 0;
+      } else if (delta > 0) {
+        // Scrolling Down: Hide immediately
+        setVisible(false);
+        scrollAccumulator.current = 0;
+      } else if (delta < 0) {
+        // Scrolling Up: Only show if they scroll up more than 40px (prevents jitter)
+        scrollAccumulator.current += Math.abs(delta);
+        if (scrollAccumulator.current > 40) {
+          setVisible(true);
+        }
+      }
 
       lastScrollY.current = current;
     };
+    
     window.addEventListener('scroll', onScroll, { passive: true });
 
     const fetchContent = async () => {
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('site_content')
           .select('key, value')
           .eq('section', 'navbar');
 
-        if (!error && data) {
+        if (data) {
           const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
           data.forEach(row => {
             if (row.key === 'logo_text') mapped.logo_text = row.value;
@@ -51,13 +67,13 @@ export default function Navbar() {
           setContent(mapped);
         }
       } catch (err) {
-        console.warn("Content fetch failed");
+        console.warn("Content sync failed");
       }
     };
 
     fetchContent();
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [scrolled]);
 
   const handleNavClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
@@ -65,12 +81,11 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
-  // Combine visibility: If scroll is up OR mouse is hovering top, show it.
   const isNavShown = visible || isHovered || mobileOpen;
 
   return (
     <>
-      {/* 4px TOP SENSOR: Catches hover even when nav is hidden */}
+      {/* TRIGGER SENSOR: Ensures hover reveal works even when hidden */}
       <div 
         className="fixed top-0 left-0 right-0 h-1 z-[110] bg-transparent" 
         onMouseEnter={() => setIsHovered(true)} 
@@ -79,11 +94,11 @@ export default function Navbar() {
       <nav
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 left-0 right-0 z-50 h-20 flex items-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           scrolled ? 'backdrop-blur-md shadow-lg bg-[var(--bg-primary)]/95' : 'bg-transparent'
         } ${isNavShown ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
-        <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
+        <div className="section-container flex items-center justify-between w-full px-6 md:px-16">
           
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -105,7 +120,7 @@ export default function Navbar() {
                 onClick={(e) => handleNavClick(e, link.href)}
                 className="group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase transition-all duration-300 text-[var(--text-primary)]"
               >
-                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
+                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent">
                   {link.label}
                 </span>
                 <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-accent opacity-0 group-hover:opacity-100 group-hover:w-full transition-all duration-300 shadow-[0_0_10px_var(--accent)]" />
@@ -130,18 +145,16 @@ export default function Navbar() {
         </div>
 
         {/* MOBILE MENU */}
-        <div className={`md:hidden overflow-hidden transition-all duration-500 bg-[var(--bg-primary)]/98 backdrop-blur-xl ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
+        <div className={`md:hidden absolute top-20 left-0 w-full overflow-hidden transition-all duration-500 bg-[var(--bg-primary)]/98 backdrop-blur-xl ${mobileOpen ? 'max-h-screen border-t border-white/10' : 'max-h-0'}`}>
           <div className="section-container py-10 flex flex-col gap-8 px-6">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className="group relative inline-block text-2xl font-heading font-black tracking-widest uppercase transition-all duration-300 text-[var(--text-primary)]"
+                className="group relative inline-block text-2xl font-heading font-black tracking-widest uppercase text-[var(--text-primary)]"
               >
-                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
-                  {link.label}
-                </span>
+                {link.label}
               </a>
             ))}
           </div>
