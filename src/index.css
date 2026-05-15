@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,8 +13,9 @@
     --text-secondary: #8E8E93;
     --accent: #9D00FF;
     --accent-contrast: #FFFFFF;
-    --font-display: 'Orbitron', sans-serif;
-    --font-sans: 'Inter', sans-serif;
+    --font-display: 'Plus Jakarta Sans', sans-serif;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+    --font-heading: 'Plus Jakarta Sans', sans-serif;
     /* Added glass variables for clean UI logic */
     --glass-border: rgba(255, 255, 255, 0.12);
     --accent-rgb: 157, 0, 255;
@@ -27,13 +30,16 @@
     background-blend-mode: overlay;
     background-attachment: fixed;
     color: var(--text-secondary);
-    font-family: var(--font-sans);
+    font-family: var(--font-sans) !important;
     min-height: 100vh;
     margin: 0;
   }
 
+  h1, h2, h3, h4, h5, h6, p, span, a, button {
+    font-family: var(--font-display) !important;
+  }
+
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: -0.02em;
