@@ -4,58 +4,37 @@
 
 @layer base {
   :root {
-    /* These will be overridden by applyTheme, but we keep them as fallbacks */
     --bg-primary: #030305;
     --bg-secondary: #0A0A0A;
-    --bg-gradient: none;
     --text-primary: #FAFAFA;
     --text-secondary: #8E8E93;
     --accent: #9D00FF;
-    --accent-contrast: #FFFFFF;
     --font-display: 'Orbitron', sans-serif;
     --font-sans: 'Inter', sans-serif;
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
-  }
-
-  html {
-    scroll-behavior: smooth;
+    transition: background-color 0.5s ease, color 0.5s ease;
   }
 
   body {
     background-color: var(--bg-primary) !important;
-    color: var(--text-secondary);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
-    margin: 0;
-    /* Added SVG Noise for that high-end studio texture */
     background-image: 
+      var(--bg-gradient),
       url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
     background-blend-mode: overlay;
     background-attachment: fixed;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    min-height: 100vh;
   }
 
-  /* Ensures content is readable and theme transitions are smooth */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: -0.02em;
   }
-
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background-color: var(--bg-primary); }
-  ::-webkit-scrollbar-thumb {
-    background-color: rgba(var(--accent-rgb), 0.3);
-    border-radius: 10px;
-  }
-  ::-webkit-scrollbar-thumb:hover { background-color: var(--accent); }
 }
 
 @layer components {
-  .section-container { @apply max-w-7xl mx-auto px-6 lg:px-8; }
-  .section-padding { @apply py-24 lg:py-32; }
-
   .btn-primary {
     @apply relative overflow-hidden rounded-xl px-8 py-4 font-bold flex items-center justify-center gap-3
            uppercase tracking-[0.2em] text-[10px] transition-all duration-300;
@@ -70,16 +49,14 @@
     filter: brightness(1.1);
   }
 
-  .card-dark {
-    @apply p-8 rounded-3xl transition-all duration-500 backdrop-blur-xl border;
-    background-color: var(--bg-secondary);
-    border-color: rgba(255, 255, 255, 0.08);
+  /* GLASSMOPHISM UTILITY */
+  .card-glass {
+    @apply p-10 rounded-[2.5rem] border transition-all duration-500 backdrop-blur-[24px] saturate-[180%] relative overflow-hidden;
+    background-color: var(--glass-bg);
+    border-color: var(--glass-border);
   }
 
-  /* Impactful Mecha-style typography */
   .heading-xl {
     @apply text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tighter italic;
   }
-
-  .text-accent { color: var(--accent); }
 }
