@@ -83,14 +83,21 @@ export default function Contact() {
       setTimeout(() => setSent(false), 4000);
     } catch (e: any) {
       console.error('Error sending message:', e.message);
-      alert('Failed to send message. Please try again.');
     }
     setSending(false);
   };
 
+  // REFINED GLASSMOPHISM STYLE FOR INPUTS
+  const inputStyle = {
+    backgroundColor: 'rgba(var(--accent-rgb), 0.03)',
+    borderColor: 'rgba(var(--accent-rgb), 0.15)',
+    backdropFilter: 'blur(10px)',
+    WebkitBackdropFilter: 'blur(10px)',
+    color: 'var(--text-primary)',
+  };
+
   return (
     <section className="section-padding relative overflow-visible z-30 bg-transparent">
-      {/* ANCHOR FIX */}
       <div id="contact" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
       
       <FloatingCube type="Canva" size={80} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
@@ -105,10 +112,10 @@ export default function Contact() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="lg:sticky lg:top-32"
           >
-            <p className="text-sm font-heading tracking-[0.3em] uppercase text-accent mb-4">
+            <p className="text-[10px] font-heading tracking-[0.4em] uppercase text-accent mb-4 font-black">
               {content.subtitle}
             </p>
-            <h2 className="heading-lg" style={{ color: '#ffffff' }}>
+            <h2 className="heading-lg italic font-black uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>
               {content.heading.split(' ').length > 1 ? (
                 <>
                   {content.heading.split(' ').slice(0, -1).join(' ')}{' '}
@@ -118,36 +125,37 @@ export default function Contact() {
                 content.heading
               )}
             </h2>
-            <p className="mt-6 mb-8 leading-relaxed" style={{ color: '#efefef' }}>
+            <p className="mt-6 mb-8 leading-relaxed text-sm" style={{ color: 'var(--text-secondary)' }}>
               {content.description}
             </p>
-            <div className="w-16 h-0.5 bg-accent" />
+            <div className="w-16 h-1 bg-accent" />
           </motion.div>
 
-          {/* Right — Form with Refined Glassmorphism */}
+          {/* Right — Form */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="p-10 rounded-3xl border transition-all duration-500 backdrop-blur-[32px] saturate-[180%]"
+            className="p-10 rounded-[2.5rem] border transition-all duration-500 backdrop-blur-[40px] saturate-[180%]"
             style={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.03)',
-              borderColor: 'rgba(255, 255, 255, 0.12)',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-              WebkitBackdropFilter: 'blur(32px) saturate(180%)'
+              backgroundColor: 'rgba(var(--accent-rgb), 0.02)',
+              borderColor: 'rgba(var(--accent-rgb), 0.1)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)'
             }}
           >
-            <div className="flex flex-col gap-1 mb-6">
-              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>Secure Channel</p>
+            <div className="flex flex-col gap-1 mb-8">
+              <p className="text-[10px] uppercase tracking-[0.3em] font-bold" style={{ color: 'var(--text-secondary)', opacity: 0.5 }}>Secure Channel</p>
               {user && (
-                <p className="text-xs text-accent uppercase tracking-widest font-black">
+                <p className="text-[9px] text-accent uppercase tracking-[0.2em] font-black italic">
                   Authenticated: {user.email}
                 </p>
               )}
             </div>
-            <form onSubmit={handleSubmit} className="space-y-5">
+
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>
                   Name
                 </label>
                 <input
@@ -155,12 +163,13 @@ export default function Contact() {
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="input-field"
-                  placeholder="Your name"
+                  className="w-full bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm"
+                  style={inputStyle}
+                  placeholder="IDENTIFY ORIGIN"
                 />
               </div>
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>
                   Email
                 </label>
                 <input
@@ -168,50 +177,51 @@ export default function Contact() {
                   required
                   value={form.email}
                   readOnly
-                  className="input-field opacity-60 cursor-not-allowed"
-                  placeholder="your@email.com"
+                  className="w-full bg-transparent border rounded-xl p-4 outline-none opacity-40 cursor-not-allowed text-sm"
+                  style={inputStyle}
                 />
               </div>
               <div>
-                <label className="block text-xs font-heading tracking-widest uppercase mb-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1" style={{ color: 'var(--text-primary)', opacity: 0.6 }}>
                   Message
                 </label>
                 <textarea
                   required
-                  rows={5}
+                  rows={4}
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="input-field resize-none custom-scrollbar"
-                  placeholder="Tell me about your project..."
+                  className="w-full bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm resize-none custom-scrollbar"
+                  style={inputStyle}
+                  placeholder="TRANSMIT PAYLOAD..."
                 />
               </div>
+              
               <button
                 type="submit"
                 disabled={sending}
-                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: 'var(--accent)', backgroundImage: 'none', color: 'black' }}
+                className="btn-primary w-full py-5 rounded-2xl disabled:opacity-30 flex items-center justify-center gap-3 group"
+                style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
               >
                 {sending ? (
-                  <span className="flex items-center justify-center gap-3">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    <span>Sending...</span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-t-transparent animate-spin rounded-full border-current" />
+                    <span>SYNCING...</span>
                   </span>
                 ) : sent ? (
-                  <span className="flex items-center justify-center">Message Sent!</span>
+                  <span className="font-black italic">TRANSMISSION COMPLETE</span>
                 ) : (
-                  <span className="flex items-center justify-center gap-3">
-                    <Send size={16} className="-mt-0.5" />
-                    <span>Send Message</span>
-                  </span>
+                  <>
+                    <Send size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    <span className="font-black italic tracking-widest">SEND MESSAGE</span>
+                  </>
                 )}
               </button>
             </form>
+
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-accent/5 blur-[50px] rounded-full pointer-events-none" />
           </motion.div>
         </div>
       </div>
     </section>
   );
-}
+                                  }
