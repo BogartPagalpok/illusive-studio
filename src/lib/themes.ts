@@ -1,25 +1,3 @@
-import { supabase } from '../lib/supabase';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
-
-export interface ThemePreset {
-  id: string;
-  name: string;
-  tagline: string;
-  // Mechanical Layering System
-  colors: string[]; 
-  bgPrimary: string;
-  bgSecondary: string;
-  textPrimary: string;
-  textSecondary: string;
-  accent: string;
-  bgGradient: string;
-  fontDisplay: string;
-  fontSans: string;
-}
-
 export const themePresets: ThemePreset[] = [
   {
     id: 'GUNDAM',
@@ -90,5 +68,145 @@ export const themePresets: ThemePreset[] = [
     bgGradient: 'linear-gradient(135deg, #1C1D22 0%, #0F0F12 100%)',
     fontDisplay: "'Orbitron', sans-serif",
     fontSans: "'Share Tech Mono', monospace",
+  },
+  {
+    id: 'LOTUS',
+    name: 'LOTUS BLUE',
+    tagline: 'ENDLESS & CAPTIVATING',
+    colors: ['#0B2249', '#7184CB', '#133C6F', '#2C5C93', '#5985BD', '#0C1F41'],
+    bgPrimary: '#0B2249',
+    bgSecondary: '#0C1F41',
+    textPrimary: '#5985BD',
+    textSecondary: '#7184CB',
+    accent: '#7184CB',
+    bgGradient: 'radial-gradient(circle at center, #133C6F 0%, #0B2249 100%)',
+    fontDisplay: "'Montserrat', sans-serif",
+    fontSans: "'Plus Jakarta Sans', sans-serif",
+  },
+  {
+    id: 'AURORA',
+    name: 'AURORA FOREST',
+    tagline: 'ENIGMATIC & PASSIONATE',
+    colors: ['#053931', '#CBEFEB', '#48A89A', '#00524D', '#072928'],
+    bgPrimary: '#053931',
+    bgSecondary: '#072928',
+    textPrimary: '#CBEFEB',
+    textSecondary: '#48A89A',
+    accent: '#CBEFEB',
+    bgGradient: 'linear-gradient(180deg, #053931 0%, #00524D 100%)',
+    fontDisplay: "'Syne', sans-serif",
+    fontSans: "'Inter', sans-serif",
+  },
+  {
+    id: 'MIDNIGHT',
+    name: 'MIDNIGHT ROSE',
+    tagline: 'ROMANTIC AND DREAMY',
+    colors: ['#6A0409', '#9D3737', '#E12D33', '#9E2029', '#9C4722'],
+    bgPrimary: '#6A0409',
+    bgSecondary: '#9E2029',
+    textPrimary: '#E12D33',
+    textSecondary: '#9C4722',
+    accent: '#E12D33',
+    bgGradient: 'radial-gradient(circle at 50% 50%, #9D3737 0%, #6A0409 100%)',
+    fontDisplay: "'Montserrat', sans-serif",
+    fontSans: "'Plus Jakarta Sans', sans-serif",
+  },
+  {
+    id: 'VIOLET-A',
+    name: 'VIOLET NIGHT',
+    tagline: 'DEEP GRADIENT',
+    colors: ['#2D1C42', '#004AAD', '#5C6FC6', '#2F236B', '#7A5498'],
+    bgPrimary: '#2D1C42',
+    bgSecondary: '#2F236B',
+    textPrimary: '#5C6FC6',
+    textSecondary: '#7A5498',
+    accent: '#004AAD',
+    bgGradient: 'linear-gradient(180deg, #2D1C42 0%, #1A0B2E 100%)',
+    fontDisplay: "'Syne', sans-serif",
+    fontSans: "'Plus Jakarta Sans', sans-serif",
+  },
+  {
+    id: 'VIOLET-B',
+    name: 'VIOLET GOLD',
+    tagline: 'ROYAL COMBINATION',
+    colors: ['#2D1C42', '#C88B00', '#E1B983', '#7A5498', '#4D2F70'],
+    bgPrimary: '#2D1C42',
+    bgSecondary: '#4D2F70',
+    textPrimary: '#E1B983',
+    textSecondary: '#C88B00',
+    accent: '#C88B00',
+    bgGradient: 'radial-gradient(circle at top center, #4D2F70 0%, #2D1C42 100%)',
+    fontDisplay: "'Montserrat', sans-serif",
+    fontSans: "'Space Grotesk', sans-serif",
+  },
+  {
+    id: 'ALONE',
+    name: 'ALONE',
+    tagline: 'TEAL OBSIDIAN',
+    colors: ['#0E2931', '#12484C', '#2B7574', '#861211', '#E2E2E0'],
+    bgPrimary: '#0E2931',
+    bgSecondary: '#12484C',
+    textPrimary: '#E2E2E0',
+    textSecondary: '#861211',
+    accent: '#861211',
+    bgGradient: 'linear-gradient(180deg, #0E2931 0%, #071A1F 100%)',
+    fontDisplay: "'Syne', sans-serif",
+    fontSans: "'Space Grotesk', sans-serif",
+  },
+  {
+    id: 'CRIMSON',
+    name: 'VIBRANT CRIMSON',
+    tagline: 'HIGH CONTRAST',
+    colors: ['#1E1E27', '#DF0139', '#E2E2E2', '#28242A'],
+    bgPrimary: '#1E1E27',
+    bgSecondary: '#28242A',
+    textPrimary: '#E2E2E2',
+    textSecondary: '#DF0139',
+    accent: '#DF0139',
+    bgGradient: 'radial-gradient(circle at 100% 0%, rgba(223, 1, 57, 0.1) 0%, transparent 50%)',
+    fontDisplay: "'Orbitron', sans-serif",
+    fontSans: "'Inter', sans-serif",
+  },
+  {
+    id: 'BOTANIC',
+    name: 'BOTANIC ACID',
+    tagline: 'TOXIC FLORA',
+    colors: ['#FFFEEF', '#9FD700', '#446158', '#272C1A'],
+    bgPrimary: '#272C1A',
+    bgSecondary: '#446158',
+    textPrimary: '#FFFEEF',
+    textSecondary: '#9FD700',
+    accent: '#9FD700',
+    bgGradient: 'linear-gradient(180deg, #272C1A 0%, #1A1F11 100%)',
+    fontDisplay: "'Syne', sans-serif",
+    fontSans: "'JetBrains Mono', monospace",
+  },
+  {
+    id: 'TIBER',
+    name: 'TIBER RUST',
+    tagline: 'INDUSTRIAL CORROSION',
+    colors: ['#173D3C', '#AE3708', '#FB8007', '#FB9D0B', '#E64301'],
+    bgPrimary: '#173D3C',
+    bgSecondary: '#AE3708',
+    textPrimary: '#FB9D0B',
+    textSecondary: '#FB8007',
+    accent: '#E64301',
+    bgGradient: 'radial-gradient(circle at bottom left, #AE3708 0%, #173D3C 100%)',
+    fontDisplay: "'Orbitron', sans-serif",
+    fontSans: "'Space Grotesk', sans-serif",
+  },
+  {
+    id: 'CYBER',
+    name: 'CYBER GOLD',
+    tagline: 'METALLIC PRECISION',
+    colors: ['#4D6473', '#2C4657', '#172531', '#000101', '#C7843B', '#F3BD68'],
+    bgPrimary: '#000101',
+    bgSecondary: '#172531',
+    textPrimary: '#F3BD68',
+    textSecondary: '#C7843B',
+    accent: '#C7843B',
+    bgGradient: 'radial-gradient(circle at 0% 0%, #2C4657 0%, #000101 100%)',
+    fontDisplay: "'Orbitron', sans-serif",
+    fontSans: "'JetBrains Mono', monospace",
   }
 ];
