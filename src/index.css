@@ -16,7 +16,6 @@
     --font-display: 'Plus Jakarta Sans', sans-serif;
     --font-sans: 'Plus Jakarta Sans', sans-serif;
     --font-heading: 'Plus Jakarta Sans', sans-serif;
-    /* Added glass variables for clean UI logic */
     --glass-border: rgba(255, 255, 255, 0.12);
     --accent-rgb: 157, 0, 255;
     transition: all 0.5s ease;
@@ -55,12 +54,10 @@
     @apply relative overflow-hidden rounded-full px-12 py-3.5 font-bold flex items-center justify-center gap-3
            uppercase tracking-[0.2em] text-[11px] transition-all duration-300;
     background: var(--accent) !important;
-    /* This ensures the text color is always readable based on your theme's contrast variable */
     color: var(--accent-contrast) !important;
     box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
   }
 
-  /* Force icons inside buttons to match the text color */
   .btn-primary svg {
     @apply fill-current text-inherit;
   }
@@ -71,7 +68,23 @@
     filter: brightness(1.1);
   }
 
-  /* UNIFIED HEADER STYLE (The DNA from your About section) */
+  /* OUTLINE BUTTON - theme‑aware, inverts on hover */
+  .btn-outline {
+    @apply relative inline-flex items-center justify-center gap-3 rounded-full
+           border font-bold uppercase tracking-[0.2em] text-[11px]
+           transition-all duration-300 px-12 py-3.5;
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+    background: transparent;
+  }
+
+  .btn-outline:hover {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    border-color: var(--text-primary);
+  }
+
+  /* UNIFIED HEADER STYLE */
   .section-subtitle {
     @apply text-sm font-heading tracking-[0.3em] uppercase mb-4 block;
     color: var(--accent);
@@ -80,7 +93,7 @@
   .section-title {
     @apply font-bold tracking-tighter uppercase;
     color: var(--text-primary);
-    font-size: clamp(2rem, 5vw, 4rem); /* heading-lg logic */
+    font-size: clamp(2rem, 5vw, 4rem);
   }
 
   .section-divider {
