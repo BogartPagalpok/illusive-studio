@@ -19,21 +19,19 @@ const skills = [
   { name: 'Typography', level: 87 },
 ];
 
-// Circular progress component
+// Compact circular progress
 const CircularProgress = ({ level, name, isVisible }: { level: number; name: string; isVisible: boolean }) => {
   const [count, setCount] = useState(0);
-  const radius = 45;
+  const radius = 35; // smaller radius
   const circumference = 2 * Math.PI * radius;
   const [offset, setOffset] = useState(circumference);
 
   useEffect(() => {
     if (isVisible) {
-      // Animate the stroke dashoffset
       const targetOffset = circumference - (level / 100) * circumference;
       setOffset(targetOffset);
-      // Animate the counter
       let start = 0;
-      const duration = 1500;
+      const duration = 1200;
       const step = (timestamp: number) => {
         if (!start) start = timestamp;
         const progress = Math.min(1, (timestamp - start) / duration);
@@ -49,40 +47,37 @@ const CircularProgress = ({ level, name, isVisible }: { level: number; name: str
 
   return (
     <div className="flex flex-col items-center group">
-      <div className="relative w-32 h-32 md:w-36 md:h-36">
-        {/* Background circle */}
+      <div className="relative w-20 h-20 md:w-24 md:h-24">
         <svg className="w-full h-full transform -rotate-90">
           <circle
             cx="50%"
             cy="50%"
             r={radius}
             stroke="var(--glass-border)"
-            strokeWidth="6"
+            strokeWidth="5"
             fill="none"
             className="opacity-20"
           />
-          {/* Foreground circle (progress) */}
           <circle
             cx="50%"
             cy="50%"
             r={radius}
             stroke="var(--accent)"
-            strokeWidth="6"
+            strokeWidth="5"
             fill="none"
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             className="transition-all duration-1000 ease-out"
-            style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.22, 1, 0.36, 1)' }}
+            style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.22, 1, 0.36, 1)' }}
           />
         </svg>
-        {/* Percentage text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl md:text-3xl font-black text-[var(--text-primary)]">{count}%</span>
-          <span className="text-[8px] uppercase tracking-wider text-[var(--text-secondary)]/60 mt-1">Proficiency</span>
+          <span className="text-xl md:text-2xl font-black text-[var(--text-primary)]">{count}%</span>
+          <span className="text-[6px] md:text-[7px] uppercase tracking-wider text-[var(--text-secondary)]/60 mt-0.5">Prof.</span>
         </div>
       </div>
-      <h4 className="mt-4 text-sm font-bold uppercase tracking-wider text-[var(--text-primary)] group-hover:text-accent transition-colors">
+      <h4 className="mt-2 text-[10px] md:text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] group-hover:text-accent transition-colors">
         {name}
       </h4>
     </div>
@@ -173,7 +168,6 @@ export default function About() {
 
       <div ref={ref} className="section-container relative">
         
-        {/* Title section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -192,8 +186,8 @@ export default function About() {
           <div className="section-divider" />
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-20 items-start">
-          {/* Left text card */}
+        <div className="grid lg:grid-cols-2 gap-16 items-start">
+          {/* Left side – unchanged */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
@@ -219,15 +213,15 @@ export default function About() {
             </div>
           </motion.div>
 
-          {/* Right side – Modern skill gauges */}
+          {/* Right side – compact skill grid */}
           <motion.div
             ref={skillsRef}
             initial={{ opacity: 0, x: 30 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="space-y-8"
+            className="space-y-6"
           >
-            <h3 className="text-2xl font-black uppercase tracking-tighter text-[var(--text-primary)]">
+            <h3 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-[var(--text-primary)]">
               {content.skills_heading.split(' ').map((word, i) => (
                 <span key={i}>
                   {word.toLowerCase() === '&' ? <span className="text-accent">&</span> : word}
@@ -236,11 +230,11 @@ export default function About() {
               ))}
             </h3>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-14">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:gap-y-8">
               {skills.map((skill, i) => (
                 <div
                   key={skill.name}
-                  className="card-glass p-4 md:p-6 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-accent/30 group"
+                  className="card-glass p-3 md:p-4 rounded-xl transition-all duration-300 hover:border-accent/30 group"
                 >
                   <CircularProgress level={skill.level} name={skill.name} isVisible={skillsInView} />
                 </div>
