@@ -7,51 +7,43 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 interface ImageSequenceProps {
-  frames: string[]; // Your Supabase URLs
-  fps?: number;
+  frames: string[];
 }
 
-export default function ImageSequence({ frames, fps = 30 }: ImageSequenceProps) {
+export default function ImageSequence({ frames }: ImageSequenceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
-  const [progress, setProgress] = useState(0);
-  
-  // Store decoded image elements
+  const [loadProgress, setLoadProgress] = useState(0);
   const imageCache = useRef<HTMLImageElement[]>([]);
 
-  // Step 1: Preload & Decode ALL frames before anything else
+  // Preload & decode all frames
   useEffect(() => {
     let cancelled = false;
     const imageElements: HTMLImageElement[] = [];
+    const total = frames.length;
 
     const preloadAll = async () => {
-      const totalFrames = frames.length;
-      
-      for (let i = 0; i < totalFrames; i++) {
+      for (let i = 0; i < total; i++) {
         if (cancelled) break;
-        
+
         try {
           const img = new Image();
-          
-          // Critical: Wait for BOTH load AND decode
-          await new Promise<void>((resolve, reject) => {
+
+          await new Promise<void>((resolve) => {
             img.onload = () => {
-              // Force decode immediately (not lazily)
               img.decode()
                 .then(() => resolve())
-                .catch(() => resolve()); // Fallback if decode fails
+                .catch(() => resolve());
             };
-            img.onerror = () => {
-              console.warn(`Failed to load frame ${i}`);
-              resolve(); // Don't block the whole sequence
-            };
+            img.onerror = () => resolve();
             img.src = frames[i];
           });
-          
+
           imageElements.push(img);
-        } catch (error) {
-          console.error(`Frame ${i} error:`, error);
+          setLoadProgress((i + 1) / total);
+        } catch {
+          setLoadProgress((i + 1) / total);
         }
       }
 
@@ -68,9 +60,10 @@ export default function ImageSequence({ frames, fps = 30 }: ImageSequenceProps) 
     };
   }, [frames]);
 
-  // Step 2: Only set up ScrollTrigger AFTER everything is loaded
+  // Setup ScrollTrigger animation
   useEffect(() => {
-    if (!ready || !containerRef.current || !canvasRef.current) return;
+    if (!ready) return;
+    if (!containerRef.current || !canvasRef.current) return;
 
     const container = containerRef.current;
     const canvas = canvasRef.current;
@@ -80,74 +73,76 @@ export default function ImageSequence({ frames, fps = 30 }: ImageSequenceProps) 
     const totalFrames = imageCache.current.length;
     if (totalFrames === 0) return;
 
-    // Set canvas size
     const setCanvasSize = () => {
       const rect = container.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio, 2); // Cap at 2x for performance
+      const dpr = Math.min(window.devicePixelRatio, 2);
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
       canvas.style.width = rect.width + 'px';
       canvas.style.height = rect.height + 'px';
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     setCanvasSize();
     window.addEventListener('resize', setCanvasSize);
 
-    // Draw first frame immediately
     const drawFrame = (index: number) => {
       const frame = imageCache.current[Math.min(index, totalFrames - 1)];
-      if (!frame || !ctx) return;
-      
+      if (!frame) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(
-        frame,
-        0, 0,
-        canvas.width / (window.devicePixelRatio || 1),
-        canvas.height / (window.devicePixelRatio || 1)
-      );
+      ctx.drawImage(frame, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
     };
 
     drawFrame(0);
 
-    // Step 3: Smooth GSAP animation
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: container,
-        start: 'top top',
-        end: '+=300%', // Adjust based on your design
-        scrub: 1.2, // Smooth interpolation
-        pin: true,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const frameIndex = Math.floor(self.progress * (totalFrames - 1));
-          drawFrame(frameIndex);
-          setProgress(self.progress);
-        },
+    const st = ScrollTrigger.create({
+      trigger: container,
+      start: 'top top',
+      end: '+=300%',
+      scrub: 1.2,
+      pin: true,
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        const frameIndex = Math.floor(self.progress * (totalFrames - 1));
+        drawFrame(frameIndex);
       },
     });
 
     return () => {
-      tl.kill();
+      st.kill();
       window.removeEventListener('resize', setCanvasSize);
-      ScrollTrigger.getAll().forEach(st => st.kill());
     };
   }, [ready]);
 
   return (
     <div ref={containerRef} className="relative w-full h-screen overflow-hidden bg-black">
-      {/* Progress indicator (optional, good for debugging) */}
+      {/* Branded Loading Screen */}
       {!ready && (
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-            <p className="text-white/60 text-sm">Loading frames...</p>
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black">
+          <div className="flex flex-col items-center gap-8">
+            {/* Logo */}
+            <h1 className="text-4xl md:text-6xl font-light tracking-[0.2em] text-white">
+              IAN<span className="text-white/40">.</span>LESTER
+            </h1>
+
+            {/* Loading bar */}
+            <div className="w-48 md:w-64 h-[1px] bg-white/10 overflow-hidden">
+              <div
+                className="h-full bg-white transition-all duration-500 ease-out"
+                style={{ width: `${Math.round(loadProgress * 100)}%` }}
+              />
+            </div>
+
+            {/* Frame counter */}
+            <p className="text-white/30 text-xs tracking-[0.3em] uppercase">
+              {Math.round(loadProgress * 100)}%
+            </p>
           </div>
         </div>
       )}
-      
-      <canvas 
-        ref={canvasRef} 
+
+      <canvas
+        ref={canvasRef}
         className="absolute inset-0 w-full h-full object-cover"
         style={{ opacity: ready ? 1 : 0 }}
       />
