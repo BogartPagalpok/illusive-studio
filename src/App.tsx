@@ -7,10 +7,9 @@ import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import { motion } from 'framer-motion';
-import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
+import useHoveringPenFavicon from './hooks/useHoveringPenFavicon'; // Changed to default import (adjust if named export)
 import DiagonalScrollFade from './components/DiagonalScrollFade';
 
-// Import your sections directly
 import Hero from './components/Hero';
 import About from './components/About';
 import Skills from './components/Skills';
@@ -19,33 +18,35 @@ import Contact from './components/Contact';
 
 function AtmosphereGradient() {
   return (
-    <div 
+    <div
       className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none transition-colors duration-700"
-      style={{ backgroundColor: 'var(--bg-primary)' }}
+      style={{ backgroundColor: 'var(--bg-primary)' } as React.CSSProperties}
     >
-      <motion.div 
+      <motion.div
         animate={{ x: ['-5%', '5%', '-5%'], y: ['-2%', '2%', '-2%'] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
         className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full opacity-20 blur-[100px] will-change-transform"
-        style={{ 
-          background: 'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)',
-          filter: 'saturate(1.2)'
-        }}
+        style={{
+          background:
+            'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)',
+          filter: 'saturate(1.2)',
+        } as React.CSSProperties}
       />
-      <motion.div 
+      <motion.div
         animate={{ x: ['5%', '-5%', '5%'], y: ['2%', '-2%', '2%'] }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
         className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full opacity-10 blur-[90px] will-change-transform"
-        style={{ 
-          background: 'radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--accent), #4000ff 40%) 0%, transparent 70%)',
-        }}
+        style={{
+          background:
+            'radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--accent), #4000ff 40%) 0%, transparent 70%)',
+        } as React.CSSProperties}
       />
-      <div 
-        className="absolute inset-0 transition-opacity duration-700" 
-        style={{ 
+      <div
+        className="absolute inset-0 transition-opacity duration-700"
+        style={{
           background: 'var(--bg-gradient)',
-          opacity: 0.8
-        }} 
+          opacity: 0.8,
+        } as React.CSSProperties}
       />
     </div>
   );
@@ -63,7 +64,10 @@ function App() {
 
     const initAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
         if (error) console.warn('Supabase Auth Warning:', error.message);
         setSession(session);
       } catch (err) {
@@ -75,7 +79,9 @@ function App() {
 
     initAuth();
 
-    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription: authSubscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
 
@@ -96,7 +102,13 @@ function App() {
     return (
       <div className="min-h-screen flex items-center justify-center relative">
         <AtmosphereGradient />
-        <span className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full" style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }} />
+        <span
+          className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full"
+          style={{
+            borderColor: 'var(--accent)',
+            borderTopColor: 'transparent',
+          } as React.CSSProperties}
+        />
       </div>
     );
   }
@@ -119,11 +131,10 @@ function App() {
     );
   }
 
-  // 👇 Main app content
   return (
     <main className="min-h-screen relative overflow-x-hidden bg-transparent">
       <AtmosphereGradient />
-      
+
       <Routes>
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
@@ -131,22 +142,16 @@ function App() {
           path="/"
           element={
             <>
-              {/* Hero – no fade */}
               <Hero />
-
-              {/* All other sections wrapped in diagonal fade */}
               <DiagonalScrollFade fadeEdge={25} angle={135}>
                 <About />
               </DiagonalScrollFade>
-
               <DiagonalScrollFade fadeEdge={20} angle={120}>
                 <Skills />
               </DiagonalScrollFade>
-
               <DiagonalScrollFade fadeEdge={30} angle={150}>
                 <Projects />
               </DiagonalScrollFade>
-
               <DiagonalScrollFade fadeEdge={20} angle={135}>
                 <Contact />
               </DiagonalScrollFade>
