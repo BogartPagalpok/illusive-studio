@@ -35,7 +35,6 @@ export default function Hero() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // --- SCROLL TRACKING ---
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end start'],
@@ -67,7 +66,6 @@ export default function Hero() {
     fetchContent();
   }, []);
 
-  // GSAP SCROLL FIX (Long scroll length maintained)
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
@@ -102,8 +100,7 @@ export default function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="w-full overflow-hidden relative"
-      style={{ backgroundColor: 'var(--bg-primary)' }}   // follows the theme
+      className="w-full overflow-hidden relative bg-transparent"
     >
       <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 4 : 6}>
         <div className="hidden md:block">
@@ -112,16 +109,15 @@ export default function Hero() {
         </div>
 
         <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
-          {/* Darkening overlays – intentionally kept black for image readability */}
-          <div className="absolute inset-0 bg-black/40 pointer-events-none z-0" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none z-0" />
+          {/* Darkening overlays – reduced opacity so background patterns show through */}
+          <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
 
           {/* LAYER 1: MAIN HERO TEXT */}
           <motion.div
             style={{ opacity: heroOpacity, y: heroY }}
             className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto"
           >
-            {/* Subtitle */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -131,7 +127,6 @@ export default function Hero() {
               {content.subtitle}
             </motion.p>
 
-            {/* Main heading – white words, accent on middle line */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -147,7 +142,6 @@ export default function Hero() {
               {content.heading_line3}
             </motion.h1>
 
-            {/* Description */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -157,7 +151,6 @@ export default function Hero() {
               {content.description}
             </motion.p>
 
-            {/* CTA buttons */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -181,7 +174,6 @@ export default function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* FIXED SCROLL INDICATOR */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
