@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import HomePage from './pages/HomePage';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import Terms from './pages/Terms';
@@ -9,6 +8,14 @@ import { supabase } from './lib/supabase';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
+import DiagonalScrollFade from './components/DiagonalScrollFade';
+
+// Import your sections directly
+import Hero from './components/Hero';
+import About from './components/About';
+import Skills from './components/Skills';
+import Projects from './components/Projects';
+import Contact from './components/Contact';
 
 function AtmosphereGradient() {
   return (
@@ -78,11 +85,8 @@ function App() {
     };
   }, []);
 
-  // ====== NEW: scroll reset & browser scroll restoration disable ======
   useEffect(() => {
-    // Force scroll to top after everything renders
     window.scrollTo(0, 0);
-    // Prevent browser from restoring scroll position on reload
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
@@ -115,13 +119,40 @@ function App() {
     );
   }
 
+  // 👇 Main app content
   return (
     <main className="min-h-screen relative overflow-x-hidden bg-transparent">
       <AtmosphereGradient />
+      
       <Routes>
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
-        <Route path="/" element={<HomePage onAdminAuth={() => setIsAdmin(true)} />} />
+        <Route
+          path="/"
+          element={
+            <>
+              {/* Hero – no fade */}
+              <Hero />
+
+              {/* All other sections wrapped in diagonal fade */}
+              <DiagonalScrollFade fadeEdge={25} angle={135}>
+                <About />
+              </DiagonalScrollFade>
+
+              <DiagonalScrollFade fadeEdge={20} angle={120}>
+                <Skills />
+              </DiagonalScrollFade>
+
+              <DiagonalScrollFade fadeEdge={30} angle={150}>
+                <Projects />
+              </DiagonalScrollFade>
+
+              <DiagonalScrollFade fadeEdge={20} angle={135}>
+                <Contact />
+              </DiagonalScrollFade>
+            </>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </main>
