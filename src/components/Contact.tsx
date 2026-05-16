@@ -87,7 +87,6 @@ export default function Contact() {
     setSending(false);
   };
 
-  // Unified glass style for all inputs (matches card-glass)
   const glassInputStyle = {
     backgroundColor: 'var(--glass-bg)',
     borderColor: 'var(--glass-border)',
@@ -105,7 +104,7 @@ export default function Contact() {
       <div ref={ref} className="section-container relative">
         <div className="grid lg:grid-cols-2 gap-0 items-start max-w-5xl mx-auto">
           
-          {/* Left – Messaging */}
+          {/* Left side unchanged */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -131,12 +130,12 @@ export default function Contact() {
             <div className="w-16 h-0.5 bg-[var(--accent)]" />
           </motion.div>
 
-          {/* Right – Form Card (full width, glassmorphism, equal internal widths) */}
+          {/* Right side – Glass Card with internal padding */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="card-glass rounded-[2.5rem] w-full box-border"
+            className="card-glass rounded-[2.5rem] w-full box-border p-6 md:p-8"
             style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
           >
             <div className="flex flex-col gap-1 mb-8">
@@ -151,7 +150,7 @@ export default function Contact() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6 w-full">
-              {/* Name Field */}
+              {/* Name */}
               <div className="w-full">
                 <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
                   NAME
@@ -161,13 +160,13 @@ export default function Contact() {
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm"
+                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm overflow-hidden text-ellipsis"
                   style={glassInputStyle}
                   placeholder="Your Name"
                 />
               </div>
 
-              {/* Email Field (read‑only, no opacity reduction to keep width consistent) */}
+              {/* Email (read‑only, same style) */}
               <div className="w-full">
                 <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
                   EMAIL
@@ -177,12 +176,12 @@ export default function Contact() {
                   required
                   value={form.email}
                   readOnly
-                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none cursor-not-allowed text-sm"
+                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none cursor-not-allowed text-sm overflow-hidden text-ellipsis"
                   style={glassInputStyle}
                 />
               </div>
 
-              {/* Message Field */}
+              {/* Message */}
               <div className="w-full">
                 <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
                   MESSAGE
@@ -192,18 +191,17 @@ export default function Contact() {
                   rows={4}
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm resize-none custom-scrollbar"
+                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm resize-none custom-scrollbar overflow-hidden"
                   style={glassInputStyle}
                   placeholder="Tell me about your project..."
                 />
               </div>
               
-              {/* Submit Button – identical width as inputs */}
+              {/* Button – same width as inputs */}
               <button
                 type="submit"
                 disabled={sending}
-                className="w-full py-5 !rounded-xl disabled:opacity-30 flex items-center justify-center gap-3 group box-border border outline-none focus:border-accent transition-all text-sm"
-                style={glassInputStyle}
+                className="btn-primary w-full py-5 !rounded-xl disabled:opacity-30 flex items-center justify-center gap-3 group box-border"
               >
                 {sending ? (
                   <span className="flex items-center gap-2">
