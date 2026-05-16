@@ -15,7 +15,6 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
 
-  // Clear state when modal closes
   useEffect(() => {
     if (!isOpen) {
       setPassword('');
@@ -57,39 +56,41 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
-            className="p-8 max-w-sm w-full relative rounded-3xl border border-white/10 shadow-2xl backdrop-blur-2xl"
+            className="card-dark-sm p-6 max-w-sm w-full relative"
             style={{ 
-              backgroundColor: 'var(--bg-secondary)', 
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05)' 
             }}
           >
+            {/* Close button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-all duration-300 active:scale-90"
+              className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-all duration-300 active:scale-90"
               style={{ color: 'var(--text-primary)', opacity: 0.6 }}
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
-            <div className="text-center mb-8">
+            {/* Icon + heading */}
+            <div className="text-center mb-6">
               <div
-                className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 shadow-lg"
+                className="w-16 h-16 mx-auto rounded-xl flex items-center justify-center mb-4 transition-all duration-500 shadow-lg"
                 style={{ 
                   backgroundColor: 'rgba(255, 255, 255, 0.03)', 
                   border: '1px solid var(--accent)',
-                  boxShadow: '0 0 30px -5px var(--accent)' 
+                  boxShadow: '0 0 20px -5px var(--accent)' 
                 }}
               >
-                <Lock size={32} className="text-accent drop-shadow-[0_0_8px_var(--accent)]" />
+                <Lock size={24} className="text-accent drop-shadow-[0_0_6px_var(--accent)]" />
               </div>
-              <h3 className="text-2xl font-heading font-black text-white tracking-tighter uppercase">Admin Access</h3>
-              <p className="text-[10px] mt-3 font-heading tracking-widest uppercase opacity-60 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                Provide master credentials to enter the control lab.
+              <h3 className="text-xl font-heading font-black text-white tracking-tighter uppercase">Admin Access</h3>
+              <p className="text-[10px] mt-2 font-heading tracking-widest uppercase opacity-60 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Enter master credentials
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="relative group">
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="relative">
                 <input
                   type="password"
                   value={password}
@@ -97,13 +98,8 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
                     setPassword(e.target.value);
                     setError(false);
                   }}
-                  className={`w-full px-5 py-4 rounded-xl font-sans focus:outline-none transition-all duration-300 placeholder:text-white/20 ${
-                    error ? 'border-red-500/50 bg-red-500/5' : 'border-white/10 bg-white/5 focus:border-accent/50 focus:bg-white/10'
-                  }`}
-                  style={{
-                    border: error ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.1)',
-                    color: 'var(--text-primary)',
-                  }}
+                  className={`input-dark ${error ? '!border-red-500/50 !bg-red-500/5' : ''}`}
+                  style={{ color: 'var(--text-primary)' }}
                   placeholder="••••••••"
                   autoFocus
                 />
@@ -113,15 +109,16 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="text-[10px] text-red-400 mt-3 font-heading tracking-[0.2em] uppercase font-bold text-center"
+                      className="text-[10px] text-red-400 mt-2 font-heading tracking-[0.2em] uppercase font-bold text-center"
                     >
                       Unauthorized access denied
                     </motion.p>
                   )}
                 </AnimatePresence>
               </div>
-              <button type="submit" className="btn-primary w-full justify-center py-5 shadow-xl group">
-                <span className="group-hover:scale-110 transition-transform duration-300">Authenticate System</span>
+
+              <button type="submit" className="btn-primary-sm w-full justify-center">
+                Authenticate System
               </button>
             </form>
           </motion.div>
