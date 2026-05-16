@@ -202,7 +202,8 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={sending}
-                className="btn-primary w-full py-5 !rounded-xl disabled:opacity-30 flex items-center justify-center gap-3 group box-border"
+                className="w-full py-5 !rounded-xl disabled:opacity-30 flex items-center justify-center gap-3 group box-border border outline-none focus:border-accent transition-all text-sm"
+                style={glassInputStyle}
               >
                 {sending ? (
                   <span className="flex items-center gap-2">
