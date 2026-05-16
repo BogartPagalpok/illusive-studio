@@ -189,4 +189,19 @@
   /* Extra text helpers */
   .text-primary   { color: var(--text-primary); }
   .text-secondary { color: var(--text-secondary); opacity: 0.8; }
+
+  /* ---------- ADDED: Admin-specific utilities ---------- */
+  .page-container {
+    @apply min-h-screen;
+    background-color: var(--bg-primary);
+  }
+  .font-heading {
+    font-family: var(--font-heading) !important;
+  }
+  .font-body {
+    font-family: var(--font-sans) !important;
+  }
+  .border-accent {
+    border-color: var(--accent) !important;
+  }
 }
