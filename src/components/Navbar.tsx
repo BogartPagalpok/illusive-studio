@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const navLinks = [
@@ -15,23 +15,25 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [content, setContent] = useState({ logo_text: 'IAN.LESTER', cta_text: 'Hire Me' });
   const [hasScrolledDown, setHasScrolledDown] = useState(false);
+  const [theme, setTheme] = useState<'void' | 'light'>('void');
+
+  // Load saved theme (public only: void or light)
+  useEffect(() => {
+    const saved = localStorage.getItem('portfolio-theme') || 'void';
+    const valid = saved === 'light' ? 'light' : 'void';
+    setTheme(valid);
+    document.documentElement.setAttribute('data-theme', valid);
+    document.body.setAttribute('data-theme', valid);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
       const current = window.scrollY;
       setScrolled(current > 50);
-
-      if (current > 0 && !hasScrolledDown) {
-        setHasScrolledDown(true);
-      }
-
-      // ✅ Hide mobile menu on scroll
+      if (current > 0 && !hasScrolledDown) setHasScrolledDown(true);
       if (mobileOpen) setMobileOpen(false);
-
-      // ✅ Also hide navbar if it was revealed via hover / tap
       if (isHovered) setIsHovered(false);
     };
-
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [hasScrolledDown, mobileOpen, isHovered]);
@@ -64,15 +66,22 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
+  const toggleTheme = () => {
+    const next = theme === 'void' ? 'light' : 'void';
+    setTheme(next);
+    document.documentElement.setAttribute('data-theme', next);
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('portfolio-theme', next);
+  };
+
   const isActuallyVisible = isHovered || mobileOpen || !hasScrolledDown;
 
   return (
     <>
-      {/* TRIGGER ZONE – now responds to tap/click on mobile */}
       <div
         className="fixed top-0 left-0 right-0 h-6 z-[110] bg-transparent"
         onMouseEnter={() => setIsHovered(true)}
-        onClick={() => setIsHovered(prev => !prev)} // 👈 tap to toggle
+        onClick={() => setIsHovered(prev => !prev)}
       />
 
       <nav
@@ -82,7 +91,6 @@ export default function Navbar() {
           scrolled ? 'backdrop-blur-md shadow-lg bg-[var(--bg-primary)]/95' : 'bg-transparent'
         } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
-        {/* … rest of the JSX is exactly the same … */}
         <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -112,12 +120,24 @@ export default function Navbar() {
             </button>
           </div>
 
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 text-[var(--text-primary)]"
-          >
-            {mobileOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Public Light/Dark Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === 'void' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+
+            {/* Mobile Menu */}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="md:hidden p-2 text-[var(--text-primary)]"
+            >
+              {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
         </div>
 
         <div
@@ -140,4 +160,4 @@ export default function Navbar() {
       </nav>
     </>
   );
-              }
+}
