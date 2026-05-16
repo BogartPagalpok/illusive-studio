@@ -213,7 +213,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Project Modal – with caption overlays on left images */}
+      {/* Project Modal – 2/3 images, 1/3 details */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -232,10 +232,10 @@ export default function SelectedWorks() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
+              className="max-w-6xl w-full grid lg:grid-cols-3 gap-6 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
             >
-              {/* ── LEFT: Coverflow with caption overlays ── */}
-              <div className="w-full">
+              {/* Image column – 2/3 width */}
+              <div className="lg:col-span-2 w-full">
                 <Swiper
                   modules={[EffectCoverflow, Navigation]}
                   effect="coverflow"
@@ -248,43 +248,27 @@ export default function SelectedWorks() {
                   className="w-full !pb-2"
                 >
                   {galleryImages.map((img) => (
-                    <SwiperSlide key={img.id} className="!w-[85%] md:!w-[70%]">
-                      <div className="relative w-full aspect-[4/3] rounded-[20px] overflow-hidden shadow-lg border border-[var(--glass-border)]">
-                        <img
-                          src={img.hero_bg_desktop || img.image_url}
-                          className="w-full h-full object-cover object-center"
-                          alt=""
-                        />
-                        {/* Gradient overlay for readability */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent rounded-[20px]" />
-                        {/* Caption text */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
-                          <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-1">
-                            {selectedProject.category}
-                          </span>
-                          <h2 className="text-white text-xl md:text-3xl font-black uppercase tracking-tighter leading-tight">
-                            {selectedProject.title}
-                          </h2>
-                          <p className="text-white/80 text-sm leading-relaxed mt-2 max-h-[3.6em] overflow-hidden">
-                            {selectedProject.description}
-                          </p>
-                        </div>
-                      </div>
+                    <SwiperSlide key={img.id} className="!w-[85%] md:!w-[80%]">
+                      <img
+                        src={img.hero_bg_desktop || img.image_url}
+                        className="w-full h-auto max-h-[70vh] rounded-[20px] shadow-lg border border-[var(--glass-border)] object-cover object-center"
+                        alt=""
+                      />
                     </SwiperSlide>
                   ))}
                 </Swiper>
               </div>
 
-              {/* ── RIGHT: Project details (unchanged) ── */}
-              <div className="space-y-6 lg:sticky lg:top-0 h-fit">
+              {/* Details column – 1/3 width */}
+              <div className="space-y-6">
                 <div>
-                  <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">
+                  <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-2 block">
                     {selectedProject.category}
                   </span>
-                  <h2 className="text-[var(--text-primary)] text-3xl md:text-4xl font-black uppercase tracking-tighter leading-tight">
+                  <h2 className="text-[var(--text-primary)] text-xl md:text-2xl font-black uppercase tracking-tighter leading-tight">
                     {selectedProject.title}
                   </h2>
-                  <p className="text-[var(--text-secondary)] text-base md:text-lg leading-relaxed mt-4">
+                  <p className="text-[var(--text-secondary)] text-sm leading-relaxed mt-2">
                     {selectedProject.description}
                   </p>
                 </div>
@@ -294,7 +278,7 @@ export default function SelectedWorks() {
                     <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Tools</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedProject.tools.map((t) => (
-                        <span key={t} className="px-4 py-2 bg-white/5 border border-[var(--glass-border)] rounded-lg text-[9px] uppercase text-[var(--text-secondary)] font-bold tracking-widest hover:border-accent hover:text-accent transition-colors">
+                        <span key={t} className="px-3 py-1.5 bg-white/5 border border-[var(--glass-border)] rounded-lg text-[9px] uppercase text-[var(--text-secondary)] font-bold tracking-widest hover:border-accent hover:text-accent transition-colors">
                           {t}
                         </span>
                       ))}
