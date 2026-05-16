@@ -98,12 +98,10 @@ export default function MessageManager() {
                       </span>
                     </div>
                   </div>
-
                   <div className="bg-white/[0.02] border border-white/5 p-3 rounded">
                     <p className="text-sm text-zinc-400 leading-relaxed whitespace-pre-wrap font-body">{msg.message}</p>
                   </div>
                 </div>
-
                 <button
                   onClick={() => handleDelete(msg.id)}
                   className="p-2 text-white/20 hover:text-accent hover:bg-accent/10 transition-all rounded"
