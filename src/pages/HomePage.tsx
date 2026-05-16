@@ -13,7 +13,6 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
   const [adminModalOpen, setAdminModalOpen] = useState(false);
 
   useEffect(() => {
-    // Use the theme engine instead of manual data-theme
     loadSavedTheme();
   }, []);
 
@@ -29,17 +28,6 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
   return (
     <div className="relative min-h-screen w-full selection:bg-[var(--accent)] selection:text-[var(--accent-contrast)]">
       
-      {/* Atmosphere layer — renders the body background patterns + gradient */}
-      <div className="fixed inset-0 z-0 pointer-events-none" 
-        style={{ 
-          backgroundColor: 'var(--bg-primary)',
-          backgroundImage: 'var(--bg-gradient), var(--bg-pattern, none)',
-          backgroundSize: '100% 100%, var(--bg-pattern-size, auto)',
-          backgroundBlendMode: 'overlay, normal',
-          backgroundAttachment: 'fixed'
-        }} 
-      />
-
       <Navbar />
       
       <main className="relative z-10">
