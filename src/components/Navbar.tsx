@@ -25,10 +25,7 @@ export default function Navbar() {
         setHasScrolledDown(true);
       }
 
-      // ✅ Hide mobile menu on scroll
       if (mobileOpen) setMobileOpen(false);
-
-      // ✅ Also hide navbar if it was revealed via hover / tap
       if (isHovered) setIsHovered(false);
     };
 
@@ -68,11 +65,10 @@ export default function Navbar() {
 
   return (
     <>
-      {/* TRIGGER ZONE – now responds to tap/click on mobile */}
       <div
         className="fixed top-0 left-0 right-0 h-6 z-[110] bg-transparent"
         onMouseEnter={() => setIsHovered(true)}
-        onClick={() => setIsHovered(prev => !prev)} // 👈 tap to toggle
+        onClick={() => setIsHovered(prev => !prev)}
       />
 
       <nav
@@ -82,7 +78,6 @@ export default function Navbar() {
           scrolled ? 'backdrop-blur-md shadow-lg bg-[var(--bg-primary)]/95' : 'bg-transparent'
         } ${isActuallyVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}
       >
-        {/* … rest of the JSX is exactly the same … */}
         <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -140,4 +135,4 @@ export default function Navbar() {
       </nav>
     </>
   );
-              }
+}
