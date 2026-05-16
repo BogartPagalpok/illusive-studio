@@ -13,7 +13,7 @@ export default function HeroCanvas() {
   const [ready, setReady] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
 
-  const totalFrames = 261;
+  const totalFrames = 262; // frames 000–261
   const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${SCROLL_SEQUENCE_BUCKET}/`;
 
   const drawFrame = useCallback((index: number) => {
