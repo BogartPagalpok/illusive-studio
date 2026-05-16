@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SCROLL_SEQUENCE_BUCKET } from '../lib/supabase';
@@ -16,19 +16,13 @@ export default function HeroCanvas() {
   const totalFrames = 261;
   const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${SCROLL_SEQUENCE_BUCKET}/`;
 
-  const drawFrame = (index: number) => {
+  const drawFrame = useCallback((index: number) => {
     const canvas = canvasRef.current;
     const img = imagesRef.current[index];
     if (!canvas || !img || !img.complete || img.naturalWidth === 0) return false;
 
     const context = canvas.getContext('2d');
     if (!context) return false;
-
-    const container = containerRef.current;
-    if (container) {
-      canvas.width = container.offsetWidth;
-      canvas.height = container.offsetHeight;
-    }
 
     const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
     const x = (canvas.width / 2) - (img.width / 2) * scale;
@@ -38,8 +32,27 @@ export default function HeroCanvas() {
     context.drawImage(img, x, y, img.width * scale, img.height * scale);
     lastDrawnFrameRef.current = index;
     return true;
-  };
+  }, []);
 
+  // Set canvas size once (not in drawFrame)
+  useEffect(() => {
+    if (!ready) return;
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
+    const resize = () => {
+      canvas.width = container.offsetWidth;
+      canvas.height = container.offsetHeight;
+      drawFrame(lastDrawnFrameRef.current);
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, [ready, drawFrame]);
+
+  // Preload all frames + warm GPU cache
   useEffect(() => {
     let cancelled = false;
     const imgs: HTMLImageElement[] = [];
@@ -52,7 +65,11 @@ export default function HeroCanvas() {
           img.crossOrigin = 'anonymous';
           await new Promise<void>((resolve) => {
             const frameIndex = String(i).padStart(3, '0');
-            img.onload = () => img.decode().then(() => resolve()).catch(() => resolve());
+            img.onload = () => {
+              img.decode()
+                .then(() => requestAnimationFrame(() => resolve()))
+                .catch(() => requestAnimationFrame(() => resolve()));
+            };
             img.onerror = () => resolve();
             img.src = `${baseUrl}frame_${frameIndex}.webp`;
           });
@@ -62,7 +79,22 @@ export default function HeroCanvas() {
           setLoadProgress((i + 1) / totalFrames);
         }
       }
+
       if (!cancelled) {
+        // Warm GPU texture cache
+        const offscreen = document.createElement('canvas');
+        offscreen.width = 100;
+        offscreen.height = 100;
+        const ctx = offscreen.getContext('2d');
+        if (ctx) {
+          for (let i = 0; i < imgs.length; i++) {
+            if (imgs[i]) {
+              ctx.clearRect(0, 0, 100, 100);
+              ctx.drawImage(imgs[i], 0, 0, 100, 100);
+            }
+          }
+        }
+
         imagesRef.current = imgs;
         setReady(true);
       }
@@ -72,10 +104,12 @@ export default function HeroCanvas() {
     return () => { cancelled = true; };
   }, [baseUrl]);
 
+  // Draw first frame when ready
   useEffect(() => {
     if (ready) drawFrame(0);
-  }, [ready]);
+  }, [ready, drawFrame]);
 
+  // GSAP only after all frames ready
   useEffect(() => {
     if (!ready) return;
 
@@ -98,14 +132,10 @@ export default function HeroCanvas() {
       },
     });
 
-    const handleResize = () => drawFrame(lastDrawnFrameRef.current);
-    window.addEventListener('resize', handleResize);
-
     return () => {
       scrollAnimation.kill();
-      window.removeEventListener('resize', handleResize);
     };
-  }, [ready]);
+  }, [ready, drawFrame]);
 
   return (
     <div ref={containerRef} className="absolute inset-0 w-full h-screen overflow-hidden">
