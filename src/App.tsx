@@ -13,26 +13,16 @@ import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 function AtmosphereGradient() {
   return (
     <div
-      className="fixed inset-0 overflow-hidden transition-colors duration-700"
-      style={{ 
-        zIndex: -1,
-        pointerEvents: 'none',
-        backgroundColor: 'var(--bg-primary)',
-      } as React.CSSProperties}
+      className="fixed inset-0 overflow-hidden transition-colors duration-700 pointer-events-none"
+      style={{ zIndex: -1 }}
     >
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'var(--bg-gradient)',
-          opacity: 0.8,
-        } as React.CSSProperties}
-      />
+      {/* Accent glow blobs — no solid background blocking the body */}
       <motion.div
         animate={{ x: ['-5%', '5%', '-5%'], y: ['-2%', '2%', '-2%'] }}
         transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
         className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full will-change-transform"
         style={{
-          opacity: 0.2,
+          opacity: 0.15,
           background: 'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)',
           filter: 'saturate(1.2) blur(100px)',
         } as React.CSSProperties}
@@ -42,7 +32,7 @@ function AtmosphereGradient() {
         transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
         className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full will-change-transform"
         style={{
-          opacity: 0.1,
+          opacity: 0.08,
           background: 'radial-gradient(circle at 70% 70%, var(--accent) 0%, transparent 70%)',
           filter: 'blur(90px)',
         } as React.CSSProperties}
