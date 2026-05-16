@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
+import { Navigation, EffectCoverflow } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import { Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
+import 'swiper/css/effect-coverflow'; // ← added for 3D coverflow
 
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
 
@@ -191,7 +192,7 @@ export default function SelectedWorks() {
               </AnimatePresence>
             </div>
 
-            {/* Action area + Swiper */}
+            {/* Action area + Swiper (now with Coverflow) */}
             <div className="flex-none pt-6 border-t border-[var(--glass-border)] flex flex-col gap-6">
               <div className="flex items-center">
                 <button onClick={() => setSelectedProject(currentProject)} className="btn-primary group">
@@ -200,11 +201,22 @@ export default function SelectedWorks() {
                 </button>
               </div>
 
+              {/* Updated Swiper with Coverflow 3D effect */}
               <Swiper
                 onSwiper={(s) => { swiperRef.current = s; }}
-                modules={[Navigation]}
+                modules={[Navigation, EffectCoverflow]}
+                effect="coverflow"
+                grabCursor={true}
+                centeredSlides={true}
+                slidesPerView="auto"
                 spaceBetween={16}
-                slidesPerView={'auto'}
+                coverflowEffect={{
+                  rotate: 45,       // matches "Default" preset rotateY
+                  stretch: 0,
+                  depth: 150,       // matches depth
+                  modifier: 1,
+                  slideShadows: false,
+                }}
                 onSlideChange={(s) => setActiveIndex(s.activeIndex)}
                 className="w-full !pb-2"
               >
