@@ -93,19 +93,14 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center relative bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <span className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full" style={{ borderColor: '#9D00FF', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   if (!session) {
-    return (
-      <main className="min-h-screen relative">
-        <AtmosphereGradient />
-        <Login />
-      </main>
-    );
+    return <Login />;
   }
 
   if (isAdmin) {
