@@ -103,6 +103,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative section-padding overflow-visible z-40 bg-transparent">
       <div className="section-container relative">
+        {/* Section Title */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -115,6 +116,7 @@ export default function SelectedWorks() {
           <div className="section-divider" />
         </motion.div>
 
+        {/* Hero Card */}
         <div
           className="relative w-full rounded-[40px] overflow-hidden card-glass flex flex-col"
           style={{
@@ -122,6 +124,7 @@ export default function SelectedWorks() {
             boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
           }}
         >
+          {/* Background image */}
           <AnimatePresence mode="wait">
             {currentProject && (
               <motion.div
@@ -134,7 +137,7 @@ export default function SelectedWorks() {
               >
                 <img
                   src={currentProject.hero_bg_desktop || currentProject.image_url}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-center"
                   alt=""
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-primary)]/60 via-[var(--bg-primary)]/10 to-transparent" />
@@ -144,6 +147,7 @@ export default function SelectedWorks() {
           </AnimatePresence>
 
           <div className="relative z-10 flex flex-col h-full p-6 md:p-10">
+            {/* Categories */}
             <div className="flex-none">
               <div className="flex gap-6 md:gap-10 items-center overflow-x-auto no-scrollbar mb-6 border-b border-[var(--glass-border)] pb-3">
                 {CATEGORIES.map((cat) => (
@@ -162,6 +166,7 @@ export default function SelectedWorks() {
               </div>
             </div>
 
+            {/* Scrollable info */}
             <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mb-6 flex items-end">
               <AnimatePresence mode="wait">
                 {currentProject && (
@@ -186,6 +191,7 @@ export default function SelectedWorks() {
               </AnimatePresence>
             </div>
 
+            {/* Action area + Swiper (with Coverflow) */}
             <div className="flex-none pt-6 border-t border-[var(--glass-border)] flex flex-col gap-6">
               <div className="flex items-center">
                 <button onClick={() => setSelectedProject(currentProject)} className="btn-primary group">
@@ -225,7 +231,7 @@ export default function SelectedWorks() {
                           : 'border-white/5 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
                       }`}
                     >
-                      <img src={project.card_thumbnail || project.image_url} className="w-full h-full object-cover" alt="" />
+                      <img src={project.card_thumbnail || project.image_url} className="w-full h-full object-cover object-center" alt="" />
                     </div>
                   </SwiperSlide>
                 ))}
@@ -235,7 +241,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Project Modal */}
+      {/* Project Modal – redesigned with full‑width images & caption overlays */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -254,9 +260,9 @@ export default function SelectedWorks() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
+              className="max-w-6xl w-full card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar flex flex-col gap-8"
             >
-              {/* Coverflow Image Gallery */}
+              {/* Full‑width Coverflow Carousel with overlaid text */}
               <div className="w-full">
                 <Swiper
                   modules={[EffectCoverflow, Navigation]}
@@ -276,31 +282,37 @@ export default function SelectedWorks() {
                   className="w-full !pb-2"
                 >
                   {galleryImages.map((img) => (
-                    <SwiperSlide key={img.id} className="!w-[85%] md:!w-[70%]">
-                      <img
-                        src={img.hero_bg_desktop || img.image_url}
-                        className="w-full rounded-[20px] shadow-lg border border-[var(--glass-border)] object-cover"
-                        alt=""
-                      />
+                    <SwiperSlide key={img.id} className="!w-[85%] md:!w-[80%]">
+                      <div className="relative w-full h-[50vh] md:h-[65vh] rounded-[20px] overflow-hidden shadow-lg border border-[var(--glass-border)]">
+                        <img
+                          src={img.hero_bg_desktop || img.image_url}
+                          className="w-full h-full object-cover object-center"
+                          alt=""
+                        />
+                        {/* Gradient overlay for caption readability */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent rounded-[20px]" />
+                        {/* Caption */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8">
+                          <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-2">
+                            {selectedProject.category}
+                          </span>
+                          <h2 className="text-white text-2xl md:text-4xl font-black uppercase tracking-tighter leading-tight">
+                            {selectedProject.title}
+                          </h2>
+                          {selectedProject.description && (
+                            <p className="text-white/80 text-sm md:text-base leading-relaxed mt-3 line-clamp-3">
+                              {selectedProject.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </SwiperSlide>
                   ))}
                 </Swiper>
               </div>
 
-              {/* Project Details */}
-              <div className="space-y-6 lg:sticky lg:top-0 h-fit">
-                <div>
-                  <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">
-                    {selectedProject.category}
-                  </span>
-                  <h2 className="text-[var(--text-primary)] text-3xl md:text-4xl font-black uppercase tracking-tighter leading-tight">
-                    {selectedProject.title}
-                  </h2>
-                  <p className="text-[var(--text-secondary)] text-base md:text-lg leading-relaxed mt-4">
-                    {selectedProject.description}
-                  </p>
-                </div>
-
+              {/* Additional project details (tools, process, results) */}
+              <div className="grid md:grid-cols-2 gap-6 text-sm">
                 {selectedProject.tools && selectedProject.tools.length > 0 && (
                   <div>
                     <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Tools</h4>
@@ -325,7 +337,7 @@ export default function SelectedWorks() {
                 )}
 
                 {selectedProject.results && (
-                  <div>
+                  <div className="md:col-span-2">
                     <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Results</h4>
                     <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{selectedProject.results}</p>
                   </div>
