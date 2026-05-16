@@ -51,9 +51,7 @@ export default function SelectedWorks() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchWorks();
-  }, [fetchWorks]);
+  useEffect(() => { fetchWorks(); }, [fetchWorks]);
 
   useEffect(() => {
     const categoryFiltered = activeCategory === 'All'
@@ -72,21 +70,12 @@ export default function SelectedWorks() {
 
     setFilteredProjects(uniqueProjects);
     setActiveIndex(0);
-
-    if (swiperRef.current) {
-      swiperRef.current.slideTo(0, 0);
-    }
+    swiperRef.current?.slideTo(0, 0);
   }, [activeCategory, projects]);
 
   useEffect(() => {
-    if (selectedProject) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
+    document.body.style.overflow = selectedProject ? 'hidden' : 'unset';
+    return () => { document.body.style.overflow = 'unset'; };
   }, [selectedProject]);
 
   if (loading) return (
@@ -103,7 +92,6 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative section-padding overflow-visible z-40 bg-transparent">
       <div className="section-container relative">
-        {/* Section Title */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -119,12 +107,8 @@ export default function SelectedWorks() {
         {/* Hero Card */}
         <div
           className="relative w-full rounded-[40px] overflow-hidden card-glass flex flex-col"
-          style={{
-            height: 'clamp(600px, 80vh, 900px)',
-            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
-          }}
+          style={{ height: 'clamp(600px, 80vh, 900px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
         >
-          {/* Background image */}
           <AnimatePresence mode="wait">
             {currentProject && (
               <motion.div
@@ -147,7 +131,6 @@ export default function SelectedWorks() {
           </AnimatePresence>
 
           <div className="relative z-10 flex flex-col h-full p-6 md:p-10">
-            {/* Categories */}
             <div className="flex-none">
               <div className="flex gap-6 md:gap-10 items-center overflow-x-auto no-scrollbar mb-6 border-b border-[var(--glass-border)] pb-3">
                 {CATEGORIES.map((cat) => (
@@ -166,7 +149,6 @@ export default function SelectedWorks() {
               </div>
             </div>
 
-            {/* Scrollable info */}
             <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mb-6 flex items-end">
               <AnimatePresence mode="wait">
                 {currentProject && (
@@ -191,7 +173,6 @@ export default function SelectedWorks() {
               </AnimatePresence>
             </div>
 
-            {/* Action area + Swiper (with Coverflow) */}
             <div className="flex-none pt-6 border-t border-[var(--glass-border)] flex flex-col gap-6">
               <div className="flex items-center">
                 <button onClick={() => setSelectedProject(currentProject)} className="btn-primary group">
@@ -208,23 +189,14 @@ export default function SelectedWorks() {
                 centeredSlides={true}
                 slidesPerView="auto"
                 spaceBetween={16}
-                coverflowEffect={{
-                  rotate: 45,
-                  stretch: 0,
-                  depth: 150,
-                  modifier: 1,
-                  slideShadows: false,
-                }}
+                coverflowEffect={{ rotate: 45, stretch: 0, depth: 150, modifier: 1, slideShadows: false }}
                 onSlideChange={(s) => setActiveIndex(s.activeIndex)}
                 className="w-full !pb-2"
               >
                 {filteredProjects.map((project, idx) => (
                   <SwiperSlide key={project.id} className="!w-[130px] md:!w-[180px]">
                     <div
-                      onClick={() => {
-                        setActiveIndex(idx);
-                        swiperRef.current?.slideTo(idx);
-                      }}
+                      onClick={() => { setActiveIndex(idx); swiperRef.current?.slideTo(idx); }}
                       className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-xl overflow-hidden border-2 ${
                         activeIndex === idx
                           ? 'border-accent scale-105 shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]'
@@ -241,7 +213,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Project Modal – redesigned with full‑width images & caption overlays */}
+      {/* Project Modal – with caption overlays on left images */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -260,9 +232,9 @@ export default function SelectedWorks() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar flex flex-col gap-8"
+              className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
             >
-              {/* Full‑width Coverflow Carousel with overlaid text */}
+              {/* ── LEFT: Coverflow with caption overlays ── */}
               <div className="w-full">
                 <Swiper
                   modules={[EffectCoverflow, Navigation]}
@@ -272,38 +244,30 @@ export default function SelectedWorks() {
                   slidesPerView="auto"
                   spaceBetween={20}
                   navigation
-                  coverflowEffect={{
-                    rotate: 45,
-                    stretch: 0,
-                    depth: 200,
-                    modifier: 1,
-                    slideShadows: false,
-                  }}
+                  coverflowEffect={{ rotate: 45, stretch: 0, depth: 200, modifier: 1, slideShadows: false }}
                   className="w-full !pb-2"
                 >
                   {galleryImages.map((img) => (
-                    <SwiperSlide key={img.id} className="!w-[85%] md:!w-[80%]">
-                      <div className="relative w-full h-[50vh] md:h-[65vh] rounded-[20px] overflow-hidden shadow-lg border border-[var(--glass-border)]">
+                    <SwiperSlide key={img.id} className="!w-[85%] md:!w-[70%]">
+                      <div className="relative w-full aspect-[4/3] rounded-[20px] overflow-hidden shadow-lg border border-[var(--glass-border)]">
                         <img
                           src={img.hero_bg_desktop || img.image_url}
                           className="w-full h-full object-cover object-center"
                           alt=""
                         />
-                        {/* Gradient overlay for caption readability */}
+                        {/* Gradient overlay for readability */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent rounded-[20px]" />
-                        {/* Caption */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8">
-                          <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-2">
+                        {/* Caption text */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                          <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-1">
                             {selectedProject.category}
                           </span>
-                          <h2 className="text-white text-2xl md:text-4xl font-black uppercase tracking-tighter leading-tight">
+                          <h2 className="text-white text-xl md:text-3xl font-black uppercase tracking-tighter leading-tight">
                             {selectedProject.title}
                           </h2>
-                          {selectedProject.description && (
-                            <p className="text-white/80 text-sm md:text-base leading-relaxed mt-3 line-clamp-3">
-                              {selectedProject.description}
-                            </p>
-                          )}
+                          <p className="text-white/80 text-sm leading-relaxed mt-2 max-h-[3.6em] overflow-hidden">
+                            {selectedProject.description}
+                          </p>
                         </div>
                       </div>
                     </SwiperSlide>
@@ -311,17 +275,26 @@ export default function SelectedWorks() {
                 </Swiper>
               </div>
 
-              {/* Additional project details (tools, process, results) */}
-              <div className="grid md:grid-cols-2 gap-6 text-sm">
+              {/* ── RIGHT: Project details (unchanged) ── */}
+              <div className="space-y-6 lg:sticky lg:top-0 h-fit">
+                <div>
+                  <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">
+                    {selectedProject.category}
+                  </span>
+                  <h2 className="text-[var(--text-primary)] text-3xl md:text-4xl font-black uppercase tracking-tighter leading-tight">
+                    {selectedProject.title}
+                  </h2>
+                  <p className="text-[var(--text-secondary)] text-base md:text-lg leading-relaxed mt-4">
+                    {selectedProject.description}
+                  </p>
+                </div>
+
                 {selectedProject.tools && selectedProject.tools.length > 0 && (
                   <div>
                     <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Tools</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedProject.tools.map((t) => (
-                        <span
-                          key={t}
-                          className="px-4 py-2 bg-white/5 border border-[var(--glass-border)] rounded-lg text-[9px] uppercase text-[var(--text-secondary)] font-bold tracking-widest hover:border-accent hover:text-accent transition-colors"
-                        >
+                        <span key={t} className="px-4 py-2 bg-white/5 border border-[var(--glass-border)] rounded-lg text-[9px] uppercase text-[var(--text-secondary)] font-bold tracking-widest hover:border-accent hover:text-accent transition-colors">
                           {t}
                         </span>
                       ))}
@@ -337,7 +310,7 @@ export default function SelectedWorks() {
                 )}
 
                 {selectedProject.results && (
-                  <div className="md:col-span-2">
+                  <div>
                     <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Results</h4>
                     <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{selectedProject.results}</p>
                   </div>
@@ -348,12 +321,10 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          .no-scrollbar::-webkit-scrollbar { display: none; }
-          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        `
-      }} />
+      <style dangerouslySetInnerHTML={{ __html: `
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      ` }} />
     </section>
   );
 }
