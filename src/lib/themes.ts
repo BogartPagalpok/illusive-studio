@@ -177,7 +177,7 @@ export const themePresets: ThemePreset[] = [
   },
 ];
 
-// ── Helpers (unchanged) ──────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────
 function getLuminance(hex: string): number {
   const c = hex.replace('#', '');
   const r = parseInt(c.substring(0, 2), 16) / 255;
@@ -197,7 +197,7 @@ function getContrastYIQ(hexcolor: string) {
   return yiq >= 128 ? 'black' : 'white';
 }
 
-// ── Existing background renderers (unchanged) ────────────
+// ── Background renderers ─────────────────────────────────
 function applyNoiseBackground(root: HTMLElement) {
   root.style.setProperty('--bg-noise', `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`);
   root.style.setProperty('--bg-pattern', 'var(--bg-noise)');
@@ -229,13 +229,10 @@ function applyGradientBackground(root: HTMLElement) {
   root.style.setProperty('--bg-pattern', 'none');
 }
 
-// ── NEW: Liquid animated background ──────────────────────
 function applyLiquidBackground() {
-  // Remove any previously injected liquid styles
   const oldStyle = document.getElementById('liquid-bg-style');
   if (oldStyle) oldStyle.remove();
 
-  // Create a dedicated style element for the liquid animation
   const style = document.createElement('style');
   style.id = 'liquid-bg-style';
   style.textContent = `
@@ -262,17 +259,11 @@ function applyLiquidBackground() {
       animation: liquid-rotate 40s linear infinite,
                  liquid-scale 12s ease-in-out infinite alternate;
     }
-    @keyframes liquid-rotate {
-      to { transform: rotate(360deg); }
-    }
-    @keyframes liquid-scale {
-      0%   { transform: scale(1); }
-      100% { transform: scale(1.15); }
-    }
+    @keyframes liquid-rotate { to { transform: rotate(360deg); } }
+    @keyframes liquid-scale { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
   `;
   document.head.appendChild(style);
 
-  // Make sure the background container exists
   if (!document.getElementById('liquid-bg')) {
     const bgDiv = document.createElement('div');
     bgDiv.id = 'liquid-bg';
@@ -280,7 +271,7 @@ function applyLiquidBackground() {
   }
 }
 
-// ── Main theme applier (updated with liquid case) ─────────
+// ── Main theme applier ────────────────────────────────────
 export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   const root = document.documentElement;
   const isLight = getContrastYIQ(theme.bgPrimary) === 'black';
@@ -310,7 +301,7 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   const accentYIQ = getContrastYIQ(theme.accent);
   root.style.setProperty('--accent-contrast', accentYIQ === 'black' ? '#000000' : '#FFFFFF');
 
-  // Apply background style (including liquid)
+  // Apply background style
   switch (theme.backgroundStyle) {
     case 'noise':     applyNoiseBackground(root); break;
     case 'grid':      applyGridBackground(root); break;
@@ -326,13 +317,19 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   window.dispatchEvent(new Event('storage'));
   setTimeout(() => { ScrollTrigger.refresh(); }, 150);
 
+  // Supabase sync — upsert creates the row if it doesn't exist
   if (syncToCloud) {
     try {
-      await supabase.from('site_config').update({
+      const { error } = await supabase.from('site_config').upsert({
+        id: 1,
         active_theme: theme.id,
         updated_at: new Date().toISOString()
-      }).eq('id', 1);
-    } catch (err) { console.error(err); }
+      }, { onConflict: 'id' });
+
+      if (error) console.warn('Supabase upsert failed:', error.message);
+    } catch (err) {
+      console.warn('Supabase sync error:', err);
+    }
   }
 }
 
