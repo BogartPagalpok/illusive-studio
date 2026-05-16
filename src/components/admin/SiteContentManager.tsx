@@ -127,8 +127,8 @@ export default function SiteContentManager() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <RefreshCw className="animate-spin text-accent" size={32} />
+      <div className="flex items-center justify-center py-12">
+        <RefreshCw className="animate-spin text-accent" size={24} />
       </div>
     );
   }
@@ -144,25 +144,25 @@ export default function SiteContentManager() {
     });
 
   return (
-    <div className="space-y-12 pb-32 relative">
-      {/* HEADER BAR */}
-      <div className="sticky top-0 z-[100] bg-black/40 backdrop-blur-2xl border-b border-white/10 py-6 -mx-4 px-6 flex flex-col md:flex-row justify-between items-center gap-4 rounded-b-2xl">
+    <div className="space-y-6 pb-12 relative">   {/* was space-y-12 pb-32 */}
+      {/* HEADER BAR – compact */}
+      <div className="sticky top-0 z-[100] bg-black/40 backdrop-blur-2xl border-b border-white/10 py-4 -mx-4 px-6 flex flex-col md:flex-row justify-between items-center gap-4 rounded-b-2xl">
         <div>
-          <h2 className="text-xl font-display font-bold tracking-widest uppercase text-white">System Content</h2>
+          <h2 className="text-base font-display font-bold tracking-widest uppercase text-white">System Content</h2>
           <p className="text-[10px] text-accent uppercase tracking-[0.3em] font-black">Live Production Editor</p>
         </div>
         
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <button
             onClick={seedDefaultContent}
-            className="btn-outline flex items-center gap-2 py-3 px-6 rounded-xl border-white/10 hover:border-white/30"
+            className="btn-ghost-sm"    {/* compact outline button */}
           >
             <Database size={14} /> <span className="text-[10px] uppercase tracking-widest">Restore Defaults</span>
           </button>
           <button
             onClick={handleMasterSave}
             disabled={isSaving}
-            className="btn-primary flex items-center gap-2 py-3 px-10 rounded-xl"
+            className="btn-primary-sm"   {/* compact primary button */}
           >
             {isSaving ? <RefreshCw className="animate-spin" size={14} /> : <CheckCircle size={14} />}
             <span className="text-[10px] uppercase tracking-widest">{isSaving ? 'Syncing...' : 'Deploy Changes'}</span>
@@ -171,20 +171,20 @@ export default function SiteContentManager() {
       </div>
 
       {sections.map((sectionName) => (
-        <div key={sectionName} className="space-y-8">
-          <div className="flex items-center gap-6">
-            <h3 className="text-xs font-display font-black tracking-[0.5em] uppercase text-accent/60">
+        <div key={sectionName} className="space-y-4">   {/* was space-y-8 */}
+          <div className="flex items-center gap-4">
+            <h3 className="text-[11px] font-display font-black tracking-[0.5em] uppercase text-accent/60">
               {sectionName}
             </h3>
             <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">   {/* was gap-8 */}
             {contents
               .filter(c => c.section.toUpperCase() === sectionName)
               .map((item) => (
-                <div key={item.id} className="card-dark group p-8 rounded-2xl bg-white/[0.02] border-white/5 hover:bg-white/[0.04]">
-                  <label className="text-[10px] font-display font-bold tracking-[0.2em] uppercase text-white/40 block mb-5 group-hover:text-accent transition-colors">
+                <div key={item.id} className="card-dark-sm group">   {/* compact card */}
+                  <label className="text-[10px] font-display font-bold tracking-[0.2em] uppercase text-white/40 block mb-2 group-hover:text-accent transition-colors">
                     {item.key.replace(/_/g, ' ')}
                   </label>
 
@@ -194,8 +194,8 @@ export default function SiteContentManager() {
                       onChange={(e) => {
                         setContents(contents.map(c => c.id === item.id ? { ...c, value: e.target.value } : c));
                       }}
-                      rows={4}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl p-5 text-white font-sans focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all resize-none text-sm leading-relaxed"
+                      rows={3}
+                      className="input-dark resize-none min-h-[70px]"    {/* compact textarea */}
                     />
                   ) : (
                     <input
@@ -204,7 +204,7 @@ export default function SiteContentManager() {
                       onChange={(e) => {
                         setContents(contents.map(c => c.id === item.id ? { ...c, value: e.target.value } : c));
                       }}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl p-5 text-white font-sans focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all text-sm"
+                      className="input-dark"    {/* compact input */}
                     />
                   )}
                 </div>
