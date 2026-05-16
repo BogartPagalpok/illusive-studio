@@ -64,7 +64,7 @@ export default function About() {
       } catch {
         // Fallback
       }
-    };
+    }
     fetchContent();
   }, []);
 
@@ -90,98 +90,74 @@ export default function About() {
 
   return (
     <section ref={sectionRef} className="relative section-padding overflow-visible z-40 bg-transparent">
-      <div id="about" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
-
-      <FloatingCube type="Canva" size={100} top="5%" right="10%" blur="4px" delay={0.3} duration={7} />
-      <FloatingCube type="Ps" size={70} bottom="15%" left="10%" blur="1px" delay={1.2} duration={5} />
+      <FloatingCube type="CapCut" size={60} top="5%" right="5%" blur="2px" delay={0.3} duration={6} />
+      <FloatingCube type="Canva" size={80} bottom="10%" left="10%" blur="3px" delay={1} duration={8} />
 
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
+        <div
+          className="absolute top-[-10%] left-[-10%] w-[50%] h-[500px] pointer-events-none rounded-full mix-blend-screen"
+          style={{ backgroundColor: 'var(--accent)', filter: 'blur(100px)', opacity: 0.08 }}
+        />
       </div>
 
-      <div ref={ref} className="section-container relative">
-        
-        {/* Title */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16 flex flex-col items-center"
-        >
-          <span className="section-subtitle">{content.subtitle}</span>
-          <h2 className="section-title">
-            {content.heading.split(' ').map((word, i, arr) => (
-              <span key={i}>
-                {word === '&' ? <span className="text-accent">&</span> : word}
-                {i < arr.length - 1 ? ' ' : ''}
-              </span>
-            ))}
-          </h2>
-          <div className="section-divider" />
-        </motion.div>
-
-        <div className="grid lg:grid-cols-2 gap-20 items-start">
-          {/* Left side – glass card */}
+      <div className="section-container relative z-10">
+        <div className="grid lg:grid-cols-2 gap-8 items-start max-w-5xl mx-auto">
+          {/* Left Column */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={isVisible ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            ref={ref}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7 }}
+            className="flex flex-col justify-start"
           >
-            <div className="card-glass">
-              <h3 className="font-bold tracking-tighter text-2xl mb-8 leading-tight text-[var(--text-primary)]">
-                {content.subheading.includes('.') ? (
-                  <>
-                    {content.subheading.split('.')[0]}. <span className="text-accent">{content.subheading.split('.')[1].trim()}</span>
-                  </>
-                ) : (
-                  content.subheading
-                )}
-              </h3>
-              <div className="space-y-6 text-lg font-light text-[var(--text-secondary)]">
-                <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-accent first-letter:mr-3 first-letter:float-left">
-                  {content.description_line1}
-                </p>
-                <p>{content.description_line2}</p>
-                <p className="italic opacity-90">{content.description_line3}</p>
-              </div>
+            <span className="section-subtitle">{content.subtitle}</span>
+            <h2 className="section-title">{content.heading}</h2>
+            <p className="text-lg md:text-xl font-black italic tracking-tighter mb-4 text-accent">
+              {content.subheading}
+            </p>
+            <div className="space-y-4 text-sm md:text-base leading-relaxed text-[var(--text-secondary)]">
+              <p>{content.description_line1}</p>
+              <p>{content.description_line2}</p>
+              <p>{content.description_line3}</p>
             </div>
           </motion.div>
 
-          {/* Right side – Horizontal skill bars (space-efficient) */}
+          {/* Right Column - Skills */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={isVisible ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="space-y-8"
+            initial={{ opacity: 0, y: 40 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="space-y-6"
           >
-            <h3 className="text-2xl font-black uppercase tracking-tighter text-[var(--text-primary)]">
-              Skills <span className="text-accent">&</span> Proficiency
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
-              {skills.map((skill, i) => (
-                <div key={skill.name} className="group">
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[var(--text-primary)]/50 group-hover:text-accent transition-colors">
-                      {skill.name}
-                    </span>
-                    <span className="text-xs font-black text-[var(--text-primary)]/90">
-                      {skill.level}%
-                    </span>
-                  </div>
-                  <div className="h-[4px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)]">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={isVisible ? { width: `${skill.level}%` } : {}}
-                      transition={{ duration: 1.2, delay: 0.4 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                      style={{ backgroundColor: 'var(--accent)' }}
-                      className="h-full relative rounded-full"
-                    >
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_#fff] opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </motion.div>
-                  </div>
-                </div>
-              ))}
+            <div>
+              <h3 className="text-lg font-black uppercase tracking-widest mb-6 text-[var(--text-primary)]">
+                {content.skills_heading}
+              </h3>
+              <div className="space-y-4">
+                {skills.map((skill, index) => (
+                  <motion.div
+                    key={skill.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={isVisible ? { opacity: 1, x: 0 } : {}}
+                    transition={{ delay: index * 0.05 }}
+                    className="space-y-1"
+                  >
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-semibold text-[var(--text-primary)]">{skill.name}</span>
+                      <span className="text-xs text-[var(--text-secondary)]">{skill.level}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={isVisible ? { width: `${skill.level}%` } : {}}
+                        transition={{ duration: 0.8, delay: 0.1 + index * 0.05 }}
+                        className="h-full rounded-full"
+                        style={{ background: 'var(--accent)' }}
+                      />
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>

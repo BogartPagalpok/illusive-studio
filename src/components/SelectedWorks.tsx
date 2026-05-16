@@ -97,7 +97,7 @@ export default function SelectedWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 flex flex-col items-center"
+          className="text-center mb-12 flex flex-col items-center"
         >
           <span className="section-subtitle">Portfolio</span>
           <h2 className="section-title">Selected Works</h2>
@@ -106,8 +106,8 @@ export default function SelectedWorks() {
 
         {/* Hero Card */}
         <div
-          className="relative w-full rounded-[40px] overflow-hidden card-glass flex flex-col"
-          style={{ height: 'clamp(600px, 80vh, 900px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
+          className="relative w-full rounded-2xl overflow-hidden card-glass flex flex-col"
+          style={{ height: 'clamp(500px, 70vh, 800px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
         >
           <AnimatePresence mode="wait">
             {currentProject && (
@@ -130,9 +130,9 @@ export default function SelectedWorks() {
             )}
           </AnimatePresence>
 
-          <div className="relative z-10 flex flex-col h-full p-6 md:p-10">
+          <div className="relative z-10 flex flex-col h-full p-5 md:p-6">
             <div className="flex-none">
-              <div className="flex gap-6 md:gap-10 items-center overflow-x-auto no-scrollbar mb-6 border-b border-[var(--glass-border)] pb-3">
+              <div className="flex gap-4 md:gap-6 items-center overflow-x-auto no-scrollbar mb-4 border-b border-[var(--glass-border)] pb-2">
                 {CATEGORIES.map((cat) => (
                   <button
                     key={cat}
@@ -149,7 +149,7 @@ export default function SelectedWorks() {
               </div>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mb-6 flex items-end">
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mb-4 flex items-end">
               <AnimatePresence mode="wait">
                 {currentProject && (
                   <motion.div
@@ -157,15 +157,15 @@ export default function SelectedWorks() {
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: 20, opacity: 0 }}
-                    className="max-w-xl"
+                    className="max-w-lg"
                   >
-                    <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-2">
+                    <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-1">
                       {currentProject.category}
                     </span>
-                    <h3 className="text-[var(--text-primary)] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tighter leading-[1.1] break-words">
+                    <h3 className="text-[var(--text-primary)] text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tighter leading-[1.1] break-words">
                       {currentProject.title}
                     </h3>
-                    <p className="text-[var(--text-secondary)] text-sm md:text-base leading-relaxed mt-3">
+                    <p className="text-[var(--text-secondary)] text-sm leading-relaxed mt-2">
                       {currentProject.description}
                     </p>
                   </motion.div>
@@ -173,7 +173,7 @@ export default function SelectedWorks() {
               </AnimatePresence>
             </div>
 
-            <div className="flex-none pt-6 border-t border-[var(--glass-border)] flex flex-col gap-6">
+            <div className="flex-none pt-4 border-t border-[var(--glass-border)] flex flex-col gap-4">
               <div className="flex items-center">
                 <button onClick={() => setSelectedProject(currentProject)} className="btn-primary group">
                   <Play size={14} />
@@ -188,16 +188,16 @@ export default function SelectedWorks() {
                 grabCursor={true}
                 centeredSlides={true}
                 slidesPerView="auto"
-                spaceBetween={16}
+                spaceBetween={12}
                 coverflowEffect={{ rotate: 45, stretch: 0, depth: 150, modifier: 1, slideShadows: false }}
                 onSlideChange={(s) => setActiveIndex(s.activeIndex)}
                 className="w-full !pb-2"
               >
                 {filteredProjects.map((project, idx) => (
-                  <SwiperSlide key={project.id} className="!w-[130px] md:!w-[180px]">
+                  <SwiperSlide key={project.id} className="!w-[100px] md:!w-[140px]">
                     <div
                       onClick={() => { setActiveIndex(idx); swiperRef.current?.slideTo(idx); }}
-                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-xl overflow-hidden border-2 ${
+                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-lg overflow-hidden border-2 ${
                         activeIndex === idx
                           ? 'border-accent scale-105 shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]'
                           : 'border-white/5 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
@@ -232,7 +232,7 @@ export default function SelectedWorks() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-3 gap-6 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
+              className="max-w-5xl w-full grid lg:grid-cols-3 gap-4 card-glass p-5 md:p-6 rounded-2xl shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
             >
               {/* ── LEFT: Image – 2/3 width ── */}
               <div className="lg:col-span-2 w-full">
@@ -242,7 +242,7 @@ export default function SelectedWorks() {
                   grabCursor={true}
                   centeredSlides={true}
                   slidesPerView="auto"
-                  spaceBetween={20}
+                  spaceBetween={16}
                   navigation
                   coverflowEffect={{ rotate: 45, stretch: 0, depth: 200, modifier: 1, slideShadows: false }}
                   className="w-full !pb-2"
@@ -251,7 +251,7 @@ export default function SelectedWorks() {
                     <SwiperSlide key={img.id} className="!w-[85%] md:!w-[80%]">
                       <img
                         src={img.hero_bg_desktop || img.image_url}
-                        className="w-full h-auto max-h-[70vh] rounded-[20px] shadow-lg border border-[var(--glass-border)] object-cover object-center"
+                        className="w-full h-auto max-h-[60vh] rounded-lg shadow-lg border border-[var(--glass-border)] object-cover object-center"
                         alt=""
                       />
                     </SwiperSlide>
@@ -260,25 +260,25 @@ export default function SelectedWorks() {
               </div>
 
               {/* ── RIGHT: Details – 1/3 width, smaller text ── */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
                   <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-2 block">
                     {selectedProject.category}
                   </span>
-                  <h2 className="text-[var(--text-primary)] text-xl md:text-2xl font-black uppercase tracking-tighter leading-tight">
+                  <h2 className="text-[var(--text-primary)] text-lg md:text-xl font-black uppercase tracking-tighter leading-tight">
                     {selectedProject.title}
                   </h2>
-                  <p className="text-[var(--text-secondary)] text-sm leading-relaxed mt-2">
+                  <p className="text-[var(--text-secondary)] text-xs leading-relaxed mt-2">
                     {selectedProject.description}
                   </p>
                 </div>
 
                 {selectedProject.tools && selectedProject.tools.length > 0 && (
                   <div>
-                    <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Tools</h4>
-                    <div className="flex flex-wrap gap-2">
+                    <h4 className="text-[9px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Tools</h4>
+                    <div className="flex flex-wrap gap-1">
                       {selectedProject.tools.map((t) => (
-                        <span key={t} className="px-4 py-2 bg-white/5 border border-[var(--glass-border)] rounded-lg text-[9px] uppercase text-[var(--text-secondary)] font-bold tracking-widest hover:border-accent hover:text-accent transition-colors">
+                        <span key={t} className="px-2 py-1 bg-white/5 border border-[var(--glass-border)] rounded-md text-[8px] uppercase text-[var(--text-secondary)] font-bold tracking-widest">
                           {t}
                         </span>
                       ))}
@@ -288,15 +288,15 @@ export default function SelectedWorks() {
 
                 {selectedProject.process && (
                   <div>
-                    <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Process</h4>
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{selectedProject.process}</p>
+                    <h4 className="text-[9px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Process</h4>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{selectedProject.process}</p>
                   </div>
                 )}
 
                 {selectedProject.results && (
                   <div>
-                    <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Results</h4>
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{selectedProject.results}</p>
+                    <h4 className="text-[9px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Results</h4>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{selectedProject.results}</p>
                   </div>
                 )}
               </div>

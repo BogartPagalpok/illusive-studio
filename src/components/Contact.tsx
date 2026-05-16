@@ -98,11 +98,11 @@ export default function Contact() {
     <section className="section-padding relative overflow-visible z-30 bg-transparent">
       <div id="contact" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
       
-      <FloatingCube type="Canva" size={80} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
-      <FloatingCube type="Id" size={120} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
+      <FloatingCube type="Canva" size={60} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
+      <FloatingCube type="Id" size={80} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
 
       <div ref={ref} className="section-container relative">
-        <div className="grid lg:grid-cols-2 gap-0 items-start max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-8 items-start max-w-5xl mx-auto">
           
           {/* Left side unchanged */}
           <motion.div
@@ -114,7 +114,7 @@ export default function Contact() {
             <span className="section-subtitle !text-[10px] !tracking-[0.4em] !mb-4 font-black">
               {content.subtitle}
             </span>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl italic font-black uppercase tracking-tighter text-[var(--text-primary)]">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl italic font-black uppercase tracking-tighter text-[var(--text-primary)]">
               {content.heading.split(' ').length > 1 ? (
                 <>
                   {content.heading.split(' ').slice(0, -1).join(' ')}{' '}
@@ -124,10 +124,10 @@ export default function Contact() {
                 content.heading
               )}
             </h2>
-            <p className="mt-6 mb-8 leading-relaxed text-sm text-[var(--text-secondary)]">
+            <p className="mt-4 mb-6 leading-relaxed text-sm text-[var(--text-secondary)]">
               {content.description}
             </p>
-            <div className="w-16 h-0.5 bg-[var(--accent)]" />
+            <div className="w-12 h-0.5 bg-[var(--accent)]" />
           </motion.div>
 
           {/* Right side – Glass Card with internal padding */}
@@ -135,10 +135,10 @@ export default function Contact() {
             initial={{ opacity: 0, y: 40 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="card-glass rounded-[2.5rem] w-full box-border p-6 md:p-8"
+            className="card-glass rounded-2xl w-full box-border p-5 md:p-6"
             style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
           >
-            <div className="flex flex-col gap-1 mb-8">
+            <div className="flex flex-col gap-1 mb-6">
               <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-[var(--text-secondary)]/50">
                 Secure Channel
               </p>
@@ -149,7 +149,7 @@ export default function Contact() {
               )}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6 w-full">
+            <form onSubmit={handleSubmit} className="space-y-4 w-full">
               {/* Name */}
               <div className="w-full">
                 <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
@@ -160,7 +160,7 @@ export default function Contact() {
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm overflow-hidden text-ellipsis"
+                  className="w-full box-border bg-transparent border rounded-lg p-3 outline-none focus:border-accent transition-all text-sm overflow-hidden text-ellipsis"
                   style={glassInputStyle}
                   placeholder="Your Name"
                 />
@@ -176,7 +176,7 @@ export default function Contact() {
                   required
                   value={form.email}
                   readOnly
-                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none cursor-not-allowed text-sm overflow-hidden text-ellipsis"
+                  className="w-full box-border bg-transparent border rounded-lg p-3 outline-none cursor-not-allowed text-sm overflow-hidden text-ellipsis"
                   style={glassInputStyle}
                 />
               </div>
@@ -191,7 +191,7 @@ export default function Contact() {
                   rows={4}
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm resize-none custom-scrollbar overflow-hidden"
+                  className="w-full box-border bg-transparent border rounded-lg p-3 outline-none focus:border-accent transition-all text-sm resize-none custom-scrollbar overflow-hidden"
                   style={glassInputStyle}
                   placeholder="Tell me about your project..."
                 />
@@ -201,7 +201,7 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={sending}
-                className="btn-primary w-full py-5 !rounded-xl disabled:opacity-30 flex items-center justify-center gap-3 group box-border"
+                className="btn-primary w-full py-3 !rounded-lg disabled:opacity-30 flex items-center justify-center gap-3 group box-border"
               >
                 {sending ? (
                   <span className="flex items-center gap-2">

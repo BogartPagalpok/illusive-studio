@@ -61,7 +61,7 @@ export default function Services() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 flex flex-col items-center"
+          className="text-center mb-12 flex flex-col items-center"
         >
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
@@ -76,7 +76,7 @@ export default function Services() {
         </motion.div>
 
         {/* ----- SERVICES GRID (global card-dark, dynamic tint via inline style) ----- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {servicesData.map((service, index) => (
             <motion.div
               key={index}
@@ -87,7 +87,7 @@ export default function Services() {
               className="card-dark h-full flex flex-col group relative"
               style={{ backgroundColor: service.color }} // dynamic tint from DB
             >
-              <h3 className="font-bold tracking-tight text-xl mb-3 uppercase text-[var(--text-primary)] group-hover:text-accent transition-colors">
+              <h3 className="font-bold tracking-tight text-lg mb-2 uppercase text-[var(--text-primary)] group-hover:text-accent transition-colors">
                 {service.title}
               </h3>
               <p className="text-sm font-light leading-relaxed text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
