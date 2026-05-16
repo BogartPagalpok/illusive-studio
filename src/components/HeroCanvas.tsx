@@ -40,7 +40,6 @@ export default function HeroCanvas() {
     return true;
   };
 
-  // Preload all frames first
   useEffect(() => {
     let cancelled = false;
     const imgs: HTMLImageElement[] = [];
@@ -73,12 +72,10 @@ export default function HeroCanvas() {
     return () => { cancelled = true; };
   }, [baseUrl]);
 
-  // Draw first frame when ready
   useEffect(() => {
     if (ready) drawFrame(0);
   }, [ready]);
 
-  // GSAP only after all frames ready
   useEffect(() => {
     if (!ready) return;
 
