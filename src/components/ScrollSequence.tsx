@@ -14,7 +14,7 @@ interface ScrollSequenceProps {
 }
 
 export default function ScrollSequence({
-  frameCount = 261, // EXACTLY 261 FRAMES
+  frameCount = 262, // frames 000–261
   filePrefix = 'frame_',
   fileExtension = 'webp',
   scrollLength = 4,
