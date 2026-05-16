@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
-import 'swiper/css/effect-coverflow'; // ← added for 3D coverflow
+import 'swiper/css/effect-coverflow';
 
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
 
@@ -42,7 +42,6 @@ export default function SelectedWorks() {
         .from('portfolio_projects')
         .select('*')
         .order('created_at', { ascending: false });
-
       if (dbError) throw dbError;
       setProjects(data || []);
     } catch (err: unknown) {
@@ -211,9 +210,9 @@ export default function SelectedWorks() {
                 slidesPerView="auto"
                 spaceBetween={16}
                 coverflowEffect={{
-                  rotate: 45,       // matches "Default" preset rotateY
+                  rotate: 45,
                   stretch: 0,
-                  depth: 150,       // matches depth
+                  depth: 150,
                   modifier: 1,
                   slideShadows: false,
                 }}
@@ -243,7 +242,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Project Modal – unchanged */}
+      {/* Project Modal – now with Coverflow gallery */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -264,17 +263,38 @@ export default function SelectedWorks() {
               onClick={(e) => e.stopPropagation()}
               className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
             >
-              <div className="space-y-6">
-                {galleryImages.map((img) => (
-                  <img
-                    key={img.id}
-                    src={img.hero_bg_desktop || img.image_url}
-                    className="w-full rounded-[20px] shadow-lg border border-[var(--glass-border)]"
-                    alt=""
-                  />
-                ))}
+              {/* ── LEFT COLUMN → Coverflow image gallery ── */}
+              <div className="w-full">
+                <Swiper
+                  modules={[EffectCoverflow, Navigation]}
+                  effect="coverflow"
+                  grabCursor={true}
+                  centeredSlides={true}
+                  slidesPerView="auto"
+                  spaceBetween={20}
+                  navigation
+                  coverflowEffect={{
+                    rotate: 45,
+                    stretch: 0,
+                    depth: 200,
+                    modifier: 1,
+                    slideShadows: false,
+                  }}
+                  className="w-full !pb-2"
+                >
+                  {galleryImages.map((img) => (
+                    <SwiperSlide key={img.id} className="!w-[85%] md:!w-[70%]">
+                      <img
+                        src={img.hero_bg_desktop || img.image_url}
+                        className="w-full rounded-[20px] shadow-lg border border-[var(--glass-border)] object-cover"
+                        alt=""
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
               </div>
 
+              {/* ── RIGHT COLUMN → project details (unchanged) ── */}
               <div className="space-y-6 lg:sticky lg:top-0 h-fit">
                 <div>
                   <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">
