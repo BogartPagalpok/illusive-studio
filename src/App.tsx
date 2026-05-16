@@ -12,14 +12,19 @@ import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 function AtmosphereGradient() {
   return (
     <div
-      className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none transition-colors duration-700"
-      style={{ backgroundColor: 'var(--bg-primary)' } as React.CSSProperties}
+      className="fixed inset-0 overflow-hidden transition-colors duration-700"
+      style={{ 
+        zIndex: -1,
+        pointerEvents: 'none',
+        backgroundColor: 'var(--bg-primary)',
+      } as React.CSSProperties}
     >
       <motion.div
         animate={{ x: ['-5%', '5%', '-5%'], y: ['-2%', '2%', '-2%'] }}
         transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full opacity-20 blur-[100px] will-change-transform"
+        className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full blur-[100px] will-change-transform"
         style={{
+          opacity: 0.2,
           background: 'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)',
           filter: 'saturate(1.2)',
         } as React.CSSProperties}
@@ -27,8 +32,9 @@ function AtmosphereGradient() {
       <motion.div
         animate={{ x: ['5%', '-5%', '5%'], y: ['2%', '-2%', '2%'] }}
         transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-        className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full opacity-10 blur-[90px] will-change-transform"
+        className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full blur-[90px] will-change-transform"
         style={{
+          opacity: 0.1,
           background: 'radial-gradient(circle at 70% 70%, var(--accent) 0%, transparent 70%)',
         } as React.CSSProperties}
       />
@@ -50,7 +56,6 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load saved theme from localStorage
     const savedTheme = localStorage.getItem('portfolio-theme') || 'void';
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.body.setAttribute('data-theme', savedTheme);
