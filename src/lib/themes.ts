@@ -197,31 +197,31 @@ function getContrastYIQ(hexcolor: string) {
   return yiq >= 128 ? 'black' : 'white';
 }
 
-// ── Background renderers ─────────────────────────────────
+// ── Background renderers (increased visibility) ──────────
 function applyNoiseBackground(root: HTMLElement) {
-  root.style.setProperty('--bg-noise', `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`);
+  root.style.setProperty('--bg-noise', `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E")`);
   root.style.setProperty('--bg-pattern', 'var(--bg-noise)');
 }
 
 function applyGridBackground(root: HTMLElement) {
-  root.style.setProperty('--bg-grid', `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M60 0H0v60' fill='none' stroke='rgba(255,255,255,0.03)' stroke-width='0.5'/%3E%3C/svg%3E")`);
+  root.style.setProperty('--bg-grid', `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M60 0H0v60' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='0.5'/%3E%3C/svg%3E")`);
   root.style.setProperty('--bg-pattern', 'var(--bg-grid)');
 }
 
 function applyDotsBackground(root: HTMLElement) {
-  root.style.setProperty('--bg-dots', `radial-gradient(circle at center, rgba(255,255,255,0.04) 1px, transparent 1px)`);
+  root.style.setProperty('--bg-dots', `radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px)`);
   root.style.setProperty('--bg-dots-size', '24px 24px');
   root.style.setProperty('--bg-pattern', 'var(--bg-dots)');
   root.style.setProperty('--bg-pattern-size', 'var(--bg-dots-size)');
 }
 
 function applyCinematicBackground(root: HTMLElement) {
-  root.style.setProperty('--bg-vignette', `radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.6) 100%)`);
+  root.style.setProperty('--bg-vignette', `radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.7) 100%)`);
   root.style.setProperty('--bg-pattern', 'var(--bg-vignette)');
 }
 
 function applyGlassBackground(root: HTMLElement) {
-  root.style.setProperty('--bg-glass', `radial-gradient(circle at 30% 50%, rgba(255,255,255,0.02) 0%, transparent 50%), radial-gradient(circle at 70% 20%, rgba(255,255,255,0.03) 0%, transparent 40%)`);
+  root.style.setProperty('--bg-glass', `radial-gradient(circle at 30% 50%, rgba(255,255,255,0.05) 0%, transparent 50%), radial-gradient(circle at 70% 20%, rgba(255,255,255,0.06) 0%, transparent 40%)`);
   root.style.setProperty('--bg-pattern', 'var(--bg-glass)');
 }
 
@@ -317,7 +317,7 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   window.dispatchEvent(new Event('storage'));
   setTimeout(() => { ScrollTrigger.refresh(); }, 150);
 
-  // Supabase sync — upsert creates the row if it doesn't exist
+  // Supabase sync
   if (syncToCloud) {
     try {
       const { error } = await supabase.from('site_config').upsert({
