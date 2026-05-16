@@ -87,11 +87,12 @@ export default function Contact() {
     setSending(false);
   };
 
-  // Theme‑aware input base – uses the global glass variables
-  const inputStyle = {
+  // Unified glass style for all inputs (matches card-glass)
+  const glassInputStyle = {
     backgroundColor: 'var(--glass-bg)',
     borderColor: 'var(--glass-border)',
     color: 'var(--text-primary)',
+    backdropFilter: 'blur(4px)',
   };
 
   return (
@@ -102,7 +103,6 @@ export default function Contact() {
       <FloatingCube type="Id" size={120} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
 
       <div ref={ref} className="section-container relative">
-        {/* Grid: two equal columns, no gap, same width */}
         <div className="grid lg:grid-cols-2 gap-0 items-start max-w-5xl mx-auto">
           
           {/* Left – Messaging */}
@@ -112,12 +112,9 @@ export default function Contact() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="lg:sticky lg:top-32"
           >
-            {/* Subtitle – uses global section-subtitle with size override */}
             <span className="section-subtitle !text-[10px] !tracking-[0.4em] !mb-4 font-black">
               {content.subtitle}
             </span>
-
-            {/* Heading – keeps its unique italic style but uses theme text color */}
             <h2 className="text-5xl md:text-6xl lg:text-7xl italic font-black uppercase tracking-tighter text-[var(--text-primary)]">
               {content.heading.split(' ').length > 1 ? (
                 <>
@@ -128,19 +125,18 @@ export default function Contact() {
                 content.heading
               )}
             </h2>
-
             <p className="mt-6 mb-8 leading-relaxed text-sm text-[var(--text-secondary)]">
               {content.description}
             </p>
             <div className="w-16 h-0.5 bg-[var(--accent)]" />
           </motion.div>
 
-          {/* Right – Form Card (uses global card-glass, custom shadow & radius) */}
+          {/* Right – Form Card (full width, glassmorphism, equal internal widths) */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="card-glass rounded-[2.5rem]"
+            className="card-glass rounded-[2.5rem] w-full box-border"
             style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
           >
             <div className="flex flex-col gap-1 mb-8">
@@ -154,54 +150,59 @@ export default function Contact() {
               )}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
+            <form onSubmit={handleSubmit} className="space-y-6 w-full">
+              {/* Name Field */}
+              <div className="w-full">
                 <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
-                  Name
+                  NAME
                 </label>
                 <input
                   type="text"
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm"
-                  style={inputStyle}
+                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm"
+                  style={glassInputStyle}
                   placeholder="Your Name"
                 />
               </div>
-              <div>
+
+              {/* Email Field (read‑only, no opacity reduction to keep width consistent) */}
+              <div className="w-full">
                 <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
-                  Email
+                  EMAIL
                 </label>
                 <input
                   type="email"
                   required
                   value={form.email}
                   readOnly
-                  className="w-full bg-transparent border rounded-xl p-4 outline-none opacity-40 cursor-not-allowed text-sm"
-                  style={inputStyle}
+                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none cursor-not-allowed text-sm"
+                  style={glassInputStyle}
                 />
               </div>
-              <div>
+
+              {/* Message Field */}
+              <div className="w-full">
                 <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
-                  Message
+                  MESSAGE
                 </label>
                 <textarea
                   required
                   rows={4}
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm resize-none custom-scrollbar"
-                  style={inputStyle}
+                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm resize-none custom-scrollbar"
+                  style={glassInputStyle}
                   placeholder="Tell me about your project..."
                 />
               </div>
               
-              {/* Submit Button – now fully reliant on global btn-primary */}
+              {/* Submit Button – identical width as inputs */}
               <button
                 type="submit"
                 disabled={sending}
-                className="btn-primary w-full py-5 !rounded-2xl disabled:opacity-30 flex items-center justify-center gap-3 group"
+                className="btn-primary w-full py-5 !rounded-xl disabled:opacity-30 flex items-center justify-center gap-3 group box-border"
               >
                 {sending ? (
                   <span className="flex items-center gap-2">
@@ -219,7 +220,6 @@ export default function Contact() {
               </button>
             </form>
 
-            {/* Ambient glow */}
             <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-accent/5 blur-[50px] rounded-full pointer-events-none" />
           </motion.div>
         </div>
