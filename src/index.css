@@ -25,11 +25,9 @@
 
   body {
     background-color: var(--bg-primary) !important;
-    background-image: 
-      var(--bg-gradient),
-      var(--bg-pattern) !important;
+    background-image: var(--bg-gradient), var(--bg-pattern) !important;
     background-size: 100% 100%, var(--bg-pattern-size, auto) !important;
-    background-blend-mode: overlay, normal;
+    background-blend-mode: overlay;
     background-attachment: fixed;
     color: var(--text-secondary);
     font-family: var(--font-sans) !important;
