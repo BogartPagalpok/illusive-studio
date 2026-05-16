@@ -115,7 +115,7 @@
     background-color: var(--bg-primary) !important;
     background-image: 
       var(--bg-gradient),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' result='noise'/%3E%3CfeColorMatrix in='noise' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23030305' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
     background-blend-mode: overlay;
     background-attachment: fixed;
     color: var(--text-secondary);
@@ -137,10 +137,10 @@
 
 @layer components {
   .section-container { @apply max-w-7xl mx-auto px-6 lg:px-8; }
-  .section-padding { @apply py-24 lg:py-32; }
+  .section-padding { @apply py-12 lg:py-16; }
 
   .btn-primary {
-    @apply relative overflow-hidden rounded-full px-12 py-3.5 font-bold flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[11px] transition-all duration-300;
+    @apply relative overflow-hidden rounded-full px-8 py-2.5 font-bold flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[11px] transition-all duration-300;
     background: var(--accent) !important; color: var(--accent-contrast) !important;
     box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
   }
@@ -148,21 +148,21 @@
   .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.5); filter: brightness(1.1); }
 
   .btn-outline {
-    @apply relative inline-flex items-center justify-center gap-3 rounded-full border font-bold uppercase tracking-[0.2em] text-[11px] transition-all duration-300 px-12 py-3.5;
+    @apply relative inline-flex items-center justify-center gap-3 rounded-full border font-bold uppercase tracking-[0.2em] text-[11px] transition-all duration-300 px-8 py-2.5;
     border-color: var(--text-primary); color: var(--text-primary); background: transparent;
   }
   .btn-outline:hover { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
 
-  .section-subtitle { @apply text-sm font-heading tracking-[0.3em] uppercase mb-4 block; color: var(--accent); }
-  .section-title { @apply font-bold tracking-tighter uppercase; color: var(--text-primary); font-size: clamp(2rem, 5vw, 4rem); }
-  .section-divider { @apply mt-6 w-20 h-0.5 mx-auto; background-color: var(--accent); }
+  .section-subtitle { @apply text-xs font-heading tracking-[0.3em] uppercase mb-3 block; color: var(--accent); }
+  .section-title { @apply font-bold tracking-tighter uppercase; color: var(--text-primary); font-size: clamp(1.75rem, 5vw, 3.5rem); }
+  .section-divider { @apply mt-4 w-16 h-0.5 mx-auto; background-color: var(--accent); }
 
   .card-dark {
-    @apply p-8 rounded-3xl transition-all duration-500 backdrop-blur-xl border relative overflow-hidden;
+    @apply p-5 md:p-6 rounded-2xl transition-all duration-500 backdrop-blur-xl border relative overflow-hidden;
     background-color: var(--bg-secondary); border-color: var(--glass-border);
   }
   .card-dark:hover { border-color: var(--accent); box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.15); transform: translateY(-5px); }
-  .card-dark::after { content: ''; @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none; background: radial-gradient(circle at center, rgba(var(--accent-rgb), 0.1) 0%, transparent 70%); }
+  .card-dark::after { content: ''; @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none; background: radial-gradient(circle at center, rgba(var(--accent-rgb), 0.1)); }
   .card-dark:hover::after { @apply opacity-100; }
 
   .heading-xl { @apply text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tighter italic; }
