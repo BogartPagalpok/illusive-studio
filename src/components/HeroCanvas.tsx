@@ -17,7 +17,6 @@ export default function HeroCanvas() {
   const totalFrames = 261;
   const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${SCROLL_SEQUENCE_BUCKET}/`;
 
-  // Helper to draw a frame to the canvas
   const drawFrame = (index: number) => {
     const canvas = canvasRef.current;
     const img = imagesRef.current[index];
@@ -42,7 +41,6 @@ export default function HeroCanvas() {
     return true;
   };
 
-  // Step 1: Preload ALL 261 frames + force decode
   useEffect(() => {
     let cancelled = false;
     const imgs: HTMLImageElement[] = [];
@@ -54,7 +52,7 @@ export default function HeroCanvas() {
           const img = new Image();
           img.crossOrigin = 'anonymous';
           await new Promise<void>((resolve) => {
-            const frameIndex = String(i).padStart(3, '0');
+            const frameIndex = String(i).padStart(3, '0'); // 000, 001, 002...
             img.onload = () => img.decode().then(() => resolve()).catch(() => resolve());
             img.onerror = () => resolve();
             img.src = `${baseUrl}frame_${frameIndex}.webp`;
@@ -75,12 +73,10 @@ export default function HeroCanvas() {
     return () => { cancelled = true; };
   }, [baseUrl]);
 
-  // Step 2: Draw first frame when ready
   useEffect(() => {
     if (ready) drawFrame(0);
   }, [ready]);
 
-  // Step 3: GSAP only after ready
   useEffect(() => {
     if (!ready) return;
 
