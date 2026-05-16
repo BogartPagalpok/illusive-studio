@@ -6,110 +6,100 @@ import Login from './pages/Login';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
-import { loadSavedTheme, applyTheme } from './lib/themes';
-import type { ThemeName } from './lib/themes';
+import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import { motion } from 'framer-motion';
+import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 
-// PERFORMANCE OPTIMIZED GRADIENT
 function AtmosphereGradient() {
   return (
-    <div className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none bg-[#020204]">
+    <div 
+      className="fixed inset-0 -z-[1] overflow-hidden pointer-events-none transition-colors duration-700"
+      style={{ backgroundColor: 'var(--bg-primary)' }}
+    >
       <motion.div 
-        animate={{
-          x: ['-5%', '5%', '-5%'],
-          y: ['-2%', '2%', '-2%'],
-        }}
+        animate={{ x: ['-5%', '5%', '-5%'], y: ['-2%', '2%', '-2%'] }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full opacity-30 blur-[80px] will-change-transform"
+        className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full opacity-20 blur-[100px] will-change-transform"
         style={{ 
           background: 'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)',
-          filter: 'saturate(1.5)'
+          filter: 'saturate(1.2)'
         }}
       />
-
       <motion.div 
-        animate={{
-          x: ['5%', '-5%', '5%'],
-          y: ['2%', '-2%', '2%'],
-        }}
+        animate={{ x: ['5%', '-5%', '5%'], y: ['2%', '-2%', '2%'] }}
         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full opacity-20 blur-[70px] will-change-transform"
+        className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full opacity-10 blur-[90px] will-change-transform"
         style={{ 
           background: 'radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--accent), #4000ff 40%) 0%, transparent 70%)',
         }}
       />
-
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.85)_100%)]" />
+      <div 
+        className="absolute inset-0 transition-opacity duration-700" 
+        style={{ 
+          background: 'var(--bg-gradient)',
+          opacity: 0.8
+        }} 
+      />
     </div>
   );
 }
 
 function App() {
+  useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const syncUserTheme = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('theme_preference')
-        .eq('id', userId)
-        .single();
-
-      if (!error && data?.theme_preference) {
-        // applyTheme handles CSS variables, data-theme attribute, and localStorage
-        applyTheme(data.theme_preference as ThemeName);
-      }
-    } catch (err) {
-      console.warn('Background theme sync failed.');
-    }
-  };
-
   useEffect(() => {
-    // 1. Instant local load (zero-latency)
     loadSavedTheme();
+    const themeSubscription = subscribeToThemeChanges();
 
-    const initAuthAndTheme = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      
-      // 2. Stop loading immediately after session check
-      setLoading(false);
-
-      // 3. Sync theme in background (Non-blocking)
-      if (session?.user) {
-        syncUserTheme(session.user.id);
+    const initAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) console.warn('Supabase Auth Warning:', error.message);
+        setSession(session);
+      } catch (err) {
+        console.error('Supabase connection failed:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    initAuthAndTheme();
+    initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session?.user) {
-        syncUserTheme(session.user.id);
-      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      authSubscription.unsubscribe();
+      themeSubscription.unsubscribe();
+    };
+  }, []);
+
+  // ====== NEW: scroll reset & browser scroll restoration disable ======
+  useEffect(() => {
+    // Force scroll to top after everything renders
+    window.scrollTo(0, 0);
+    // Prevent browser from restoring scroll position on reload
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-transparent flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center relative">
         <AtmosphereGradient />
-        <span 
-          className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full" 
-          style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }}
-        />
+        <span className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full" style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   if (!session) {
     return (
-      <main className="min-h-screen bg-transparent relative">
+      <main className="min-h-screen relative bg-transparent">
         <AtmosphereGradient />
         <Login />
       </main>
@@ -118,7 +108,7 @@ function App() {
 
   if (isAdmin) {
     return (
-      <main className="min-h-screen bg-transparent relative">
+      <main className="min-h-screen relative bg-transparent">
         <AtmosphereGradient />
         <AdminDashboard onLogout={() => setIsAdmin(false)} />
       </main>
