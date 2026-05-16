@@ -128,4 +128,65 @@
   }
 
   .text-accent { color: var(--accent); }
+
+  /* ========== COMPACT ADMIN / DASHBOARD UTILITIES ========== */
+
+  /* Smaller primary button */
+  .btn-primary-sm {
+    @apply relative overflow-hidden rounded-lg px-4 py-2 font-bold flex items-center justify-center gap-2
+           uppercase tracking-[0.2em] text-[9px] transition-all duration-300;
+    background: var(--accent) !important;
+    color: var(--accent-contrast) !important;
+    box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
+  }
+  .btn-primary-sm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.5);
+    filter: brightness(1.1);
+  }
+  .btn-primary-sm svg {
+    @apply fill-current text-inherit;
+  }
+
+  /* Compact ghost/outline button */
+  .btn-ghost-sm {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-lg border font-bold uppercase tracking-[0.2em] text-[9px] transition-all duration-300 px-4 py-2;
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+    background: transparent;
+  }
+  .btn-ghost-sm:hover {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    border-color: var(--text-primary);
+  }
+
+  /* Compact card */
+  .card-dark-sm {
+    @apply p-4 rounded-2xl transition-all duration-300 backdrop-blur-xl border relative overflow-hidden;
+    background-color: var(--bg-secondary);
+    border-color: var(--glass-border);
+  }
+  .card-dark-sm:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Unified input field (compact) */
+  .input-dark {
+    @apply w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm font-body transition-colors duration-200 focus:outline-none;
+    color: var(--text-primary);
+  }
+  .input-dark:focus {
+    border-color: var(--accent);
+  }
+
+  /* Hide scrollbar but keep scroll ability */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Extra text helpers */
+  .text-primary   { color: var(--text-primary); }
+  .text-secondary { color: var(--text-secondary); opacity: 0.8; }
 }
