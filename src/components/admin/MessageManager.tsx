@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Trash2, Mail, User, Clock } from 'lucide-react';
