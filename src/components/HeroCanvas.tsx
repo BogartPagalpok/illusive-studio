@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SCROLL_SEQUENCE_BUCKET } from '../lib/supabase';
@@ -10,8 +10,11 @@ export default function HeroCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastDrawnFrameRef = useRef<number>(0);
+  const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
-  // CHANGED: Reduced frame count to 261
+  const [ready, setReady] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
+
   const totalFrames = 261;
   const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${SCROLL_SEQUENCE_BUCKET}/`;
 
@@ -24,7 +27,6 @@ export default function HeroCanvas() {
     const context = canvas.getContext('2d');
     if (!context) return false;
 
-    // Ensure canvas matches its container size
     const container = containerRef.current;
     if (container) {
       canvas.width = container.offsetWidth;
@@ -41,39 +43,64 @@ export default function HeroCanvas() {
     return true;
   };
 
-  // Progressive Loading & GSAP Logic
+  // Step 1: Preload ALL frames + decode before anything else
   useEffect(() => {
-    const loadFrame = (i: number): Promise<HTMLImageElement> => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        const frameIndex = String(i).padStart(3, '0');
-        img.src = `${baseUrl}frame_${frameIndex}.webp`;
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        imagesRef.current[i] = img;
-      });
+    let cancelled = false;
+    const imgs: HTMLImageElement[] = [];
+
+    const loadAll = async () => {
+      for (let i = 0; i < totalFrames; i++) {
+        if (cancelled) break;
+
+        try {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+
+          await new Promise<void>((resolve) => {
+            const frameIndex = String(i).padStart(3, '0');
+            img.onload = () => {
+              // Force decode immediately
+              img.decode()
+                .then(() => resolve())
+                .catch(() => resolve());
+            };
+            img.onerror = () => resolve();
+            img.src = `${baseUrl}frame_${frameIndex}.webp`;
+          });
+
+          imgs[i] = img;
+          setLoadProgress((i + 1) / totalFrames);
+        } catch {
+          setLoadProgress((i + 1) / totalFrames);
+        }
+      }
+
+      if (!cancelled) {
+        imagesRef.current = imgs;
+        setReady(true);
+      }
     };
 
-    // 1. Load Frame 0 immediately
-    loadFrame(0).then(() => {
-      drawFrame(0);
-      
-      // 2. Load remaining frames progressively in background
-      const loadRemaining = async () => {
-        for (let i = 1; i < totalFrames; i++) {
-          try {
-            await loadFrame(i);
-          } catch (e) {
-            console.warn(`Failed to load frame ${i}`);
-          }
-        }
-      };
-      loadRemaining();
-    });
+    loadAll();
 
-    // 3. GSAP ScrollTrigger Logic
+    return () => {
+      cancelled = true;
+    };
+  }, [baseUrl]);
+
+  // Step 2: Draw first frame immediately when ready
+  useEffect(() => {
+    if (ready) {
+      drawFrame(0);
+    }
+  }, [ready]);
+
+  // Step 3: GSAP ScrollTrigger only after all frames are cached
+  useEffect(() => {
+    if (!ready) return;
+
     const playhead = { frame: 0 };
+
     const scrollAnimation = gsap.to(playhead, {
       frame: totalFrames - 1,
       snap: 'frame',
@@ -84,15 +111,17 @@ export default function HeroCanvas() {
         end: '+=3000',
         scrub: true,
         pin: true,
+        invalidateOnRefresh: true,
         onUpdate: () => {
           const targetFrame = Math.round(playhead.frame);
-          // Try to draw target frame, fallback to last drawn if not loaded
           if (!drawFrame(targetFrame)) {
             drawFrame(lastDrawnFrameRef.current);
           }
         },
       },
     });
+
+    scrollTriggerRef.current = scrollAnimation.scrollTrigger;
 
     const handleResize = () => drawFrame(lastDrawnFrameRef.current);
     window.addEventListener('resize', handleResize);
@@ -101,21 +130,45 @@ export default function HeroCanvas() {
       scrollAnimation.kill();
       window.removeEventListener('resize', handleResize);
     };
-  }, [baseUrl]);
+  }, [ready]);
 
   return (
     <div ref={containerRef} className="absolute inset-0 w-full h-screen overflow-hidden">
-      {/* Canvas - Layered at the bottom */}
+      {/* Canvas */}
       <canvas
         ref={canvasRef}
         className="w-full h-full object-cover relative z-0"
+        style={{ opacity: ready ? 1 : 0 }}
       />
-      
-      {/* Dynamic Theme Tint Overlay (Chameleon Effect) - Layered above canvas */}
-      <div 
+
+      {/* Dynamic Theme Tint Overlay */}
+      <div
         className="absolute inset-0 pointer-events-none mix-blend-color opacity-40 transition-colors duration-500 z-1"
         style={{ backgroundColor: 'var(--accent)' }}
       />
+
+      {/* Branded Loading Screen */}
+      {!ready && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black">
+          {/* Logo */}
+          <h1 className="text-4xl md:text-6xl font-light tracking-[0.2em] text-white">
+            IAN<span className="text-white/40">.</span>LESTER
+          </h1>
+
+          {/* Loading bar */}
+          <div className="mt-8 w-48 md:w-64 h-[1px] bg-white/10 overflow-hidden">
+            <div
+              className="h-full bg-white transition-all duration-500 ease-out"
+              style={{ width: `${Math.round(loadProgress * 100)}%` }}
+            />
+          </div>
+
+          {/* Percentage */}
+          <p className="mt-4 text-white/30 text-xs tracking-[0.3em] uppercase">
+            {Math.round(loadProgress * 100)}%
+          </p>
+        </div>
+      )}
     </div>
   );
 }
