@@ -1,49 +1,48 @@
-// src/components/DiagonalScrollFade.tsx
-import { useRef, ReactNode } from 'react';
+import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 interface DiagonalScrollFadeProps {
-  children: ReactNode;
-  className?: string;
-  angle?: number;       // default 135 (top-left to bottom-right)
-  fadeEdge?: number;    // default 20 (softness)
-  offsetStart?: string;
-  offsetEnd?: string;
+  children: React.ReactNode;
+  fadeEdge?: number;   // Percentage of viewport height to fade (e.g., 25)
+  angle?: number;      // Angle of the fade in degrees (e.g., 135)
 }
 
-export default function DiagonalScrollFade({
-  children,
-  className = '',
-  angle = 135,
-  fadeEdge = 20,
-  offsetStart = 'start end',
-  offsetEnd = 'end start',
-}: DiagonalScrollFadeProps) {
+const DiagonalScrollFade: React.FC<DiagonalScrollFadeProps> = ({ 
+  children, 
+  fadeEdge = 25, 
+  angle = 135 
+}) => {
   const ref = useRef<HTMLDivElement>(null);
+
+  // Track scroll progress relative to this section
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: [offsetStart, offsetEnd],
+    offset: ["start end", "end start"]
   });
-  const gradientPos = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
-  const maskImage = useTransform(gradientPos, (pos) => {
-    const posNum = parseInt(pos);
-    return `linear-gradient(${angle}deg, 
-      rgba(0,0,0,1) 0%, 
-      rgba(0,0,0,1) ${Math.max(0, posNum - fadeEdge)}%, 
-      rgba(0,0,0,0) ${Math.min(100, posNum + fadeEdge)}%, 
-      rgba(0,0,0,0) 100%)`;
-  });
+
+  // Convert the angle to radians for our gradient calculations
+  const angleRad = (angle * Math.PI) / 180;
+  const x = Math.cos(angleRad);
+  const y = Math.sin(angleRad);
+
+  // Create a dynamic mask that moves with the scroll
+  const maskPosition = useTransform(
+    scrollYProgress, 
+    [0, 1], 
+    [`${-(100 - fadeEdge)}%`, `${100 - fadeEdge}%`]
+  );
 
   return (
     <motion.div
       ref={ref}
-      className={className}
       style={{
-        WebkitMaskImage: maskImage,
-        maskImage: maskImage,
+        WebkitMaskImage: `linear-gradient(${angle}deg, black ${fadeEdge}%, transparent 100%)`,
+        maskImage: `linear-gradient(${angle}deg, black ${fadeEdge}%, transparent 100%)`,
       }}
     >
       {children}
     </motion.div>
   );
-}
+};
+
+export default DiagonalScrollFade;
