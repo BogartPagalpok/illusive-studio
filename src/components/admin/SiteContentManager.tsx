@@ -10,7 +10,49 @@ interface SiteContent {
 }
 
 const SEED_DATA = [
-  // ... your entire SEED_DATA array stays exactly the same
+  // ... your full SEED_DATA array (same as before) ...
+  { section: 'hero', key: 'subtitle', value: 'Graphic Designer • Photographer • Virtual Assistant' },
+  { section: 'hero', key: 'heading_line1', value: 'Crafting Visual' },
+  { section: 'hero', key: 'heading_line2', value: 'Stories That' },
+  { section: 'hero', key: 'heading_line3', value: 'Resonate' },
+  { section: 'hero', key: 'description', value: "I'm Ian Lester Eclevia — where timeless design meets modern execution. From brand identity to digital painting, I bring ideas to life with precision and passion." },
+  { section: 'services', key: 'subtitle', value: 'What I Do' },
+  { section: 'services', key: 'heading', value: 'Services & Expertise' },
+  { section: 'services', key: 'service1_title', value: 'Brand Identity' },
+  { section: 'services', key: 'service1_desc', value: 'Complete visual identity systems — logos, color palettes, typography, and brand guidelines.' },
+  { section: 'services', key: 'service2_title', value: 'Photography' },
+  { section: 'services', key: 'service2_desc', value: 'Professional photo sessions from portraits to product photography, with expert post-processing.' },
+  { section: 'services', key: 'service3_title', value: 'Digital Painting' },
+  { section: 'services', key: 'service3_desc', value: 'Custom digital illustrations and concept art that bring imagination to canvas.' },
+  { section: 'services', key: 'service4_title', value: 'Admin Support' },
+  { section: 'services', key: 'service4_desc', value: 'Reliable virtual assistance — email management, scheduling, and operational support.' },
+  { section: 'services', key: 'service5_title', value: 'Graphic Design' },
+  { section: 'services', key: 'service5_desc', value: 'Stunning layouts for social media, print materials, and marketing collateral.' },
+  { section: 'services', key: 'service6_title', value: 'Videography' },
+  { section: 'services', key: 'service6_desc', value: 'Creative video production and editing that tells your story with cinematic quality.' },
+  { section: 'works', key: 'subtitle', value: 'Portfolio' },
+  { section: 'works', key: 'heading', value: 'Selected Works' },
+  { section: 'works', key: 'description', value: 'Quality over quantity — each project represents a deep commitment to craft, strategy, and visual storytelling.' },
+  { section: 'about', key: 'subtitle', value: 'Who I Am' },
+  { section: 'about', key: 'heading', value: 'About & Skills' },
+  { section: 'about', key: 'subheading', value: 'Creative mind. Reliable hands.' },
+  { section: 'about', key: 'description_line1', value: "I'm Ian Lester Eclevia — a graphic designer, photographer, and virtual assistant." },
+  { section: 'about', key: 'description_line2', value: "With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories." },
+  { section: 'about', key: 'description_line3', value: "Beyond design, I bring the same dedication to virtual assistance — organized and proactive." },
+  { section: 'about', key: 'skills_heading', value: 'Skills & Proficiency' },
+  { section: 'contact', key: 'subtitle', value: "Let's Connect" },
+  { section: 'contact', key: 'heading', value: 'Get in Touch' },
+  { section: 'contact', key: 'description', value: "Have a project in mind or need a creative partner? I'd love to hear from you." },
+  { section: 'footer', key: 'hook_heading', value: "Want to elevate your visual identity? Let's collaborate." },
+  { section: 'footer', key: 'hook_desc', value: "From brand systems to digital art — I bring ideas to life with precision and passion." },
+  { section: 'footer', key: 'email', value: 'yhanlhester@gmail.com' },
+  { section: 'footer', key: 'phone', value: '+639524437988' },
+  { section: 'footer', key: 'instagram', value: 'https://www.instagram.com/ilucifer0911/' },
+  { section: 'footer', key: 'github', value: 'https://github.com/BogartPagalpok' },
+  { section: 'footer', key: 'facebook', value: 'https://www.facebook.com/LordOfTheFlies911' },
+  { section: 'footer', key: 'copyright', value: '© 2026 Ian Lester Eclevia. All rights reserved.' },
+  { section: 'navbar', key: 'logo_text', value: 'IAN.LESTER' },
+  { section: 'navbar', key: 'cta_text', value: 'Hire Me' },
 ];
 
 export default function SiteContentManager() {
@@ -102,8 +144,8 @@ export default function SiteContentManager() {
           <button
             onClick={handleMasterSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-accent-contrast text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50"
-            style={{ boxShadow: '0 4px 15px rgba(157,0,255,0.3)' }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
+            style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)', boxShadow: '0 4px 15px rgba(157,0,255,0.3)' }}
           >
             {isSaving ? <RefreshCw className="animate-spin" size={14} /> : <CheckCircle size={14} />}
             {isSaving ? 'Syncing...' : 'Deploy Changes'}
