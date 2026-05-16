@@ -8,6 +8,7 @@ import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
 import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
+import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 
 function AtmosphereGradient() {
   return (
@@ -57,9 +58,11 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('portfolio-theme') || 'void';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    document.body.setAttribute('data-theme', savedTheme);
+    // Load the saved theme (sets all CSS variables + background pattern)
+    loadSavedTheme();
+
+    // Subscribe to real-time theme changes from Supabase
+    const subscription = subscribeToThemeChanges();
 
     const initAuth = async () => {
       try {
@@ -81,6 +84,7 @@ function App() {
 
     return () => {
       authSubscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 
