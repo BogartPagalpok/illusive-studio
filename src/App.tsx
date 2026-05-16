@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import HomePage from './pages/HomePage';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import Terms from './pages/Terms';
@@ -7,14 +8,7 @@ import Privacy from './pages/Privacy';
 import { supabase } from './lib/supabase';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import { motion } from 'framer-motion';
-import useHoveringPenFavicon from './hooks/useHoveringPenFavicon'; // Changed to default import (adjust if named export)
-import DiagonalScrollFade from './components/DiagonalScrollFade';
-
-import Hero from './components/Hero';
-import About from './components/About';
-import Skills from './components/Skills';
-import Projects from './components/Projects';
-import Contact from './components/Contact';
+import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 
 function AtmosphereGradient() {
   return (
@@ -134,29 +128,12 @@ function App() {
   return (
     <main className="min-h-screen relative overflow-x-hidden bg-transparent">
       <AtmosphereGradient />
-
       <Routes>
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route
           path="/"
-          element={
-            <>
-              <Hero />
-              <DiagonalScrollFade fadeEdge={25} angle={135}>
-                <About />
-              </DiagonalScrollFade>
-              <DiagonalScrollFade fadeEdge={20} angle={120}>
-                <Skills />
-              </DiagonalScrollFade>
-              <DiagonalScrollFade fadeEdge={30} angle={150}>
-                <Projects />
-              </DiagonalScrollFade>
-              <DiagonalScrollFade fadeEdge={20} angle={135}>
-                <Contact />
-              </DiagonalScrollFade>
-            </>
-          }
+          element={<HomePage onAdminAuth={() => setIsAdmin(true)} />}
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
