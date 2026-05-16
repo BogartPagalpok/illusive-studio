@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { RefreshCw, Database, CheckCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -10,7 +12,6 @@ interface SiteContent {
 }
 
 const SEED_DATA = [
-  // ... your full SEED_DATA array (same as before) ...
   { section: 'hero', key: 'subtitle', value: 'Graphic Designer • Photographer • Virtual Assistant' },
   { section: 'hero', key: 'heading_line1', value: 'Crafting Visual' },
   { section: 'hero', key: 'heading_line2', value: 'Stories That' },
