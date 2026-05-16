@@ -34,7 +34,6 @@ export default function HeroCanvas() {
     return true;
   }, []);
 
-  // Set canvas size once (not in drawFrame)
   useEffect(() => {
     if (!ready) return;
     const canvas = canvasRef.current;
@@ -52,7 +51,6 @@ export default function HeroCanvas() {
     return () => window.removeEventListener('resize', resize);
   }, [ready, drawFrame]);
 
-  // Preload all frames + warm GPU cache
   useEffect(() => {
     let cancelled = false;
     const imgs: HTMLImageElement[] = [];
@@ -65,11 +63,7 @@ export default function HeroCanvas() {
           img.crossOrigin = 'anonymous';
           await new Promise<void>((resolve) => {
             const frameIndex = String(i).padStart(3, '0');
-            img.onload = () => {
-              img.decode()
-                .then(() => requestAnimationFrame(() => resolve()))
-                .catch(() => requestAnimationFrame(() => resolve()));
-            };
+            img.onload = () => resolve();
             img.onerror = () => resolve();
             img.src = `${baseUrl}frame_${frameIndex}.webp`;
           });
@@ -79,22 +73,7 @@ export default function HeroCanvas() {
           setLoadProgress((i + 1) / totalFrames);
         }
       }
-
       if (!cancelled) {
-        // Warm GPU texture cache
-        const offscreen = document.createElement('canvas');
-        offscreen.width = 100;
-        offscreen.height = 100;
-        const ctx = offscreen.getContext('2d');
-        if (ctx) {
-          for (let i = 0; i < imgs.length; i++) {
-            if (imgs[i]) {
-              ctx.clearRect(0, 0, 100, 100);
-              ctx.drawImage(imgs[i], 0, 0, 100, 100);
-            }
-          }
-        }
-
         imagesRef.current = imgs;
         setReady(true);
       }
@@ -102,14 +81,12 @@ export default function HeroCanvas() {
 
     loadAll();
     return () => { cancelled = true; };
-  }, [baseUrl]);
+  }, []);
 
-  // Draw first frame when ready
   useEffect(() => {
     if (ready) drawFrame(0);
   }, [ready, drawFrame]);
 
-  // GSAP only after all frames ready
   useEffect(() => {
     if (!ready) return;
 
@@ -144,12 +121,10 @@ export default function HeroCanvas() {
         className="w-full h-full object-cover relative z-0"
         style={{ opacity: ready ? 1 : 0 }}
       />
-
       <div
         className="absolute inset-0 pointer-events-none mix-blend-color opacity-40 transition-colors duration-500 z-1"
         style={{ backgroundColor: 'var(--accent)' }}
       />
-
       {!ready && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black">
           <h1 className="text-4xl md:text-6xl font-light tracking-[0.2em] text-white">
