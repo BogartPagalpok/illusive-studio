@@ -189,8 +189,8 @@ export default function ProjectManager() {
             clearForm();
             setEditingProject(EMPTY_PROJECT);
           }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-accent-contrast text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition"
-          style={{ boxShadow: '0 4px 15px rgba(157,0,255,0.3)' }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition"
+          style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)', boxShadow: '0 4px 15px rgba(157,0,255,0.3)' }}
         >
           <Plus size={16} /> New Entry
         </button>
@@ -206,7 +206,6 @@ export default function ProjectManager() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Left Column: Basic Info & Main Image */}
             <div className="space-y-4">
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Project Title</label>
@@ -250,7 +249,6 @@ export default function ProjectManager() {
               </div>
             </div>
 
-            {/* Right Column: Text Areas */}
             <div className="space-y-4">
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Overview</label>
@@ -282,11 +280,9 @@ export default function ProjectManager() {
             </div>
           </div>
 
-          {/* Specific Layout Assets Section */}
           <div className="border-t border-white/5 pt-6 mt-2 space-y-4">
             <h4 className="text-[10px] font-heading font-black uppercase tracking-[0.2em] text-accent">Layout Assets (Optional)</h4>
             <div className="grid md:grid-cols-3 gap-4">
-              {/* Card Thumbnail */}
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Card Thumbnail</label>
                 <div className="flex gap-2">
@@ -299,8 +295,6 @@ export default function ProjectManager() {
                   </label>
                 </div>
               </div>
-
-              {/* Hero Desktop */}
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Hero (Desktop)</label>
                 <div className="flex gap-2">
@@ -313,8 +307,6 @@ export default function ProjectManager() {
                   </label>
                 </div>
               </div>
-
-              {/* Hero Mobile */}
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Hero (Mobile)</label>
                 <div className="flex gap-2">
@@ -333,8 +325,8 @@ export default function ProjectManager() {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg bg-accent text-accent-contrast text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
-            style={{ boxShadow: '0 4px 15px rgba(157,0,255,0.3)' }}
+            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
+            style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)', boxShadow: '0 4px 15px rgba(157,0,255,0.3)' }}
           >
             {isSaving ? (
               <>
@@ -348,7 +340,6 @@ export default function ProjectManager() {
         </div>
       )}
 
-      {/* Project List */}
       <div className="grid gap-3 relative z-10">
         {projects.map(project => (
           <div
