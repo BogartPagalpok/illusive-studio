@@ -10,7 +10,6 @@ export default function HeroCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastDrawnFrameRef = useRef<number>(0);
-
   const [ready, setReady] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
 
@@ -41,6 +40,7 @@ export default function HeroCanvas() {
     return true;
   };
 
+  // Preload all frames first
   useEffect(() => {
     let cancelled = false;
     const imgs: HTMLImageElement[] = [];
@@ -52,7 +52,7 @@ export default function HeroCanvas() {
           const img = new Image();
           img.crossOrigin = 'anonymous';
           await new Promise<void>((resolve) => {
-            const frameIndex = String(i).padStart(3, '0'); // 000, 001, 002...
+            const frameIndex = String(i).padStart(3, '0');
             img.onload = () => img.decode().then(() => resolve()).catch(() => resolve());
             img.onerror = () => resolve();
             img.src = `${baseUrl}frame_${frameIndex}.webp`;
@@ -73,10 +73,12 @@ export default function HeroCanvas() {
     return () => { cancelled = true; };
   }, [baseUrl]);
 
+  // Draw first frame when ready
   useEffect(() => {
     if (ready) drawFrame(0);
   }, [ready]);
 
+  // GSAP only after all frames ready
   useEffect(() => {
     if (!ready) return;
 
