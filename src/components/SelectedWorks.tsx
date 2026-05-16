@@ -213,7 +213,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Project Modal – 2/3 images, 1/3 details */}
+      {/* Project Modal – 2/3 image, 1/3 details, no captions */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -234,7 +234,7 @@ export default function SelectedWorks() {
               onClick={(e) => e.stopPropagation()}
               className="max-w-6xl w-full grid lg:grid-cols-3 gap-6 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
             >
-              {/* Image column – 2/3 width */}
+              {/* ── LEFT: Image – 2/3 width ── */}
               <div className="lg:col-span-2 w-full">
                 <Swiper
                   modules={[EffectCoverflow, Navigation]}
@@ -259,7 +259,7 @@ export default function SelectedWorks() {
                 </Swiper>
               </div>
 
-              {/* Details column – 1/3 width */}
+              {/* ── RIGHT: Details – 1/3 width, smaller text ── */}
               <div className="space-y-6">
                 <div>
                   <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-2 block">
@@ -278,7 +278,7 @@ export default function SelectedWorks() {
                     <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Tools</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedProject.tools.map((t) => (
-                        <span key={t} className="px-3 py-1.5 bg-white/5 border border-[var(--glass-border)] rounded-lg text-[9px] uppercase text-[var(--text-secondary)] font-bold tracking-widest hover:border-accent hover:text-accent transition-colors">
+                        <span key={t} className="px-4 py-2 bg-white/5 border border-[var(--glass-border)] rounded-lg text-[9px] uppercase text-[var(--text-secondary)] font-bold tracking-widest hover:border-accent hover:text-accent transition-colors">
                           {t}
                         </span>
                       ))}
