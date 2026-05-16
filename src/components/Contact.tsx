@@ -102,7 +102,8 @@ export default function Contact() {
       <FloatingCube type="Id" size={120} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
 
       <div ref={ref} className="section-container relative">
-        <div className="grid lg:grid-cols-2 gap-16 items-start max-w-5xl mx-auto">
+        {/* Grid: two equal columns, no gap, same width */}
+        <div className="grid lg:grid-cols-2 gap-0 items-start max-w-5xl mx-auto">
           
           {/* Left – Messaging */}
           <motion.div
