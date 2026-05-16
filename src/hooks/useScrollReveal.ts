@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { gsap } from 'gsap';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 interface UseScrollRevealOptions {
@@ -12,7 +11,6 @@ export function useScrollReveal(options: UseScrollRevealOptions = {}) {
   const { threshold = 0.15, rootMargin = '0px 0px -50px 0px', triggerOnce = true } = options;
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  // Keep a ref for the latest options without re-running the effect
   const optionsRef = useRef({ threshold, rootMargin, triggerOnce });
   optionsRef.current = { threshold, rootMargin, triggerOnce };
 
@@ -20,7 +18,7 @@ export function useScrollReveal(options: UseScrollRevealOptions = {}) {
     const element = ref.current;
     if (!element) return;
 
-    let isActive = true; // avoid state updates on unmounted component
+    let isActive = true;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -37,12 +35,10 @@ export function useScrollReveal(options: UseScrollRevealOptions = {}) {
 
     observer.observe(element);
 
-    // Refresh handler – re‑evaluate without recreating the observer
     const handleRefresh = () => {
       if (!element || !isActive) return;
       const rect = element.getBoundingClientRect();
       const inView = rect.top < window.innerHeight && rect.bottom > 0;
-      // Only update state if it actually changes to prevent useless re‑renders
       setIsVisible(prev => (inView !== prev ? inView : prev));
     };
 
@@ -53,7 +49,7 @@ export function useScrollReveal(options: UseScrollRevealOptions = {}) {
       observer.disconnect();
       ScrollTrigger.removeEventListener('refresh', handleRefresh);
     };
-  }, []);  // ← empty dependency array keeps the observer stable
+  }, []);
 
   return { ref, isVisible };
 }
