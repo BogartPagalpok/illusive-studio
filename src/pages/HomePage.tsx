@@ -16,10 +16,7 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
     loadSavedTheme();
   }, []);
 
-  const handleAdminTrigger = () => {
-    setAdminModalOpen(true);
-  };
-
+  const handleAdminTrigger = () => setAdminModalOpen(true);
   const handleAdminSuccess = () => {
     setAdminModalOpen(false);
     onAdminAuth();
@@ -28,9 +25,42 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
   return (
     <div className="relative min-h-screen w-full selection:bg-[var(--accent)] selection:text-[var(--accent-contrast)]">
       
+      {/* FIXED BACKGROUND LAYER — always behind everything */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          zIndex: 0,
+          backgroundColor: 'var(--bg-primary)',
+          backgroundImage: 'var(--bg-gradient), var(--bg-pattern, none)',
+          backgroundSize: '100% 100%, var(--bg-pattern-size, auto)',
+          backgroundBlendMode: 'overlay, normal',
+          backgroundAttachment: 'fixed'
+        }}
+      />
+
+      {/* Accent glow blobs */}
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+        <div 
+          className="absolute top-[-15%] left-[-15%] w-[110%] h-[110%] rounded-full"
+          style={{
+            opacity: 0.12,
+            background: 'radial-gradient(circle at 30% 30%, var(--accent) 0%, transparent 70%)',
+            filter: 'blur(100px)',
+          }}
+        />
+        <div 
+          className="absolute bottom-[-15%] right-[-15%] w-[100%] h-[100%] rounded-full"
+          style={{
+            opacity: 0.06,
+            background: 'radial-gradient(circle at 70% 70%, var(--accent) 0%, transparent 70%)',
+            filter: 'blur(90px)',
+          }}
+        />
+      </div>
+
       <Navbar />
       
-      <main className="relative z-10">
+      <main className="relative" style={{ zIndex: 10 }}>
         <Hero />
         
         <section className="relative">
