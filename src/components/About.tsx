@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrollReveal } from '../hooks/useScrollReveal';
@@ -18,6 +18,76 @@ const skills = [
   { name: 'Videography', level: 80 },
   { name: 'Typography', level: 87 },
 ];
+
+// Circular progress component
+const CircularProgress = ({ level, name, isVisible }: { level: number; name: string; isVisible: boolean }) => {
+  const [count, setCount] = useState(0);
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
+  const [offset, setOffset] = useState(circumference);
+
+  useEffect(() => {
+    if (isVisible) {
+      // Animate the stroke dashoffset
+      const targetOffset = circumference - (level / 100) * circumference;
+      setOffset(targetOffset);
+      // Animate the counter
+      let start = 0;
+      const duration = 1500;
+      const step = (timestamp: number) => {
+        if (!start) start = timestamp;
+        const progress = Math.min(1, (timestamp - start) / duration);
+        setCount(Math.floor(progress * level));
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    } else {
+      setOffset(circumference);
+      setCount(0);
+    }
+  }, [isVisible, level, circumference]);
+
+  return (
+    <div className="flex flex-col items-center group">
+      <div className="relative w-32 h-32 md:w-36 md:h-36">
+        {/* Background circle */}
+        <svg className="w-full h-full transform -rotate-90">
+          <circle
+            cx="50%"
+            cy="50%"
+            r={radius}
+            stroke="var(--glass-border)"
+            strokeWidth="6"
+            fill="none"
+            className="opacity-20"
+          />
+          {/* Foreground circle (progress) */}
+          <circle
+            cx="50%"
+            cy="50%"
+            r={radius}
+            stroke="var(--accent)"
+            strokeWidth="6"
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            className="transition-all duration-1000 ease-out"
+            style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.22, 1, 0.36, 1)' }}
+          />
+        </svg>
+        {/* Percentage text */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-2xl md:text-3xl font-black text-[var(--text-primary)]">{count}%</span>
+          <span className="text-[8px] uppercase tracking-wider text-[var(--text-secondary)]/60 mt-1">Proficiency</span>
+        </div>
+      </div>
+      <h4 className="mt-4 text-sm font-bold uppercase tracking-wider text-[var(--text-primary)] group-hover:text-accent transition-colors">
+        {name}
+      </h4>
+    </div>
+  );
+};
 
 interface AboutContent {
   subtitle: string;
@@ -44,6 +114,8 @@ export default function About() {
   const [content, setContent] = useState<AboutContent>(defaultContent);
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
+  const skillsRef = useRef<HTMLDivElement>(null);
+  const skillsInView = useInView(skillsRef, { once: true, amount: 0.2 });
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -101,7 +173,7 @@ export default function About() {
 
       <div ref={ref} className="section-container relative">
         
-        {/* UNIVERSAL TITLE STANDARD – now using global classes */}
+        {/* Title section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
@@ -121,12 +193,12 @@ export default function About() {
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-20 items-start">
+          {/* Left text card */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            {/* THEME‑ADAPTIVE GLASS CARD */}
             <div className="card-glass">
               <h3 className="font-bold tracking-tighter text-2xl mb-8 leading-tight text-[var(--text-primary)]">
                 {content.subheading.includes('.') ? (
@@ -147,39 +219,30 @@ export default function About() {
             </div>
           </motion.div>
 
+          {/* Right side – Modern skill gauges */}
           <motion.div
+            ref={skillsRef}
             initial={{ opacity: 0, x: 30 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="space-y-12"
+            className="space-y-8"
           >
             <h3 className="text-2xl font-black uppercase tracking-tighter text-[var(--text-primary)]">
-              Skills <span className="text-accent">&</span> Proficiency
+              {content.skills_heading.split(' ').map((word, i) => (
+                <span key={i}>
+                  {word.toLowerCase() === '&' ? <span className="text-accent">&</span> : word}
+                  {i < content.skills_heading.split(' ').length - 1 ? ' ' : ''}
+                </span>
+              ))}
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-14">
               {skills.map((skill, i) => (
-                <div key={skill.name} className="group">
-                  <div className="flex justify-between items-end mb-3">
-                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[var(--text-primary)]/50 group-hover:text-accent transition-colors duration-300">
-                      {skill.name}
-                    </span>
-                    <span className="text-xs font-black text-[var(--text-primary)]/90">
-                      {skill.level}%
-                    </span>
-                  </div>
-                  
-                  <div className="h-[4px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)] relative">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={isVisible ? { width: `${skill.level}%` } : {}}
-                      transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                      style={{ backgroundColor: 'var(--accent)' }}
-                      className="h-full relative rounded-full"
-                    >
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_10px_#fff] opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </motion.div>
-                  </div>
+                <div
+                  key={skill.name}
+                  className="card-glass p-4 md:p-6 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-accent/30 group"
+                >
+                  <CircularProgress level={skill.level} name={skill.name} isVisible={skillsInView} />
                 </div>
               ))}
             </div>
