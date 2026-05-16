@@ -103,7 +103,6 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative section-padding overflow-visible z-40 bg-transparent">
       <div className="section-container relative">
-        {/* Section Title */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -116,7 +115,6 @@ export default function SelectedWorks() {
           <div className="section-divider" />
         </motion.div>
 
-        {/* Hero Card */}
         <div
           className="relative w-full rounded-[40px] overflow-hidden card-glass flex flex-col"
           style={{
@@ -124,7 +122,6 @@ export default function SelectedWorks() {
             boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
           }}
         >
-          {/* Background image */}
           <AnimatePresence mode="wait">
             {currentProject && (
               <motion.div
@@ -147,7 +144,6 @@ export default function SelectedWorks() {
           </AnimatePresence>
 
           <div className="relative z-10 flex flex-col h-full p-6 md:p-10">
-            {/* Categories */}
             <div className="flex-none">
               <div className="flex gap-6 md:gap-10 items-center overflow-x-auto no-scrollbar mb-6 border-b border-[var(--glass-border)] pb-3">
                 {CATEGORIES.map((cat) => (
@@ -166,7 +162,6 @@ export default function SelectedWorks() {
               </div>
             </div>
 
-            {/* Scrollable info */}
             <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mb-6 flex items-end">
               <AnimatePresence mode="wait">
                 {currentProject && (
@@ -191,7 +186,6 @@ export default function SelectedWorks() {
               </AnimatePresence>
             </div>
 
-            {/* Action area + Swiper (now with Coverflow) */}
             <div className="flex-none pt-6 border-t border-[var(--glass-border)] flex flex-col gap-6">
               <div className="flex items-center">
                 <button onClick={() => setSelectedProject(currentProject)} className="btn-primary group">
@@ -200,7 +194,6 @@ export default function SelectedWorks() {
                 </button>
               </div>
 
-              {/* Updated Swiper with Coverflow 3D effect */}
               <Swiper
                 onSwiper={(s) => { swiperRef.current = s; }}
                 modules={[Navigation, EffectCoverflow]}
@@ -242,7 +235,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Project Modal – now with Coverflow gallery */}
+      {/* Project Modal */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -263,7 +256,7 @@ export default function SelectedWorks() {
               onClick={(e) => e.stopPropagation()}
               className="max-w-6xl w-full grid lg:grid-cols-2 gap-8 md:gap-12 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
             >
-              {/* ── LEFT COLUMN → Coverflow image gallery ── */}
+              {/* Coverflow Image Gallery */}
               <div className="w-full">
                 <Swiper
                   modules={[EffectCoverflow, Navigation]}
@@ -294,7 +287,7 @@ export default function SelectedWorks() {
                 </Swiper>
               </div>
 
-              {/* ── RIGHT COLUMN → project details (unchanged) ── */}
+              {/* Project Details */}
               <div className="space-y-6 lg:sticky lg:top-0 h-fit">
                 <div>
                   <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-3 block">
@@ -315,7 +308,7 @@ export default function SelectedWorks() {
                       {selectedProject.tools.map((t) => (
                         <span
                           key={t}
-                          className="px-4 py-2 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-lg text-[9px] uppercase text-[var(--text-secondary)] font-bold tracking-widest hover:border-accent hover:text-accent transition-colors"
+                          className="px-4 py-2 bg-white/5 border border-[var(--glass-border)] rounded-lg text-[9px] uppercase text-[var(--text-secondary)] font-bold tracking-widest hover:border-accent hover:text-accent transition-colors"
                         >
                           {t}
                         </span>
