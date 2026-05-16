@@ -44,8 +44,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
   return (
     <div className="min-h-screen page-container" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* ✅ FIXED HEADER – border is now softly visible, content fully opaque */}
-      <header className="border-b" style={{ borderColor: 'rgba(142, 142, 147, 0.15)' }}>
+      {/* Compact header */}
+      <header className="border-b" style={{ borderColor: 'var(--text-secondary)', opacity: 0.2 }}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
           <button
             onClick={onLogout}
@@ -78,7 +78,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       )}
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Tabs */}
+        {/* Tabs – reduced padding */}
         <nav className="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
           {tabs.map((t) => (
             <button
@@ -100,10 +100,12 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           ))}
         </nav>
 
+        {/* Tab content – all managers now fit in less height */}
         {tab === 'content' && <SiteContentManager />}
         {tab === 'projects' && <ProjectManager />}
         {tab === 'messages' && <MessageManager />}
 
+        {/* Compact Theme Engine */}
         {tab === 'theme' && (
           <div>
             <div className="flex items-center gap-4 mb-8">
@@ -116,6 +118,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
               </div>
             </div>
 
+            {/* Theme cards – smaller, more per row */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {themePresets.map((theme) => (
                 <button
@@ -126,7 +129,6 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                     borderColor: activeThemeId === theme.id ? 'var(--accent)' : 'rgba(128,128,128,0.1)',
                   }}
                 >
-                  {/* ... rest of theme cards stays exactly the same ... */}
                   <div className="flex justify-between items-start mb-4">
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center border"
@@ -140,12 +142,15 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                       </div>
                     )}
                   </div>
+
                   <h3 className="text-base font-heading font-black mb-1 uppercase italic" style={{ color: theme.id === 'GUNDAM' ? '#111' : 'var(--text-primary)' }}>
                     {theme.name}
                   </h3>
                   <p className="text-[8px] font-heading font-bold tracking-[0.3em] uppercase opacity-60" style={{ color: 'var(--text-primary)' }}>
                     {theme.tagline}
                   </p>
+
+                  {/* Theme preview – smaller */}
                   <div
                     className="w-full h-20 rounded-xl mt-4 relative overflow-hidden border border-black/5 transition-transform duration-300 group-hover:scale-105"
                     style={{ backgroundColor: theme.bgPrimary, backgroundImage: theme.bgGradient }}
