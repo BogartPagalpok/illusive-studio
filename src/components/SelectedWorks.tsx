@@ -28,7 +28,7 @@ export default function SelectedWorks() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [modalIndex, setModalIndex] = useState(0);
-  
+
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -257,7 +257,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Modal — Focus Slice Carousel */}
+      {/* Modal — Clean Focus Slice */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[9999] flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(20px)' }}>
@@ -265,74 +265,35 @@ export default function SelectedWorks() {
               <X size={18} />
             </button>
 
-            {/* Focus Slice Carousel */}
-            <div className="flex-1 flex items-center justify-center min-h-0 px-4 pt-16 pb-4">
-              <div className="flex gap-3 w-full max-w-5xl h-[60vh] items-stretch">
-                {galleryImages.map((img, idx) => {
-                  const isActive = idx === modalIndex;
-                  return (
-                    <motion.div
-                      key={img.id}
-                      onClick={() => setModalIndex(idx)}
-                      className="relative cursor-pointer overflow-hidden flex-shrink-0"
-                      style={{ borderRadius: isActive ? 24 : 9999 }}
-                      animate={{
-                        width: isActive ? '55%' : '8%',
-                      }}
-                      transition={{ duration: 0.6, ease: [0.42, 0, 0.58, 1] }}
-                    >
-                      <img
-                        src={img.hero_bg_desktop || img.image_url}
-                        className="w-full h-full object-cover"
-                        alt=""
-                      />
-                      {isActive && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.3, delay: 0.3 }}
-                          className="absolute bottom-0 left-0 right-0 p-6"
-                          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }}
-                        >
-                          <h3 className="text-white text-lg font-black uppercase tracking-tighter">{selectedProject.title}</h3>
-                          <p className="text-white/60 text-xs mt-1">{selectedProject.category}</p>
-                        </motion.div>
-                      )}
-                    </motion.div>
-                  );
-                })}
+            <div className="flex-1 flex items-center justify-center min-h-0 px-6 pt-16 pb-6">
+              <div className="flex gap-2.5 w-full max-w-4xl items-stretch" style={{ height: 'clamp(280px, 50vh, 480px)' }}>
+                {galleryImages.map((img, idx) => (
+                  <div
+                    key={img.id}
+                    onClick={() => setModalIndex(idx)}
+                    className="relative cursor-pointer overflow-hidden flex-shrink-0 transition-all duration-500 ease-in-out"
+                    style={{
+                      width: idx === modalIndex ? '58%' : '7%',
+                      borderRadius: idx === modalIndex ? 16 : 9999,
+                    }}
+                  >
+                    <img src={img.hero_bg_desktop || img.image_url} className="w-full h-full object-cover" alt="" />
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Dot Indicators */}
-            <div className="flex justify-center gap-1.5 py-3">
-              {galleryImages.map((_, idx) => (
-                <button key={idx} onClick={() => setModalIndex(idx)} className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === modalIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`} />
-              ))}
-            </div>
-
-            {/* Compact 4-Column Details */}
-            <div className="px-4 py-3 border-t" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px] max-w-5xl mx-auto">
-                <div>
-                  <span className="text-accent font-bold tracking-[0.2em] uppercase block mb-0.5">{selectedProject.category}</span>
-                  <h2 className="text-[var(--text-primary)] text-sm font-black uppercase tracking-tighter leading-tight">{selectedProject.title}</h2>
-                </div>
-                <div>
-                  <h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">About</h4>
-                  <p className="text-[var(--text-secondary)] leading-relaxed text-[10px]">{selectedProject.description}</p>
-                </div>
-                <div>
-                  <h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">Tools</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedProject.tools?.map((t) => (
-                      <span key={t} className="px-1.5 py-0.5 border rounded text-[8px] uppercase font-bold tracking-widest" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  {selectedProject.process && <><h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">Process</h4><p className="text-[var(--text-secondary)] leading-relaxed text-[10px] mb-1">{selectedProject.process}</p></>}
-                  {selectedProject.results && <><h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">Results</h4><p className="text-[var(--text-secondary)] leading-relaxed text-[10px]">{selectedProject.results}</p></>}
+            <div className="px-6 pb-6 flex items-center justify-between gap-4 max-w-4xl mx-auto w-full">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-accent text-[9px] font-bold tracking-[0.2em] uppercase whitespace-nowrap">{selectedProject.category}</span>
+                <span className="text-[var(--text-primary)]/20 text-[9px]">|</span>
+                <h2 className="text-[var(--text-primary)] text-xs font-black uppercase tracking-tighter truncate">{selectedProject.title}</h2>
+              </div>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex gap-1">
+                  {galleryImages.map((_, idx) => (
+                    <button key={idx} onClick={() => setModalIndex(idx)} className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === modalIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`} />
+                  ))}
                 </div>
               </div>
             </div>
