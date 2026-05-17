@@ -1,14 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCoverflow } from 'swiper/modules';
-import type { Swiper as SwiperType } from 'swiper';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import GlowCard from './GlowCard';
-
-import 'swiper/css';
-import 'swiper/css/effect-coverflow';
 
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
 
@@ -33,7 +27,14 @@ export default function SelectedWorks() {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const swiperRef = useRef<SwiperType | null>(null);
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
+  const trackX = useRef(0);
+  const indexRef = useRef(0);
+  const drag = useRef({ active: false, startX: 0, startTrackX: 0, lastX: 0, lastTime: 0, velocity: 0 });
+  const animRef = useRef<number>(0);
 
   const fetchWorks = useCallback(async () => {
     try {
@@ -68,13 +69,151 @@ export default function SelectedWorks() {
     });
     setFilteredProjects(uniqueProjects);
     setActiveIndex(0);
-    swiperRef.current?.slideTo(0, 0);
+    indexRef.current = 0;
+    trackX.current = 0;
+    renderImmediate();
   }, [activeCategory, projects]);
 
   useEffect(() => {
     document.body.style.overflow = selectedProject ? 'hidden' : 'unset';
     return () => { document.body.style.overflow = 'unset'; };
   }, [selectedProject]);
+
+  const count = filteredProjects.length;
+  const slideWidth = typeof window !== 'undefined' && window.innerWidth < 768 ? window.innerWidth * 0.8 : 450;
+  const slideHeight = typeof window !== 'undefined' && window.innerWidth < 768 ? window.innerWidth * 1.0 : 280;
+  const gap = 16;
+  const step = slideWidth + gap;
+  const perspective = 1000;
+  const maxRotateY = 45;
+  const depth = 150;
+  const activeScale = 1;
+  const inactiveScale = 0.85;
+  const inactiveOpacity = 0.5;
+
+  const centerXFor = useCallback((i: number) => {
+    const el = containerRef.current;
+    if (!el) return -i * step;
+    return el.offsetWidth / 2 - i * step - slideWidth / 2;
+  }, [step, slideWidth]);
+
+  const renderImmediate = useCallback(() => {
+    const el = containerRef.current;
+    const track = trackRef.current;
+    if (!el || !track) return;
+    track.style.transform = `translateX(${trackX.current}px)`;
+    const center = el.offsetWidth / 2;
+    slidesRef.current.forEach((slide, i) => {
+      if (!slide) return;
+      const slideCenter = i * step + slideWidth / 2 + trackX.current;
+      const norm = (slideCenter - center) / step;
+      const abs = Math.abs(norm);
+      const ry = norm * maxRotateY;
+      const tz = -abs * depth;
+      const sc = Math.max(inactiveScale, activeScale - abs * (activeScale - inactiveScale));
+      const op = Math.max(inactiveOpacity, 1 - abs * (1 - inactiveOpacity));
+      slide.style.transform = `perspective(${perspective}px) rotateY(${ry}deg) translateZ(${tz}px) scale(${sc})`;
+      slide.style.opacity = `${op}`;
+      slide.style.zIndex = `${100 - Math.round(abs * 10)}`;
+    });
+  }, [step, slideWidth, maxRotateY, depth, activeScale, inactiveScale, inactiveOpacity, perspective]);
+
+  const animateTo = useCallback((targetX: number) => {
+    const startX = trackX.current;
+    const startTime = performance.now();
+    const duration = 600;
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3); // power3.out
+    
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      trackX.current = startX + (targetX - startX) * ease(progress);
+      renderImmediate();
+      if (progress < 1) {
+        animRef.current = requestAnimationFrame(tick);
+      }
+    };
+    cancelAnimationFrame(animRef.current);
+    animRef.current = requestAnimationFrame(tick);
+  }, [renderImmediate]);
+
+  const snapTo = useCallback((i: number) => {
+    const target = Math.max(0, Math.min(count - 1, i));
+    indexRef.current = target;
+    setActiveIndex(target);
+    animateTo(centerXFor(target));
+  }, [centerXFor, count, animateTo]);
+
+  // Initial render
+  useEffect(() => {
+    slidesRef.current = slidesRef.current.slice(0, count);
+    snapTo(0);
+  }, [count]);
+
+  // Drag handlers
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onStart = (clientX: number) => {
+      cancelAnimationFrame(animRef.current);
+      drag.current.active = true;
+      drag.current.startX = clientX;
+      drag.current.startTrackX = trackX.current;
+      drag.current.lastX = clientX;
+      drag.current.lastTime = Date.now();
+      drag.current.velocity = 0;
+    };
+
+    const onMove = (clientX: number) => {
+      if (!drag.current.active) return;
+      const now = Date.now();
+      const dt = now - drag.current.lastTime;
+      if (dt > 0) drag.current.velocity = ((clientX - drag.current.lastX) / dt) * 1000;
+      drag.current.lastX = clientX;
+      drag.current.lastTime = now;
+      trackX.current = drag.current.startTrackX + (clientX - drag.current.startX);
+      renderImmediate();
+    };
+
+    const onEnd = () => {
+      if (!drag.current.active) return;
+      drag.current.active = false;
+      const projected = trackX.current + drag.current.velocity * 0.12;
+      const center = container.offsetWidth / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      for (let i = 0; i < count; i++) {
+        const sc = i * step + slideWidth / 2 + projected;
+        const d = Math.abs(sc - center);
+        if (d < bestDist) { bestDist = d; best = i; }
+      }
+      snapTo(best);
+    };
+
+    const handleMouseDown = (e: MouseEvent) => { e.preventDefault(); onStart(e.clientX); };
+    const handleMouseMove = (e: MouseEvent) => onMove(e.clientX);
+    const handleMouseUp = () => onEnd();
+    const handleTouchStart = (e: TouchEvent) => onStart(e.touches[0].clientX);
+    const handleTouchMove = (e: TouchEvent) => { e.preventDefault(); onMove(e.touches[0].clientX); };
+    const handleTouchEnd = () => onEnd();
+
+    container.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      container.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      container.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [count, step, slideWidth, renderImmediate, snapTo]);
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-transparent">
@@ -90,7 +229,6 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative py-16 lg:py-20 overflow-visible z-40 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 lg:px-6 relative">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -103,7 +241,6 @@ export default function SelectedWorks() {
           <div className="section-divider" />
         </motion.div>
 
-        {/* Category Pills */}
         <div className="flex gap-3 md:gap-4 items-center overflow-x-auto no-scrollbar mb-6 justify-center">
           {CATEGORIES.map((cat) => (
             <button
@@ -120,31 +257,23 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* COVERFLOW CAROUSEL */}
-        <div className="max-w-4xl mx-auto">
-          <Swiper
-            onSwiper={(s) => { swiperRef.current = s; }}
-            modules={[EffectCoverflow]}
-            effect="coverflow"
-            grabCursor={true}
-            centeredSlides={true}
-            slidesPerView={3}
-            spaceBetween={0}
-            coverflowEffect={{
-              rotate: 0,
-              stretch: -20,
-              depth: 100,
-              modifier: 1,
-              slideShadows: false,
-            }}
-            onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-            className="w-full"
-          >
-            {filteredProjects.map((project, idx) => (
-              <SwiperSlide key={project.id} className="transition-all duration-500" style={{ opacity: idx === activeIndex ? 1 : 0.3 }}>
+        {/* 3D Perspective Carousel */}
+        <div
+          ref={containerRef}
+          className="w-full overflow-hidden flex items-center cursor-grab active:cursor-grabbing select-none relative"
+          style={{ height: slideHeight + 100, perspective: `${perspective}px` }}
+        >
+          <div ref={trackRef} className="flex items-center" style={{ gap: `${gap}px` }}>
+            {filteredProjects.map((project, i) => (
+              <div
+                key={project.id}
+                ref={el => { slidesRef.current[i] = el; }}
+                className="flex-shrink-0 will-change-transform rounded-[20px] overflow-hidden"
+                style={{ width: slideWidth, height: slideHeight }}
+              >
                 <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
-                  <div className="relative rounded-[20px] overflow-hidden border flex flex-col" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
-                    <div className="overflow-hidden" style={{ aspectRatio: '16/10' }}>
+                  <div className="relative rounded-[20px] overflow-hidden border flex flex-col h-full" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
+                    <div className="flex-1 overflow-hidden">
                       <img
                         src={project.hero_bg_desktop || project.image_url}
                         className="w-full h-full object-cover"
@@ -152,34 +281,32 @@ export default function SelectedWorks() {
                         draggable={false}
                       />
                     </div>
-                    <div className={`p-3 md:p-4 flex flex-col gap-2 transition-opacity duration-300 ${idx === activeIndex ? 'opacity-100' : 'opacity-0'}`}>
-                      <div>
-                        <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase block mb-0.5">{project.category}</span>
-                        <h3 className="text-[var(--text-primary)] text-sm md:text-base font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
-                        <p className="text-[var(--text-secondary)] text-[10px] md:text-xs leading-relaxed mt-1 line-clamp-2">{project.description}</p>
-                      </div>
-                      <button onClick={() => setSelectedProject(project)} className="btn-primary-sm w-full text-[9px] py-2">View Project</button>
+                    <div className="p-3 flex flex-col gap-1.5 flex-shrink-0">
+                      <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
+                      <h3 className="text-[var(--text-primary)] text-sm font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
+                      <p className="text-[var(--text-secondary)] text-[10px] leading-relaxed line-clamp-1">{project.description}</p>
+                      <button onClick={() => setSelectedProject(project)} className="btn-primary-sm w-full text-[8px] py-1.5 mt-1">View Project</button>
                     </div>
                   </div>
                 </GlowCard>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-
-          {/* Dot Indicators */}
-          <div className="flex justify-center gap-1.5 mt-5">
-            {filteredProjects.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => { setActiveIndex(idx); swiperRef.current?.slideTo(idx); }}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`}
-              />
+              </div>
             ))}
           </div>
         </div>
+
+        {/* Dot Indicators */}
+        <div className="flex justify-center gap-1.5 mt-5">
+          {filteredProjects.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => snapTo(idx)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Modal — Compact 4-Column + Carousel */}
+      {/* Modal */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -190,17 +317,13 @@ export default function SelectedWorks() {
             <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-[10000] p-2.5 rounded-full border transition-all" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
               <X size={18} />
             </button>
-
-            <div className="flex-1 flex items-center min-h-0 pt-12 pb-2">
-              <Swiper modules={[EffectCoverflow]} effect="coverflow" grabCursor={true} centeredSlides={true} slidesPerView="auto" spaceBetween={16} coverflowEffect={{ rotate: 35, stretch: 0, depth: 140, modifier: 1, slideShadows: false }} className="w-full">
+            <div className="flex-1 flex items-center justify-center min-h-0 pt-12 pb-2 px-4">
+              <div className="grid gap-4 max-w-4xl w-full">
                 {galleryImages.map((img) => (
-                  <SwiperSlide key={img.id} className="!w-[85%] md:!w-[55%]">
-                    <img src={img.hero_bg_desktop || img.image_url} className="w-full h-auto max-h-[60vh] rounded-[16px] border object-cover" style={{ borderColor: 'var(--glass-border)' }} alt="" />
-                  </SwiperSlide>
+                  <img key={img.id} src={img.hero_bg_desktop || img.image_url} className="w-full h-auto max-h-[50vh] rounded-[16px] border object-cover" style={{ borderColor: 'var(--glass-border)' }} alt="" />
                 ))}
-              </Swiper>
+              </div>
             </div>
-
             <div className="px-4 py-3 border-t" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px]">
                 <div>
