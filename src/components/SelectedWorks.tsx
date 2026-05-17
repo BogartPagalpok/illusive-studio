@@ -89,14 +89,14 @@ export default function SelectedWorks() {
 
   return (
     <section id="works" className="relative py-16 lg:py-20 overflow-visible z-40 bg-transparent">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 relative">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-10 flex flex-col items-center"
+          className="text-center mb-8 flex flex-col items-center"
         >
           <span className="section-subtitle">Portfolio</span>
           <h2 className="section-title">Selected Works</h2>
@@ -104,12 +104,12 @@ export default function SelectedWorks() {
         </motion.div>
 
         {/* Category Pills */}
-        <div className="flex gap-4 md:gap-6 items-center overflow-x-auto no-scrollbar mb-8 justify-center">
+        <div className="flex gap-3 md:gap-4 items-center overflow-x-auto no-scrollbar mb-6 justify-center">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all whitespace-nowrap px-4 py-2 rounded-full border ${
+              className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all whitespace-nowrap px-3 py-1.5 rounded-full border ${
                 activeCategory === cat
                   ? 'text-accent border-accent bg-accent/10'
                   : 'text-[var(--text-primary)]/40 border-transparent hover:text-[var(--text-primary)] hover:border-[var(--glass-border)]'
@@ -121,7 +121,7 @@ export default function SelectedWorks() {
         </div>
 
         {/* COVERFLOW CAROUSEL */}
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
             modules={[EffectCoverflow]}
@@ -129,38 +129,32 @@ export default function SelectedWorks() {
             grabCursor={true}
             centeredSlides={true}
             slidesPerView="auto"
-            spaceBetween={30}
-            coverflowEffect={{
-              rotate: 45,
-              stretch: 0,
-              depth: 200,
-              modifier: 1,
-              slideShadows: false,
-            }}
+            spaceBetween={16}
+            coverflowEffect={{ rotate: 40, stretch: 0, depth: 160, modifier: 1, slideShadows: false }}
             onSlideChange={(s) => setActiveIndex(s.activeIndex)}
             className="w-full"
           >
             {filteredProjects.map((project) => (
-              <SwiperSlide key={project.id} className="!w-[75%] md:!w-[55%]">
-                <GlowCard glowColor="var(--accent)" glowSize={150} glowIntensity={0.08} borderRadius="24px">
-                  <div
-                    className="relative rounded-[24px] overflow-hidden border"
-                    style={{ borderColor: 'var(--glass-border)', aspectRatio: '16/10' }}
-                  >
-                    <img
-                      src={project.hero_bg_desktop || project.image_url}
-                      className="w-full h-full object-cover"
-                      alt={project.title}
-                      draggable={false}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-5">
-                      <span className="text-white/60 text-[9px] font-bold tracking-[0.3em] uppercase block mb-1">
-                        {project.category}
-                      </span>
-                      <h3 className="text-white text-lg md:text-xl font-black uppercase tracking-tighter">
-                        {project.title}
-                      </h3>
+              <SwiperSlide key={project.id} className="!w-[80%] md:!w-[50%]">
+                <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
+                  <div className="relative rounded-[20px] overflow-hidden border flex flex-col" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
+                    {/* Image */}
+                    <div style={{ aspectRatio: '16/10' }}>
+                      <img
+                        src={project.hero_bg_desktop || project.image_url}
+                        className="w-full h-full object-cover"
+                        alt={project.title}
+                        draggable={false}
+                      />
+                    </div>
+                    {/* Embedded Caption + Button */}
+                    <div className="p-3 md:p-4 flex flex-col gap-2">
+                      <div>
+                        <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase block mb-0.5">{project.category}</span>
+                        <h3 className="text-[var(--text-primary)] text-sm md:text-base font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
+                        <p className="text-[var(--text-secondary)] text-[10px] md:text-xs leading-relaxed mt-1 line-clamp-2">{project.description}</p>
+                      </div>
+                      <button onClick={() => setSelectedProject(project)} className="btn-primary-sm w-full text-[9px] py-2">View Project</button>
                     </div>
                   </div>
                 </GlowCard>
@@ -168,44 +162,20 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
 
-          {/* Info + View Project Button */}
-          {currentProject && (
-            <motion.div
-              key={currentProject.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col md:flex-row items-center justify-between gap-4 mt-6 px-2"
-            >
-              <div className="text-center md:text-left">
-                <p className="text-[var(--text-secondary)] text-xs md:text-sm max-w-md">
-                  {currentProject.description?.slice(0, 120)}...
-                </p>
-              </div>
-              <button
-                onClick={() => setSelectedProject(currentProject)}
-                className="btn-primary whitespace-nowrap"
-              >
-                View Project
-              </button>
-            </motion.div>
-          )}
-
           {/* Dot Indicators */}
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="flex justify-center gap-1.5 mt-5">
             {filteredProjects.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => { setActiveIndex(idx); swiperRef.current?.slideTo(idx); }}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                  idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'
-                }`}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`}
               />
             ))}
           </div>
         </div>
       </div>
 
-      {/* Modal — Same Coverflow + Details */}
+      {/* Modal — Compact 4-Column + Carousel */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -213,79 +183,48 @@ export default function SelectedWorks() {
             className="fixed inset-0 z-[9999] flex flex-col"
             style={{ backgroundColor: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(20px)' }}
           >
-            <button
-              onClick={() => setSelectedProject(null)}
-              className="absolute top-6 right-6 z-[10000] p-3 rounded-full border transition-all"
-              style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}
-            >
-              <X size={20} />
+            <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-[10000] p-2.5 rounded-full border transition-all" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
+              <X size={18} />
             </button>
 
-            <div className="flex-1 flex items-center min-h-0">
-              <Swiper
-                modules={[EffectCoverflow]}
-                effect="coverflow"
-                grabCursor={true}
-                centeredSlides={true}
-                slidesPerView="auto"
-                spaceBetween={20}
-                coverflowEffect={{ rotate: 40, stretch: 0, depth: 180, modifier: 1, slideShadows: false }}
-                className="w-full"
-              >
+            {/* Carousel */}
+            <div className="flex-1 flex items-center min-h-0 pt-12 pb-2">
+              <Swiper modules={[EffectCoverflow]} effect="coverflow" grabCursor={true} centeredSlides={true} slidesPerView="auto" spaceBetween={16} coverflowEffect={{ rotate: 35, stretch: 0, depth: 140, modifier: 1, slideShadows: false }} className="w-full">
                 {galleryImages.map((img) => (
-                  <SwiperSlide key={img.id} className="!w-[80%] md:!w-[60%]">
-                    <img
-                      src={img.hero_bg_desktop || img.image_url}
-                      className="w-full h-auto max-h-[70vh] rounded-[24px] border object-cover"
-                      style={{ borderColor: 'var(--glass-border)' }}
-                      alt=""
-                    />
+                  <SwiperSlide key={img.id} className="!w-[85%] md:!w-[55%]">
+                    <img src={img.hero_bg_desktop || img.image_url} className="w-full h-auto max-h-[60vh] rounded-[16px] border object-cover" style={{ borderColor: 'var(--glass-border)' }} alt="" />
                   </SwiperSlide>
                 ))}
               </Swiper>
             </div>
 
-            <div
-              className="max-h-[30vh] overflow-y-auto no-scrollbar px-6 py-6 border-t"
-              style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}
-            >
-              <div className="max-w-3xl mx-auto space-y-4">
-                <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase block">
-                  {selectedProject.category}
-                </span>
-                <h2 className="text-[var(--text-primary)] text-xl md:text-2xl font-black uppercase tracking-tighter">
-                  {selectedProject.title}
-                </h2>
-                <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-                  {selectedProject.description}
-                </p>
-
-                {selectedProject.tools && selectedProject.tools.length > 0 && (
-                  <div>
-                    <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Tools</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedProject.tools.map((t) => (
-                        <span key={t} className="px-3 py-1.5 border rounded-lg text-[9px] uppercase font-bold tracking-widest" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>
-                          {t}
-                        </span>
-                      ))}
-                    </div>
+            {/* Compact 4-Column Details */}
+            <div className="px-4 py-3 border-t" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px]">
+                {/* Category + Title */}
+                <div>
+                  <span className="text-accent font-bold tracking-[0.2em] uppercase block mb-0.5">{selectedProject.category}</span>
+                  <h2 className="text-[var(--text-primary)] text-sm font-black uppercase tracking-tighter leading-tight">{selectedProject.title}</h2>
+                </div>
+                {/* Description */}
+                <div>
+                  <h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">About</h4>
+                  <p className="text-[var(--text-secondary)] leading-relaxed text-[10px]">{selectedProject.description}</p>
+                </div>
+                {/* Tools */}
+                <div>
+                  <h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">Tools</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedProject.tools?.map((t) => (
+                      <span key={t} className="px-1.5 py-0.5 border rounded text-[8px] uppercase font-bold tracking-widest" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
+                    ))}
                   </div>
-                )}
-
-                {selectedProject.process && (
-                  <div>
-                    <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Process</h4>
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{selectedProject.process}</p>
-                  </div>
-                )}
-
-                {selectedProject.results && (
-                  <div>
-                    <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Results</h4>
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{selectedProject.results}</p>
-                  </div>
-                )}
+                </div>
+                {/* Process + Results */}
+                <div>
+                  {selectedProject.process && <><h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">Process</h4><p className="text-[var(--text-secondary)] leading-relaxed text-[10px] mb-1">{selectedProject.process}</p></>}
+                  {selectedProject.results && <><h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">Results</h4><p className="text-[var(--text-secondary)] leading-relaxed text-[10px]">{selectedProject.results}</p></>}
+                </div>
               </div>
             </div>
           </motion.div>
