@@ -122,7 +122,7 @@ export default function SelectedWorks() {
     const startX = trackX.current;
     const startTime = performance.now();
     const duration = 600;
-    const ease = (t: number) => 1 - Math.pow(1 - t, 3); // power3.out
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
     
     const tick = (now: number) => {
       const elapsed = now - startTime;
@@ -144,13 +144,11 @@ export default function SelectedWorks() {
     animateTo(centerXFor(target));
   }, [centerXFor, count, animateTo]);
 
-  // Initial render
   useEffect(() => {
     slidesRef.current = slidesRef.current.slice(0, count);
     snapTo(0);
   }, [count]);
 
-  // Drag handlers
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -221,7 +219,6 @@ export default function SelectedWorks() {
     </div>
   );
 
-  const currentProject = filteredProjects[activeIndex];
   const galleryImages = selectedProject
     ? projects.filter(p => p.title.trim() === selectedProject.title.trim())
     : [];
@@ -257,7 +254,6 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* 3D Perspective Carousel */}
         <div
           ref={containerRef}
           className="w-full overflow-hidden flex items-center cursor-grab active:cursor-grabbing select-none relative"
@@ -268,8 +264,10 @@ export default function SelectedWorks() {
               <div
                 key={project.id}
                 ref={el => { slidesRef.current[i] = el; }}
-                className="flex-shrink-0 will-change-transform rounded-[20px] overflow-hidden"
+                className="flex-shrink-0 will-change-transform rounded-[20px] overflow-hidden cursor-pointer"
                 style={{ width: slideWidth, height: slideHeight }}
+                onClick={() => setSelectedProject(project)}
+                onMouseDown={(e) => e.stopPropagation()}
               >
                 <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
                   <div className="relative rounded-[20px] overflow-hidden border flex flex-col h-full" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
@@ -281,11 +279,10 @@ export default function SelectedWorks() {
                         draggable={false}
                       />
                     </div>
-                    <div className="p-3 flex flex-col gap-1.5 flex-shrink-0">
+                    <div className="p-3 flex flex-col gap-1 flex-shrink-0">
                       <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
                       <h3 className="text-[var(--text-primary)] text-sm font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
                       <p className="text-[var(--text-secondary)] text-[10px] leading-relaxed line-clamp-1">{project.description}</p>
-                      <button onClick={() => setSelectedProject(project)} className="btn-primary-sm w-full text-[8px] py-1.5 mt-1">View Project</button>
                     </div>
                   </div>
                 </GlowCard>
@@ -294,7 +291,6 @@ export default function SelectedWorks() {
           </div>
         </div>
 
-        {/* Dot Indicators */}
         <div className="flex justify-center gap-1.5 mt-5">
           {filteredProjects.map((_, idx) => (
             <button
@@ -306,7 +302,6 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Modal */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
