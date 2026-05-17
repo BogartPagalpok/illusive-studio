@@ -120,7 +120,7 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* COVERFLOW CAROUSEL */}
+               {/* COVERFLOW CAROUSEL */}
         <div className="max-w-4xl mx-auto">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
@@ -128,18 +128,24 @@ export default function SelectedWorks() {
             effect="coverflow"
             grabCursor={true}
             centeredSlides={true}
-            slidesPerView="auto"
-            spaceBetween={16}
-            coverflowEffect={{ rotate: 40, stretch: 0, depth: 160, modifier: 1, slideShadows: false }}
+            slidesPerView={3}
+            spaceBetween={0}
+            coverflowEffect={{
+              rotate: 0,
+              stretch: -20,
+              depth: 100,
+              modifier: 1,
+              slideShadows: false,
+            }}
             onSlideChange={(s) => setActiveIndex(s.activeIndex)}
             className="w-full"
           >
-            {filteredProjects.map((project) => (
-              <SwiperSlide key={project.id} className="!w-[80%] md:!w-[50%]">
+            {filteredProjects.map((project, idx) => (
+              <SwiperSlide key={project.id} className="transition-all duration-500" style={{ opacity: idx === activeIndex ? 1 : 0.3 }}>
                 <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
                   <div className="relative rounded-[20px] overflow-hidden border flex flex-col" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
-                    {/* Image */}
-                    <div style={{ aspectRatio: '16/10' }}>
+                    {/* Image — cropped, same aspect ratio for all */}
+                    <div className="overflow-hidden" style={{ aspectRatio: '16/10' }}>
                       <img
                         src={project.hero_bg_desktop || project.image_url}
                         className="w-full h-full object-cover"
@@ -147,8 +153,8 @@ export default function SelectedWorks() {
                         draggable={false}
                       />
                     </div>
-                    {/* Embedded Caption + Button */}
-                    <div className="p-3 md:p-4 flex flex-col gap-2">
+                    {/* Embedded Caption + Button — only visible on active card */}
+                    <div className={`p-3 md:p-4 flex flex-col gap-2 transition-opacity duration-300 ${idx === activeIndex ? 'opacity-100' : 'opacity-0'}`}>
                       <div>
                         <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase block mb-0.5">{project.category}</span>
                         <h3 className="text-[var(--text-primary)] text-sm md:text-base font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
@@ -161,6 +167,18 @@ export default function SelectedWorks() {
               </SwiperSlide>
             ))}
           </Swiper>
+
+          {/* Dot Indicators */}
+          <div className="flex justify-center gap-1.5 mt-5">
+            {filteredProjects.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => { setActiveIndex(idx); swiperRef.current?.slideTo(idx); }}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`}
+              />
+            ))}
+          </div>
+        </div>
 
           {/* Dot Indicators */}
           <div className="flex justify-center gap-1.5 mt-5">
