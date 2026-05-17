@@ -1,14 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, EffectCoverflow } from 'swiper/modules';
-import type { Swiper as SwiperType } from 'swiper';
-import { Play, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/effect-coverflow';
 
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
 
@@ -33,7 +26,18 @@ export default function SelectedWorks() {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const swiperRef = useRef<SwiperType | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchWorks = useCallback(async () => {
     try {
@@ -57,7 +61,6 @@ export default function SelectedWorks() {
     const categoryFiltered = activeCategory === 'All'
       ? projects
       : projects.filter(p => p.category === activeCategory);
-
     const uniqueProjects: Project[] = [];
     const seenTitles = new Set<string>();
     categoryFiltered.forEach(p => {
@@ -67,16 +70,56 @@ export default function SelectedWorks() {
         uniqueProjects.push(p);
       }
     });
-
     setFilteredProjects(uniqueProjects);
     setActiveIndex(0);
-    swiperRef.current?.slideTo(0, 0);
+    setExpanded(false);
   }, [activeCategory, projects]);
 
   useEffect(() => {
     document.body.style.overflow = selectedProject ? 'hidden' : 'unset';
     return () => { document.body.style.overflow = 'unset'; };
   }, [selectedProject]);
+
+  // Swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchMove = (e: React.TouchEvent) => { touchEndX.current = e.touches[0].clientX; };
+  const handleTouchEnd = () => {
+    const diff = touchStartX.current - touchEndX.current;
+    const threshold = 50;
+    if (diff > threshold && activeIndex < filteredProjects.length - 1) {
+      setActiveIndex(prev => prev + 1);
+      setExpanded(false);
+    } else if (diff < -threshold && activeIndex > 0) {
+      setActiveIndex(prev => prev - 1);
+      setExpanded(false);
+    }
+  };
+
+  // Mouse drag handlers
+  const mouseStartX = useRef(0);
+  const handleMouseDown = (e: React.MouseEvent) => { mouseStartX.current = e.clientX; };
+  const handleMouseUp = (e: React.MouseEvent) => {
+    const diff = mouseStartX.current - e.clientX;
+    const threshold = 50;
+    if (diff > threshold && activeIndex < filteredProjects.length - 1) {
+      setActiveIndex(prev => prev + 1);
+      setExpanded(false);
+    } else if (diff < -threshold && activeIndex > 0) {
+      setActiveIndex(prev => prev - 1);
+      setExpanded(false);
+    }
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (selectedProject) return;
+      if (e.key === 'ArrowLeft' && activeIndex > 0) { setActiveIndex(prev => prev - 1); setExpanded(false); }
+      if (e.key === 'ArrowRight' && activeIndex < filteredProjects.length - 1) { setActiveIndex(prev => prev + 1); setExpanded(false); }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [activeIndex, filteredProjects.length, selectedProject]);
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-transparent">
@@ -92,138 +135,167 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative section-padding overflow-visible z-40 bg-transparent">
       <div className="section-container relative">
+        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 flex flex-col items-center"
+          className="text-center mb-10 flex flex-col items-center"
         >
           <span className="section-subtitle">Portfolio</span>
           <h2 className="section-title">Selected Works</h2>
           <div className="section-divider" />
         </motion.div>
 
-        {/* Hero Card */}
-        <div
-          className="relative w-full rounded-[40px] overflow-hidden card-glass flex flex-col"
-          style={{ height: 'clamp(600px, 80vh, 900px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}
-        >
-          <AnimatePresence mode="wait">
-            {currentProject && (
-              <motion.div
-                key={currentProject.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }}
-                className="absolute inset-0 z-0 pointer-events-none"
-              >
-                <img
-                  src={currentProject.hero_bg_desktop || currentProject.image_url}
-                  className="w-full h-full object-cover object-center"
-                  alt=""
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-primary)]/60 via-[var(--bg-primary)]/10 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)]/80 via-transparent to-transparent" />
-              </motion.div>
-            )}
-          </AnimatePresence>
+        {/* Category Pills */}
+        <div className="flex gap-4 md:gap-6 items-center overflow-x-auto no-scrollbar mb-8 justify-center">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all whitespace-nowrap px-4 py-2 rounded-full border ${
+                activeCategory === cat
+                  ? 'text-accent border-accent bg-accent/10'
+                  : 'text-[var(--text-primary)]/40 border-transparent hover:text-[var(--text-primary)] hover:border-[var(--glass-border)]'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
 
-          <div className="relative z-10 flex flex-col h-full p-6 md:p-10">
-            <div className="flex-none">
-              <div className="flex gap-6 md:gap-10 items-center overflow-x-auto no-scrollbar mb-6 border-b border-[var(--glass-border)] pb-3">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
-                      activeCategory === cat
-                        ? 'text-accent border-b border-accent pb-1'
-                        : 'text-[var(--text-primary)]/40 hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
+        {/* Main Card — Glassmorphism */}
+        {currentProject && (
+          <div
+            ref={containerRef}
+            className="relative w-full max-w-4xl mx-auto rounded-[32px] overflow-hidden border select-none"
+            style={{
+              backgroundColor: 'var(--glass-bg)',
+              borderColor: 'var(--glass-border)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)',
+              aspectRatio: isMobile ? '4/5' : '16/9',
+            }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+          >
+            {/* Image Area */}
+            <div
+              className="absolute inset-0 cursor-grab active:cursor-grabbing"
+              style={{ bottom: expanded ? '30%' : '15%' }}
+            >
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentProject.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  src={isMobile ? (currentProject.hero_bg_mobile || currentProject.image_url) : (currentProject.hero_bg_desktop || currentProject.image_url)}
+                  className="w-full h-full object-cover object-center"
+                  alt={currentProject.title}
+                  draggable={false}
+                />
+              </AnimatePresence>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mb-6 flex items-end">
-              <AnimatePresence mode="wait">
-                {currentProject && (
+            {/* Caption Bar */}
+            <div
+              className="absolute bottom-0 left-0 right-0 border-t cursor-pointer transition-all duration-400"
+              style={{
+                backgroundColor: 'var(--glass-bg)',
+                borderColor: 'var(--glass-border)',
+                backdropFilter: 'blur(20px)',
+                height: expanded ? '30%' : '15%',
+                overflow: 'hidden',
+              }}
+              onClick={() => setExpanded(!expanded)}
+            >
+              <div className="p-4 md:p-5 flex flex-col h-full">
+                {/* Collapsed: Title + dots */}
+                <div className="flex items-center justify-between flex-none">
+                  <h3 className="text-[var(--text-primary)] text-lg md:text-xl font-black uppercase tracking-tighter truncate">
+                    {currentProject.title}
+                  </h3>
+                  <div className="flex gap-1.5">
+                    {filteredProjects.map((_, idx) => (
+                      <div
+                        key={idx}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Expanded: Tags + Description */}
+                {expanded && (
                   <motion.div
-                    key={currentProject.id}
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: 20, opacity: 0 }}
-                    className="max-w-xl"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex-1 overflow-y-auto no-scrollbar mt-3"
                   >
                     <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-2">
                       {currentProject.category}
                     </span>
-                    <h3 className="text-[var(--text-primary)] text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tighter leading-[1.1] break-words">
-                      {currentProject.title}
-                    </h3>
-                    <p className="text-[var(--text-secondary)] text-sm md:text-base leading-relaxed mt-3">
+                    <p className="text-[var(--text-secondary)] text-xs md:text-sm leading-relaxed">
                       {currentProject.description}
                     </p>
+                    {currentProject.tools && (
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {currentProject.tools.map(t => (
+                          <span key={t} className="px-2 py-1 bg-white/5 border border-[var(--glass-border)] rounded-md text-[8px] uppercase text-[var(--text-secondary)] font-bold tracking-widest">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setSelectedProject(currentProject); }}
+                      className="btn-primary-sm mt-3"
+                    >
+                      View Full Project
+                    </button>
                   </motion.div>
                 )}
-              </AnimatePresence>
-            </div>
-
-            <div className="flex-none pt-6 border-t border-[var(--glass-border)] flex flex-col gap-6">
-              <div className="flex items-center">
-                <button onClick={() => setSelectedProject(currentProject)} className="btn-primary group">
-                  <Play size={14} />
-                  <span>View Project</span>
-                </button>
               </div>
-
-              <Swiper
-                onSwiper={(s) => { swiperRef.current = s; }}
-                modules={[Navigation, EffectCoverflow]}
-                effect="coverflow"
-                grabCursor={true}
-                centeredSlides={true}
-                slidesPerView="auto"
-                spaceBetween={16}
-                coverflowEffect={{ rotate: 45, stretch: 0, depth: 150, modifier: 1, slideShadows: false }}
-                onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-                className="w-full !pb-2"
-              >
-                {filteredProjects.map((project, idx) => (
-                  <SwiperSlide key={project.id} className="!w-[130px] md:!w-[180px]">
-                    <div
-                      onClick={() => { setActiveIndex(idx); swiperRef.current?.slideTo(idx); }}
-                      className={`relative aspect-video cursor-pointer transition-all duration-500 rounded-xl overflow-hidden border-2 ${
-                        activeIndex === idx
-                          ? 'border-accent scale-105 shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]'
-                          : 'border-white/5 grayscale opacity-40 hover:opacity-100 hover:grayscale-0'
-                      }`}
-                    >
-                      <img src={project.card_thumbnail || project.image_url} className="w-full h-full object-cover object-center" alt="" />
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
             </div>
           </div>
+        )}
+
+        {/* Dot indicators (below card) */}
+        <div className="flex justify-center gap-2 mt-6">
+          {filteredProjects.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => { setActiveIndex(idx); setExpanded(false); }}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'
+              }`}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Project Modal – 2/3 image, 1/3 details, no captions */}
+      {/* Project Modal — Glassmorphism */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6 bg-[var(--bg-primary)]/95 backdrop-blur-2xl"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6"
+            style={{ backgroundColor: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(20px)' }}
             onClick={() => setSelectedProject(null)}
           >
             <button
               onClick={() => setSelectedProject(null)}
-              className="fixed top-6 right-6 z-[10000] text-white bg-white/10 p-3 rounded-full border border-white/20 hover:bg-accent hover:text-white transition-all shadow-xl"
+              className="fixed top-6 right-6 z-[10000] p-3 rounded-full border transition-all shadow-xl"
+              style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}
             >
               <X size={20} />
             </button>
@@ -232,34 +304,23 @@ export default function SelectedWorks() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-w-6xl w-full grid lg:grid-cols-3 gap-6 card-glass p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar"
+              className="max-w-6xl w-full grid lg:grid-cols-3 gap-6 p-6 md:p-10 rounded-[32px] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar border"
+              style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', backdropFilter: 'blur(20px)' }}
             >
-              {/* ── LEFT: Image – 2/3 width ── */}
               <div className="lg:col-span-2 w-full">
-                <Swiper
-                  modules={[EffectCoverflow, Navigation]}
-                  effect="coverflow"
-                  grabCursor={true}
-                  centeredSlides={true}
-                  slidesPerView="auto"
-                  spaceBetween={20}
-                  navigation
-                  coverflowEffect={{ rotate: 45, stretch: 0, depth: 200, modifier: 1, slideShadows: false }}
-                  className="w-full !pb-2"
-                >
+                <div className="grid gap-4">
                   {galleryImages.map((img) => (
-                    <SwiperSlide key={img.id} className="!w-[85%] md:!w-[80%]">
-                      <img
-                        src={img.hero_bg_desktop || img.image_url}
-                        className="w-full h-auto max-h-[70vh] rounded-[20px] shadow-lg border border-[var(--glass-border)] object-cover object-center"
-                        alt=""
-                      />
-                    </SwiperSlide>
+                    <img
+                      key={img.id}
+                      src={img.hero_bg_desktop || img.image_url}
+                      className="w-full h-auto max-h-[60vh] rounded-[20px] border object-cover object-center"
+                      style={{ borderColor: 'var(--glass-border)' }}
+                      alt=""
+                    />
                   ))}
-                </Swiper>
+                </div>
               </div>
 
-              {/* ── RIGHT: Details – 1/3 width, smaller text ── */}
               <div className="space-y-6">
                 <div>
                   <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase mb-2 block">
@@ -278,7 +339,7 @@ export default function SelectedWorks() {
                     <h4 className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--text-primary)]/60 mb-2">Tools</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedProject.tools.map((t) => (
-                        <span key={t} className="px-4 py-2 bg-white/5 border border-[var(--glass-border)] rounded-lg text-[9px] uppercase text-[var(--text-secondary)] font-bold tracking-widest hover:border-accent hover:text-accent transition-colors">
+                        <span key={t} className="px-4 py-2 border rounded-lg text-[9px] uppercase font-bold tracking-widest transition-colors" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>
                           {t}
                         </span>
                       ))}
@@ -304,11 +365,6 @@ export default function SelectedWorks() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      ` }} />
     </section>
   );
 }
