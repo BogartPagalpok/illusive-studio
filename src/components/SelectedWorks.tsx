@@ -120,7 +120,7 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-               {/* COVERFLOW CAROUSEL */}
+        {/* COVERFLOW CAROUSEL */}
         <div className="max-w-4xl mx-auto">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
@@ -144,7 +144,6 @@ export default function SelectedWorks() {
               <SwiperSlide key={project.id} className="transition-all duration-500" style={{ opacity: idx === activeIndex ? 1 : 0.3 }}>
                 <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
                   <div className="relative rounded-[20px] overflow-hidden border flex flex-col" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
-                    {/* Image — cropped, same aspect ratio for all */}
                     <div className="overflow-hidden" style={{ aspectRatio: '16/10' }}>
                       <img
                         src={project.hero_bg_desktop || project.image_url}
@@ -153,7 +152,6 @@ export default function SelectedWorks() {
                         draggable={false}
                       />
                     </div>
-                    {/* Embedded Caption + Button — only visible on active card */}
                     <div className={`p-3 md:p-4 flex flex-col gap-2 transition-opacity duration-300 ${idx === activeIndex ? 'opacity-100' : 'opacity-0'}`}>
                       <div>
                         <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase block mb-0.5">{project.category}</span>
@@ -167,18 +165,6 @@ export default function SelectedWorks() {
               </SwiperSlide>
             ))}
           </Swiper>
-
-          {/* Dot Indicators */}
-          <div className="flex justify-center gap-1.5 mt-5">
-            {filteredProjects.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => { setActiveIndex(idx); swiperRef.current?.slideTo(idx); }}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`}
-              />
-            ))}
-          </div>
-        </div>
 
           {/* Dot Indicators */}
           <div className="flex justify-center gap-1.5 mt-5">
@@ -205,7 +191,6 @@ export default function SelectedWorks() {
               <X size={18} />
             </button>
 
-            {/* Carousel */}
             <div className="flex-1 flex items-center min-h-0 pt-12 pb-2">
               <Swiper modules={[EffectCoverflow]} effect="coverflow" grabCursor={true} centeredSlides={true} slidesPerView="auto" spaceBetween={16} coverflowEffect={{ rotate: 35, stretch: 0, depth: 140, modifier: 1, slideShadows: false }} className="w-full">
                 {galleryImages.map((img) => (
@@ -216,20 +201,16 @@ export default function SelectedWorks() {
               </Swiper>
             </div>
 
-            {/* Compact 4-Column Details */}
             <div className="px-4 py-3 border-t" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px]">
-                {/* Category + Title */}
                 <div>
                   <span className="text-accent font-bold tracking-[0.2em] uppercase block mb-0.5">{selectedProject.category}</span>
                   <h2 className="text-[var(--text-primary)] text-sm font-black uppercase tracking-tighter leading-tight">{selectedProject.title}</h2>
                 </div>
-                {/* Description */}
                 <div>
                   <h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">About</h4>
                   <p className="text-[var(--text-secondary)] leading-relaxed text-[10px]">{selectedProject.description}</p>
                 </div>
-                {/* Tools */}
                 <div>
                   <h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">Tools</h4>
                   <div className="flex flex-wrap gap-1">
@@ -238,7 +219,6 @@ export default function SelectedWorks() {
                     ))}
                   </div>
                 </div>
-                {/* Process + Results */}
                 <div>
                   {selectedProject.process && <><h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">Process</h4><p className="text-[var(--text-secondary)] leading-relaxed text-[10px] mb-1">{selectedProject.process}</p></>}
                   {selectedProject.results && <><h4 className="text-[var(--text-primary)]/40 font-bold tracking-[0.2em] uppercase mb-0.5">Results</h4><p className="text-[var(--text-secondary)] leading-relaxed text-[10px]">{selectedProject.results}</p></>}
