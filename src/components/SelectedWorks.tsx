@@ -27,6 +27,7 @@ export default function SelectedWorks() {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [modalIndex, setModalIndex] = useState(0);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -123,15 +124,12 @@ export default function SelectedWorks() {
     const startTime = performance.now();
     const duration = 600;
     const ease = (t: number) => 1 - Math.pow(1 - t, 3);
-    
     const tick = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
       trackX.current = startX + (targetX - startX) * ease(progress);
       renderImmediate();
-      if (progress < 1) {
-        animRef.current = requestAnimationFrame(tick);
-      }
+      if (progress < 1) animRef.current = requestAnimationFrame(tick);
     };
     cancelAnimationFrame(animRef.current);
     animRef.current = requestAnimationFrame(tick);
@@ -152,7 +150,6 @@ export default function SelectedWorks() {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
     const onStart = (clientX: number) => {
       cancelAnimationFrame(animRef.current);
       drag.current.active = true;
@@ -162,7 +159,6 @@ export default function SelectedWorks() {
       drag.current.lastTime = Date.now();
       drag.current.velocity = 0;
     };
-
     const onMove = (clientX: number) => {
       if (!drag.current.active) return;
       const now = Date.now();
@@ -173,14 +169,12 @@ export default function SelectedWorks() {
       trackX.current = drag.current.startTrackX + (clientX - drag.current.startX);
       renderImmediate();
     };
-
     const onEnd = () => {
       if (!drag.current.active) return;
       drag.current.active = false;
       const projected = trackX.current + drag.current.velocity * 0.12;
       const center = container.offsetWidth / 2;
-      let best = 0;
-      let bestDist = Infinity;
+      let best = 0, bestDist = Infinity;
       for (let i = 0; i < count; i++) {
         const sc = i * step + slideWidth / 2 + projected;
         const d = Math.abs(sc - center);
@@ -188,21 +182,18 @@ export default function SelectedWorks() {
       }
       snapTo(best);
     };
-
     const handleMouseDown = (e: MouseEvent) => { e.preventDefault(); onStart(e.clientX); };
     const handleMouseMove = (e: MouseEvent) => onMove(e.clientX);
     const handleMouseUp = () => onEnd();
     const handleTouchStart = (e: TouchEvent) => onStart(e.touches[0].clientX);
     const handleTouchMove = (e: TouchEvent) => { e.preventDefault(); onMove(e.touches[0].clientX); };
     const handleTouchEnd = () => onEnd();
-
     container.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
     container.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: false });
     window.addEventListener('touchend', handleTouchEnd);
-
     return () => {
       container.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mousemove', handleMouseMove);
@@ -226,13 +217,7 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative py-16 lg:py-20 overflow-visible z-40 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 lg:px-6 relative">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8 flex flex-col items-center"
-        >
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-8 flex flex-col items-center">
           <span className="section-subtitle">Portfolio</span>
           <h2 className="section-title">Selected Works</h2>
           <div className="section-divider" />
@@ -240,44 +225,18 @@ export default function SelectedWorks() {
 
         <div className="flex gap-3 md:gap-4 items-center overflow-x-auto no-scrollbar mb-6 justify-center">
           {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all whitespace-nowrap px-3 py-1.5 rounded-full border ${
-                activeCategory === cat
-                  ? 'text-accent border-accent bg-accent/10'
-                  : 'text-[var(--text-primary)]/40 border-transparent hover:text-[var(--text-primary)] hover:border-[var(--glass-border)]'
-              }`}
-            >
-              {cat}
-            </button>
+            <button key={cat} onClick={() => setActiveCategory(cat)} className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all whitespace-nowrap px-3 py-1.5 rounded-full border ${activeCategory === cat ? 'text-accent border-accent bg-accent/10' : 'text-[var(--text-primary)]/40 border-transparent hover:text-[var(--text-primary)] hover:border-[var(--glass-border)]'}`}>{cat}</button>
           ))}
         </div>
 
-        <div
-          ref={containerRef}
-          className="w-full overflow-hidden flex items-center cursor-grab active:cursor-grabbing select-none relative"
-          style={{ height: slideHeight + 100, perspective: `${perspective}px` }}
-        >
+        <div ref={containerRef} className="w-full overflow-hidden flex items-center cursor-grab active:cursor-grabbing select-none relative" style={{ height: slideHeight + 100, perspective: `${perspective}px` }}>
           <div ref={trackRef} className="flex items-center" style={{ gap: `${gap}px` }}>
             {filteredProjects.map((project, i) => (
-              <div
-                key={project.id}
-                ref={el => { slidesRef.current[i] = el; }}
-                className="flex-shrink-0 will-change-transform rounded-[20px] overflow-hidden cursor-pointer"
-                style={{ width: slideWidth, height: slideHeight }}
-                onClick={() => setSelectedProject(project)}
-                onMouseDown={(e) => e.stopPropagation()}
-              >
+              <div key={project.id} ref={el => { slidesRef.current[i] = el; }} className="flex-shrink-0 will-change-transform rounded-[20px] overflow-hidden cursor-pointer" style={{ width: slideWidth, height: slideHeight }} onClick={() => { setSelectedProject(project); setModalIndex(0); }} onMouseDown={(e) => e.stopPropagation()}>
                 <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
                   <div className="relative rounded-[20px] overflow-hidden border flex flex-col h-full" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
                     <div className="flex-1 overflow-hidden">
-                      <img
-                        src={project.hero_bg_desktop || project.image_url}
-                        className="w-full h-full object-cover"
-                        alt={project.title}
-                        draggable={false}
-                      />
+                      <img src={project.hero_bg_desktop || project.image_url} className="w-full h-full object-cover" alt={project.title} draggable={false} />
                     </div>
                     <div className="p-3 flex flex-col gap-1 flex-shrink-0">
                       <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
@@ -293,34 +252,68 @@ export default function SelectedWorks() {
 
         <div className="flex justify-center gap-1.5 mt-5">
           {filteredProjects.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => snapTo(idx)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`}
-            />
+            <button key={idx} onClick={() => snapTo(idx)} className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`} />
           ))}
         </div>
       </div>
 
+      {/* Modal — Focus Slice Carousel */}
       <AnimatePresence>
         {selectedProject && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex flex-col"
-            style={{ backgroundColor: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(20px)' }}
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[9999] flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(20px)' }}>
             <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-[10000] p-2.5 rounded-full border transition-all" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
               <X size={18} />
             </button>
-            <div className="flex-1 flex items-center justify-center min-h-0 pt-12 pb-2 px-4">
-              <div className="grid gap-4 max-w-4xl w-full">
-                {galleryImages.map((img) => (
-                  <img key={img.id} src={img.hero_bg_desktop || img.image_url} className="w-full h-auto max-h-[50vh] rounded-[16px] border object-cover" style={{ borderColor: 'var(--glass-border)' }} alt="" />
-                ))}
+
+            {/* Focus Slice Carousel */}
+            <div className="flex-1 flex items-center justify-center min-h-0 px-4 pt-16 pb-4">
+              <div className="flex gap-3 w-full max-w-5xl h-[60vh] items-stretch">
+                {galleryImages.map((img, idx) => {
+                  const isActive = idx === modalIndex;
+                  return (
+                    <motion.div
+                      key={img.id}
+                      onClick={() => setModalIndex(idx)}
+                      className="relative cursor-pointer overflow-hidden flex-shrink-0"
+                      style={{ borderRadius: isActive ? 24 : 9999 }}
+                      animate={{
+                        width: isActive ? '55%' : '8%',
+                      }}
+                      transition={{ duration: 0.6, ease: [0.42, 0, 0.58, 1] }}
+                    >
+                      <img
+                        src={img.hero_bg_desktop || img.image_url}
+                        className="w-full h-full object-cover"
+                        alt=""
+                      />
+                      {isActive && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.3, delay: 0.3 }}
+                          className="absolute bottom-0 left-0 right-0 p-6"
+                          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }}
+                        >
+                          <h3 className="text-white text-lg font-black uppercase tracking-tighter">{selectedProject.title}</h3>
+                          <p className="text-white/60 text-xs mt-1">{selectedProject.category}</p>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
+
+            {/* Dot Indicators */}
+            <div className="flex justify-center gap-1.5 py-3">
+              {galleryImages.map((_, idx) => (
+                <button key={idx} onClick={() => setModalIndex(idx)} className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === modalIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`} />
+              ))}
+            </div>
+
+            {/* Compact 4-Column Details */}
             <div className="px-4 py-3 border-t" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px]">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[10px] max-w-5xl mx-auto">
                 <div>
                   <span className="text-accent font-bold tracking-[0.2em] uppercase block mb-0.5">{selectedProject.category}</span>
                   <h2 className="text-[var(--text-primary)] text-sm font-black uppercase tracking-tighter leading-tight">{selectedProject.title}</h2>
