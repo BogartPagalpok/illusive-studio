@@ -1,5 +1,4 @@
 import { useRef, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
 
 interface GlowCardProps {
   children: React.ReactNode;
@@ -14,8 +13,8 @@ export default function GlowCard({
   children,
   className = '',
   glowColor = 'var(--accent)',
-  glowSize = 300,
-  glowIntensity = 0.15,
+  glowSize = 150,
+  glowIntensity = 0.08,
   borderRadius = '20px',
 }: GlowCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -46,33 +45,45 @@ export default function GlowCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Glow layer */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none z-0"
+      {/* Subtle rim glow — only nearest the cursor */}
+      <div
+        className="absolute pointer-events-none"
         style={{
+          inset: -2,
           borderRadius,
-          opacity: isHovered ? 1 : 0,
-          transition: 'opacity 0.3s ease',
-          background: `radial-gradient(${glowSize}px circle at ${mousePos.x}px ${mousePos.y}px, ${glowColor}, transparent 70%)`,
-          opacity: isHovered ? glowIntensity : 0,
+          opacity: isHovered ? 0.6 : 0,
+          transition: 'opacity 0.4s ease',
+          background: `
+            radial-gradient(
+              ${glowSize}px circle at ${mousePos.x}px ${mousePos.y}px,
+              ${glowColor} 0%,
+              transparent 60%
+            )
+          `,
+          filter: 'blur(8px)',
         }}
       />
 
-      {/* Glow rim — only on hover */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none z-0"
+      {/* Inner edge highlight */}
+      <div
+        className="absolute pointer-events-none"
         style={{
+          inset: 0,
           borderRadius,
-          opacity: isHovered ? 1 : 0,
-          transition: 'opacity 0.3s ease',
-          boxShadow: isHovered
-            ? `0 0 40px -10px ${glowColor}, 0 0 80px -20px ${glowColor}, inset 0 0 30px -15px ${glowColor}`
-            : 'none',
+          opacity: isHovered ? 0.3 : 0,
+          transition: 'opacity 0.4s ease',
+          background: `
+            radial-gradient(
+              ${glowSize * 0.6}px circle at ${mousePos.x}px ${mousePos.y}px,
+              ${glowColor} 0%,
+              transparent 80%
+            )
+          `,
+          filter: 'blur(2px)',
         }}
       />
 
-      {/* Content */}
-      <div className="relative z-10" style={{ borderRadius }}>
+      <div className="relative" style={{ borderRadius }}>
         {children}
       </div>
     </div>
