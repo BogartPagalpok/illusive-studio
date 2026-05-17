@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import GlowCard from './GlowCard';
 
 const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
 
@@ -80,7 +81,6 @@ export default function SelectedWorks() {
     return () => { document.body.style.overflow = 'unset'; };
   }, [selectedProject]);
 
-  // Swipe handlers
   const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
   const handleTouchMove = (e: React.TouchEvent) => { touchEndX.current = e.touches[0].clientX; };
   const handleTouchEnd = () => {
@@ -95,7 +95,6 @@ export default function SelectedWorks() {
     }
   };
 
-  // Mouse drag handlers
   const mouseStartX = useRef(0);
   const handleMouseDown = (e: React.MouseEvent) => { mouseStartX.current = e.clientX; };
   const handleMouseUp = (e: React.MouseEvent) => {
@@ -110,7 +109,6 @@ export default function SelectedWorks() {
     }
   };
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (selectedProject) return;
@@ -135,7 +133,6 @@ export default function SelectedWorks() {
   return (
     <section id="works" className="relative section-padding overflow-visible z-40 bg-transparent">
       <div className="section-container relative">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -148,7 +145,6 @@ export default function SelectedWorks() {
           <div className="section-divider" />
         </motion.div>
 
-        {/* Category Pills */}
         <div className="flex gap-4 md:gap-6 items-center overflow-x-auto no-scrollbar mb-8 justify-center">
           {CATEGORIES.map((cat) => (
             <button
@@ -165,111 +161,113 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* Main Card — Glassmorphism */}
         {currentProject && (
-          <div
-            ref={containerRef}
-            className="relative w-full max-w-4xl mx-auto rounded-[32px] overflow-hidden border select-none"
-            style={{
-              backgroundColor: 'var(--glass-bg)',
-              borderColor: 'var(--glass-border)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)',
-              aspectRatio: isMobile ? '4/5' : '16/9',
-            }}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
+          <GlowCard
+            className="w-full max-w-4xl mx-auto"
+            glowColor="var(--accent)"
+            glowSize={350}
+            glowIntensity={0.12}
+            borderRadius="32px"
           >
-            {/* Image Area */}
             <div
-              className="absolute inset-0 cursor-grab active:cursor-grabbing"
-              style={{ bottom: expanded ? '30%' : '15%' }}
-            >
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={currentProject.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.4 }}
-                  src={isMobile ? (currentProject.hero_bg_mobile || currentProject.image_url) : (currentProject.hero_bg_desktop || currentProject.image_url)}
-                  className="w-full h-full object-cover object-center"
-                  alt={currentProject.title}
-                  draggable={false}
-                />
-              </AnimatePresence>
-            </div>
-
-            {/* Caption Bar */}
-            <div
-              className="absolute bottom-0 left-0 right-0 border-t cursor-pointer transition-all duration-400"
+              ref={containerRef}
+              className="relative w-full rounded-[32px] overflow-hidden border select-none"
               style={{
                 backgroundColor: 'var(--glass-bg)',
                 borderColor: 'var(--glass-border)',
                 backdropFilter: 'blur(20px)',
-                height: expanded ? '30%' : '15%',
-                overflow: 'hidden',
+                WebkitBackdropFilter: 'blur(20px)',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)',
+                aspectRatio: isMobile ? '4/5' : '16/9',
               }}
-              onClick={() => setExpanded(!expanded)}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
             >
-              <div className="p-4 md:p-5 flex flex-col h-full">
-                {/* Collapsed: Title + dots */}
-                <div className="flex items-center justify-between flex-none">
-                  <h3 className="text-[var(--text-primary)] text-lg md:text-xl font-black uppercase tracking-tighter truncate">
-                    {currentProject.title}
-                  </h3>
-                  <div className="flex gap-1.5">
-                    {filteredProjects.map((_, idx) => (
-                      <div
-                        key={idx}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                          idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
+              <div
+                className="absolute inset-0 cursor-grab active:cursor-grabbing"
+                style={{ bottom: expanded ? '30%' : '15%' }}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={currentProject.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4 }}
+                    src={isMobile ? (currentProject.hero_bg_mobile || currentProject.image_url) : (currentProject.hero_bg_desktop || currentProject.image_url)}
+                    className="w-full h-full object-cover object-center"
+                    alt={currentProject.title}
+                    draggable={false}
+                  />
+                </AnimatePresence>
+              </div>
 
-                {/* Expanded: Tags + Description */}
-                {expanded && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex-1 overflow-y-auto no-scrollbar mt-3"
-                  >
-                    <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-2">
-                      {currentProject.category}
-                    </span>
-                    <p className="text-[var(--text-secondary)] text-xs md:text-sm leading-relaxed">
-                      {currentProject.description}
-                    </p>
-                    {currentProject.tools && (
-                      <div className="flex flex-wrap gap-1.5 mt-3">
-                        {currentProject.tools.map(t => (
-                          <span key={t} className="px-2 py-1 bg-white/5 border border-[var(--glass-border)] rounded-md text-[8px] uppercase text-[var(--text-secondary)] font-bold tracking-widest">
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setSelectedProject(currentProject); }}
-                      className="btn-primary-sm mt-3"
+              <div
+                className="absolute bottom-0 left-0 right-0 border-t cursor-pointer transition-all duration-400"
+                style={{
+                  backgroundColor: 'var(--glass-bg)',
+                  borderColor: 'var(--glass-border)',
+                  backdropFilter: 'blur(20px)',
+                  height: expanded ? '30%' : '15%',
+                  overflow: 'hidden',
+                }}
+                onClick={() => setExpanded(!expanded)}
+              >
+                <div className="p-4 md:p-5 flex flex-col h-full">
+                  <div className="flex items-center justify-between flex-none">
+                    <h3 className="text-[var(--text-primary)] text-lg md:text-xl font-black uppercase tracking-tighter truncate">
+                      {currentProject.title}
+                    </h3>
+                    <div className="flex gap-1.5">
+                      {filteredProjects.map((_, idx) => (
+                        <div
+                          key={idx}
+                          className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                            idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {expanded && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex-1 overflow-y-auto no-scrollbar mt-3"
                     >
-                      View Full Project
-                    </button>
-                  </motion.div>
-                )}
+                      <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-2">
+                        {currentProject.category}
+                      </span>
+                      <p className="text-[var(--text-secondary)] text-xs md:text-sm leading-relaxed">
+                        {currentProject.description}
+                      </p>
+                      {currentProject.tools && (
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {currentProject.tools.map(t => (
+                            <span key={t} className="px-2 py-1 bg-white/5 border border-[var(--glass-border)] rounded-md text-[8px] uppercase text-[var(--text-secondary)] font-bold tracking-widest">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedProject(currentProject); }}
+                        className="btn-primary-sm mt-3"
+                      >
+                        View Full Project
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          </GlowCard>
         )}
 
-        {/* Dot indicators (below card) */}
         <div className="flex justify-center gap-2 mt-6">
           {filteredProjects.map((_, idx) => (
             <button
@@ -283,7 +281,6 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Project Modal — Glassmorphism */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
