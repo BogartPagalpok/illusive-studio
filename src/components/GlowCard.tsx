@@ -34,7 +34,6 @@ export default function SelectedWorks() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
-  const modalSwiperRef = useRef<SwiperType | null>(null);
 
   const fetchWorks = useCallback(async () => {
     try {
@@ -89,8 +88,8 @@ export default function SelectedWorks() {
     : [];
 
   return (
-    <section id="works" className="relative section-padding overflow-visible z-40 bg-transparent">
-      <div className="section-container relative">
+    <section id="works" className="relative py-16 lg:py-20 overflow-visible z-40 bg-transparent">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -121,7 +120,7 @@ export default function SelectedWorks() {
           ))}
         </div>
 
-        {/* COVERFLOW CAROUSEL — Main Display */}
+        {/* COVERFLOW CAROUSEL */}
         <div className="max-w-5xl mx-auto">
           <Swiper
             onSwiper={(s) => { swiperRef.current = s; }}
@@ -139,17 +138,15 @@ export default function SelectedWorks() {
               slideShadows: false,
             }}
             onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-            className="w-full !pb-4"
+            className="w-full"
           >
             {filteredProjects.map((project) => (
               <SwiperSlide key={project.id} className="!w-[75%] md:!w-[55%]">
-                <GlowCard
-                  glowColor="var(--accent)"
-                  glowSize={150}
-                  glowIntensity={0.08}
-                  borderRadius="24px"
-                >
-                  <div className="relative rounded-[24px] overflow-hidden border" style={{ borderColor: 'var(--glass-border)', aspectRatio: '16/10' }}>
+                <GlowCard glowColor="var(--accent)" glowSize={150} glowIntensity={0.08} borderRadius="24px">
+                  <div
+                    className="relative rounded-[24px] overflow-hidden border"
+                    style={{ borderColor: 'var(--glass-border)', aspectRatio: '16/10' }}
+                  >
                     <img
                       src={project.hero_bg_desktop || project.image_url}
                       className="w-full h-full object-cover"
@@ -171,7 +168,7 @@ export default function SelectedWorks() {
             ))}
           </Swiper>
 
-          {/* Info Bar — Always Visible */}
+          {/* Info + View Project Button */}
           {currentProject && (
             <motion.div
               key={currentProject.id}
@@ -180,9 +177,6 @@ export default function SelectedWorks() {
               className="flex flex-col md:flex-row items-center justify-between gap-4 mt-6 px-2"
             >
               <div className="text-center md:text-left">
-                <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase block mb-1">
-                  {currentProject.category}
-                </span>
                 <p className="text-[var(--text-secondary)] text-xs md:text-sm max-w-md">
                   {currentProject.description?.slice(0, 120)}...
                 </p>
@@ -211,7 +205,7 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Project Modal — Same Coverflow + Details */}
+      {/* Modal — Same Coverflow + Details */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
@@ -219,7 +213,6 @@ export default function SelectedWorks() {
             className="fixed inset-0 z-[9999] flex flex-col"
             style={{ backgroundColor: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(20px)' }}
           >
-            {/* Close Button */}
             <button
               onClick={() => setSelectedProject(null)}
               className="absolute top-6 right-6 z-[10000] p-3 rounded-full border transition-all"
@@ -228,24 +221,16 @@ export default function SelectedWorks() {
               <X size={20} />
             </button>
 
-            {/* Modal Coverflow Carousel */}
             <div className="flex-1 flex items-center min-h-0">
               <Swiper
-                onSwiper={(s) => { modalSwiperRef.current = s; }}
                 modules={[EffectCoverflow]}
                 effect="coverflow"
                 grabCursor={true}
                 centeredSlides={true}
                 slidesPerView="auto"
                 spaceBetween={20}
-                coverflowEffect={{
-                  rotate: 40,
-                  stretch: 0,
-                  depth: 180,
-                  modifier: 1,
-                  slideShadows: false,
-                }}
-                className="w-full !pb-4"
+                coverflowEffect={{ rotate: 40, stretch: 0, depth: 180, modifier: 1, slideShadows: false }}
+                className="w-full"
               >
                 {galleryImages.map((img) => (
                   <SwiperSlide key={img.id} className="!w-[80%] md:!w-[60%]">
@@ -260,23 +245,20 @@ export default function SelectedWorks() {
               </Swiper>
             </div>
 
-            {/* Project Details (scrollable) */}
             <div
               className="max-h-[30vh] overflow-y-auto no-scrollbar px-6 py-6 border-t"
               style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}
             >
               <div className="max-w-3xl mx-auto space-y-4">
-                <div>
-                  <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase block mb-1">
-                    {selectedProject.category}
-                  </span>
-                  <h2 className="text-[var(--text-primary)] text-xl md:text-2xl font-black uppercase tracking-tighter">
-                    {selectedProject.title}
-                  </h2>
-                  <p className="text-[var(--text-secondary)] text-sm leading-relaxed mt-2">
-                    {selectedProject.description}
-                  </p>
-                </div>
+                <span className="text-accent text-[10px] font-bold tracking-[0.4em] uppercase block">
+                  {selectedProject.category}
+                </span>
+                <h2 className="text-[var(--text-primary)] text-xl md:text-2xl font-black uppercase tracking-tighter">
+                  {selectedProject.title}
+                </h2>
+                <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+                  {selectedProject.description}
+                </p>
 
                 {selectedProject.tools && selectedProject.tools.length > 0 && (
                   <div>
