@@ -22,11 +22,9 @@ export default function Services() {
           .from('site_content')
           .select('key, value')
           .eq('section', 'services');
-
         if (!error && data && data.length > 0) {
           const mapped = { subtitle: 'What I Do', heading: 'Services & Expertise' };
           const mappedServices = [...defaultServices];
-          
           data.forEach((row) => {
             const key = row.key.toLowerCase();
             if (key === 'subtitle') mapped.subtitle = row.value;
@@ -40,9 +38,7 @@ export default function Services() {
           setContent(mapped);
           setServicesData(mappedServices);
         }
-      } catch (err) {
-        console.warn('Fallback active');
-      }
+      } catch (err) { console.warn('Fallback active'); }
     }
     fetchContent();
   }, []);
@@ -50,7 +46,6 @@ export default function Services() {
   return (
     <section className="section-padding bg-transparent relative overflow-hidden">
       <div id="services" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
-
       <div className="section-container relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -82,10 +77,10 @@ export default function Services() {
               className="card-dark h-full flex flex-col group relative cursor-pointer"
               style={{ backgroundColor: service.color }}
             >
-              <h3 className="font-bold tracking-tight text-sm mb-1.5 uppercase text-[var(--text-primary)] group-hover:text-accent transition-colors">
+              <h3 className="font-bold tracking-tight uppercase text-[var(--text-primary)] group-hover:text-accent transition-colors mb-1.5" style={{ fontSize: 'clamp(12px, 1.2vw, 18px)' }}>
                 {service.title}
               </h3>
-              <p className="text-[10px] font-light leading-relaxed text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
+              <p className="font-light leading-relaxed text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors" style={{ fontSize: 'clamp(10px, 0.9vw, 14px)' }}>
                 {service.description}
               </p>
               <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--accent)] transition-all duration-500 group-hover:w-full" />
