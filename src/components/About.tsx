@@ -52,7 +52,6 @@ export default function About() {
           .from('site_content')
           .select('key, value')
           .eq('section', 'about');
-
         if (!error && data && data.length > 0) {
           const mapped = { ...defaultContent };
           for (const row of data) {
@@ -61,9 +60,7 @@ export default function About() {
           }
           setContent(mapped);
         }
-      } catch {
-        // Fallback
-      }
+      } catch {}
     };
     fetchContent();
   }, []);
@@ -72,17 +69,11 @@ export default function About() {
     const section = sectionRef.current;
     const bg = bgRef.current;
     if (!section || !bg) return;
-
     const ctx = gsap.context(() => {
       gsap.fromTo(bg, { yPercent: 0 }, {
         yPercent: -20,
         ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1,
-        },
+        scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: 1 },
       });
     });
     return () => ctx.revert();
@@ -90,23 +81,21 @@ export default function About() {
 
   return (
     <section ref={sectionRef} className="relative section-padding overflow-visible z-40 bg-transparent">
-      <div id="about" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
+      <div id="about" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
 
-      <FloatingCube type="Canva" size={100} top="5%" right="10%" blur="4px" delay={0.3} duration={7} />
-      <FloatingCube type="Ps" size={70} bottom="15%" left="10%" blur="1px" delay={1.2} duration={5} />
+      <FloatingCube type="Canva" size={80} top="5%" right="10%" blur="4px" delay={0.3} duration={7} />
+      <FloatingCube type="Ps" size={55} bottom="15%" left="10%" blur="1px" delay={1.2} duration={5} />
 
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
       </div>
 
       <div ref={ref} className="section-container relative">
-        
-        {/* Title */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16 flex flex-col items-center"
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8 flex flex-col items-center"
         >
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
@@ -120,15 +109,14 @@ export default function About() {
           <div className="section-divider" />
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-20 items-start">
-          {/* Left side – glass card */}
+        <div className="grid lg:grid-cols-2 gap-10 items-start">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="card-glass">
-              <h3 className="font-bold tracking-tighter text-2xl mb-8 leading-tight text-[var(--text-primary)]">
+            <div className="card-dark">
+              <h3 className="font-bold tracking-tighter text-lg mb-4 leading-tight text-[var(--text-primary)]">
                 {content.subheading.includes('.') ? (
                   <>
                     {content.subheading.split('.')[0]}. <span className="text-accent">{content.subheading.split('.')[1].trim()}</span>
@@ -137,8 +125,8 @@ export default function About() {
                   content.subheading
                 )}
               </h3>
-              <div className="space-y-6 text-lg font-light text-[var(--text-secondary)]">
-                <p className="first-letter:text-5xl first-letter:font-bold first-letter:text-accent first-letter:mr-3 first-letter:float-left">
+              <div className="space-y-3 text-sm font-light text-[var(--text-secondary)]">
+                <p className="first-letter:text-3xl first-letter:font-bold first-letter:text-accent first-letter:mr-2 first-letter:float-left">
                   {content.description_line1}
                 </p>
                 <p>{content.description_line2}</p>
@@ -147,33 +135,32 @@ export default function About() {
             </div>
           </motion.div>
 
-          {/* Right side – Horizontal skill bars (space-efficient) */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="space-y-8"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="space-y-5"
           >
-            <h3 className="text-2xl font-black uppercase tracking-tighter text-[var(--text-primary)]">
+            <h3 className="text-lg font-black uppercase tracking-tighter text-[var(--text-primary)]">
               Skills <span className="text-accent">&</span> Proficiency
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
               {skills.map((skill, i) => (
                 <div key={skill.name} className="group">
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[var(--text-primary)]/50 group-hover:text-accent transition-colors">
+                  <div className="flex justify-between items-end mb-1">
+                    <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-[var(--text-primary)]/50 group-hover:text-accent transition-colors">
                       {skill.name}
                     </span>
-                    <span className="text-xs font-black text-[var(--text-primary)]/90">
+                    <span className="text-[10px] font-black text-[var(--text-primary)]/90">
                       {skill.level}%
                     </span>
                   </div>
-                  <div className="h-[4px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)]">
+                  <div className="h-[3px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)]">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={isVisible ? { width: `${skill.level}%` } : {}}
-                      transition={{ duration: 1.2, delay: 0.4 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 1, delay: 0.3 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
                       style={{ backgroundColor: 'var(--accent)' }}
                       className="h-full relative rounded-full"
                     >
