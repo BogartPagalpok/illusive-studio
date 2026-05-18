@@ -9,6 +9,7 @@ import { supabase } from './lib/supabase';
 import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
+import LiquidEtherBackground from './components/LiquidEtherBackground';
 
 function AtmosphereGradient() {
   return (
@@ -46,7 +47,6 @@ function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // ── Parallax scroll driver ──
   useEffect(() => {
     const handleScroll = () => {
       const offset = window.scrollY;
@@ -115,7 +115,14 @@ function App() {
 
   return (
     <main className="min-h-screen relative overflow-x-hidden">
-      <AtmosphereGradient />
+      <LiquidEtherBackground
+        colors={['#5227FF', '#FF9FFC', '#B19EEF']}
+        mouseForce={20}
+        cursorSize={100}
+        resolution={0.25}
+        autoDemo={true}
+        autoSpeed={0.5}
+      />
       <Routes>
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
