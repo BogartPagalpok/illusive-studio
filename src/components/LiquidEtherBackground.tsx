@@ -205,7 +205,6 @@ class FluidSimulation {
   height = 0;
   pixelRatio = 1;
 
-  // Shader passes
   advectionPass: any;
   externalForcePass: any;
   divergencePass: any;
@@ -280,7 +279,6 @@ class FluidSimulation {
     const cs = this.cellScale;
     const bs = this.boundarySpace;
 
-    // Output
     const outScene = new THREE.Scene();
     const outCam = new THREE.Camera();
     const outMat = new THREE.RawShaderMaterial({
@@ -297,14 +295,12 @@ class FluidSimulation {
     outScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), outMat));
     this.outputPass = { scene: outScene, camera: outCam, material: outMat };
 
-    // Advection
     this.advectionPass = this.createPass(faceVert, advectionFrag, {
       boundarySpace: { value: cs }, px: { value: cs },
       fboSize: { value: this.fboSize }, velocity: { value: this.fbos.vel_0!.texture },
       dt: { value: this.options.dt }, isBFECC: { value: true },
     }, this.fbos.vel_1);
 
-    // External force
     const forceGeo = new THREE.PlaneGeometry(1, 1);
     const forceMat = new THREE.RawShaderMaterial({
       vertexShader: mouseVert, fragmentShader: externalForceFrag,
@@ -320,25 +316,21 @@ class FluidSimulation {
     forceScene.add(new THREE.Mesh(forceGeo, forceMat));
     this.externalForcePass = { scene: forceScene, camera: forceCam, material: forceMat, output: this.fbos.vel_1 };
 
-    // Divergence
     this.divergencePass = this.createPass(faceVert, divergenceFrag, {
       boundarySpace: { value: bs }, velocity: { value: this.fbos.vel_1!.texture },
       px: { value: cs }, dt: { value: this.options.dt },
     }, this.fbos.div);
 
-    // Poisson
     this.poissonPass = this.createPass(faceVert, poissonFrag, {
       boundarySpace: { value: bs }, pressure: { value: this.fbos.pressure_0!.texture },
       divergence: { value: this.fbos.div!.texture }, px: { value: cs },
     }, this.fbos.pressure_1, this.fbos.pressure_0);
 
-    // Pressure
     this.pressurePass = this.createPass(faceVert, pressureFrag, {
       boundarySpace: { value: bs }, pressure: { value: this.fbos.pressure_0!.texture },
       velocity: { value: this.fbos.vel_1!.texture }, px: { value: cs }, dt: { value: this.options.dt },
     }, this.fbos.vel_0);
 
-    // Viscous
     this.viscousPass = this.createPass(faceVert, viscousFrag, {
       boundarySpace: { value: bs }, velocity: { value: this.fbos.vel_1!.texture },
       velocity_new: { value: this.fbos.vel_viscous0!.texture }, v: { value: this.options.viscous },
@@ -365,7 +357,6 @@ class FluidSimulation {
     const cs = this.cellScale;
     const opts = this.options;
 
-    // Update external force
     const fm = this.externalForcePass.material.uniforms;
     fm.force.value.set(mouseDiff.x / 2 * opts.mouseForce, mouseDiff.y / 2 * opts.mouseForce);
     const cx = Math.min(Math.max(mouseCoords.x, -1 + opts.cursorSize * cs.x + cs.x * 2), 1 - opts.cursorSize * cs.x - cs.x * 2);
@@ -373,7 +364,6 @@ class FluidSimulation {
     fm.center.value.set(cx, cy);
     fm.scale.value.set(opts.cursorSize, opts.cursorSize);
 
-    // Run simulation steps
     this.renderPass(this.advectionPass, this.fbos.vel_1);
     this.renderPass(this.externalForcePass, this.fbos.vel_1);
 
@@ -402,7 +392,6 @@ class FluidSimulation {
     this.pressurePass.material.uniforms.pressure.value = this.fbos.pressure_0!.texture;
     this.renderPass(this.pressurePass, this.fbos.vel_0);
 
-    // Render output
     this.renderPass(this.outputPass, null);
   }
 
@@ -504,7 +493,6 @@ export default function LiquidEtherBackground({
     const mouse = new MouseTracker();
     const driver = new AutoDriver(mouse, autoDemo, autoSpeed, 1000);
 
-    // Palette
     const arr = colors.length > 1 ? colors : [colors[0], colors[0]];
     const data = new Uint8Array(arr.length * 4);
     arr.forEach((c, i) => {
@@ -524,7 +512,7 @@ export default function LiquidEtherBackground({
 
     sim.init(container, paletteTex);
 
-    // Mouse events
+    // Mouse + Touch events — passive so site scrolls normally
     const onMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       mouse.update(e.clientX, e.clientY, rect);
@@ -536,7 +524,6 @@ export default function LiquidEtherBackground({
       }
     };
     const onTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
       if (e.touches.length === 1) {
         const rect = container.getBoundingClientRect();
         mouse.update(e.touches[0].clientX, e.touches[0].clientY, rect);
@@ -545,9 +532,8 @@ export default function LiquidEtherBackground({
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
 
-    // Render loop
     let raf: number;
     const animate = () => {
       driver.update(mouse.lastInteraction);
@@ -556,7 +542,6 @@ export default function LiquidEtherBackground({
     };
     animate();
 
-    // Resize
     const onResize = () => sim.resize(container);
     window.addEventListener('resize', onResize);
 
