@@ -431,8 +431,8 @@ class AutoDriver {
 }
 
 export default function LiquidEtherBackground({
-  colors = defaultColors, mouseForce = 60, cursorSize = 200,
-  resolution = 0.2, autoDemo = true, autoSpeed = 0.5,
+  colors = defaultColors, mouseForce = 20, cursorSize = 100,
+  resolution = 0.25, autoDemo = true, autoSpeed = 0.5,
   className = '', style,
 }: LiquidEtherProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -470,6 +470,7 @@ export default function LiquidEtherBackground({
       }
     };
     const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
       if (e.touches.length === 1) {
         const rect = container.getBoundingClientRect();
         mouse.update(e.touches[0].clientX, e.touches[0].clientY, rect);
@@ -477,7 +478,7 @@ export default function LiquidEtherBackground({
     };
 
     window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('touchstart', onTouchStart);
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
     window.addEventListener('touchmove', onTouchMove, { passive: false });
 
     let raf: number;
