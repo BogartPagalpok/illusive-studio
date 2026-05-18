@@ -54,7 +54,6 @@ export default function Hero() {
     fetchContent();
   }, []);
 
-  // Overlay: fades OUT instantly on scroll down, fades IN on scroll up
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
@@ -68,7 +67,7 @@ export default function Hero() {
         scrollTrigger: {
           trigger: '#hero',
           start: 'top top',
-          end: '+=50%', // Changed from 100% → disappears faster
+          end: '+=50%',
           scrub: true,
         },
       });
@@ -79,7 +78,7 @@ export default function Hero() {
 
   return (
     <section id="hero" className="w-full overflow-hidden relative bg-transparent">
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={1.5}>
+      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={1}>
         <div className="hidden md:block">
           <FloatingCube type="Ps" size={100} top="20%" left="10%" blur="2px" delay={0} duration={6} />
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
