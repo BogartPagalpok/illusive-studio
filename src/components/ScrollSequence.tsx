@@ -28,7 +28,6 @@ export default function ScrollSequence({
   const firstFrameDrawnRef = useRef<boolean>(false);
   const isMobileRef = useRef(false);
 
-  // Detect mobile
   useEffect(() => {
     const check = () => { isMobileRef.current = window.innerWidth < 768; };
     check();
@@ -45,15 +44,18 @@ export default function ScrollSequence({
     const img = imagesRef.current[index];
     if (!img || !img.complete || img.naturalWidth === 0) return false;
 
-    // On mobile, use contain to show more of the image
     if (isMobileRef.current) {
-      const scale = Math.min(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
-      const x = (canvas.width - img.naturalWidth * scale) / 2;
-      const y = (canvas.height - img.naturalHeight * scale) / 2;
+      // Mobile: fill screen then zoom out 30% so face isn't too close
+      const fillScale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
+      const scale = fillScale * 0.70;
+      const scaledW = img.naturalWidth * scale;
+      const scaledH = img.naturalHeight * scale;
+      const x = (canvas.width - scaledW) / 2;
+      const y = (canvas.height - scaledH) / 2;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, x, y, img.naturalWidth * scale, img.naturalHeight * scale);
+      ctx.drawImage(img, x, y, scaledW, scaledH);
     } else {
-      // Desktop: fill screen (cover)
+      // Desktop: fill screen (cover) - unchanged
       const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
       const x = (canvas.width - img.naturalWidth * scale) / 2;
       const y = (canvas.height - img.naturalHeight * scale) / 2;
