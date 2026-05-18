@@ -28,19 +28,12 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
 
   return (
     <div className="relative min-h-screen w-full selection:bg-[var(--accent)] selection:text-[var(--accent-contrast)]">
-      
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" 
-             style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/stardust.png")` }} />
-        <div className="absolute inset-0" style={{ backgroundImage: 'var(--bg-gradient)' }} />
-      </div>
 
       <Navbar />
       
       <main className="relative z-10">
         <Hero />
         
-        {/* Services pulled up to overlap the hero space */}
         <div style={{ marginTop: '-100vh', position: 'relative', zIndex: 1 }}>
           <Services />
         </div>
