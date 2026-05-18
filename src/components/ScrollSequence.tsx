@@ -92,7 +92,7 @@ export default function ScrollSequence({
     const frameObj = { frame: 0 };
 
     const ctx = gsap.context(() => {
-      ScrollTrigger.create({
+      const st = ScrollTrigger.create({
         trigger: container,
         start: "top top",
         end: `+=${scrollLength * 100}%`,
@@ -106,22 +106,24 @@ export default function ScrollSequence({
             drawFrame(lastDrawnFrameRef.current);
           }
           
-          // Fade everything in the last 25%
           const fadeStart = 0.75;
           const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
           
-          // Fade the entire inner container
           inner.style.opacity = `${1 - fadeProgress}`;
           
           if (canvas) {
             canvas.style.opacity = `${1 - fadeProgress}`;
           }
         },
-        onLeave: () => {
+        onLeave: (self) => {
           inner.style.opacity = '0';
+          self.scrollTrigger?.pin(false);
+          self.scrollTrigger?.refresh();
         },
-        onEnterBack: () => {
+        onEnterBack: (self) => {
           inner.style.opacity = '1';
+          self.scrollTrigger?.pin(true);
+          self.scrollTrigger?.refresh();
         },
       });
     });
