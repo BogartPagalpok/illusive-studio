@@ -132,7 +132,7 @@ export default function SelectedWorks() {
               grabCursor={true}
               centeredSlides={true}
               slidesPerView={isMobile ? 1 : 2}
-              spaceBetween={isMobile ? 0 : 60}
+              spaceBetween={isMobile ? 0 : 80}
               coverflowEffect={coverflowSettings}
               onSlideChange={(s) => setActiveIndex(s.activeIndex)}
               className="w-full"
@@ -151,7 +151,7 @@ export default function SelectedWorks() {
                           borderColor: 'var(--glass-border)',
                           backgroundColor: 'var(--glass-bg)',
                           aspectRatio: isMobile ? '4/5' : '16/9',
-                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'auto',
+                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'clamp(450px, 55vh, 700px)',
                           width: isMobile ? '90vw' : '100%',
                           margin: isMobile ? '0 auto' : '0',
                         }}
