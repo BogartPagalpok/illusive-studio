@@ -33,7 +33,15 @@ export default function SelectedWorks() {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const swiperRef = useRef<SwiperType | null>(null);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const fetchWorks = useCallback(async () => {
     try {
@@ -108,22 +116,32 @@ export default function SelectedWorks() {
             effect="coverflow"
             grabCursor={true}
             centeredSlides={true}
-            slidesPerView={3}
-            spaceBetween={0}
-            coverflowEffect={{ rotate: 0, stretch: -20, depth: 100, modifier: 1, slideShadows: false }}
+            slidesPerView={isMobile ? 1 : 3}
+            spaceBetween={isMobile ? 0 : 0}
+            coverflowEffect={{ rotate: 0, stretch: isMobile ? 0 : -20, depth: isMobile ? 0 : 100, modifier: 1, slideShadows: false }}
             onSlideChange={(s) => setActiveIndex(s.activeIndex)}
             className="w-full"
           >
             {filteredProjects.map((project, i) => (
               <SwiperSlide key={project.id}>
-                <div className="transition-all duration-500" style={{ opacity: i === activeIndex ? 1 : 0.3 }}>
+                <div className="transition-all duration-500" style={{ opacity: isMobile ? 1 : (i === activeIndex ? 1 : 0.3) }}>
                   <div onClick={() => setSelectedProject(project)} className="cursor-pointer">
                     <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
-                      <div className="relative rounded-[20px] overflow-hidden border flex flex-col" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)', aspectRatio: '16/10' }}>
+                      <div
+                        className="relative rounded-[20px] overflow-hidden border flex flex-col"
+                        style={{
+                          borderColor: 'var(--glass-border)',
+                          backgroundColor: 'var(--glass-bg)',
+                          aspectRatio: isMobile ? '4/5' : '16/10',
+                          height: isMobile ? 'clamp(450px, 80vh, 700px)' : 'auto',
+                          width: isMobile ? '85vw' : 'auto',
+                          margin: isMobile ? '0 auto' : '0',
+                        }}
+                      >
                         <div className="flex-1 overflow-hidden">
                           <img src={project.hero_bg_desktop || project.image_url} className="w-full h-full object-cover" alt={project.title} draggable={false} />
                         </div>
-                        <div className="p-3 flex flex-col gap-1 flex-shrink-0" style={{ opacity: i === activeIndex ? 1 : 0 }}>
+                        <div className="p-3 flex flex-col gap-1 flex-shrink-0">
                           <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
                           <h3 className="text-[var(--text-primary)] text-sm font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
                         </div>
@@ -145,17 +163,18 @@ export default function SelectedWorks() {
 
       <AnimatePresence>
         {selectedProject && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[9999] overflow-y-auto" style={{ backgroundColor: 'rgba(0,0,0,0.95)' }} onClick={() => setSelectedProject(null)}>
-            <button onClick={() => setSelectedProject(null)} className="fixed top-4 right-4 z-[10000] p-2.5 rounded-full border transition-all" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[9999] flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.95)' }}>
+            <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-[10000] p-2.5 rounded-full border transition-all" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
               <X size={18} />
             </button>
-            <div className="min-h-screen flex flex-col items-center justify-center px-4 py-20" onClick={(e) => e.stopPropagation()}>
-              <div className="max-w-3xl w-full space-y-6">
+
+            <div className="flex-1 overflow-y-auto px-4 py-16" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <div className="max-w-3xl mx-auto space-y-6 pb-10">
                 {galleryImages.map((img) => (
                   <img key={img.id} src={img.hero_bg_desktop || img.image_url} className="w-full h-auto max-h-[60vh] rounded-2xl border object-cover" style={{ borderColor: 'var(--glass-border)' }} alt="" />
                 ))}
               </div>
-              <div className="mt-8 text-center max-w-xl">
+              <div className="text-center max-w-xl mx-auto pb-10">
                 <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
                 <h2 className="text-white text-xl font-black uppercase tracking-tighter mt-1">{selectedProject.title}</h2>
                 <p className="text-white/50 text-sm mt-2">{selectedProject.description}</p>
