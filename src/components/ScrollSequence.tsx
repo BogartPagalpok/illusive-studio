@@ -127,7 +127,7 @@ export default function ScrollSequence({
   }, [frameCount, drawFrame, scrollLength]);
 
   return (
-    <div ref={containerRef} className="relative w-full bg-black z-0">
+    <div ref={containerRef} className="relative w-full z-0" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="h-screen w-full overflow-hidden relative">
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" />
         
