@@ -116,7 +116,7 @@ export default function About() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <div className="card-dark">
-              <h3 className="font-bold tracking-tighter text-lg mb-4 leading-tight text-[var(--text-primary)]">
+              <h3 className="font-bold tracking-tighter mb-4 leading-tight text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 2vw, 24px)' }}>
                 {content.subheading.includes('.') ? (
                   <>
                     {content.subheading.split('.')[0]}. <span className="text-accent">{content.subheading.split('.')[1].trim()}</span>
@@ -125,7 +125,7 @@ export default function About() {
                   content.subheading
                 )}
               </h3>
-              <div className="space-y-3 text-sm font-light text-[var(--text-secondary)]">
+              <div className="space-y-3 font-light text-[var(--text-secondary)]" style={{ fontSize: 'clamp(12px, 1.1vw, 16px)' }}>
                 <p className="first-letter:text-3xl first-letter:font-bold first-letter:text-accent first-letter:mr-2 first-letter:float-left">
                   {content.description_line1}
                 </p>
@@ -141,7 +141,7 @@ export default function About() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="space-y-5"
           >
-            <h3 className="text-lg font-black uppercase tracking-tighter text-[var(--text-primary)]">
+            <h3 className="font-black uppercase tracking-tighter text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 2vw, 24px)' }}>
               Skills <span className="text-accent">&</span> Proficiency
             </h3>
 
@@ -149,10 +149,10 @@ export default function About() {
               {skills.map((skill, i) => (
                 <div key={skill.name} className="group">
                   <div className="flex justify-between items-end mb-1">
-                    <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-[var(--text-primary)]/50 group-hover:text-accent transition-colors">
+                    <span className="font-bold uppercase text-[var(--text-primary)]/50 group-hover:text-accent transition-colors" style={{ fontSize: 'clamp(8px, 0.9vw, 12px)', letterSpacing: '0.2em' }}>
                       {skill.name}
                     </span>
-                    <span className="text-[10px] font-black text-[var(--text-primary)]/90">
+                    <span className="font-black text-[var(--text-primary)]/90" style={{ fontSize: 'clamp(9px, 0.9vw, 13px)' }}>
                       {skill.level}%
                     </span>
                   </div>
