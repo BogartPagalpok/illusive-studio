@@ -58,16 +58,19 @@ export default function Hero() {
     const overlay = overlayRef.current;
     if (!overlay) return;
 
+    // Start hidden, reveal when scrolling back up
+    gsap.set(overlay, { yPercent: -100, opacity: 0 });
+
     const ctx = gsap.context(() => {
       gsap.to(overlay, {
-        yPercent: -100,
-        opacity: 0,
+        yPercent: 0,
+        opacity: 1,
         ease: 'none',
         immediateRender: false,
         scrollTrigger: {
           trigger: overlay,
-          start: 'top top',
-          end: '+=150%',
+          start: 'top bottom',
+          end: 'top top',
           scrub: true,
         },
       });
