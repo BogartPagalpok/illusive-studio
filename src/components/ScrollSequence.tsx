@@ -106,7 +106,7 @@ export default function ScrollSequence({
             drawFrame(lastDrawnFrameRef.current);
           }
           
-          const fadeStart = 0.75;
+          const fadeStart = 0.95; // Changed from 0.75 → fades only at the very end
           const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
           
           inner.style.opacity = `${1 - fadeProgress}`;
