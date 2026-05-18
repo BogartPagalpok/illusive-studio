@@ -136,40 +136,40 @@
 }
 
 @layer components {
-  .section-container { @apply max-w-7xl mx-auto px-6 lg:px-8; }
-  .section-padding { @apply py-12 lg:py-16; }
+  .section-container { @apply max-w-7xl mx-auto px-4 lg:px-6; }
+  .section-padding { @apply py-10 lg:py-14; }
 
   .btn-primary {
-    @apply relative overflow-hidden rounded-full px-8 py-2.5 font-bold flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[11px] transition-all duration-300;
+    @apply relative overflow-hidden rounded-full px-6 py-2 font-bold flex items-center justify-center gap-2 uppercase tracking-[0.15em] text-[10px] transition-all duration-300;
     background: var(--accent) !important; color: var(--accent-contrast) !important;
     box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
   }
   .btn-primary svg { @apply fill-current text-inherit; }
-  .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.5); filter: brightness(1.1); }
+  .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.5); filter: brightness(1.1); }
 
   .btn-outline {
-    @apply relative inline-flex items-center justify-center gap-3 rounded-full border font-bold uppercase tracking-[0.2em] text-[11px] transition-all duration-300 px-8 py-2.5;
+    @apply relative inline-flex items-center justify-center gap-2 rounded-full border font-bold uppercase tracking-[0.15em] text-[10px] transition-all duration-300 px-6 py-2;
     border-color: var(--text-primary); color: var(--text-primary); background: transparent;
   }
   .btn-outline:hover { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
 
-  .section-subtitle { @apply text-xs font-heading tracking-[0.3em] uppercase mb-3 block; color: var(--accent); }
-  .section-title { @apply font-bold tracking-tighter uppercase; color: var(--text-primary); font-size: clamp(1.75rem, 5vw, 3.5rem); }
-  .section-divider { @apply mt-4 w-16 h-0.5 mx-auto; background-color: var(--accent); }
+  .section-subtitle { @apply text-[10px] font-heading tracking-[0.3em] uppercase mb-2 block; color: var(--accent); }
+  .section-title { @apply font-bold tracking-tighter uppercase; color: var(--text-primary); font-size: clamp(1.5rem, 4vw, 3rem); }
+  .section-divider { @apply mt-3 w-12 h-0.5 mx-auto; background-color: var(--accent); }
 
   .card-dark {
-    @apply p-5 md:p-6 rounded-2xl transition-all duration-500 backdrop-blur-xl border relative overflow-hidden;
+    @apply p-4 rounded-xl transition-all duration-500 backdrop-blur-xl border relative overflow-hidden;
     background-color: var(--bg-secondary); border-color: var(--glass-border);
   }
-  .card-dark:hover { border-color: var(--accent); box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.15); transform: translateY(-5px); }
+  .card-dark:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.15); transform: translateY(-3px); }
   .card-dark::after { content: ''; @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none; background: radial-gradient(circle at center, rgba(var(--accent-rgb), 0.1)); }
   .card-dark:hover::after { @apply opacity-100; }
 
-  .heading-xl { @apply text-5xl md:text-7xl lg:text-8xl font-black uppercase leading-[0.9] tracking-tighter italic; }
+  .heading-xl { @apply text-4xl md:text-6xl lg:text-7xl font-black uppercase leading-[0.9] tracking-tighter italic; }
   .text-accent { color: var(--accent); }
 
   .btn-primary-sm {
-    @apply relative overflow-hidden rounded-lg px-4 py-2 font-bold flex items-center justify-center gap-2 uppercase tracking-[0.2em] text-[9px] transition-all duration-300;
+    @apply relative overflow-hidden rounded-lg px-3 py-1.5 font-bold flex items-center justify-center gap-1.5 uppercase tracking-[0.15em] text-[8px] transition-all duration-300;
     background: var(--accent) !important; color: var(--accent-contrast) !important;
     box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
   }
@@ -177,15 +177,15 @@
   .btn-primary-sm svg { @apply fill-current text-inherit; }
 
   .btn-ghost-sm {
-    @apply relative inline-flex items-center justify-center gap-2 rounded-lg border font-bold uppercase tracking-[0.2em] text-[9px] transition-all duration-300 px-4 py-2;
+    @apply relative inline-flex items-center justify-center gap-1.5 rounded-lg border font-bold uppercase tracking-[0.15em] text-[8px] transition-all duration-300 px-3 py-1.5;
     border-color: var(--text-primary); color: var(--text-primary); background: transparent;
   }
   .btn-ghost-sm:hover { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
 
-  .card-dark-sm { @apply p-4 rounded-2xl transition-all duration-300 backdrop-blur-xl border relative overflow-hidden; background-color: var(--bg-secondary); border-color: var(--glass-border); }
-  .card-dark-sm:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.15); transform: translateY(-2px); }
+  .card-dark-sm { @apply p-3 rounded-xl transition-all duration-300 backdrop-blur-xl border relative overflow-hidden; background-color: var(--bg-secondary); border-color: var(--glass-border); }
+  .card-dark-sm:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.15); transform: translateY(-2px); }
 
-  .input-dark { @apply w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm font-body transition-colors duration-200 focus:outline-none; color: var(--text-primary); }
+  .input-dark { @apply w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-body transition-colors duration-200 focus:outline-none; color: var(--text-primary); }
   .input-dark:focus { border-color: var(--accent); }
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
