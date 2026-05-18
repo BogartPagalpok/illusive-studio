@@ -110,10 +110,7 @@ export default function ScrollSequence({
           const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
           
           inner.style.opacity = `${1 - fadeProgress}`;
-          
-          if (canvas) {
-            canvas.style.opacity = `${1 - fadeProgress}`;
-          }
+          if (canvas) canvas.style.opacity = `${1 - fadeProgress}`;
         },
         onLeave: (self) => {
           inner.style.opacity = '0';
@@ -134,7 +131,7 @@ export default function ScrollSequence({
   return (
     <div ref={containerRef} className="relative w-full z-0">
       <div ref={innerRef} className="h-screen w-full overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" />
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" style={{ objectPosition: 'top center' }} />
         
         <div 
           className="absolute inset-0 pointer-events-none transition-colors duration-500 z-[1]" 
