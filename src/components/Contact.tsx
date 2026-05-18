@@ -79,13 +79,6 @@ export default function Contact() {
     setSending(false);
   };
 
-  const glassInputStyle = {
-    backgroundColor: 'var(--glass-bg)',
-    borderColor: 'var(--glass-border)',
-    color: 'var(--text-primary)',
-    backdropFilter: 'blur(4px)',
-  };
-
   return (
     <section className="section-padding relative overflow-visible z-30 bg-transparent">
       <div id="contact" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
@@ -102,7 +95,7 @@ export default function Contact() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <span className="section-subtitle !mb-3 font-black">{content.subtitle}</span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl italic font-black uppercase tracking-tighter text-[var(--text-primary)]">
+            <h2 className="italic font-black uppercase tracking-tighter text-[var(--text-primary)]" style={{ fontSize: 'clamp(1.8rem, 4vw, 4rem)' }}>
               {content.heading.split(' ').length > 1 ? (
                 <>
                   {content.heading.split(' ').slice(0, -1).join(' ')}{' '}
@@ -112,7 +105,7 @@ export default function Contact() {
                 content.heading
               )}
             </h2>
-            <p className="mt-4 mb-5 leading-relaxed text-xs text-[var(--text-secondary)]">
+            <p className="mt-4 mb-5 leading-relaxed text-[var(--text-secondary)]" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
               {content.description}
             </p>
             <div className="w-12 h-0.5 bg-[var(--accent)]" />
@@ -126,9 +119,9 @@ export default function Contact() {
             style={{ boxShadow: '0 15px 30px -8px rgba(0, 0, 0, 0.4)' }}
           >
             <div className="flex flex-col gap-1 mb-5">
-              <p className="text-[9px] uppercase tracking-[0.3em] font-bold text-[var(--text-secondary)]/50">Secure Channel</p>
+              <p className="uppercase font-bold text-[var(--text-secondary)]/50" style={{ fontSize: 'clamp(8px, 0.8vw, 11px)', letterSpacing: '0.3em' }}>Secure Channel</p>
               {user && (
-                <p className="text-[8px] text-accent uppercase tracking-[0.2em] font-black italic">
+                <p className="text-accent uppercase font-black italic" style={{ fontSize: 'clamp(7px, 0.7vw, 10px)', letterSpacing: '0.2em' }}>
                   Authenticated: {user.email}
                 </p>
               )}
@@ -136,7 +129,7 @@ export default function Contact() {
 
             <form onSubmit={handleSubmit} className="space-y-4 w-full">
               <div className="w-full">
-                <label className="block text-[8px] font-heading tracking-[0.2em] uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60">NAME</label>
+                <label className="block font-heading uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60" style={{ fontSize: 'clamp(7px, 0.7vw, 10px)', letterSpacing: '0.2em' }}>NAME</label>
                 <input
                   type="text" required value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -145,7 +138,7 @@ export default function Contact() {
               </div>
 
               <div className="w-full">
-                <label className="block text-[8px] font-heading tracking-[0.2em] uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60">EMAIL</label>
+                <label className="block font-heading uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60" style={{ fontSize: 'clamp(7px, 0.7vw, 10px)', letterSpacing: '0.2em' }}>EMAIL</label>
                 <input
                   type="email" required value={form.email} readOnly
                   className="input-dark cursor-not-allowed"
@@ -153,7 +146,7 @@ export default function Contact() {
               </div>
 
               <div className="w-full">
-                <label className="block text-[8px] font-heading tracking-[0.2em] uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60">MESSAGE</label>
+                <label className="block font-heading uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60" style={{ fontSize: 'clamp(7px, 0.7vw, 10px)', letterSpacing: '0.2em' }}>MESSAGE</label>
                 <textarea
                   required rows={3} value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
@@ -166,14 +159,14 @@ export default function Contact() {
                 {sending ? (
                   <span className="flex items-center gap-2">
                     <span className="w-3.5 h-3.5 border-2 border-t-transparent animate-spin rounded-full border-current" />
-                    <span className="text-[9px]">SYNCING...</span>
+                    <span>SYNCING...</span>
                   </span>
                 ) : sent ? (
-                  <span className="font-black italic text-[9px]">TRANSMISSION COMPLETE</span>
+                  <span className="font-black italic">TRANSMISSION COMPLETE</span>
                 ) : (
                   <>
                     <Send size={12} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    <span className="font-black italic tracking-widest text-[9px]">SEND MESSAGE</span>
+                    <span className="font-black italic tracking-widest">SEND MESSAGE</span>
                   </>
                 )}
               </button>
