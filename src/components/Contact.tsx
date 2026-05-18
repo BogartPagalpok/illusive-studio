@@ -46,7 +46,6 @@ export default function Contact() {
           .from('site_content')
           .select('key, value')
           .eq('section', 'contact');
-
         if (!error && data && data.length > 0) {
           const mapped = { ...defaultContent };
           for (const row of data) {
@@ -55,9 +54,7 @@ export default function Contact() {
           }
           setContent(mapped);
         }
-      } catch {
-        // Use defaults
-      }
+      } catch {}
     };
 
     fetchContent();
@@ -70,12 +67,7 @@ export default function Contact() {
     setSending(true);
     try {
       const { error } = await supabase.from('contact_messages').insert([
-        {
-          name: form.name,
-          email: form.email,
-          message: form.message,
-          user_id: user.id
-        },
+        { name: form.name, email: form.email, message: form.message, user_id: user.id },
       ]);
       if (error) throw error;
       setSent(true);
@@ -96,25 +88,21 @@ export default function Contact() {
 
   return (
     <section className="section-padding relative overflow-visible z-30 bg-transparent">
-      <div id="contact" className="absolute -top-24 left-0 w-full h-1 pointer-events-none" />
+      <div id="contact" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
       
-      <FloatingCube type="Canva" size={80} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
-      <FloatingCube type="Id" size={120} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
+      <FloatingCube type="Canva" size={60} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
+      <FloatingCube type="Id" size={90} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
 
       <div ref={ref} className="section-container relative">
-        <div className="grid lg:grid-cols-2 gap-0 items-start max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-8 items-start max-w-4xl mx-auto">
           
-          {/* Left side unchanged */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="lg:sticky lg:top-32"
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <span className="section-subtitle !text-[10px] !tracking-[0.4em] !mb-4 font-black">
-              {content.subtitle}
-            </span>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl italic font-black uppercase tracking-tighter text-[var(--text-primary)]">
+            <span className="section-subtitle !mb-3 font-black">{content.subtitle}</span>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl italic font-black uppercase tracking-tighter text-[var(--text-primary)]">
               {content.heading.split(' ').length > 1 ? (
                 <>
                   {content.heading.split(' ').slice(0, -1).join(' ')}{' '}
@@ -124,102 +112,74 @@ export default function Contact() {
                 content.heading
               )}
             </h2>
-            <p className="mt-6 mb-8 leading-relaxed text-sm text-[var(--text-secondary)]">
+            <p className="mt-4 mb-5 leading-relaxed text-xs text-[var(--text-secondary)]">
               {content.description}
             </p>
-            <div className="w-16 h-0.5 bg-[var(--accent)]" />
+            <div className="w-12 h-0.5 bg-[var(--accent)]" />
           </motion.div>
 
-          {/* Right side – Glass Card with internal padding */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="card-glass rounded-[2.5rem] w-full box-border p-6 md:p-8"
-            style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="card-dark !p-5 !rounded-2xl w-full box-border"
+            style={{ boxShadow: '0 15px 30px -8px rgba(0, 0, 0, 0.4)' }}
           >
-            <div className="flex flex-col gap-1 mb-8">
-              <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-[var(--text-secondary)]/50">
-                Secure Channel
-              </p>
+            <div className="flex flex-col gap-1 mb-5">
+              <p className="text-[9px] uppercase tracking-[0.3em] font-bold text-[var(--text-secondary)]/50">Secure Channel</p>
               {user && (
-                <p className="text-[9px] text-accent uppercase tracking-[0.2em] font-black italic">
+                <p className="text-[8px] text-accent uppercase tracking-[0.2em] font-black italic">
                   Authenticated: {user.email}
                 </p>
               )}
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6 w-full">
-              {/* Name */}
+            <form onSubmit={handleSubmit} className="space-y-4 w-full">
               <div className="w-full">
-                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
-                  NAME
-                </label>
+                <label className="block text-[8px] font-heading tracking-[0.2em] uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60">NAME</label>
                 <input
-                  type="text"
-                  required
-                  value={form.name}
+                  type="text" required value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm overflow-hidden text-ellipsis"
-                  style={glassInputStyle}
-                  placeholder="Your Name"
+                  className="input-dark" placeholder="Your Name"
                 />
               </div>
 
-              {/* Email (read‑only, same style) */}
               <div className="w-full">
-                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
-                  EMAIL
-                </label>
+                <label className="block text-[8px] font-heading tracking-[0.2em] uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60">EMAIL</label>
                 <input
-                  type="email"
-                  required
-                  value={form.email}
-                  readOnly
-                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none cursor-not-allowed text-sm overflow-hidden text-ellipsis"
-                  style={glassInputStyle}
+                  type="email" required value={form.email} readOnly
+                  className="input-dark cursor-not-allowed"
                 />
               </div>
 
-              {/* Message */}
               <div className="w-full">
-                <label className="block text-[9px] font-heading tracking-[0.2em] uppercase mb-2 ml-1 text-[var(--text-primary)]/60">
-                  MESSAGE
-                </label>
+                <label className="block text-[8px] font-heading tracking-[0.2em] uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60">MESSAGE</label>
                 <textarea
-                  required
-                  rows={4}
-                  value={form.message}
+                  required rows={3} value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full box-border bg-transparent border rounded-xl p-4 outline-none focus:border-accent transition-all text-sm resize-none custom-scrollbar overflow-hidden"
-                  style={glassInputStyle}
+                  className="input-dark resize-none"
                   placeholder="Tell me about your project..."
                 />
               </div>
               
-              {/* Button – same width as inputs */}
-              <button
-                type="submit"
-                disabled={sending}
-                className="btn-primary w-full py-5 !rounded-xl disabled:opacity-30 flex items-center justify-center gap-3 group box-border"
-              >
+              <button type="submit" disabled={sending} className="btn-primary w-full !py-3 !rounded-xl disabled:opacity-30 flex items-center justify-center gap-2 group">
                 {sending ? (
                   <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-t-transparent animate-spin rounded-full border-current" />
-                    <span>SYNCING...</span>
+                    <span className="w-3.5 h-3.5 border-2 border-t-transparent animate-spin rounded-full border-current" />
+                    <span className="text-[9px]">SYNCING...</span>
                   </span>
                 ) : sent ? (
-                  <span className="font-black italic">TRANSMISSION COMPLETE</span>
+                  <span className="font-black italic text-[9px]">TRANSMISSION COMPLETE</span>
                 ) : (
                   <>
-                    <Send size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    <span className="font-black italic tracking-widest">SEND MESSAGE</span>
+                    <Send size={12} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    <span className="font-black italic tracking-widest text-[9px]">SEND MESSAGE</span>
                   </>
                 )}
               </button>
             </form>
 
-            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-accent/5 blur-[50px] rounded-full pointer-events-none" />
+            <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-accent/5 blur-[40px] rounded-full pointer-events-none" />
           </motion.div>
         </div>
       </div>
