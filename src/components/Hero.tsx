@@ -54,7 +54,7 @@ export default function Hero() {
     fetchContent();
   }, []);
 
-  // Overlay: fades OUT on scroll down, fades IN on scroll up
+  // Overlay: fades OUT instantly on scroll down, fades IN on scroll up
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
@@ -68,7 +68,7 @@ export default function Hero() {
         scrollTrigger: {
           trigger: '#hero',
           start: 'top top',
-          end: '+=100%',
+          end: '+=50%', // Changed from 100% → disappears faster
           scrub: true,
         },
       });
