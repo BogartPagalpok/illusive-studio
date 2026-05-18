@@ -22,6 +22,7 @@ export default function ScrollSequence({
 }: ScrollSequenceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastDrawnFrameRef = useRef<number>(0);
   const firstFrameDrawnRef = useRef<boolean>(false);
@@ -85,12 +86,13 @@ export default function ScrollSequence({
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
-    if (!container) return;
+    const inner = innerRef.current;
+    if (!container || !inner) return;
 
     const frameObj = { frame: 0 };
 
     const ctx = gsap.context(() => {
-      const st = ScrollTrigger.create({
+      ScrollTrigger.create({
         trigger: container,
         start: "top top",
         end: `+=${scrollLength * 100}%`,
@@ -104,60 +106,32 @@ export default function ScrollSequence({
             drawFrame(lastDrawnFrameRef.current);
           }
           
-          // Diagonal fade all hero layers in the last 25% of scroll
+          // Fade everything in the last 25%
           const fadeStart = 0.75;
           const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
           
+          // Fade the entire inner container
+          inner.style.opacity = `${1 - fadeProgress}`;
+          
           if (canvas) {
-            // Diagonal mask-image for canvas
-            const canvasFade = fadeProgress * 100;
-            const visible = 100 - canvasFade;
-            const maskGradient = `linear-gradient(135deg, 
-              rgba(0,0,0,1) 0%, 
-              rgba(0,0,0,1) ${Math.max(0, visible - 15)}%, 
-              rgba(0,0,0,0.3) ${visible}%, 
-              rgba(0,0,0,0) ${Math.min(100, visible + 15)}%)`;
-            canvas.style.maskImage = maskGradient;
-            canvas.style.WebkitMaskImage = maskGradient;
-          }
-          
-          // Fade accent overlay
-          const accentOverlay = container.querySelector('[style*="mix-blend-mode"]') as HTMLElement;
-          if (accentOverlay) {
-            accentOverlay.style.opacity = `${0.35 * (1 - fadeProgress)}`;
-          }
-          
-          // Fade bottom gradient
-          const bottomGradient = container.querySelector('[class*="h-48"]') as HTMLElement;
-          if (bottomGradient) {
-            bottomGradient.style.opacity = `${1 - fadeProgress}`;
+            canvas.style.opacity = `${1 - fadeProgress}`;
           }
         },
         onLeave: () => {
-          if (canvas) {
-            canvas.style.maskImage = 'none';
-            canvas.style.WebkitMaskImage = 'none';
-            canvas.style.opacity = '0';
-          }
+          inner.style.opacity = '0';
         },
         onEnterBack: () => {
-          if (canvas) {
-            canvas.style.maskImage = 'none';
-            canvas.style.WebkitMaskImage = 'none';
-            canvas.style.opacity = '1';
-          }
+          inner.style.opacity = '1';
         },
       });
-
-      return () => st.kill();
     });
 
     return () => ctx.revert();
   }, [frameCount, drawFrame, scrollLength]);
 
   return (
-    <div ref={containerRef} className="relative w-full z-0" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="h-screen w-full overflow-hidden relative">
+    <div ref={containerRef} className="relative w-full z-0">
+      <div ref={innerRef} className="h-screen w-full overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" />
         
         <div 
