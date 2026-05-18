@@ -17,7 +17,7 @@ export default function ScrollSequence({
   frameCount = 288,
   filePrefix = 'frame_',
   fileExtension = 'webp',
-  scrollLength = 2,
+  scrollLength = 4,
   children,
 }: ScrollSequenceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -96,7 +96,7 @@ export default function ScrollSequence({
         trigger: container,
         start: "top top",
         end: `+=${scrollLength * 100}%`,
-        scrub: 0.2,
+        scrub: 0.5,
         pin: true,
         anticipatePin: 1,
         onUpdate: (self) => {
@@ -106,7 +106,7 @@ export default function ScrollSequence({
             drawFrame(lastDrawnFrameRef.current);
           }
           
-          const fadeStart = 0.85;
+          const fadeStart = 0.75;
           const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
           
           inner.style.opacity = `${1 - fadeProgress}`;
