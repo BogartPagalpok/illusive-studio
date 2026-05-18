@@ -40,8 +40,13 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       <main className="relative z-10">
         <Hero />
         
-        {/* Services sits directly after Hero — no gradient blocker */}
-        <Services />
+        <section className="relative">
+          <div 
+            className="absolute inset-x-0 top-0 h-32 z-20 pointer-events-none" 
+            style={{ backgroundImage: 'linear-gradient(to bottom, var(--bg-primary), transparent)' }}
+          />
+          <Services />
+        </section>
 
         <SelectedWorks />
         
