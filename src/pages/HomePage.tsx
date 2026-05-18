@@ -38,15 +38,20 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       <Navbar />
       
       <main className="relative z-10">
-        <Hero />
-        
-        <section className="relative">
-          <div 
-            className="absolute inset-x-0 top-0 h-32 z-20 pointer-events-none" 
-            style={{ backgroundImage: 'linear-gradient(to bottom, var(--bg-primary), transparent)' }}
-          />
-          <Services />
-        </section>
+        {/* Hero section — pinned, fades out diagonally */}
+        <div className="relative">
+          {/* Services sits BEHIND the hero at the same position */}
+          <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 1 }}>
+            <div className="w-full">
+              <Services />
+            </div>
+          </div>
+          
+          {/* Hero sits ON TOP — will diagonal-fade to reveal Services */}
+          <div style={{ position: 'relative', zIndex: 2 }}>
+            <Hero />
+          </div>
+        </div>
 
         <SelectedWorks />
         
