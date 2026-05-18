@@ -102,18 +102,16 @@ export default function Hero() {
       id="hero"
       className="w-full overflow-hidden relative bg-transparent"
     >
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 4 : 6}>
+      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 3}>
         <div className="hidden md:block">
           <FloatingCube type="Ps" size={100} top="20%" left="10%" blur="2px" delay={0} duration={6} />
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
         </div>
 
         <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
-          {/* Darkening overlays – reduced opacity so background patterns show through */}
           <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
 
-          {/* LAYER 1: MAIN HERO TEXT */}
           <motion.div
             style={{ opacity: heroOpacity, y: heroY }}
             className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto"
