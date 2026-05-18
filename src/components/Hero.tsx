@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -33,6 +33,15 @@ function scrollToId(e: React.MouseEvent, id: string) {
 export default function Hero() {
   const [content, setContent] = useState<HeroContent>(defaultContent);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  });
+
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.15], ['0%', '-20%']);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -58,19 +67,16 @@ export default function Hero() {
     const overlay = overlayRef.current;
     if (!overlay) return;
 
-    // Start hidden, reveal when scrolling back up
-    gsap.set(overlay, { yPercent: -100, opacity: 0 });
-
     const ctx = gsap.context(() => {
       gsap.to(overlay, {
-        yPercent: 0,
-        opacity: 1,
+        yPercent: -100,
+        opacity: 0,
         ease: 'none',
         immediateRender: false,
         scrollTrigger: {
-          trigger: overlay,
-          start: 'top bottom',
-          end: 'top top',
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: '+=150%',
           scrub: true,
         },
       });
@@ -80,8 +86,8 @@ export default function Hero() {
   }, []);
 
   return (
-    <section id="hero" className="w-full overflow-hidden relative bg-transparent">
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={1}>
+    <section ref={sectionRef} id="hero" className="w-full overflow-hidden relative bg-transparent">
+      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={1.5}>
         <div className="hidden md:block">
           <FloatingCube type="Ps" size={100} top="20%" left="10%" blur="2px" delay={0} duration={6} />
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
@@ -91,7 +97,10 @@ export default function Hero() {
           <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
 
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto cursor-default">
+          <motion.div
+            style={{ opacity: heroOpacity, y: heroY }}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto cursor-default"
+          >
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -130,7 +139,7 @@ export default function Hero() {
               <a href="#works" onClick={(e) => scrollToId(e, 'works')} className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">View Works</a>
               <a href="#contact" onClick={(e) => scrollToId(e, 'contact')} className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">Get in Touch</a>
             </motion.div>
-          </div>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: -10 }}
