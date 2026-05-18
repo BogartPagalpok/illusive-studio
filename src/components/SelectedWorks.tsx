@@ -95,76 +95,89 @@ export default function SelectedWorks() {
     : [];
 
   return (
-    <section id="works" className="relative py-16 lg:py-20 overflow-visible z-40 bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 lg:px-6 relative">
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-8 flex flex-col items-center">
-          <span className="section-subtitle">Portfolio</span>
-          <h2 className="section-title">Selected Works</h2>
-          <div className="section-divider" />
-        </motion.div>
+    <>
+      <section id="works" className="relative py-16 lg:py-20 overflow-visible z-40 bg-transparent">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 relative">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-8 flex flex-col items-center">
+            <span className="section-subtitle">Portfolio</span>
+            <h2 className="section-title">Selected Works</h2>
+            <div className="section-divider" />
+          </motion.div>
 
-        <div className="flex gap-3 md:gap-4 items-center overflow-x-auto no-scrollbar mb-6 justify-center">
-          {CATEGORIES.map((cat) => (
-            <button key={cat} onClick={() => setActiveCategory(cat)} className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all whitespace-nowrap px-3 py-1.5 rounded-full border ${activeCategory === cat ? 'text-accent border-accent bg-accent/10' : 'text-[var(--text-primary)]/40 border-transparent hover:text-[var(--text-primary)] hover:border-[var(--glass-border)]'}`}>{cat}</button>
-          ))}
-        </div>
-
-        <div className="max-w-4xl mx-auto">
-          <Swiper
-            onSwiper={(s) => { swiperRef.current = s; }}
-            modules={[EffectCoverflow]}
-            effect="coverflow"
-            grabCursor={true}
-            centeredSlides={true}
-            slidesPerView={isMobile ? 1 : 3}
-            spaceBetween={isMobile ? 0 : 0}
-            coverflowEffect={{ rotate: 0, stretch: isMobile ? 0 : -20, depth: isMobile ? 0 : 100, modifier: 1, slideShadows: false }}
-            onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-            className="w-full"
-          >
-            {filteredProjects.map((project, i) => (
-              <SwiperSlide key={project.id}>
-                <div className="transition-all duration-500" style={{ opacity: isMobile ? 1 : (i === activeIndex ? 1 : 0.3) }}>
-                  <div onClick={() => setSelectedProject(project)} className="cursor-pointer">
-                    <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
-                      <div
-                        className="relative rounded-[20px] overflow-hidden border flex flex-col"
-                        style={{
-                          borderColor: 'var(--glass-border)',
-                          backgroundColor: 'var(--glass-bg)',
-                          aspectRatio: isMobile ? '4/5' : '16/10',
-                          height: isMobile ? 'clamp(450px, 80vh, 700px)' : 'auto',
-                          width: isMobile ? '85vw' : 'auto',
-                          margin: isMobile ? '0 auto' : '0',
-                        }}
-                      >
-                        <div className="flex-1 overflow-hidden">
-                          <img src={project.hero_bg_desktop || project.image_url} className="w-full h-full object-cover" alt={project.title} draggable={false} />
-                        </div>
-                        <div className="p-3 flex flex-col gap-1 flex-shrink-0">
-                          <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
-                          <h3 className="text-[var(--text-primary)] text-sm font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
-                        </div>
-                      </div>
-                    </GlowCard>
-                  </div>
-                </div>
-              </SwiperSlide>
+          <div className="flex gap-3 md:gap-4 items-center overflow-x-auto no-scrollbar mb-6 justify-center">
+            {CATEGORIES.map((cat) => (
+              <button key={cat} onClick={() => setActiveCategory(cat)} className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all whitespace-nowrap px-3 py-1.5 rounded-full border ${activeCategory === cat ? 'text-accent border-accent bg-accent/10' : 'text-[var(--text-primary)]/40 border-transparent hover:text-[var(--text-primary)] hover:border-[var(--glass-border)]'}`}>{cat}</button>
             ))}
-          </Swiper>
-        </div>
+          </div>
 
-        <div className="flex justify-center gap-1.5 mt-5">
-          {filteredProjects.map((_, idx) => (
-            <button key={idx} onClick={() => swiperRef.current?.slideTo(idx)} className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`} />
-          ))}
-        </div>
-      </div>
+          <div className="max-w-4xl mx-auto">
+            <Swiper
+              onSwiper={(s) => { swiperRef.current = s; }}
+              modules={[EffectCoverflow]}
+              effect="coverflow"
+              grabCursor={true}
+              centeredSlides={true}
+              slidesPerView={isMobile ? 1 : 3}
+              spaceBetween={0}
+              coverflowEffect={{ rotate: 0, stretch: isMobile ? 0 : -20, depth: isMobile ? 0 : 100, modifier: 1, slideShadows: false }}
+              onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+              className="w-full"
+            >
+              {filteredProjects.map((project, i) => (
+                <SwiperSlide key={project.id}>
+                  <div className="transition-all duration-500" style={{ opacity: isMobile ? 1 : (i === activeIndex ? 1 : 0.3) }}>
+                    <div onClick={() => setSelectedProject(project)} className="cursor-pointer">
+                      <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
+                        <div
+                          className="relative rounded-[20px] overflow-hidden border flex flex-col"
+                          style={{
+                            borderColor: 'var(--glass-border)',
+                            backgroundColor: 'var(--glass-bg)',
+                            aspectRatio: isMobile ? '4/5' : '16/10',
+                            height: isMobile ? 'clamp(450px, 80vh, 700px)' : 'auto',
+                            width: isMobile ? '85vw' : 'auto',
+                            margin: isMobile ? '0 auto' : '0',
+                          }}
+                        >
+                          <div className="flex-1 overflow-hidden">
+                            <img src={project.hero_bg_desktop || project.image_url} className="w-full h-full object-cover" alt={project.title} draggable={false} />
+                          </div>
+                          <div className="p-3 flex flex-col gap-1 flex-shrink-0">
+                            <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
+                            <h3 className="text-[var(--text-primary)] text-sm font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
+                          </div>
+                        </div>
+                      </GlowCard>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
 
+          <div className="flex justify-center gap-1.5 mt-5">
+            {filteredProjects.map((_, idx) => (
+              <button key={idx} onClick={() => swiperRef.current?.slideTo(idx)} className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Modal — OUTSIDE the section, highest z-index */}
       <AnimatePresence>
         {selectedProject && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[9999] flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.95)' }}>
-            <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-[10000] p-2.5 rounded-full border transition-all" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 flex flex-col"
+            style={{ zIndex: 99999, backgroundColor: 'rgba(0,0,0,0.95)' }}
+          >
+            <button
+              onClick={() => setSelectedProject(null)}
+              className="absolute top-4 right-4 p-2.5 rounded-full border transition-all"
+              style={{ zIndex: 100000, backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}
+            >
               <X size={18} />
             </button>
 
@@ -190,6 +203,6 @@ export default function SelectedWorks() {
           </motion.div>
         )}
       </AnimatePresence>
-    </section>
+    </>
   );
 }
