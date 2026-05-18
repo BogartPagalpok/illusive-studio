@@ -118,7 +118,7 @@ export default function SelectedWorks() {
             ))}
           </div>
 
-          <div className={isMobile ? '' : 'max-w-5xl mx-auto'}>
+          <div className={isMobile ? '' : 'max-w-7xl mx-auto'}>
             <Swiper
               onSwiper={(s) => { swiperRef.current = s; }}
               modules={[EffectCoverflow]}
@@ -126,7 +126,7 @@ export default function SelectedWorks() {
               grabCursor={true}
               centeredSlides={true}
               slidesPerView={isMobile ? 1 : 3}
-              spaceBetween={isMobile ? 0 : 30}
+              spaceBetween={isMobile ? 0 : 40}
               coverflowEffect={coverflowSettings}
               onSlideChange={(s) => setActiveIndex(s.activeIndex)}
               className="w-full"
@@ -145,7 +145,7 @@ export default function SelectedWorks() {
                           borderColor: 'var(--glass-border)',
                           backgroundColor: 'var(--glass-bg)',
                           aspectRatio: isMobile ? '4/5' : '16/9',
-                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'auto',
+                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'clamp(350px, 55vh, 600px)',
                           width: isMobile ? '90vw' : '100%',
                           margin: isMobile ? '0 auto' : '0',
                         }}
@@ -153,8 +153,8 @@ export default function SelectedWorks() {
                         <div className="flex-1 overflow-hidden">
                           <img src={project.hero_bg_desktop || project.image_url} className="w-full h-full object-cover" alt={project.title} draggable={false} />
                         </div>
-                        <div className="p-2.5 flex flex-col gap-0.5 flex-shrink-0">
-                          <span className="text-accent text-[7px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
+                        <div className="p-2.5 md:p-3 flex flex-col gap-0.5 flex-shrink-0">
+                          <span className="text-accent text-[7px] md:text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
                           <h3 className="text-[var(--text-primary)] text-[11px] md:text-sm font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
                         </div>
                       </div>
