@@ -24,7 +24,7 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
       <div className="section-container relative pb-12">
         <div 
           className="relative z-10 p-6 sm:p-8 md:p-12 rounded-[40px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col"
-          style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--glass-border)' }}
+          style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
         >
           <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start mb-16 gap-10">
             
