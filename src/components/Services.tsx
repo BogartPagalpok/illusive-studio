@@ -11,6 +11,16 @@ const defaultServices = [
   { title: 'Videography', description: 'Creative video production...', color: 'transparent' },
 ];
 
+// Different parallax speeds per card
+const parallaxClasses = [
+  'parallax-slow',
+  'parallax-medium',
+  'parallax-slow',
+  'parallax-fast',
+  'parallax-medium',
+  'parallax-reverse',
+];
+
 export default function Services() {
   const [content, setContent] = useState({ subtitle: 'What I Do', heading: 'Services & Expertise' });
   const [servicesData, setServicesData] = useState(defaultServices);
@@ -74,7 +84,7 @@ export default function Services() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.04 }}
-              className="card-dark h-full flex flex-col group relative cursor-pointer"
+              className={`card-dark h-full flex flex-col group relative cursor-pointer ${parallaxClasses[index]}`}
               style={{ backgroundColor: service.color }}
             >
               <h3 className="font-bold tracking-tight uppercase text-[var(--text-primary)] group-hover:text-accent transition-colors mb-1.5" style={{ fontSize: 'clamp(12px, 1.2vw, 18px)' }}>
