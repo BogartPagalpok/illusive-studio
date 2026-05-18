@@ -103,20 +103,49 @@ export default function ScrollSequence({
           if (!drawFrame(target)) {
             drawFrame(lastDrawnFrameRef.current);
           }
+          
+          // Diagonal fade all hero layers in the last 25% of scroll
+          const fadeStart = 0.75;
+          const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
+          
           if (canvas) {
-            const fadeStart = 0.85;
-            if (self.progress > fadeStart) {
-              canvas.style.opacity = `${1 - (self.progress - fadeStart) / (1 - fadeStart)}`;
-            } else {
-              canvas.style.opacity = '1';
-            }
+            // Diagonal mask-image for canvas
+            const canvasFade = fadeProgress * 100;
+            const visible = 100 - canvasFade;
+            const maskGradient = `linear-gradient(135deg, 
+              rgba(0,0,0,1) 0%, 
+              rgba(0,0,0,1) ${Math.max(0, visible - 15)}%, 
+              rgba(0,0,0,0.3) ${visible}%, 
+              rgba(0,0,0,0) ${Math.min(100, visible + 15)}%)`;
+            canvas.style.maskImage = maskGradient;
+            canvas.style.WebkitMaskImage = maskGradient;
+          }
+          
+          // Fade accent overlay
+          const accentOverlay = container.querySelector('[style*="mix-blend-mode"]') as HTMLElement;
+          if (accentOverlay) {
+            accentOverlay.style.opacity = `${0.35 * (1 - fadeProgress)}`;
+          }
+          
+          // Fade bottom gradient
+          const bottomGradient = container.querySelector('[class*="h-48"]') as HTMLElement;
+          if (bottomGradient) {
+            bottomGradient.style.opacity = `${1 - fadeProgress}`;
           }
         },
         onLeave: () => {
-          if (canvas) canvas.style.opacity = '0';
+          if (canvas) {
+            canvas.style.maskImage = 'none';
+            canvas.style.WebkitMaskImage = 'none';
+            canvas.style.opacity = '0';
+          }
         },
         onEnterBack: () => {
-          if (canvas) canvas.style.opacity = '1';
+          if (canvas) {
+            canvas.style.maskImage = 'none';
+            canvas.style.WebkitMaskImage = 'none';
+            canvas.style.opacity = '1';
+          }
         },
       });
 
