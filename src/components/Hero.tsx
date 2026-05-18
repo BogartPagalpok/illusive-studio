@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import HeroCanvas from './HeroCanvas';
+import ScrollSequence from './ScrollSequence';
 import { supabase } from '../lib/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -77,7 +77,7 @@ export default function Hero() {
 
   return (
     <section id="hero" className="w-full overflow-hidden relative bg-transparent">
-      <HeroCanvas />
+      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={3} />
 
       <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-20 pt-[80px]">
         <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
