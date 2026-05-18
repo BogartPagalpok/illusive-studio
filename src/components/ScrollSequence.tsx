@@ -14,7 +14,7 @@ interface ScrollSequenceProps {
 }
 
 export default function ScrollSequence({
-  frameCount = 262, // frames 000–261
+  frameCount = 262,
   filePrefix = 'frame_',
   fileExtension = 'webp',
   scrollLength = 4,
@@ -84,6 +84,7 @@ export default function ScrollSequence({
 
   useEffect(() => {
     const container = containerRef.current;
+    const canvas = canvasRef.current;
     if (!container) return;
 
     const frameObj = { frame: 0 };
@@ -100,28 +101,29 @@ export default function ScrollSequence({
         }
       });
 
+      // Forward only — no reverse
       tl.to(frameObj, {
         frame: frameCount - 1,
         snap: "frame",
         ease: "none",
         duration: 1,
         onUpdate: () => {
-          if (!drawFrame(frameObj.frame)) {
-            drawFrame(lastDrawnFrameRef.current);
-          }
-        }
-      })
-      .to(frameObj, {
-        frame: 0,
-        snap: "frame",
-        ease: "none",
-        duration: 1, 
-        onUpdate: () => {
-          if (!drawFrame(frameObj.frame)) {
-            drawFrame(lastDrawnFrameRef.current);
+          const target = Math.round(frameObj.frame);
+          if (target >= lastDrawnFrameRef.current) {
+            if (!drawFrame(target)) {
+              drawFrame(lastDrawnFrameRef.current);
+            }
           }
         }
       });
+
+      // Fade out canvas at the end
+      if (canvas) {
+        tl.to(canvas, {
+          opacity: 0,
+          duration: 0.3,
+        }, `-=${0.3}`);
+      }
     });
 
     return () => ctx.revert();
