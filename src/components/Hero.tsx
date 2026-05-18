@@ -41,11 +41,11 @@ export default function Hero() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const { data: contentData, error: contentError } = await supabase
+        const { data: contentData } = await supabase
           .from('site_content')
           .select('key, value')
           .eq('section', 'hero');
-        if (!contentError && contentData && contentData.length > 0) {
+        if (contentData && contentData.length > 0) {
           const mapped = { ...defaultContent };
           for (const row of contentData) {
             const key = row.key.toLowerCase() as keyof HeroContent;
@@ -59,12 +59,8 @@ export default function Hero() {
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      id="hero"
-      className="w-full overflow-hidden relative bg-transparent"
-    >
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 2}>
+    <section ref={sectionRef} id="hero" className="w-full overflow-hidden relative bg-transparent">
+      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={2}>
         <div className="hidden md:block">
           <FloatingCube type="Ps" size={100} top="20%" left="10%" blur="2px" delay={0} duration={6} />
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
@@ -93,12 +89,8 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-bold tracking-tighter leading-[1] uppercase text-center w-full cursor-default"
             >
-              {content.heading_line1}
-              <br />
-              <span className="text-accent italic drop-shadow-[0_0_15px_var(--accent)]">
-                {content.heading_line2}
-              </span>
-              <br />
+              {content.heading_line1}<br />
+              <span className="text-accent italic drop-shadow-[0_0_15px_var(--accent)]">{content.heading_line2}</span><br />
               {content.heading_line3}
             </motion.h1>
 
