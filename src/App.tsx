@@ -10,7 +10,6 @@ import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import LiquidEtherBackground from './components/LiquidEtherBackground';
-import MobileFluidBackground from './components/MobileFluidBackground';
 
 function AtmosphereGradient() {
   return (
@@ -47,14 +46,6 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -124,18 +115,14 @@ function App() {
 
   return (
     <main className="min-h-screen relative overflow-x-hidden">
-      {isMobile ? (
-        <MobileFluidBackground color="var(--accent)" />
-      ) : (
-        <LiquidEtherBackground
-          colors={['#5227FF', '#FF9FFC', '#B19EEF']}
-          mouseForce={20}
-          cursorSize={100}
-          resolution={0.25}
-          autoDemo={true}
-          autoSpeed={0.5}
-        />
-      )}
+      <LiquidEtherBackground
+        colors={['#5227FF', '#FF9FFC', '#B19EEF']}
+        mouseForce={20}
+        cursorSize={100}
+        resolution={0.25}
+        autoDemo={true}
+        autoSpeed={0.5}
+      />
       <Routes>
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
