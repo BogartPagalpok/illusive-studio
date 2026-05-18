@@ -1,174 +1,141 @@
-import { useEffect, useRef, useCallback, ReactNode } from 'react';
-import { supabase, SCROLL_SEQUENCE_BUCKET } from '../lib/supabase';
+import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowDown } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import HeroCanvas from './HeroCanvas';
+import { supabase } from '../lib/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface ScrollSequenceProps {
-  frameCount?: number;
-  filePrefix?: string;
-  fileExtension?: string;
-  scrollLength?: number;
-  children?: ReactNode;
+interface HeroContent {
+  subtitle: string;
+  heading_line1: string;
+  heading_line2: string;
+  heading_line3: string;
+  description: string;
 }
 
-export default function ScrollSequence({
-  frameCount = 288,
-  filePrefix = 'frame_',
-  fileExtension = 'webp',
-  scrollLength = 2,
-  children,
-}: ScrollSequenceProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
-  const imagesRef = useRef<HTMLImageElement[]>([]);
-  const lastDrawnFrameRef = useRef<number>(0);
-  const firstFrameDrawnRef = useRef<boolean>(false);
+const defaultContent: HeroContent = {
+  subtitle: 'Graphic Designer • Photographer • Virtual Assistant',
+  heading_line1: 'Crafting Visual',
+  heading_line2: 'Stories',
+  heading_line3: 'Resonate',
+  description: "I'm Ian Lester Eclevia — where timeless design meets modern execution. From brand identity to digital painting, I bring ideas to life with precision and passion.",
+};
 
-  const drawFrame = useCallback((index: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return false;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return false;
+function scrollToId(e: React.MouseEvent, id: string) {
+  e.preventDefault();
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
 
-    const img = imagesRef.current[index];
-    if (!img || !img.complete || img.naturalWidth === 0) return false;
+export default function Hero() {
+  const [content, setContent] = useState<HeroContent>(defaultContent);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-    
-    lastDrawnFrameRef.current = index;
-    return true;
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const { data: contentData } = await supabase
+          .from('site_content')
+          .select('key, value')
+          .eq('section', 'hero');
+        if (contentData && contentData.length > 0) {
+          const mapped = { ...defaultContent };
+          for (const row of contentData) {
+            const key = row.key.toLowerCase() as keyof HeroContent;
+            if (key in mapped) mapped[key] = row.value;
+          }
+          setContent(mapped);
+        }
+      } catch {}
+    };
+    fetchContent();
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-
-    const loadFrame = (i: number) => {
-      return new Promise<void>((resolve) => {
-        const frameIndex = String(i).padStart(3, '0');
-        const { data: urlData } = supabase.storage
-          .from(SCROLL_SEQUENCE_BUCKET)
-          .getPublicUrl(`${filePrefix}${frameIndex}.${fileExtension}`);
-
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = urlData.publicUrl;
-        img.onload = () => {
-          if (cancelled) return resolve();
-          if (!firstFrameDrawnRef.current) {
-            drawFrame(i);
-            firstFrameDrawnRef.current = true;
-          }
-          resolve();
-        };
-        img.onerror = () => resolve();
-        imagesRef.current[i] = img;
-      });
-    };
-
-    const loadAll = async () => {
-      await loadFrame(0);
-      for (let i = 1; i < frameCount; i++) {
-        if (cancelled) break;
-        await loadFrame(i);
-      }
-    };
-
-    loadAll();
-    return () => { cancelled = true; };
-  }, [frameCount, filePrefix, fileExtension, drawFrame]);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    const canvas = canvasRef.current;
-    const inner = innerRef.current;
-    if (!container || !inner) return;
-
-    const frameObj = { frame: 0 };
+    const overlay = overlayRef.current;
+    if (!overlay) return;
 
     const ctx = gsap.context(() => {
-      const st = ScrollTrigger.create({
-        trigger: container,
-        start: "top top",
-        end: `+=${scrollLength * 100}%`,
-        scrub: 0.2,
-        pin: true,
-        anticipatePin: 1,
-        onUpdate: (self) => {
-          const target = Math.round(self.progress * (frameCount - 1));
-          frameObj.frame = target;
-          if (!drawFrame(target)) {
-            drawFrame(lastDrawnFrameRef.current);
-          }
-          
-          // Diagonal mask — wipes from top-left to bottom-right (135deg)
-          const fadeStart = 0.80;
-          const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
-          const fadePoint = fadeProgress * 120;
-          const visibleArea = Math.max(0, 100 - fadePoint);
-          const start = Math.max(0, visibleArea - 20);
-          const middle = visibleArea;
-          const end = Math.min(120, visibleArea + 40);
-          
-          const maskImage = `linear-gradient(135deg, 
-            rgba(0,0,0,1) 0%, 
-            rgba(0,0,0,1) ${start}%, 
-            rgba(0,0,0,0.5) ${middle}%, 
-            rgba(0,0,0,0) ${end}%)`;
-          
-          if (canvas) {
-            canvas.style.maskImage = maskImage;
-            canvas.style.WebkitMaskImage = maskImage;
-          }
-          
-          inner.style.opacity = `${1 - fadeProgress * 0.5}`;
-        },
-        onLeave: (self) => {
-          inner.style.opacity = '0';
-          self.scrollTrigger?.pin(false);
-          self.scrollTrigger?.refresh();
-        },
-        onEnterBack: (self) => {
-          if (canvas) {
-            canvas.style.maskImage = 'none';
-            canvas.style.WebkitMaskImage = 'none';
-          }
-          inner.style.opacity = '1';
-          self.scrollTrigger?.pin(true);
-          self.scrollTrigger?.refresh();
+      gsap.to(overlay, {
+        yPercent: -100,
+        opacity: 0,
+        ease: 'none',
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: '#hero',
+          start: 'top top',
+          end: '+=50%',
+          scrub: true,
         },
       });
     });
 
     return () => ctx.revert();
-  }, [frameCount, drawFrame, scrollLength]);
+  }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full z-0">
-      <div ref={innerRef} className="h-screen w-full overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" />
-        
-        <div 
-          className="absolute inset-0 pointer-events-none transition-colors duration-500 z-[1]" 
-          style={{ backgroundColor: 'var(--accent)', mixBlendMode: 'color', opacity: 0.35 }} 
-        />
-        
-        <div 
-          className="absolute inset-x-0 bottom-0 h-48 md:h-64 pointer-events-none z-[2]" 
-          style={{ 
-            background: 'linear-gradient(to top, var(--bg-primary, var(--background, #000000)) 0%, transparent 100%)' 
-          }} 
-        /> 
-        
-        <div className="absolute inset-0 z-10 pointer-events-none">
-          {children}
+    <section id="hero" className="w-full overflow-hidden relative bg-transparent">
+      <HeroCanvas />
+
+      <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-20 pt-[80px]">
+        <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
+
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto cursor-default">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-[9px] md:text-xs font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-[var(--text-secondary)]/70 text-center w-full cursor-default"
+          >
+            {content.subtitle}
+          </motion.p>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-bold tracking-tighter leading-[1] uppercase text-center w-full cursor-default"
+          >
+            {content.heading_line1}<br />
+            <span className="text-accent italic drop-shadow-[0_0_15px_var(--accent)]">{content.heading_line2}</span><br />
+            {content.heading_line3}
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="mt-6 md:mt-8 text-xs md:text-base max-w-lg mx-auto text-center leading-relaxed text-[var(--text-secondary)]/80 w-full cursor-default"
+          >
+            {content.description}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 1 }}
+            className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full"
+          >
+            <a href="#works" onClick={(e) => scrollToId(e, 'works')} className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">View Works</a>
+            <a href="#contact" onClick={(e) => scrollToId(e, 'contact')} className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">Get in Touch</a>
+          </motion.div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.3 }}
+          className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-auto z-20"
+        >
+          <button onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })} className="flex flex-col items-center justify-center gap-2 text-[var(--text-secondary)]/40 hover:text-accent transition-colors duration-300 w-full">
+            <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase text-center block">Scroll</span>
+            <ArrowDown size={16} className="animate-bounce mx-auto" />
+          </button>
+        </motion.div>
       </div>
-    </div>
+    </section>
   );
 }
