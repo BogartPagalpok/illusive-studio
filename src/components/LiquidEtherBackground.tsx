@@ -14,7 +14,6 @@ interface LiquidEtherProps {
 
 const defaultColors = ['#5227FF', '#FF9FFC', '#B19EEF'];
 
-// ── Shaders (same as before, unchanged) ──
 const faceVert = `attribute vec3 position;uniform vec2 px;uniform vec2 boundarySpace;varying vec2 uv;void main(){vec3 pos=position;vec2 scale=1.0-boundarySpace*2.0;pos.xy=pos.xy*scale;uv=vec2(0.5)+(pos.xy)*0.5;gl_Position=vec4(pos,1.0);}`;
 const lineVert = `attribute vec3 position;uniform vec2 px;varying vec2 uv;void main(){vec3 pos=position;uv=0.5+pos.xy*0.5;vec2 n=sign(pos.xy);pos.xy=abs(pos.xy)-px*1.0;pos.xy*=n;gl_Position=vec4(pos,1.0);}`;
 const mouseVert = `precision highp float;attribute vec3 position;attribute vec2 uv;uniform vec2 center;uniform vec2 scale;uniform vec2 px;varying vec2 vUv;void main(){vec2 pos=position.xy*scale*2.0*px+center;vUv=uv;gl_Position=vec4(pos,0.0,1.0);}`;
@@ -26,7 +25,6 @@ const poissonFrag = `precision highp float;uniform sampler2D pressure;uniform sa
 const pressureFrag = `precision highp float;uniform sampler2D pressure;uniform sampler2D velocity;uniform vec2 px;uniform float dt;varying vec2 uv;void main(){float p0=texture2D(pressure,uv+vec2(px.x,0.0)).r;float p1=texture2D(pressure,uv-vec2(px.x,0.0)).r;float p2=texture2D(pressure,uv+vec2(0.0,px.y)).r;float p3=texture2D(pressure,uv-vec2(0.0,px.y)).r;vec2 v=texture2D(velocity,uv).xy;vec2 gradP=vec2(p0-p1,p2-p3)*0.5;v=v-gradP*dt;gl_FragColor=vec4(v,0.0,1.0);}`;
 const viscousFrag = `precision highp float;uniform sampler2D velocity;uniform sampler2D velocity_new;uniform float v;uniform vec2 px;uniform float dt;varying vec2 uv;void main(){vec2 old=texture2D(velocity,uv).xy;vec2 new0=texture2D(velocity_new,uv+vec2(px.x*2.0,0.0)).xy;vec2 new1=texture2D(velocity_new,uv-vec2(px.x*2.0,0.0)).xy;vec2 new2=texture2D(velocity_new,uv+vec2(0.0,px.y*2.0)).xy;vec2 new3=texture2D(velocity_new,uv-vec2(0.0,px.y*2.0)).xy;vec2 newv=4.0*old+v*dt*(new0+new1+new2+new3);newv/=4.0*(1.0+v*dt);gl_FragColor=vec4(newv,0.0,0.0);}`;
 
-// ── Simulation classes (same as before, unchanged) ──
 class FluidSimulation {
   fbos: Record<string, THREE.WebGLRenderTarget | null> = {};
   fboSize = new THREE.Vector2(); cellScale = new THREE.Vector2(); boundarySpace = new THREE.Vector2();
@@ -123,7 +121,7 @@ class MouseTracker {
   setCoords(x:number, y:number) { this.coordsOld.copy(this.coords); this.coords.set(x,y); this.diff.subVectors(this.coords, this.coordsOld); }
 }
 
-// ── Mobile CSS Wave Background ──────────────────────────
+// ── Mobile CSS Wave Background (FIXED) ──────────────────
 function MobileWaveBg({ color }: { color: string }) {
   const [y, setY] = useState(0);
   useEffect(() => {
@@ -132,11 +130,16 @@ function MobileWaveBg({ color }: { color: string }) {
     return () => window.removeEventListener('scroll', cb);
   }, []);
 
+  const t1 = 50 + Math.sin(y * 0.002) * 20;
+  const t2 = 40 + Math.cos(y * 0.003) * 25;
+  const t3 = 60 + Math.sin(y * 0.0015 + 1) * 30;
+  const t4 = 30 + Math.cos(y * 0.0025) * 20;
+
   return (
-    <>
-      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0, background: `radial-gradient(ellipse at 30% ${50+Math.sin(y*0.002)*20}%, ${color}33 0%, transparent 60%), radial-gradient(ellipse at 70% ${40+Math.cos(y*0.003)*25}%, ${color}22 0%, transparent 55%)`, filter: 'blur(60px)', opacity: 0.7 }} />
-      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0, background: `radial-gradient(ellipse at 50% ${60+Math.sin(y*0.0015+1)*30}%, ${color}44 0%, transparent 50%), radial-gradient(ellipse at 20% ${30+Math.cos(y*0.0025)*20}%, ${color}28 0%, transparent 60%)`, filter: 'blur(80px)', opacity: 0.5 }} />
-    </>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 30vw ${t1}vh, ${color}33 0%, transparent 60%), radial-gradient(ellipse 70vw 50vh at 70vw ${t2}vh, ${color}22 0%, transparent 55%)`, filter: 'blur(60px)', opacity: 0.7 }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 50vw ${t3}vh, ${color}44 0%, transparent 50%), radial-gradient(ellipse 70vw 50vh at 20vw ${t4}vh, ${color}28 0%, transparent 60%)`, filter: 'blur(80px)', opacity: 0.5 }} />
+    </div>
   );
 }
 
@@ -154,7 +157,7 @@ export default function LiquidEtherBackground(props: LiquidEtherProps) {
   return <DesktopFluidSim {...props} />;
 }
 
-// ── Desktop Fluid (your original code, renamed) ─────────
+// ── Desktop Fluid ───────────────────────────────────────
 function DesktopFluidSim({
   colors = defaultColors, mouseForce = 20, cursorSize = 100,
   resolution = 0.25, autoDemo = true, autoSpeed = 0.5,
