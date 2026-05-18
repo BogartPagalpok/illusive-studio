@@ -14,7 +14,7 @@ interface ScrollSequenceProps {
 }
 
 export default function ScrollSequence({
-  frameCount = 262,
+  frameCount = 288,
   filePrefix = 'frame_',
   fileExtension = 'webp',
   scrollLength = 4,
@@ -94,36 +94,47 @@ export default function ScrollSequence({
         scrollTrigger: {
           trigger: container,
           start: "top top",
-          end: `+=${scrollLength * 100}%`, 
+          end: `+=${scrollLength * 100}%`,
           scrub: 0.5,
-          pin: true, 
-          anticipatePin: 1
+          pin: true,
+          anticipatePin: 1,
         }
       });
 
-      // Forward only — no reverse
+      // Full forward sequence
       tl.to(frameObj, {
         frame: frameCount - 1,
         snap: "frame",
         ease: "none",
         duration: 1,
         onUpdate: () => {
-          const target = Math.round(frameObj.frame);
-          if (target >= lastDrawnFrameRef.current) {
-            if (!drawFrame(target)) {
-              drawFrame(lastDrawnFrameRef.current);
-            }
+          if (!drawFrame(Math.round(frameObj.frame))) {
+            drawFrame(lastDrawnFrameRef.current);
           }
         }
-      });
-
-      // Fade out canvas at the end
-      if (canvas) {
-        tl.to(canvas, {
-          opacity: 0,
-          duration: 0.3,
-        }, `-=${0.3}`);
-      }
+      })
+      // Fade out canvas before the end for smooth transition
+      .to(canvas, {
+        opacity: 0,
+        duration: 0.5,
+      }, `-=${0.6}`)
+      // Full reverse sequence when scrolling back
+      .to(frameObj, {
+        frame: 0,
+        snap: "frame",
+        ease: "none",
+        duration: 1,
+        onUpdate: () => {
+          if (!drawFrame(Math.round(frameObj.frame))) {
+            drawFrame(lastDrawnFrameRef.current);
+          }
+        }
+      })
+      // Fade canvas back in when returning to top
+      .to(canvas, {
+        opacity: 1,
+        duration: 0.3,
+      }, `-=${0.3}`);
     });
 
     return () => ctx.revert();
