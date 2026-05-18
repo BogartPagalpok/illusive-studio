@@ -17,7 +17,7 @@ export default function ScrollSequence({
   frameCount = 288,
   filePrefix = 'frame_',
   fileExtension = 'webp',
-  scrollLength = 4,
+  scrollLength = 2,
   children,
 }: ScrollSequenceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
