@@ -94,9 +94,17 @@ export default function SelectedWorks() {
     ? projects.filter(p => p.title.trim() === selectedProject.title.trim())
     : [];
 
+  const coverflowSettings = {
+    rotate: 45,
+    stretch: 0,
+    depth: 200,
+    modifier: 1,
+    slideShadows: false,
+  };
+
   return (
     <>
-      <section id="works" className="relative py-16 lg:py-20 overflow-visible z-40 bg-transparent">
+      <section id="works" className="relative py-16 lg:py-20 overflow-visible bg-transparent" style={{ zIndex: 40 }}>
         <div className="max-w-7xl mx-auto px-4 lg:px-6 relative">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-8 flex flex-col items-center">
             <span className="section-subtitle">Portfolio</span>
@@ -110,7 +118,7 @@ export default function SelectedWorks() {
             ))}
           </div>
 
-          <div className="max-w-4xl mx-auto">
+          <div className={isMobile ? '' : 'max-w-5xl mx-auto'}>
             <Swiper
               onSwiper={(s) => { swiperRef.current = s; }}
               modules={[EffectCoverflow]}
@@ -118,8 +126,8 @@ export default function SelectedWorks() {
               grabCursor={true}
               centeredSlides={true}
               slidesPerView={isMobile ? 1 : 3}
-              spaceBetween={0}
-              coverflowEffect={{ rotate: 0, stretch: isMobile ? 0 : -20, depth: isMobile ? 0 : 100, modifier: 1, slideShadows: false }}
+              spaceBetween={isMobile ? 0 : 30}
+              coverflowEffect={coverflowSettings}
               onSlideChange={(s) => setActiveIndex(s.activeIndex)}
               className="w-full"
             >
@@ -133,9 +141,9 @@ export default function SelectedWorks() {
                           style={{
                             borderColor: 'var(--glass-border)',
                             backgroundColor: 'var(--glass-bg)',
-                            aspectRatio: isMobile ? '4/5' : '16/10',
-                            height: isMobile ? 'clamp(450px, 80vh, 700px)' : 'auto',
-                            width: isMobile ? '85vw' : 'auto',
+                            aspectRatio: isMobile ? '4/5' : '16/9',
+                            height: isMobile ? 'clamp(400px, 75vh, 650px)' : 'clamp(320px, 50vh, 500px)',
+                            width: isMobile ? '85vw' : '100%',
                             margin: isMobile ? '0 auto' : '0',
                           }}
                         >
@@ -163,13 +171,10 @@ export default function SelectedWorks() {
         </div>
       </section>
 
-      {/* Modal — OUTSIDE the section, highest z-index */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 flex flex-col"
             style={{ zIndex: 99999, backgroundColor: 'rgba(0,0,0,0.95)' }}
           >
@@ -182,9 +187,15 @@ export default function SelectedWorks() {
             </button>
 
             <div className="flex-1 overflow-y-auto px-4 py-16" style={{ WebkitOverflowScrolling: 'touch' }}>
-              <div className="max-w-3xl mx-auto space-y-6 pb-10">
+              <div className="max-w-4xl mx-auto space-y-8 pb-10">
                 {galleryImages.map((img) => (
-                  <img key={img.id} src={img.hero_bg_desktop || img.image_url} className="w-full h-auto max-h-[60vh] rounded-2xl border object-cover" style={{ borderColor: 'var(--glass-border)' }} alt="" />
+                  <img
+                    key={img.id}
+                    src={img.hero_bg_desktop || img.image_url}
+                    className="w-full h-auto rounded-2xl border"
+                    style={{ borderColor: 'var(--glass-border)', objectFit: 'contain', maxHeight: 'none' }}
+                    alt=""
+                  />
                 ))}
               </div>
               <div className="text-center max-w-xl mx-auto pb-10">
@@ -204,5 +215,6 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
     </>
+
   );
 }
