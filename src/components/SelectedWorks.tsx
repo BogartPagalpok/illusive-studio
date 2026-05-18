@@ -132,31 +132,33 @@ export default function SelectedWorks() {
               className="w-full"
             >
               {filteredProjects.map((project, i) => (
-                <SwiperSlide key={project.id}>
+                <SwiperSlide
+                  key={project.id}
+                  onClick={() => setSelectedProject(project)}
+                  className="cursor-pointer"
+                >
                   <div className="transition-all duration-500" style={{ opacity: isMobile ? 1 : (i === activeIndex ? 1 : 0.3) }}>
-                    <div onClick={() => setSelectedProject(project)} className="cursor-pointer">
-                      <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
-                        <div
-                          className="relative rounded-[20px] overflow-hidden border flex flex-col"
-                          style={{
-                            borderColor: 'var(--glass-border)',
-                            backgroundColor: 'var(--glass-bg)',
-                            aspectRatio: isMobile ? '4/5' : '16/9',
-                            height: isMobile ? 'clamp(400px, 75vh, 650px)' : 'clamp(320px, 50vh, 500px)',
-                            width: isMobile ? '85vw' : '100%',
-                            margin: isMobile ? '0 auto' : '0',
-                          }}
-                        >
-                          <div className="flex-1 overflow-hidden">
-                            <img src={project.hero_bg_desktop || project.image_url} className="w-full h-full object-cover" alt={project.title} draggable={false} />
-                          </div>
-                          <div className="p-3 flex flex-col gap-1 flex-shrink-0">
-                            <span className="text-accent text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
-                            <h3 className="text-[var(--text-primary)] text-sm font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
-                          </div>
+                    <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
+                      <div
+                        className="relative rounded-[20px] overflow-hidden border flex flex-col"
+                        style={{
+                          borderColor: 'var(--glass-border)',
+                          backgroundColor: 'var(--glass-bg)',
+                          aspectRatio: isMobile ? '4/5' : '16/9',
+                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'auto',
+                          width: isMobile ? '90vw' : '100%',
+                          margin: isMobile ? '0 auto' : '0',
+                        }}
+                      >
+                        <div className="flex-1 overflow-hidden">
+                          <img src={project.hero_bg_desktop || project.image_url} className="w-full h-full object-cover" alt={project.title} draggable={false} />
                         </div>
-                      </GlowCard>
-                    </div>
+                        <div className="p-2.5 flex flex-col gap-0.5 flex-shrink-0">
+                          <span className="text-accent text-[7px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
+                          <h3 className="text-[var(--text-primary)] text-[11px] md:text-sm font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
+                        </div>
+                      </div>
+                    </GlowCard>
                   </div>
                 </SwiperSlide>
               ))}
@@ -215,6 +217,5 @@ export default function SelectedWorks() {
         )}
       </AnimatePresence>
     </>
-
   );
 }
