@@ -116,7 +116,11 @@ export default function SelectedWorks() {
 
           <div className="flex gap-3 md:gap-4 items-center overflow-x-auto no-scrollbar mb-6 justify-center">
             {CATEGORIES.map((cat) => (
-              <button key={cat} onClick={() => setActiveCategory(cat)} className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all whitespace-nowrap px-3 py-1.5 rounded-full border ${activeCategory === cat ? 'text-accent border-accent bg-accent/10' : 'text-[var(--text-primary)]/40 border-transparent hover:text-[var(--text-primary)] hover:border-[var(--glass-border)]'}`}>{cat}</button>
+              <button key={cat} onClick={() => setActiveCategory(cat)} className="font-bold uppercase tracking-[0.2em] transition-all whitespace-nowrap px-3 py-1.5 rounded-full border" style={{ fontSize: 'clamp(8px, 0.9vw, 12px)' }}>
+                <span className={activeCategory === cat ? 'text-accent' : ''} style={{ color: activeCategory === cat ? undefined : 'var(--text-primary)', opacity: activeCategory === cat ? 1 : 0.4 }}>
+                  {cat}
+                </span>
+              </button>
             ))}
           </div>
 
@@ -156,8 +160,8 @@ export default function SelectedWorks() {
                           <img src={getSrc(project)} className="w-full h-full object-cover" alt={project.title} draggable={false} />
                         </div>
                         <div className="p-2.5 md:p-3 flex flex-col gap-0.5 flex-shrink-0">
-                          <span className="text-accent text-[7px] md:text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
-                          <h3 className="text-[var(--text-primary)] text-[11px] md:text-sm font-black uppercase tracking-tighter leading-tight">{project.title}</h3>
+                          <span className="text-accent font-bold uppercase" style={{ fontSize: 'clamp(7px, 0.8vw, 10px)', letterSpacing: '0.2em' }}>{project.category}</span>
+                          <h3 className="text-[var(--text-primary)] font-black uppercase tracking-tighter leading-tight" style={{ fontSize: 'clamp(11px, 1.2vw, 16px)' }}>{project.title}</h3>
                         </div>
                       </div>
                     </GlowCard>
@@ -203,13 +207,13 @@ export default function SelectedWorks() {
                 ))}
               </div>
               <div className="text-center max-w-xl mx-auto pb-10">
-                <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
-                <h2 className="text-white text-xl font-black uppercase tracking-tighter mt-1">{selectedProject.title}</h2>
-                <p className="text-white/50 text-sm mt-2">{selectedProject.description}</p>
+                <span className="text-accent font-bold uppercase" style={{ fontSize: 'clamp(9px, 1vw, 13px)', letterSpacing: '0.3em' }}>{selectedProject.category}</span>
+                <h2 className="text-white font-black uppercase tracking-tighter mt-1" style={{ fontSize: 'clamp(16px, 2vw, 24px)' }}>{selectedProject.title}</h2>
+                <p className="text-white/50 mt-2" style={{ fontSize: 'clamp(12px, 1.1vw, 16px)' }}>{selectedProject.description}</p>
                 {selectedProject.tools && (
                   <div className="flex flex-wrap gap-1.5 justify-center mt-4">
                     {selectedProject.tools.map((t) => (
-                      <span key={t} className="px-2 py-1 border border-white/10 rounded text-[9px] uppercase text-white/40 font-bold tracking-widest">{t}</span>
+                      <span key={t} className="px-2 py-1 border border-white/10 rounded uppercase text-white/40 font-bold tracking-widest" style={{ fontSize: 'clamp(8px, 0.8vw, 11px)' }}>{t}</span>
                     ))}
                   </div>
                 )}
