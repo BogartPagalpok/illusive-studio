@@ -58,12 +58,17 @@
 }
 
 @layer components {
-  .section-container { @apply mx-auto px-4 lg:px-6; max-width: 90vw; }
-  .section-padding { @apply py-10 lg:py-14; }
+  .section-container { @apply mx-auto px-4 lg:px-8; max-width: 90vw; }
+  .section-padding { padding: clamp(2.5rem, 5vw, 5rem) 0; }
+
+  .section-header-gap { margin-bottom: clamp(2rem, 3vw, 3rem); }
+  .section-content-gap { gap: clamp(1.5rem, 2vw, 2rem); }
+  .component-gap { gap: clamp(1rem, 1.5vw, 1.5rem); }
+  .text-gap { margin-bottom: clamp(0.75rem, 1vw, 1.5rem); }
 
   .btn-primary {
     @apply relative overflow-hidden rounded-full font-bold flex items-center justify-center gap-2 uppercase transition-all duration-300;
-    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1.25rem, 3vw, 2.5rem);
+    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1.5rem, 3vw, 2.5rem);
     font-size: clamp(0.75rem, 1vw, 0.875rem);
     letter-spacing: 0.1em;
     background: var(--accent) !important; color: var(--accent-contrast) !important;
@@ -74,7 +79,7 @@
 
   .btn-outline {
     @apply relative inline-flex items-center justify-center gap-2 rounded-full border font-bold uppercase transition-all duration-300;
-    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1.25rem, 3vw, 2.5rem);
+    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1.5rem, 3vw, 2.5rem);
     font-size: clamp(0.75rem, 1vw, 0.875rem);
     letter-spacing: 0.1em;
     border-color: var(--text-primary); color: var(--text-primary); background: transparent;
@@ -82,10 +87,11 @@
   .btn-outline:hover { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
 
   .section-subtitle { 
-    @apply font-heading uppercase mb-2 block; 
+    @apply font-heading uppercase block; 
     color: var(--accent); 
     font-size: clamp(0.75rem, 1vw, 0.875rem);
     letter-spacing: 0.2em;
+    margin-bottom: clamp(0.5rem, 0.75vw, 0.75rem);
   }
   .section-title { 
     @apply font-bold tracking-tighter uppercase; 
@@ -93,11 +99,11 @@
     font-size: clamp(2rem, 5vw, 2.5rem); 
     line-height: 1.1;
   }
-  .section-divider { @apply mt-3 w-12 h-0.5 mx-auto; background-color: var(--accent); }
+  .section-divider { @apply mt-4 w-12 h-0.5 mx-auto; background-color: var(--accent); }
 
   .card-dark {
     @apply rounded-xl transition-all duration-500 backdrop-blur-xl border relative overflow-hidden;
-    padding: clamp(1rem, 2vw, 1.75rem);
+    padding: clamp(1.5rem, 2vw, 2rem);
     background-color: var(--glass-bg); border-color: var(--glass-border);
     font-size: clamp(0.875rem, 1vw, 1rem);
     line-height: 1.5;
@@ -111,7 +117,7 @@
 
   .btn-primary-sm {
     @apply relative overflow-hidden rounded-lg font-bold flex items-center justify-center gap-1.5 uppercase transition-all duration-300;
-    padding: clamp(0.25rem, 0.8vw, 0.5rem) clamp(0.5rem, 2vw, 1rem);
+    padding: clamp(0.25rem, 0.8vw, 0.5rem) clamp(0.75rem, 2vw, 1.5rem);
     font-size: clamp(0.7rem, 0.8vw, 0.75rem);
     letter-spacing: 0.1em;
     background: var(--accent) !important; color: var(--accent-contrast) !important;
@@ -122,7 +128,7 @@
 
   .btn-ghost-sm {
     @apply relative inline-flex items-center justify-center gap-1.5 rounded-lg border font-bold uppercase transition-all duration-300;
-    padding: clamp(0.25rem, 0.8vw, 0.5rem) clamp(0.5rem, 2vw, 1rem);
+    padding: clamp(0.25rem, 0.8vw, 0.5rem) clamp(0.75rem, 2vw, 1.5rem);
     font-size: clamp(0.7rem, 0.8vw, 0.75rem);
     letter-spacing: 0.1em;
     border-color: var(--text-primary); color: var(--text-primary); background: transparent;
@@ -131,7 +137,7 @@
 
   .card-dark-sm { 
     @apply rounded-xl transition-all duration-300 backdrop-blur-xl border relative overflow-hidden; 
-    padding: clamp(0.5rem, 1.5vw, 1rem);
+    padding: clamp(1rem, 1.5vw, 1.5rem);
     background-color: var(--glass-bg); border-color: var(--glass-border); 
   }
   .card-dark-sm:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.15); transform: translateY(-2px); }
