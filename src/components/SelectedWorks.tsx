@@ -120,15 +120,15 @@ export default function SelectedWorks() {
             ))}
           </div>
 
-          <div className={isMobile ? '' : 'max-w-7xl mx-auto'}>
+          <div className={isMobile ? '' : 'w-full'}>
             <Swiper
               onSwiper={(s) => { swiperRef.current = s; }}
               modules={[EffectCoverflow]}
               effect="coverflow"
               grabCursor={true}
               centeredSlides={true}
-              slidesPerView={isMobile ? 1 : 3}
-              spaceBetween={isMobile ? 0 : 40}
+              slidesPerView={isMobile ? 1 : 2}
+              spaceBetween={isMobile ? 0 : 60}
               coverflowEffect={coverflowSettings}
               onSlideChange={(s) => setActiveIndex(s.activeIndex)}
               className="w-full"
@@ -147,7 +147,7 @@ export default function SelectedWorks() {
                           borderColor: 'var(--glass-border)',
                           backgroundColor: 'var(--glass-bg)',
                           aspectRatio: isMobile ? '4/5' : '16/9',
-                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'clamp(350px, 55vh, 600px)',
+                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'auto',
                           width: isMobile ? '90vw' : '100%',
                           margin: isMobile ? '0 auto' : '0',
                         }}
