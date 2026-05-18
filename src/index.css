@@ -30,7 +30,8 @@
     background-attachment: fixed;
     color: var(--text-secondary);
     font-family: var(--font-sans) !important;
-    font-size: clamp(14px, 1.2vw, 17px);
+    font-size: clamp(1rem, 1.6vw, 1.125rem);
+    line-height: 1.6;
     min-height: 100vh;
     margin: 0;
   }
@@ -39,11 +40,21 @@
     font-family: var(--font-display) !important;
   }
 
+  h1 { font-size: clamp(2rem, 5vw, 2.25rem); }
+  h2 { font-size: clamp(1.5rem, 4vw, 1.75rem); }
+  h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+  h4 { font-size: clamp(1rem, 2vw, 1.25rem); }
+  h5, h6 { font-size: clamp(0.875rem, 1.5vw, 1rem); }
+
   h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: -0.02em;
+    line-height: 1.2;
   }
+
+  p { line-height: 1.6; max-width: 75ch; }
+  small, caption, label { font-size: clamp(0.75rem, 1vw, 0.875rem); }
 }
 
 @layer components {
@@ -52,20 +63,20 @@
 
   .btn-primary {
     @apply relative overflow-hidden rounded-full font-bold flex items-center justify-center gap-2 uppercase transition-all duration-300;
-    padding: clamp(6px, 1vw, 12px) clamp(16px, 3vw, 40px);
-    font-size: clamp(8px, 1vw, 13px);
-    letter-spacing: clamp(0.1em, 0.2vw, 0.2em);
+    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1.25rem, 3vw, 2.5rem);
+    font-size: clamp(0.75rem, 1vw, 0.875rem);
+    letter-spacing: 0.1em;
     background: var(--accent) !important; color: var(--accent-contrast) !important;
     box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
   }
-  .btn-primary svg { @apply fill-current text-inherit; width: clamp(12px, 1.2vw, 18px); height: clamp(12px, 1.2vw, 18px); }
+  .btn-primary svg { @apply fill-current text-inherit; width: clamp(1rem, 1.2vw, 1.25rem); height: clamp(1rem, 1.2vw, 1.25rem); }
   .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.5); filter: brightness(1.1); }
 
   .btn-outline {
     @apply relative inline-flex items-center justify-center gap-2 rounded-full border font-bold uppercase transition-all duration-300;
-    padding: clamp(6px, 1vw, 12px) clamp(16px, 3vw, 40px);
-    font-size: clamp(8px, 1vw, 13px);
-    letter-spacing: clamp(0.1em, 0.2vw, 0.2em);
+    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1.25rem, 3vw, 2.5rem);
+    font-size: clamp(0.75rem, 1vw, 0.875rem);
+    letter-spacing: 0.1em;
     border-color: var(--text-primary); color: var(--text-primary); background: transparent;
   }
   .btn-outline:hover { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
@@ -73,34 +84,36 @@
   .section-subtitle { 
     @apply font-heading uppercase mb-2 block; 
     color: var(--accent); 
-    font-size: clamp(10px, 1.2vw, 16px);
-    letter-spacing: clamp(0.2em, 0.4vw, 0.4em);
+    font-size: clamp(0.75rem, 1vw, 0.875rem);
+    letter-spacing: 0.2em;
   }
   .section-title { 
     @apply font-bold tracking-tighter uppercase; 
     color: var(--text-primary); 
-    font-size: clamp(1.8rem, 5vw, 5rem); 
+    font-size: clamp(2rem, 5vw, 2.5rem); 
+    line-height: 1.1;
   }
   .section-divider { @apply mt-3 w-12 h-0.5 mx-auto; background-color: var(--accent); }
 
   .card-dark {
     @apply rounded-xl transition-all duration-500 backdrop-blur-xl border relative overflow-hidden;
-    padding: clamp(12px, 2vw, 28px);
+    padding: clamp(1rem, 2vw, 1.75rem);
     background-color: var(--glass-bg); border-color: var(--glass-border);
-    font-size: clamp(10px, 1vw, 15px);
+    font-size: clamp(0.875rem, 1vw, 1rem);
+    line-height: 1.5;
   }
   .card-dark:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.15); transform: translateY(-3px); }
   .card-dark::after { content: ''; @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none; background: radial-gradient(circle at center, rgba(var(--accent-rgb), 0.1)); }
   .card-dark:hover::after { @apply opacity-100; }
 
-  .heading-xl { font-size: clamp(2.5rem, 7vw, 8rem); @apply font-black uppercase leading-[0.9] tracking-tighter italic; }
+  .heading-xl { font-size: clamp(2.5rem, 7vw, 5rem); @apply font-black uppercase leading-[0.9] tracking-tighter italic; }
   .text-accent { color: var(--accent); }
 
   .btn-primary-sm {
     @apply relative overflow-hidden rounded-lg font-bold flex items-center justify-center gap-1.5 uppercase transition-all duration-300;
-    padding: clamp(4px, 0.8vw, 8px) clamp(8px, 2vw, 16px);
-    font-size: clamp(7px, 0.8vw, 10px);
-    letter-spacing: clamp(0.1em, 0.15vw, 0.2em);
+    padding: clamp(0.25rem, 0.8vw, 0.5rem) clamp(0.5rem, 2vw, 1rem);
+    font-size: clamp(0.7rem, 0.8vw, 0.75rem);
+    letter-spacing: 0.1em;
     background: var(--accent) !important; color: var(--accent-contrast) !important;
     box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
   }
@@ -109,16 +122,16 @@
 
   .btn-ghost-sm {
     @apply relative inline-flex items-center justify-center gap-1.5 rounded-lg border font-bold uppercase transition-all duration-300;
-    padding: clamp(4px, 0.8vw, 8px) clamp(8px, 2vw, 16px);
-    font-size: clamp(7px, 0.8vw, 10px);
-    letter-spacing: clamp(0.1em, 0.15vw, 0.2em);
+    padding: clamp(0.25rem, 0.8vw, 0.5rem) clamp(0.5rem, 2vw, 1rem);
+    font-size: clamp(0.7rem, 0.8vw, 0.75rem);
+    letter-spacing: 0.1em;
     border-color: var(--text-primary); color: var(--text-primary); background: transparent;
   }
   .btn-ghost-sm:hover { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
 
   .card-dark-sm { 
     @apply rounded-xl transition-all duration-300 backdrop-blur-xl border relative overflow-hidden; 
-    padding: clamp(8px, 1.5vw, 16px);
+    padding: clamp(0.5rem, 1.5vw, 1rem);
     background-color: var(--glass-bg); border-color: var(--glass-border); 
   }
   .card-dark-sm:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.15); transform: translateY(-2px); }
@@ -126,8 +139,8 @@
   .input-dark { 
     @apply w-full bg-white/5 border border-white/10 rounded-lg font-body transition-colors duration-200 focus:outline-none; 
     color: var(--text-primary); 
-    padding: clamp(6px, 1vw, 12px) clamp(10px, 2vw, 16px);
-    font-size: clamp(10px, 1vw, 14px);
+    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
+    font-size: clamp(0.875rem, 1vw, 1rem);
   }
   .input-dark:focus { border-color: var(--accent); }
 
