@@ -4,7 +4,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
-import FloatingCube from './FloatingCube';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -82,9 +81,6 @@ export default function About() {
   return (
     <section ref={sectionRef} className="relative section-padding overflow-visible z-40 bg-transparent">
       <div id="about" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
-
-      <FloatingCube type="Canva" size={80} top="5%" right="10%" blur="4px" delay={0.3} duration={7} />
-      <FloatingCube type="Ps" size={55} bottom="15%" left="10%" blur="1px" delay={1.2} duration={5} />
 
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
