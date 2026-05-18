@@ -27,7 +27,6 @@ export default function SelectedWorks() {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [modalIndex, setModalIndex] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -232,7 +231,7 @@ export default function SelectedWorks() {
         <div ref={containerRef} className="w-full overflow-hidden flex items-center cursor-grab active:cursor-grabbing select-none relative" style={{ height: slideHeight + 100, perspective: `${perspective}px` }}>
           <div ref={trackRef} className="flex items-center" style={{ gap: `${gap}px` }}>
             {filteredProjects.map((project, i) => (
-              <div key={project.id} ref={el => { slidesRef.current[i] = el; }} className="flex-shrink-0 will-change-transform rounded-[20px] overflow-hidden cursor-pointer" style={{ width: slideWidth, height: slideHeight }} onClick={() => { setSelectedProject(project); setModalIndex(0); }} onMouseDown={(e) => e.stopPropagation()}>
+              <div key={project.id} ref={el => { slidesRef.current[i] = el; }} className="flex-shrink-0 will-change-transform rounded-[20px] overflow-hidden cursor-pointer" style={{ width: slideWidth, height: slideHeight }} onClick={() => setSelectedProject(project)} onMouseDown={(e) => e.stopPropagation()}>
                 <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
                   <div className="relative rounded-[20px] overflow-hidden border flex flex-col h-full" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
                     <div className="flex-1 overflow-hidden">
@@ -257,44 +256,32 @@ export default function SelectedWorks() {
         </div>
       </div>
 
-      {/* Modal — Clean Focus Slice */}
+      {/* Simple Modal — Just images in a grid, no carousel conflicts */}
       <AnimatePresence>
         {selectedProject && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[9999] flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(20px)' }}>
-            <button onClick={() => setSelectedProject(null)} className="absolute top-4 right-4 z-[10000] p-2.5 rounded-full border transition-all" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[9999] overflow-y-auto" style={{ backgroundColor: 'rgba(0,0,0,0.95)' }} onClick={() => setSelectedProject(null)}>
+            <button onClick={() => setSelectedProject(null)} className="fixed top-4 right-4 z-[10000] p-2.5 rounded-full border transition-all" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
               <X size={18} />
             </button>
 
-            <div className="flex-1 flex items-center justify-center min-h-0 px-6 pt-16 pb-6">
-              <div className="flex gap-2.5 w-full max-w-4xl items-stretch" style={{ height: 'clamp(280px, 50vh, 480px)' }}>
-                {galleryImages.map((img, idx) => (
-                  <div
-                    key={img.id}
-                    onClick={() => setModalIndex(idx)}
-                    className="relative cursor-pointer overflow-hidden flex-shrink-0 transition-all duration-500 ease-in-out"
-                    style={{
-                      width: idx === modalIndex ? '58%' : '7%',
-                      borderRadius: idx === modalIndex ? 16 : 9999,
-                    }}
-                  >
-                    <img src={img.hero_bg_desktop || img.image_url} className="w-full h-full object-cover" alt="" />
-                  </div>
+            <div className="min-h-screen flex flex-col items-center justify-center px-4 py-20" onClick={(e) => e.stopPropagation()}>
+              <div className="max-w-3xl w-full space-y-6">
+                {galleryImages.map((img) => (
+                  <img key={img.id} src={img.hero_bg_desktop || img.image_url} className="w-full h-auto max-h-[60vh] rounded-2xl border object-cover" style={{ borderColor: 'var(--glass-border)' }} alt="" />
                 ))}
               </div>
-            </div>
 
-            <div className="px-6 pb-6 flex items-center justify-between gap-4 max-w-4xl mx-auto w-full">
-              <div className="flex items-center gap-3 min-w-0">
-                <span className="text-accent text-[9px] font-bold tracking-[0.2em] uppercase whitespace-nowrap">{selectedProject.category}</span>
-                <span className="text-[var(--text-primary)]/20 text-[9px]">|</span>
-                <h2 className="text-[var(--text-primary)] text-xs font-black uppercase tracking-tighter truncate">{selectedProject.title}</h2>
-              </div>
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <div className="flex gap-1">
-                  {galleryImages.map((_, idx) => (
-                    <button key={idx} onClick={() => setModalIndex(idx)} className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === modalIndex ? 'bg-accent scale-125' : 'bg-white/20 hover:bg-white/40'}`} />
-                  ))}
-                </div>
+              <div className="mt-8 text-center max-w-xl">
+                <span className="text-accent text-[10px] font-bold tracking-[0.3em] uppercase">{selectedProject.category}</span>
+                <h2 className="text-white text-xl font-black uppercase tracking-tighter mt-1">{selectedProject.title}</h2>
+                <p className="text-white/50 text-sm mt-2">{selectedProject.description}</p>
+                {selectedProject.tools && (
+                  <div className="flex flex-wrap gap-1.5 justify-center mt-4">
+                    {selectedProject.tools.map((t) => (
+                      <span key={t} className="px-2 py-1 border border-white/10 rounded text-[9px] uppercase text-white/40 font-bold tracking-widest">{t}</span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
