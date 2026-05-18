@@ -102,6 +102,10 @@ export default function SelectedWorks() {
     slideShadows: false,
   };
 
+  const getImageSrc = (project: Project) => {
+    return project.hero_bg_desktop || project.image_url || project.card_thumbnail || '';
+  };
+
   return (
     <>
       <section id="works" className="relative py-16 lg:py-20 overflow-visible bg-transparent" style={{ zIndex: 40 }}>
@@ -126,7 +130,7 @@ export default function SelectedWorks() {
               grabCursor={true}
               centeredSlides={true}
               slidesPerView={isMobile ? 1 : 3}
-              spaceBetween={isMobile ? 0 : 40}
+              spaceBetween={isMobile ? 0 : 50}
               coverflowEffect={coverflowSettings}
               onSlideChange={(s) => setActiveIndex(s.activeIndex)}
               className="w-full"
@@ -145,13 +149,13 @@ export default function SelectedWorks() {
                           borderColor: 'var(--glass-border)',
                           backgroundColor: 'var(--glass-bg)',
                           aspectRatio: isMobile ? '4/5' : '16/9',
-                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'clamp(350px, 55vh, 600px)',
+                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'clamp(380px, 60vh, 650px)',
                           width: isMobile ? '90vw' : '100%',
                           margin: isMobile ? '0 auto' : '0',
                         }}
                       >
                         <div className="flex-1 overflow-hidden">
-                          <img src={project.hero_bg_desktop || project.image_url} className="w-full h-full object-cover" alt={project.title} draggable={false} />
+                          <img src={getImageSrc(project)} className="w-full h-full object-cover" alt={project.title} draggable={false} />
                         </div>
                         <div className="p-2.5 md:p-3 flex flex-col gap-0.5 flex-shrink-0">
                           <span className="text-accent text-[7px] md:text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
@@ -193,7 +197,7 @@ export default function SelectedWorks() {
                 {galleryImages.map((img) => (
                   <img
                     key={img.id}
-                    src={img.hero_bg_desktop || img.image_url}
+                    src={getImageSrc(img)}
                     className="w-full h-auto rounded-2xl border"
                     style={{ borderColor: 'var(--glass-border)', objectFit: 'contain', maxHeight: 'none' }}
                     alt=""
