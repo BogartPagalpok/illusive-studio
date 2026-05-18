@@ -109,7 +109,6 @@ export default function HeroCanvas() {
           const targetFrame = Math.round(playhead.frame);
           if (!drawFrame(targetFrame)) drawFrame(lastDrawnFrameRef.current);
 
-          // Diagonal mask — wipes from top-left to bottom-right
           if (canvas && container) {
             const fadeStart = 0.80;
             const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
