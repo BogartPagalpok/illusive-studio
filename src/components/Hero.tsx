@@ -29,14 +29,17 @@ function scrollToId(e: React.MouseEvent, id: string) {
 export default function Hero() {
   const [content, setContent] = useState<HeroContent>(defaultContent);
   const sectionRef = useRef<HTMLElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end start'],
   });
 
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.15], ['0%', '-20%']);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+  const overlayY = useTransform(scrollYProgress, [0, 0.12], ['0%', '-30%']);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.08], ['0%', '-10%']);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -66,14 +69,16 @@ export default function Hero() {
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
         </div>
 
-        <div className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
+        {/* Overlay — fades and moves up */}
+        <motion.div
+          ref={overlayRef}
+          style={{ opacity: overlayOpacity, y: overlayY }}
+          className="absolute inset-0 pointer-events-none z-10 pt-[80px]"
+        >
           <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
 
-          <motion.div
-            style={{ opacity: heroOpacity, y: heroY }}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto cursor-default"
-          >
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto cursor-default">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -112,7 +117,7 @@ export default function Hero() {
               <a href="#works" onClick={(e) => scrollToId(e, 'works')} className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">View Works</a>
               <a href="#contact" onClick={(e) => scrollToId(e, 'contact')} className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">Get in Touch</a>
             </motion.div>
-          </motion.div>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -125,7 +130,7 @@ export default function Hero() {
               <ArrowDown size={16} className="animate-bounce mx-auto" />
             </button>
           </motion.div>
-        </div>
+        </motion.div>
       </ScrollSequence>
     </section>
   );
