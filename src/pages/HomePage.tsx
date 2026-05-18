@@ -38,19 +38,11 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       <Navbar />
       
       <main className="relative z-10">
-        {/* Hero section — pinned, fades out diagonally */}
-        <div className="relative">
-          {/* Services sits BEHIND the hero at the same position */}
-          <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 1 }}>
-            <div className="w-full">
-              <Services />
-            </div>
-          </div>
-          
-          {/* Hero sits ON TOP — will diagonal-fade to reveal Services */}
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <Hero />
-          </div>
+        <Hero />
+        
+        {/* Services pulled up to overlap the hero space */}
+        <div style={{ marginTop: '-100vh', position: 'relative', zIndex: 1 }}>
+          <Services />
         </div>
 
         <SelectedWorks />
