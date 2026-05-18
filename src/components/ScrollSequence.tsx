@@ -131,7 +131,7 @@ export default function ScrollSequence({
   return (
     <div ref={containerRef} className="relative w-full z-0">
       <div ref={innerRef} className="h-screen w-full overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" style={{ objectPosition: 'top center' }} />
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-contain z-0" />
         
         <div 
           className="absolute inset-0 pointer-events-none transition-colors duration-500 z-[1]" 
