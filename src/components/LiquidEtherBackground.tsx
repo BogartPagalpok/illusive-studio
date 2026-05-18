@@ -14,7 +14,6 @@ interface LiquidEtherProps {
 
 const defaultColors = ['#5227FF', '#FF9FFC', '#B19EEF'];
 
-// ── Shaders ─────────────────────────────────────────────
 const faceVert = `
   attribute vec3 position;
   uniform vec2 px;
@@ -28,7 +27,6 @@ const faceVert = `
     gl_Position = vec4(pos, 1.0);
   }
 `;
-
 const lineVert = `
   attribute vec3 position;
   uniform vec2 px;
@@ -42,7 +40,6 @@ const lineVert = `
     gl_Position = vec4(pos, 1.0);
   }
 `;
-
 const mouseVert = `
   precision highp float;
   attribute vec3 position;
@@ -57,7 +54,6 @@ const mouseVert = `
     gl_Position = vec4(pos, 0.0, 1.0);
   }
 `;
-
 const advectionFrag = `
   precision highp float;
   uniform sampler2D velocity;
@@ -88,7 +84,6 @@ const advectionFrag = `
     }
   }
 `;
-
 const colorFrag = `
   precision highp float;
   uniform sampler2D velocity;
@@ -104,7 +99,6 @@ const colorFrag = `
     gl_FragColor = vec4(outRGB, outA);
   }
 `;
-
 const divergenceFrag = `
   precision highp float;
   uniform sampler2D velocity;
@@ -120,7 +114,6 @@ const divergenceFrag = `
     gl_FragColor = vec4(divergence / dt);
   }
 `;
-
 const externalForceFrag = `
   precision highp float;
   uniform vec2 force;
@@ -135,7 +128,6 @@ const externalForceFrag = `
     gl_FragColor = vec4(force * d, 0.0, 1.0);
   }
 `;
-
 const poissonFrag = `
   precision highp float;
   uniform sampler2D pressure;
@@ -152,7 +144,6 @@ const poissonFrag = `
     gl_FragColor = vec4(newP);
   }
 `;
-
 const pressureFrag = `
   precision highp float;
   uniform sampler2D pressure;
@@ -171,7 +162,6 @@ const pressureFrag = `
     gl_FragColor = vec4(v, 0.0, 1.0);
   }
 `;
-
 const viscousFrag = `
   precision highp float;
   uniform sampler2D velocity;
@@ -192,8 +182,6 @@ const viscousFrag = `
   }
 `;
 
-// ── Simulation Classes ──────────────────────────────────
-
 class FluidSimulation {
   fbos: Record<string, THREE.WebGLRenderTarget | null> = {};
   fboSize = new THREE.Vector2();
@@ -204,8 +192,6 @@ class FluidSimulation {
   width = 0;
   height = 0;
   pixelRatio = 1;
-
-  // Shader passes
   advectionPass: any;
   externalForcePass: any;
   divergencePass: any;
@@ -216,17 +202,10 @@ class FluidSimulation {
 
   constructor(options: any) {
     this.options = {
-      iterationsPoisson: 16,
-      iterationsViscous: 16,
-      mouseForce: 20,
-      resolution: 0.25,
-      cursorSize: 100,
-      viscous: 30,
-      isBounce: false,
-      dt: 0.014,
-      isViscous: false,
-      BFECC: true,
-      ...options,
+      iterationsPoisson: 16, iterationsViscous: 16,
+      mouseForce: 20, resolution: 0.25, cursorSize: 100,
+      viscous: 30, isBounce: false, dt: 0.014,
+      isViscous: false, BFECC: true, ...options,
     };
     this.fbos = {
       vel_0: null, vel_1: null, vel_viscous0: null, vel_viscous1: null,
@@ -234,14 +213,16 @@ class FluidSimulation {
     };
   }
 
+  isMobile() {
+    return /(iPad|iPhone|iPod|Android)/i.test(navigator.userAgent) || window.innerWidth < 768;
+  }
+
   init(container: HTMLElement, paletteTex: THREE.DataTexture) {
     const rect = container.getBoundingClientRect();
     this.width = Math.max(1, Math.floor(rect.width));
     this.height = Math.max(1, Math.floor(rect.height));
     this.pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    this.renderer.autoClear = false;
+    this.renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
     this.renderer.setPixelRatio(this.pixelRatio);
     this.renderer.setSize(this.width, this.height);
     const el = this.renderer.domElement;
@@ -249,7 +230,6 @@ class FluidSimulation {
     el.style.height = '100%';
     el.style.display = 'block';
     container.prepend(el);
-
     this.createFBOs();
     this.createPasses(paletteTex);
   }
@@ -261,8 +241,9 @@ class FluidSimulation {
   createFBOs() {
     const w = Math.max(1, Math.round(this.options.resolution * this.width));
     const h = Math.max(1, Math.round(this.options.resolution * this.height));
-    const cw = Math.min(w, 512);
-    const ch = Math.min(h, 512);
+    const maxSize = this.isMobile() ? 128 : 512;
+    const cw = Math.min(w, maxSize);
+    const ch = Math.min(h, maxSize);
     this.cellScale.set(1 / cw, 1 / ch);
     this.fboSize.set(cw, ch);
     const type = this.getFloatType();
@@ -278,14 +259,9 @@ class FluidSimulation {
 
   createPasses(paletteTex: THREE.DataTexture) {
     const cs = this.cellScale;
-    const bs = this.boundarySpace;
-
-    // Output
     const outScene = new THREE.Scene();
-    const outCam = new THREE.Camera();
     const outMat = new THREE.RawShaderMaterial({
-      vertexShader: faceVert,
-      fragmentShader: colorFrag,
+      vertexShader: faceVert, fragmentShader: colorFrag,
       transparent: true, depthWrite: false,
       uniforms: {
         velocity: { value: this.fbos.vel_0!.texture },
@@ -295,16 +271,14 @@ class FluidSimulation {
       },
     });
     outScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), outMat));
-    this.outputPass = { scene: outScene, camera: outCam, material: outMat };
+    this.outputPass = { scene: outScene, camera: new THREE.Camera(), material: outMat };
 
-    // Advection
-    this.advectionPass = this.createPass(faceVert, advectionFrag, {
+    this.advectionPass = this.makePass(faceVert, advectionFrag, {
       boundarySpace: { value: cs }, px: { value: cs },
       fboSize: { value: this.fboSize }, velocity: { value: this.fbos.vel_0!.texture },
       dt: { value: this.options.dt }, isBFECC: { value: true },
     }, this.fbos.vel_1);
 
-    // External force
     const forceGeo = new THREE.PlaneGeometry(1, 1);
     const forceMat = new THREE.RawShaderMaterial({
       vertexShader: mouseVert, fragmentShader: externalForceFrag,
@@ -316,42 +290,41 @@ class FluidSimulation {
       },
     });
     const forceScene = new THREE.Scene();
-    const forceCam = new THREE.Camera();
     forceScene.add(new THREE.Mesh(forceGeo, forceMat));
-    this.externalForcePass = { scene: forceScene, camera: forceCam, material: forceMat, output: this.fbos.vel_1 };
+    this.externalForcePass = { scene: forceScene, camera: new THREE.Camera(), material: forceMat };
 
-    // Divergence
-    this.divergencePass = this.createPass(faceVert, divergenceFrag, {
-      boundarySpace: { value: bs }, velocity: { value: this.fbos.vel_1!.texture },
+    this.divergencePass = this.makePass(faceVert, divergenceFrag, {
+      boundarySpace: { value: this.boundarySpace }, velocity: { value: this.fbos.vel_1!.texture },
       px: { value: cs }, dt: { value: this.options.dt },
     }, this.fbos.div);
 
-    // Poisson
-    this.poissonPass = this.createPass(faceVert, poissonFrag, {
-      boundarySpace: { value: bs }, pressure: { value: this.fbos.pressure_0!.texture },
+    this.poissonPass = this.makePass(faceVert, poissonFrag, {
+      boundarySpace: { value: this.boundarySpace },
+      pressure: { value: this.fbos.pressure_0!.texture },
       divergence: { value: this.fbos.div!.texture }, px: { value: cs },
     }, this.fbos.pressure_1, this.fbos.pressure_0);
 
-    // Pressure
-    this.pressurePass = this.createPass(faceVert, pressureFrag, {
-      boundarySpace: { value: bs }, pressure: { value: this.fbos.pressure_0!.texture },
-      velocity: { value: this.fbos.vel_1!.texture }, px: { value: cs }, dt: { value: this.options.dt },
+    this.pressurePass = this.makePass(faceVert, pressureFrag, {
+      boundarySpace: { value: this.boundarySpace },
+      pressure: { value: this.fbos.pressure_0!.texture },
+      velocity: { value: this.fbos.vel_1!.texture }, px: { value: cs },
+      dt: { value: this.options.dt },
     }, this.fbos.vel_0);
 
-    // Viscous
-    this.viscousPass = this.createPass(faceVert, viscousFrag, {
-      boundarySpace: { value: bs }, velocity: { value: this.fbos.vel_1!.texture },
-      velocity_new: { value: this.fbos.vel_viscous0!.texture }, v: { value: this.options.viscous },
-      px: { value: cs }, dt: { value: this.options.dt },
+    this.viscousPass = this.makePass(faceVert, viscousFrag, {
+      boundarySpace: { value: this.boundarySpace },
+      velocity: { value: this.fbos.vel_1!.texture },
+      velocity_new: { value: this.fbos.vel_viscous0!.texture },
+      v: { value: this.options.viscous }, px: { value: cs },
+      dt: { value: this.options.dt },
     }, this.fbos.vel_viscous1, this.fbos.vel_viscous0);
   }
 
-  createPass(vert: string, frag: string, uniforms: any, output: THREE.WebGLRenderTarget | null, altOutput?: THREE.WebGLRenderTarget | null) {
+  makePass(vert: string, frag: string, uniforms: any, out: THREE.WebGLRenderTarget | null, alt?: THREE.WebGLRenderTarget | null) {
     const scene = new THREE.Scene();
-    const camera = new THREE.Camera();
     const mat = new THREE.RawShaderMaterial({ vertexShader: vert, fragmentShader: frag, uniforms });
     scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
-    return { scene, camera, material: mat, output, altOutput };
+    return { scene, camera: new THREE.Camera(), material: mat, output: out, altOutput: alt };
   }
 
   renderPass(pass: any, output: THREE.WebGLRenderTarget | null) {
@@ -364,16 +337,13 @@ class FluidSimulation {
     if (!this.renderer) return;
     const cs = this.cellScale;
     const opts = this.options;
-
-    // Update external force
     const fm = this.externalForcePass.material.uniforms;
     fm.force.value.set(mouseDiff.x / 2 * opts.mouseForce, mouseDiff.y / 2 * opts.mouseForce);
-    const cx = Math.min(Math.max(mouseCoords.x, -1 + opts.cursorSize * cs.x + cs.x * 2), 1 - opts.cursorSize * cs.x - cs.x * 2);
-    const cy = Math.min(Math.max(mouseCoords.y, -1 + opts.cursorSize * cs.y + cs.y * 2), 1 - opts.cursorSize * cs.y - cs.y * 2);
+    const cx = Math.min(Math.max(mouseCoords.x, -1 + opts.cursorSize * cs.x), 1 - opts.cursorSize * cs.x);
+    const cy = Math.min(Math.max(mouseCoords.y, -1 + opts.cursorSize * cs.y), 1 - opts.cursorSize * cs.y);
     fm.center.value.set(cx, cy);
     fm.scale.value.set(opts.cursorSize, opts.cursorSize);
 
-    // Run simulation steps
     this.renderPass(this.advectionPass, this.fbos.vel_1);
     this.renderPass(this.externalForcePass, this.fbos.vel_1);
 
@@ -402,7 +372,6 @@ class FluidSimulation {
     this.pressurePass.material.uniforms.pressure.value = this.fbos.pressure_0!.texture;
     this.renderPass(this.pressurePass, this.fbos.vel_0);
 
-    // Render output
     this.renderPass(this.outputPass, null);
   }
 
@@ -414,59 +383,14 @@ class FluidSimulation {
     this.createFBOs();
   }
 
-  dispose() {
-    this.renderer?.dispose();
-  }
+  dispose() { this.renderer?.dispose(); }
 }
 
-// ── Auto Demo Driver ────────────────────────────────────
-class AutoDriver {
-  mouse: any;
-  enabled: boolean;
-  speed: number;
-  resumeDelay: number;
-  active = false;
-  current = new THREE.Vector2();
-  target = new THREE.Vector2();
-  lastTime = performance.now();
-  private tmp = new THREE.Vector2();
-
-  constructor(mouse: any, enabled: boolean, speed: number, resumeDelay: number) {
-    this.mouse = mouse;
-    this.enabled = enabled;
-    this.speed = speed;
-    this.resumeDelay = resumeDelay;
-    this.pickTarget();
-  }
-
-  pickTarget() {
-    this.target.set((Math.random() * 2 - 1) * 0.8, (Math.random() * 2 - 1) * 0.8);
-  }
-
-  update(lastInteraction: number) {
-    if (!this.enabled) return;
-    const idle = performance.now() - lastInteraction;
-    if (idle < this.resumeDelay) { this.active = false; return; }
-    if (!this.active) { this.active = true; this.current.copy(this.mouse.coords); }
-
-    const dt = Math.min((performance.now() - this.lastTime) / 1000, 0.05);
-    this.lastTime = performance.now();
-    this.tmp.subVectors(this.target, this.current);
-    const dist = this.tmp.length();
-    if (dist < 0.02) { this.pickTarget(); return; }
-    this.tmp.normalize();
-    this.current.addScaledVector(this.tmp, this.speed * dt);
-    this.mouse.setCoords(this.current.x, this.current.y);
-  }
-}
-
-// ── Mouse Tracker ───────────────────────────────────────
 class MouseTracker {
   coords = new THREE.Vector2();
   coordsOld = new THREE.Vector2();
   diff = new THREE.Vector2();
   lastInteraction = performance.now();
-
   update(clientX: number, clientY: number, rect: DOMRect) {
     const x = ((clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((clientY - rect.top) / rect.height) * 2 + 1;
@@ -475,24 +399,41 @@ class MouseTracker {
     this.diff.subVectors(this.coords, this.coordsOld);
     this.lastInteraction = performance.now();
   }
+}
 
-  setCoords(x: number, y: number) {
-    this.coordsOld.copy(this.coords);
-    this.coords.set(x, y);
-    this.diff.subVectors(this.coords, this.coordsOld);
+class AutoDriver {
+  mouse: MouseTracker;
+  enabled: boolean;
+  speed: number;
+  resumeDelay: number;
+  active = false;
+  current = new THREE.Vector2();
+  target = new THREE.Vector2();
+  lastTime = performance.now();
+  private tmp = new THREE.Vector2();
+  constructor(mouse: MouseTracker, enabled: boolean, speed: number, resumeDelay: number) {
+    this.mouse = mouse; this.enabled = enabled; this.speed = speed; this.resumeDelay = resumeDelay;
+    this.pickTarget();
+  }
+  pickTarget() { this.target.set((Math.random() * 2 - 1) * 0.8, (Math.random() * 2 - 1) * 0.8); }
+  update(lastInteraction: number) {
+    if (!this.enabled) return;
+    if (performance.now() - lastInteraction < this.resumeDelay) { this.active = false; return; }
+    if (!this.active) { this.active = true; this.current.copy(this.mouse.coords); }
+    const dt = Math.min((performance.now() - this.lastTime) / 1000, 0.05);
+    this.lastTime = performance.now();
+    this.tmp.subVectors(this.target, this.current);
+    if (this.tmp.length() < 0.02) { this.pickTarget(); return; }
+    this.tmp.normalize();
+    this.current.addScaledVector(this.tmp, this.speed * dt);
+    this.mouse.update(this.current.x, this.current.y, { left: 0, top: 0, width: 2, height: 2 } as DOMRect);
   }
 }
 
-// ── Main Component ──────────────────────────────────────
 export default function LiquidEtherBackground({
-  colors = defaultColors,
-  mouseForce = 20,
-  cursorSize = 100,
-  resolution = 0.25,
-  autoDemo = true,
-  autoSpeed = 0.5,
-  className = '',
-  style,
+  colors = defaultColors, mouseForce = 60, cursorSize = 200,
+  resolution = 0.2, autoDemo = true, autoSpeed = 0.5,
+  className = '', style,
 }: LiquidEtherProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -504,30 +445,29 @@ export default function LiquidEtherBackground({
     const mouse = new MouseTracker();
     const driver = new AutoDriver(mouse, autoDemo, autoSpeed, 1000);
 
-    // Palette
     const arr = colors.length > 1 ? colors : [colors[0], colors[0]];
     const data = new Uint8Array(arr.length * 4);
     arr.forEach((c, i) => {
       const col = new THREE.Color(c);
-      data[i * 4] = Math.round(col.r * 255);
-      data[i * 4 + 1] = Math.round(col.g * 255);
-      data[i * 4 + 2] = Math.round(col.b * 255);
-      data[i * 4 + 3] = 255;
+      data[i * 4] = Math.round(col.r * 255); data[i * 4 + 1] = Math.round(col.g * 255);
+      data[i * 4 + 2] = Math.round(col.b * 255); data[i * 4 + 3] = 255;
     });
     const paletteTex = new THREE.DataTexture(data, arr.length, 1, THREE.RGBAFormat);
-    paletteTex.magFilter = THREE.LinearFilter;
-    paletteTex.minFilter = THREE.LinearFilter;
-    paletteTex.wrapS = THREE.ClampToEdgeWrapping;
-    paletteTex.wrapT = THREE.ClampToEdgeWrapping;
-    paletteTex.generateMipmaps = false;
-    paletteTex.needsUpdate = true;
+    paletteTex.magFilter = THREE.LinearFilter; paletteTex.minFilter = THREE.LinearFilter;
+    paletteTex.wrapS = THREE.ClampToEdgeWrapping; paletteTex.wrapT = THREE.ClampToEdgeWrapping;
+    paletteTex.generateMipmaps = false; paletteTex.needsUpdate = true;
 
     sim.init(container, paletteTex);
 
-    // Mouse events
     const onMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       mouse.update(e.clientX, e.clientY, rect);
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        const rect = container.getBoundingClientRect();
+        mouse.update(e.touches[0].clientX, e.touches[0].clientY, rect);
+      }
     };
     const onTouchMove = (e: TouchEvent) => {
       if (e.touches.length === 1) {
@@ -535,10 +475,11 @@ export default function LiquidEtherBackground({
         mouse.update(e.touches[0].clientX, e.touches[0].clientY, rect);
       }
     };
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('touchmove', onTouchMove);
 
-    // Render loop
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('touchstart', onTouchStart);
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+
     let raf: number;
     const animate = () => {
       driver.update(mouse.lastInteraction);
@@ -547,13 +488,13 @@ export default function LiquidEtherBackground({
     };
     animate();
 
-    // Resize
     const onResize = () => sim.resize(container);
     window.addEventListener('resize', onResize);
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('resize', onResize);
       sim.dispose();
@@ -561,10 +502,6 @@ export default function LiquidEtherBackground({
   }, [colors, mouseForce, cursorSize, resolution, autoDemo, autoSpeed]);
 
   return (
-    <div
-      ref={containerRef}
-      className={`fixed inset-0 pointer-events-none ${className}`}
-      style={{ zIndex: 0, ...style }}
-    />
+    <div ref={containerRef} className={`fixed inset-0 pointer-events-none ${className}`} style={{ zIndex: 0, ...style }} />
   );
 }
