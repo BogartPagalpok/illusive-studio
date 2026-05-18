@@ -140,4 +140,26 @@
   .font-heading { font-family: var(--font-heading) !important; }
   .font-body { font-family: var(--font-sans) !important; }
   .border-accent { border-color: var(--accent) !important; }
+
+  /* ========== PARALLAX UTILITIES ========== */
+  .parallax-slow {
+    will-change: transform;
+    transform: translateY(calc(var(--scroll-offset, 0px) * 0.2));
+    transition: transform 0.1s linear;
+  }
+  .parallax-medium {
+    will-change: transform;
+    transform: translateY(calc(var(--scroll-offset, 0px) * 0.4));
+    transition: transform 0.1s linear;
+  }
+  .parallax-fast {
+    will-change: transform;
+    transform: translateY(calc(var(--scroll-offset, 0px) * 0.6));
+    transition: transform 0.1s linear;
+  }
+  .parallax-reverse {
+    will-change: transform;
+    transform: translateY(calc(var(--scroll-offset, 0px) * -0.3));
+    transition: transform 0.1s linear;
+  }
 }
