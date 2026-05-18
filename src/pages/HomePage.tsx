@@ -35,12 +35,7 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
         <Hero />
         <Services />
         <SelectedWorks />
-        
-        <section className="relative">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-          <About />
-        </section>
-
+        <About />
         <Contact />
       </main>
 
