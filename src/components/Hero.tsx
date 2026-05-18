@@ -1,13 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ScrollSequence from './ScrollSequence';
 import { supabase } from '../lib/supabase';
 import FloatingCube from './FloatingCube';
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface HeroContent {
   subtitle: string;
@@ -32,7 +28,6 @@ function scrollToId(e: React.MouseEvent, id: string) {
 
 export default function Hero() {
   const [content, setContent] = useState<HeroContent>(defaultContent);
-  const overlayRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -50,7 +45,6 @@ export default function Hero() {
           .from('site_content')
           .select('key, value')
           .eq('section', 'hero');
-
         if (!contentError && contentData && contentData.length > 0) {
           const mapped = { ...defaultContent };
           for (const row of contentData) {
@@ -59,41 +53,9 @@ export default function Hero() {
           }
           setContent(mapped);
         }
-      } catch {
-        // Use defaults
-      }
+      } catch {}
     };
     fetchContent();
-  }, []);
-
-  useEffect(() => {
-    const overlay = overlayRef.current;
-    if (!overlay) return;
-
-    const ctx = gsap.context(() => {
-      gsap.to(overlay, {
-        yPercent: -100,
-        opacity: 0,
-        ease: 'none',
-        immediateRender: false,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: window.innerWidth < 768 ? '+=100%' : '+=150%',
-          scrub: 0.5,
-        },
-      });
-    });
-
-    const handleThemeChange = () => {
-      setTimeout(() => ScrollTrigger.refresh(), 150);
-    };
-    window.addEventListener('storage', handleThemeChange);
-
-    return () => {
-      ctx.revert();
-      window.removeEventListener('storage', handleThemeChange);
-    };
   }, []);
 
   return (
@@ -102,13 +64,13 @@ export default function Hero() {
       id="hero"
       className="w-full overflow-hidden relative bg-transparent"
     >
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 3}>
+      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 2}>
         <div className="hidden md:block">
           <FloatingCube type="Ps" size={100} top="20%" left="10%" blur="2px" delay={0} duration={6} />
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
         </div>
 
-        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
+        <div className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
           <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
 
@@ -155,20 +117,8 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 1 }}
               className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full"
             >
-              <a
-                href="#works"
-                onClick={(e) => scrollToId(e, 'works')}
-                className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto"
-              >
-                View Works
-              </a>
-              <a
-                href="#contact"
-                onClick={(e) => scrollToId(e, 'contact')}
-                className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto"
-              >
-                Get in Touch
-              </a>
+              <a href="#works" onClick={(e) => scrollToId(e, 'works')} className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">View Works</a>
+              <a href="#contact" onClick={(e) => scrollToId(e, 'contact')} className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">Get in Touch</a>
             </motion.div>
           </motion.div>
 
@@ -178,10 +128,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 1.3 }}
             className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-auto z-20"
           >
-            <button
-              onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
-              className="flex flex-col items-center justify-center gap-2 text-[var(--text-secondary)]/40 hover:text-accent transition-colors duration-300 w-full"
-            >
+            <button onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })} className="flex flex-col items-center justify-center gap-2 text-[var(--text-secondary)]/40 hover:text-accent transition-colors duration-300 w-full">
               <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase text-center block">Scroll</span>
               <ArrowDown size={16} className="animate-bounce mx-auto" />
             </button>
