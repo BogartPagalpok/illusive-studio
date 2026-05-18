@@ -34,7 +34,7 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       <main className="relative z-10">
         <Hero />
         
-        <div style={{ marginTop: '-100vh', position: 'relative', zIndex: 1 }}>
+        <div style={{ marginTop: '-50vh', position: 'relative', zIndex: 1 }}>
           <Services />
         </div>
 
