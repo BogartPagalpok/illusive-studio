@@ -26,14 +26,6 @@ export default function ScrollSequence({
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastDrawnFrameRef = useRef<number>(0);
   const firstFrameDrawnRef = useRef<boolean>(false);
-  const isMobileRef = useRef(false);
-
-  useEffect(() => {
-    const check = () => { isMobileRef.current = window.innerWidth < 768; };
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
 
   const drawFrame = useCallback((index: number) => {
     const canvas = canvasRef.current;
@@ -44,24 +36,10 @@ export default function ScrollSequence({
     const img = imagesRef.current[index];
     if (!img || !img.complete || img.naturalWidth === 0) return false;
 
-    if (isMobileRef.current) {
-      // Mobile: fill screen then zoom out 30% so face isn't too close
-      const fillScale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
-      const scale = fillScale * 0.70;
-      const scaledW = img.naturalWidth * scale;
-      const scaledH = img.naturalHeight * scale;
-      const x = (canvas.width - scaledW) / 2;
-      const y = (canvas.height - scaledH) / 2;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, x, y, scaledW, scaledH);
-    } else {
-      // Desktop: fill screen (cover) - unchanged
-      const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
-      const x = (canvas.width - img.naturalWidth * scale) / 2;
-      const y = (canvas.height - img.naturalHeight * scale) / 2;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, x, y, img.naturalWidth * scale, img.naturalHeight * scale);
-    }
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
     
     lastDrawnFrameRef.current = index;
     return true;
@@ -132,7 +110,10 @@ export default function ScrollSequence({
           const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
           
           inner.style.opacity = `${1 - fadeProgress}`;
-          if (canvas) canvas.style.opacity = `${1 - fadeProgress}`;
+          
+          if (canvas) {
+            canvas.style.opacity = `${1 - fadeProgress}`;
+          }
         },
         onLeave: (self) => {
           inner.style.opacity = '0';
@@ -153,7 +134,7 @@ export default function ScrollSequence({
   return (
     <div ref={containerRef} className="relative w-full z-0">
       <div ref={innerRef} className="h-screen w-full overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0" />
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" />
         
         <div 
           className="absolute inset-0 pointer-events-none transition-colors duration-500 z-[1]" 
