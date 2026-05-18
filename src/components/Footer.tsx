@@ -32,18 +32,18 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Sparkles size={14} className="text-accent" />
-                  <span className="text-[10px] uppercase tracking-widest font-bold" style={{ color: 'var(--accent)' }}>Let's Talk</span>
+                  <span className="uppercase tracking-widest font-bold" style={{ color: 'var(--accent)', fontSize: 'clamp(9px, 0.9vw, 12px)' }}>Let's Talk</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-black uppercase mb-3 leading-tight break-words w-full" style={{ color: 'var(--text-primary)' }}>
+                <h3 className="font-black uppercase mb-3 leading-tight break-words w-full" style={{ color: 'var(--text-primary)', fontSize: 'clamp(18px, 2vw, 28px)' }}>
                   {content?.hook_heading || "Want to elevate your visual identity? Let's collaborate."}
                 </h3>
-                <p className="text-[11px] max-w-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                <p className="max-w-sm leading-relaxed" style={{ color: 'var(--text-secondary)', fontSize: 'clamp(10px, 1vw, 14px)' }}>
                   {content?.hook_desc || "From brand systems to digital art — I bring ideas to life with precision and passion."}
                 </p>
               </div>
               
               <div className="pt-6">
-                <button onClick={() => scrollToSection('contact')} className="btn-primary text-[10px] px-6 py-3 uppercase tracking-widest font-bold">
+                <button onClick={() => scrollToSection('contact')} className="btn-primary uppercase tracking-widest font-bold">
                   Book a Call
                 </button>
               </div>
@@ -52,8 +52,8 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-10 w-full lg:w-2/3 lg:justify-items-end">
               
               <div className="flex flex-col">
-                 <h4 className="text-[9px] uppercase tracking-widest mb-6 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4 }}>Navigation</h4>
-                 <ul className="space-y-4 text-[11px] font-bold uppercase">
+                 <h4 className="uppercase tracking-widest mb-6 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(8px, 0.8vw, 11px)' }}>Navigation</h4>
+                 <ul className="space-y-4 font-bold uppercase" style={{ fontSize: 'clamp(10px, 1vw, 13px)' }}>
                    {['Home', 'Services', 'Works', 'About'].map(item => (
                      <li key={item}>
                        <button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors text-left" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
@@ -65,8 +65,8 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               </div>
 
               <div className="flex flex-col">
-                 <h4 className="text-[9px] uppercase tracking-widest mb-6 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4 }}>Contact</h4>
-                 <ul className="space-y-4 text-[11px] font-bold">
+                 <h4 className="uppercase tracking-widest mb-6 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(8px, 0.8vw, 11px)' }}>Contact</h4>
+                 <ul className="space-y-4 font-bold" style={{ fontSize: 'clamp(10px, 1vw, 13px)' }}>
                    <li>
                      <a href={`mailto:${content?.email || 'yhanlhester@gmail.com'}`} className="flex items-center gap-3 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
                        <Mail size={12} className="text-accent shrink-0" /> <span className="break-all">{content?.email || 'yhanlhester@gmail.com'}</span>
@@ -81,8 +81,8 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               </div>
 
               <div className="flex flex-col col-span-2 md:col-span-1">
-                 <h4 className="text-[9px] uppercase tracking-widest mb-6 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4 }}>Connect</h4>
-                 <ul className="space-y-4 text-[11px] font-bold">
+                 <h4 className="uppercase tracking-widest mb-6 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(8px, 0.8vw, 11px)' }}>Connect</h4>
+                 <ul className="space-y-4 font-bold" style={{ fontSize: 'clamp(10px, 1vw, 13px)' }}>
                    <li><a href={content?.instagram} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Instagram size={12} className="text-accent" /> Instagram</a></li>
                    <li><a href={content?.github} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Github size={12} className="text-accent" /> GitHub</a></li>
                    <li><a href={content?.facebook} target="_blank" className="hover:text-accent flex items-center gap-3 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Facebook size={12} className="text-accent" /> Facebook</a></li>
@@ -99,8 +99,8 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
           </div>
 
           <div 
-            className="relative z-10 pt-6 border-t flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4 text-[9px] uppercase tracking-widest font-bold text-center md:text-left"
-            style={{ borderColor: 'var(--glass-border)' }}
+            className="relative z-10 pt-6 border-t flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4 uppercase tracking-widest font-bold text-center md:text-left"
+            style={{ borderColor: 'var(--glass-border)', fontSize: 'clamp(8px, 0.8vw, 11px)' }}
           >
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
               <button 
