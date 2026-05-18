@@ -96,7 +96,7 @@ export default function ScrollSequence({
         trigger: container,
         start: "top top",
         end: `+=${scrollLength * 100}%`,
-        scrub: 0.5,
+        scrub: 0.2, // Changed from 0.5 for a snappier feel
         pin: true,
         anticipatePin: 1,
         onUpdate: (self) => {
