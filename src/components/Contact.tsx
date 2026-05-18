@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Send } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useScrollReveal } from '../hooks/useScrollReveal';
-import FloatingCube from './FloatingCube';
 
 interface ContactContent {
   subtitle: string;
@@ -82,9 +81,6 @@ export default function Contact() {
   return (
     <section className="section-padding relative overflow-visible z-30 bg-transparent">
       <div id="contact" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
-      
-      <FloatingCube type="Canva" size={60} top="10%" left="5%" blur="2px" delay={0.5} duration={6} />
-      <FloatingCube type="Id" size={90} bottom="10%" right="8%" blur="4px" delay={1.5} duration={9} />
 
       <div ref={ref} className="section-container relative">
         <div className="grid lg:grid-cols-2 gap-8 items-start max-w-4xl mx-auto">
