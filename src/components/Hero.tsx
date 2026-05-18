@@ -78,7 +78,7 @@ export default function Hero() {
 
   return (
     <section id="hero" className="w-full overflow-hidden relative bg-transparent">
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={1}>
+      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={3}>
         <div className="hidden md:block">
           <FloatingCube type="Ps" size={100} top="20%" left="10%" blur="2px" delay={0} duration={6} />
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
