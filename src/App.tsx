@@ -16,7 +16,6 @@ function AtmosphereGradient() {
       className="fixed inset-0 overflow-hidden transition-colors duration-700 pointer-events-none"
       style={{ zIndex: -1 }}
     >
-      {/* Accent glow blobs — no solid background blocking the body */}
       <motion.div
         animate={{ x: ['-5%', '5%', '-5%'], y: ['-2%', '2%', '-2%'] }}
         transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
@@ -47,11 +46,19 @@ function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // ── Parallax scroll driver ──
   useEffect(() => {
-    // Load the saved theme (sets all CSS variables + background pattern)
-    loadSavedTheme();
+    const handleScroll = () => {
+      const offset = window.scrollY;
+      document.documentElement.style.setProperty('--scroll-offset', `${offset}px`);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-    // Subscribe to real-time theme changes from Supabase
+  useEffect(() => {
+    loadSavedTheme();
     const subscription = subscribeToThemeChanges();
 
     const initAuth = async () => {
