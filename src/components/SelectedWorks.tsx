@@ -102,9 +102,7 @@ export default function SelectedWorks() {
     slideShadows: false,
   };
 
-  const getImageSrc = (project: Project) => {
-    return project.hero_bg_desktop || project.image_url || project.card_thumbnail || '';
-  };
+  const getSrc = (p: Project) => p.hero_bg_desktop || p.image_url || p.card_thumbnail || '';
 
   return (
     <>
@@ -130,18 +128,18 @@ export default function SelectedWorks() {
               grabCursor={true}
               centeredSlides={true}
               slidesPerView={isMobile ? 1 : 3}
-              spaceBetween={isMobile ? 0 : 50}
+              spaceBetween={isMobile ? 0 : 40}
               coverflowEffect={coverflowSettings}
               onSlideChange={(s) => setActiveIndex(s.activeIndex)}
               className="w-full"
             >
               {filteredProjects.map((project, i) => (
-                <SwiperSlide
-                  key={project.id}
-                  onClick={() => setSelectedProject(project)}
-                  className="cursor-pointer"
-                >
-                  <div className="transition-all duration-500" style={{ opacity: isMobile ? 1 : (i === activeIndex ? 1 : 0.3) }}>
+                <SwiperSlide key={project.id}>
+                  <div
+                    className="transition-all duration-500 cursor-pointer"
+                    style={{ opacity: isMobile ? 1 : (i === activeIndex ? 1 : 0.3) }}
+                    onClick={() => setSelectedProject(project)}
+                  >
                     <GlowCard glowColor="var(--accent)" glowSize={120} glowIntensity={0.06} borderRadius="20px">
                       <div
                         className="relative rounded-[20px] overflow-hidden border flex flex-col"
@@ -149,13 +147,13 @@ export default function SelectedWorks() {
                           borderColor: 'var(--glass-border)',
                           backgroundColor: 'var(--glass-bg)',
                           aspectRatio: isMobile ? '4/5' : '16/9',
-                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'clamp(380px, 60vh, 650px)',
+                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'clamp(350px, 55vh, 600px)',
                           width: isMobile ? '90vw' : '100%',
                           margin: isMobile ? '0 auto' : '0',
                         }}
                       >
                         <div className="flex-1 overflow-hidden">
-                          <img src={getImageSrc(project)} className="w-full h-full object-cover" alt={project.title} draggable={false} />
+                          <img src={getSrc(project)} className="w-full h-full object-cover" alt={project.title} draggable={false} />
                         </div>
                         <div className="p-2.5 md:p-3 flex flex-col gap-0.5 flex-shrink-0">
                           <span className="text-accent text-[7px] md:text-[8px] font-bold tracking-[0.2em] uppercase">{project.category}</span>
@@ -197,7 +195,7 @@ export default function SelectedWorks() {
                 {galleryImages.map((img) => (
                   <img
                     key={img.id}
-                    src={getImageSrc(img)}
+                    src={getSrc(img)}
                     className="w-full h-auto rounded-2xl border"
                     style={{ borderColor: 'var(--glass-border)', objectFit: 'contain', maxHeight: 'none' }}
                     alt=""
