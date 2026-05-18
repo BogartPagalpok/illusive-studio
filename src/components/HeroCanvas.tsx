@@ -13,7 +13,7 @@ export default function HeroCanvas() {
   const [ready, setReady] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
 
-  const totalFrames = 262; // frames 000–261
+  const totalFrames = 262;
   const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${SCROLL_SEQUENCE_BUCKET}/`;
 
   const drawFrame = useCallback((index: number) => {
@@ -91,6 +91,8 @@ export default function HeroCanvas() {
     if (!ready) return;
 
     const playhead = { frame: 0 };
+    const canvas = canvasRef.current;
+
     const scrollAnimation = gsap.to(playhead, {
       frame: totalFrames - 1,
       snap: 'frame',
@@ -103,8 +105,21 @@ export default function HeroCanvas() {
         pin: true,
         invalidateOnRefresh: true,
         onUpdate: () => {
+          // Only update frame when scrolling forward
           const targetFrame = Math.round(playhead.frame);
-          if (!drawFrame(targetFrame)) drawFrame(lastDrawnFrameRef.current);
+          if (targetFrame >= lastDrawnFrameRef.current) {
+            if (!drawFrame(targetFrame)) drawFrame(lastDrawnFrameRef.current);
+          }
+          // When scrolling back, keep the last drawn frame — no reverse
+          // Fade out canvas when section ends
+          if (canvas) {
+            const progress = this.scrollTrigger?.progress || 0;
+            canvas.style.opacity = progress > 0.9 ? `${1 - (progress - 0.9) * 10}` : '1';
+          }
+        },
+        onLeaveBack: () => {
+          // Fade canvas back in when scrolling back up into the section
+          if (canvas) canvas.style.opacity = '1';
         },
       },
     });
@@ -118,7 +133,7 @@ export default function HeroCanvas() {
     <div ref={containerRef} className="absolute inset-0 w-full h-screen overflow-hidden">
       <canvas
         ref={canvasRef}
-        className="w-full h-full object-cover relative z-0"
+        className="w-full h-full object-cover relative z-0 transition-opacity duration-500"
         style={{ opacity: ready ? 1 : 0 }}
       />
       <div
