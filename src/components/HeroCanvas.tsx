@@ -91,6 +91,9 @@ export default function HeroCanvas() {
     if (!ready) return;
 
     const playhead = { frame: 0 };
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+
     const scrollAnimation = gsap.to(playhead, {
       frame: totalFrames - 1,
       snap: 'frame',
@@ -102,9 +105,45 @@ export default function HeroCanvas() {
         scrub: 0.3,
         pin: true,
         invalidateOnRefresh: true,
-        onUpdate: () => {
+        onUpdate: (self) => {
           const targetFrame = Math.round(playhead.frame);
           if (!drawFrame(targetFrame)) drawFrame(lastDrawnFrameRef.current);
+
+          // Diagonal mask — wipes from top-left to bottom-right
+          if (canvas && container) {
+            const fadeStart = 0.80;
+            const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
+            const fadePoint = fadeProgress * 120;
+            const visibleArea = Math.max(0, 100 - fadePoint);
+            const start = Math.max(0, visibleArea - 20);
+            const middle = visibleArea;
+            const end = Math.min(120, visibleArea + 40);
+            
+            const maskImage = `linear-gradient(135deg, 
+              rgba(0,0,0,1) 0%, 
+              rgba(0,0,0,1) ${start}%, 
+              rgba(0,0,0,0.5) ${middle}%, 
+              rgba(0,0,0,0) ${end}%)`;
+            
+            canvas.style.maskImage = maskImage;
+            canvas.style.WebkitMaskImage = maskImage;
+            canvas.style.maskComposite = 'intersect';
+            canvas.style.WebkitMaskComposite = 'intersect';
+          }
+        },
+        onLeave: () => {
+          if (canvas) {
+            canvas.style.maskImage = 'none';
+            canvas.style.WebkitMaskImage = 'none';
+            canvas.style.opacity = '0';
+          }
+        },
+        onEnterBack: () => {
+          if (canvas) {
+            canvas.style.maskImage = 'none';
+            canvas.style.WebkitMaskImage = 'none';
+            canvas.style.opacity = '1';
+          }
         },
       },
     });
