@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 export type CubeType = 'Ps' | 'Ai' | 'Id' | 'Lr' | 'Canva' | 'CapCut';
 
@@ -13,6 +14,7 @@ interface FloatingCubeProps {
   delay?: number;
   duration?: number;
   rotation?: number;
+  parallaxSpeed?: number; // 0 = no parallax, 1 = fast
 }
 
 const cubeConfigs: Record<CubeType, { color: string; label: string; bg: string }> = {
@@ -35,8 +37,16 @@ export default function FloatingCube({
   delay = 0,
   duration = 4,
   rotation = 15,
+  parallaxSpeed = 0.3,
 }: FloatingCubeProps) {
   const config = cubeConfigs[type];
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <motion.div
@@ -60,6 +70,7 @@ export default function FloatingCube({
         width: size,
         height: size,
         filter: `blur(${blur})`,
+        transform: `translateY(${scrollY * parallaxSpeed}px)`,
       }}
     >
       <div 
@@ -69,7 +80,6 @@ export default function FloatingCube({
           boxShadow: `0 0 20px ${config.color}20`,
         }}
       >
-        {/* Identity Label */}
         <span 
           className="font-display font-black tracking-tighter select-none"
           style={{ 
@@ -80,8 +90,6 @@ export default function FloatingCube({
         >
           {config.label}
         </span>
-
-        {/* Glossy Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-lg" />
       </div>
     </motion.div>
