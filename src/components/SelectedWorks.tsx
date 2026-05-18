@@ -151,7 +151,7 @@ export default function SelectedWorks() {
                           borderColor: 'var(--glass-border)',
                           backgroundColor: 'var(--glass-bg)',
                           aspectRatio: isMobile ? '4/5' : '16/9',
-                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'clamp(450px, 55vh, 700px)',
+                          height: isMobile ? 'clamp(450px, 85vh, 750px)' : 'auto',
                           width: isMobile ? '90vw' : '100%',
                           margin: isMobile ? '0 auto' : '0',
                         }}
