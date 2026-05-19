@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface CursorGlowProps {
-  containerRef: React.RefObject<HTMLElement | null>;
+  containerRef: React.RefObject<HTMLElement>;
   size?: number;
 }
 
