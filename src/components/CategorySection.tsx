@@ -69,6 +69,35 @@ function MonitorFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
+const QUOTES: Record<string, { text: string; author: string }> = {
+  'Graphic Design': { text: 'Design is thinking made visual.', author: 'Saul Bass' },
+  'Photography': { text: 'Taking pictures is savoring life intensely, every hundredth of a second.', author: 'Marc Riboud' },
+  'UI/UX': { text: 'Simple is harder than complex. You have to work hard to make something simple.', author: 'Steve Jobs' },
+  'Motion': { text: 'Animation is not the art of drawings that move, but the art of movements that are drawn.', author: 'Norman McLaren' },
+};
+
+function QuoteCard({ category }: { category: string }) {
+  const quote = QUOTES[category] || { text: 'Creativity is intelligence having fun.', author: 'Albert Einstein' };
+  return (
+    <div
+      className="hidden md:flex break-inside-avoid mb-4 flex-col justify-center items-center text-center p-6 rounded-xl border backdrop-blur-xl"
+      style={{
+        backgroundColor: 'var(--glass-bg)',
+        borderColor: 'var(--glass-border)',
+        minHeight: '200px',
+      }}
+    >
+      <span className="text-4xl mb-3 opacity-20" style={{ color: 'var(--accent)' }}>"</span>
+      <p className="text-sm italic leading-relaxed mb-3" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>
+        {quote.text}
+      </p>
+      <span className="text-[10px] uppercase tracking-widest font-bold" style={{ color: 'var(--accent)' }}>
+        — {quote.author}
+      </span>
+    </div>
+  );
+}
+
 function FlipCard({ project }: { project: Project }) {
   const [flipped, setFlipped] = useState(false);
   const [selected, setSelected] = useState(false);
@@ -106,7 +135,6 @@ function FlipCard({ project }: { project: Project }) {
             transition: 'transform 0.8s',
           }}
         >
-          {/* Front — Image sets the height */}
           <div
             className="flip-card-front relative w-full rounded-xl overflow-hidden border"
             style={{
@@ -126,8 +154,6 @@ function FlipCard({ project }: { project: Project }) {
               {isMobile && <p className="text-white/50 text-[8px] mt-0.5">Tap to flip</p>}
             </div>
           </div>
-
-          {/* Back — Details */}
           <div
             className="flip-card-back absolute inset-0 w-full h-full rounded-xl overflow-hidden border flex flex-col justify-center items-center p-4"
             style={{
@@ -153,8 +179,6 @@ function FlipCard({ project }: { project: Project }) {
           </div>
         </div>
       </div>
-
-      {/* Lightbox */}
       <AnimatePresence>
         {selected && (
           <motion.div
@@ -252,6 +276,10 @@ export default function CategorySection({ category }: CategorySectionProps) {
               </div>
             );
           })}
+
+          {/* Quote Cards — Desktop only */}
+          <QuoteCard category={category} />
+          {projects.length >= 3 && <QuoteCard category={category} />}
         </div>
       </div>
     </section>
