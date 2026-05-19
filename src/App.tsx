@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import LiquidEtherBackground from './components/LiquidEtherBackground';
+import { SCROLL_SEQUENCE_BUCKET } from './lib/supabase';
 
 function AtmosphereGradient() {
   return (
@@ -40,7 +41,7 @@ function AtmosphereGradient() {
 }
 
 // ── Animated Pencil Loader ──────────────────────────────
-function PencilLoader() {
+function PencilLoader({ progress }: { progress?: number }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black gap-8">
       <svg
@@ -181,17 +182,87 @@ function PencilLoader() {
         }
       `}</style>
 
-      <p className="text-white/40 text-xs font-heading tracking-[0.3em] uppercase animate-pulse">
-        Loading
-      </p>
+      {progress !== undefined && (
+        <p className="text-white/40 text-xs font-heading tracking-[0.3em] uppercase">
+          {Math.round(progress * 100)}%
+        </p>
+      )}
+      {progress === undefined && (
+        <p className="text-white/40 text-xs font-heading tracking-[0.3em] uppercase animate-pulse">
+          Loading
+        </p>
+      )}
     </div>
   );
+}
+
+// ── Preload Hook ──────────────────────────────────────
+function useHeroFramePreloader() {
+  const [ready, setReady] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const totalFrames = 261;
+  const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${SCROLL_SEQUENCE_BUCKET}/`;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const preload = async () => {
+      for (let i = 0; i < totalFrames; i++) {
+        if (cancelled) break;
+        const frameIndex = String(i).padStart(3, '0');
+        const url = `${baseUrl}frame_${frameIndex}.webp`;
+
+        try {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => img.decode().then(() => resolve()).catch(() => resolve());
+            img.onerror = () => reject();
+            img.src = url;
+          });
+        } catch {
+          // frame failed, continue
+        }
+
+        if (!cancelled) {
+          setProgress((i + 1) / totalFrames);
+        }
+      }
+
+      if (!cancelled) {
+        setReady(true);
+      }
+    };
+
+    preload();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [baseUrl]);
+
+  return { ready, progress };
 }
 
 function App() {
   useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { ready: framesReady, progress } = useHeroFramePreloader();
+
+  // Wait for both theme + frames
+  useEffect(() => {
+    loadSavedTheme();
+    const subscription = subscribeToThemeChanges();
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Stop loader only when frames are ready
+  useEffect(() => {
+    if (framesReady) {
+      setLoading(false);
+    }
+  }, [framesReady]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -204,19 +275,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    loadSavedTheme();
-    const subscription = subscribeToThemeChanges();
-
-    // Simulate loading time (remove this when you have real auth)
-    const timer = setTimeout(() => setLoading(false), 1500);
-
-    return () => {
-      clearTimeout(timer);
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  useEffect(() => {
     window.scrollTo(0, 0);
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
@@ -224,7 +282,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return <PencilLoader />;
+    return <PencilLoader progress={progress} />;
   }
 
   if (isAdmin) {
