@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ScrollSequence from './ScrollSequence';
 import { supabase } from '../lib/supabase';
 import FloatingCube from './FloatingCube';
+import KineticText from './KineticText';
+import CursorGlow from './CursorGlow';
+import MagneticButton from './MagneticButton';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,11 +21,11 @@ interface HeroContent {
 }
 
 const defaultContent: HeroContent = {
-  subtitle: 'Graphic Designer • Photographer • Virtual Assistant',
+  subtitle: 'Graphic Designer \u2022 Photographer \u2022 Virtual Assistant',
   heading_line1: 'Crafting Visual',
   heading_line2: 'Stories',
   heading_line3: 'Resonate',
-  description: "I'm Ian Lester Eclevia — where timeless design meets modern execution. From brand identity to digital painting, I bring ideas to life with precision and passion.",
+  description: "I\u2019m Ian Lester Eclevia \u2014 where timeless design meets modern execution. From brand identity to digital painting, I bring ideas to life with precision and passion.",
 };
 
 function scrollToId(e: React.MouseEvent, id: string) {
@@ -34,14 +37,6 @@ export default function Hero() {
   const [content, setContent] = useState<HeroContent>(defaultContent);
   const overlayRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end start'],
-  });
-
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.15], ['0%', '-20%']);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -66,21 +61,22 @@ export default function Hero() {
     fetchContent();
   }, []);
 
+  // Fast overlay exit — opacity only, gone in first 12% of scroll
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
 
     const ctx = gsap.context(() => {
       gsap.to(overlay, {
-        yPercent: -100,
         opacity: 0,
+        duration: 0,
         ease: 'none',
         immediateRender: false,
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: window.innerWidth < 768 ? '+=100%' : '+=150%',
-          scrub: 0.5,
+          end: '+=12%',
+          scrub: true,
         },
       });
     });
@@ -102,22 +98,20 @@ export default function Hero() {
       id="hero"
       className="w-full overflow-hidden relative bg-transparent"
     >
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 2}>
+      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={1}>
         <div className="hidden md:block">
           <FloatingCube type="Ps" size={100} top="20%" left="10%" blur="2px" delay={0} duration={6} />
           <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
         </div>
 
         <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
-          {/* Darkening overlays – reduced opacity so background patterns show through */}
           <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
 
-          {/* LAYER 1: MAIN HERO TEXT */}
-          <motion.div
-            style={{ opacity: heroOpacity, y: heroY }}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto"
-          >
+          <CursorGlow containerRef={overlayRef} />
+
+          {/* MAIN HERO TEXT with kinetic typography */}
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -127,20 +121,12 @@ export default function Hero() {
               {content.subtitle}
             </motion.p>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-bold tracking-tighter leading-[1] uppercase text-center w-full"
-            >
-              {content.heading_line1}
-              <br />
-              <span className="text-accent italic drop-shadow-[0_0_15px_var(--accent)]">
-                {content.heading_line2}
-              </span>
-              <br />
-              {content.heading_line3}
-            </motion.h1>
+            <KineticText
+              line1={content.heading_line1}
+              line2={content.heading_line2}
+              line3={content.heading_line3}
+              triggerRef={sectionRef}
+            />
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -157,22 +143,22 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 1 }}
               className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full"
             >
-              <a
+              <MagneticButton
                 href="#works"
                 onClick={(e) => scrollToId(e, 'works')}
                 className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto"
               >
                 View Works
-              </a>
-              <a
+              </MagneticButton>
+              <MagneticButton
                 href="#contact"
                 onClick={(e) => scrollToId(e, 'contact')}
                 className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto"
               >
                 Get in Touch
-              </a>
+              </MagneticButton>
             </motion.div>
-          </motion.div>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: -10 }}
