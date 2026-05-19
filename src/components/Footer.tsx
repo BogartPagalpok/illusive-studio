@@ -92,10 +92,165 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
             </div>
           </div>
             
-          <div className="relative z-0 w-full flex justify-end mt-2 mb-2 md:mt-0 pointer-events-none select-none overflow-hidden">
-            <h2 className="text-[10vw] sm:text-[8vw] md:text-[5vw] lg:text-[3.5vw] font-black uppercase leading-[0.8] tracking-tighter" style={{ color: 'var(--text-primary)', opacity: 0.06 }}>
-              IAN LESTER
-            </h2>
+          {/* 3D Floating Watermark Card */}
+          <div className="relative z-0 w-full flex justify-center mt-4 mb-6 select-none" style={{ perspective: '1000px' }}>
+            <div
+              className="parent relative"
+              style={{
+                width: 'clamp(260px, 40vw, 400px)',
+                height: 'clamp(180px, 25vw, 280px)',
+              }}
+            >
+              {/* 3D Card */}
+              <div
+                className="card absolute inset-0 rounded-[50px] transition-all duration-500"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  background: `linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent), #000 40%) 100%)`,
+                  boxShadow: 'rgba(37,5,71,0) 40px 50px 25px -40px, rgba(34,5,71,0.2) 0px 25px 25px -5px',
+                }}
+              >
+                {/* Glass layer */}
+                <div
+                  className="glass absolute rounded-[55px]"
+                  style={{
+                    inset: '8px',
+                    borderTopRightRadius: '100%',
+                    background: 'linear-gradient(0deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.12) 100%)',
+                    backdropFilter: 'blur(5px)',
+                    WebkitBackdropFilter: 'blur(5px)',
+                    transform: 'translate3d(0px, 0px, 25px)',
+                    borderLeft: '1px solid rgba(255,255,255,0.2)',
+                    borderBottom: '1px solid rgba(255,255,255,0.2)',
+                  }}
+                />
+
+                {/* Content — IAN LESTER */}
+                <div
+                  className="content absolute inset-0 flex flex-col items-center justify-center"
+                  style={{
+                    transform: 'translate3d(0, 0, 26px)',
+                    padding: '20px',
+                  }}
+                >
+                  <span
+                    className="font-black uppercase leading-[0.8] tracking-tighter text-center"
+                    style={{
+                      color: '#fff',
+                      fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+                      textShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                    }}
+                  >
+                    IAN<br />LESTER
+                  </span>
+                </div>
+
+                {/* Social buttons at the bottom */}
+                <div
+                  className="bottom absolute left-4 right-4 flex items-center justify-center gap-3"
+                  style={{
+                    bottom: '16px',
+                    transform: 'translate3d(0, 0, 26px)',
+                    zIndex: 10,
+                  }}
+                >
+                  <a
+                    href={content?.instagram || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-btn flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer"
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      background: 'rgba(255,255,255,0.9)',
+                      boxShadow: 'rgba(28,5,71,0.5) 0px 7px 5px -5px',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.1) translate3d(0,0,40px)';
+                      e.currentTarget.style.background = '#000';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1) translate3d(0,0,0)';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.9)';
+                    }}
+                  >
+                    <Instagram size={14} style={{ color: '#3f5efb' }} />
+                  </a>
+                  <a
+                    href={content?.github || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-btn flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer"
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      background: 'rgba(255,255,255,0.9)',
+                      boxShadow: 'rgba(28,5,71,0.5) 0px 7px 5px -5px',
+                      transitionDelay: '0.05s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.1) translate3d(0,0,40px)';
+                      e.currentTarget.style.background = '#000';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1) translate3d(0,0,0)';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.9)';
+                    }}
+                  >
+                    <Github size={14} style={{ color: '#3f5efb' }} />
+                  </a>
+                  <a
+                    href={content?.facebook || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="social-btn flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer"
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      background: 'rgba(255,255,255,0.9)',
+                      boxShadow: 'rgba(28,5,71,0.5) 0px 7px 5px -5px',
+                      transitionDelay: '0.1s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.1) translate3d(0,0,40px)';
+                      e.currentTarget.style.background = '#000';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1) translate3d(0,0,0)';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.9)';
+                    }}
+                  >
+                    <Facebook size={14} style={{ color: '#3f5efb' }} />
+                  </a>
+                </div>
+
+                {/* Decorative circles */}
+                {[
+                  { size: '140px', top: '6px', right: '6px', z: 20, delay: 0 },
+                  { size: '110px', top: '12px', right: '12px', z: 40, delay: 0.1 },
+                  { size: '80px', top: '18px', right: '18px', z: 60, delay: 0.2 },
+                  { size: '50px', top: '24px', right: '24px', z: 80, delay: 0.3 },
+                ].map((circle, i) => (
+                  <div
+                    key={i}
+                    className="absolute rounded-full"
+                    style={{
+                      width: circle.size,
+                      height: circle.size,
+                      top: circle.top,
+                      right: circle.right,
+                      transform: `translate3d(0, 0, ${circle.z}px)`,
+                      background: 'rgba(255,255,255,0.08)',
+                      backdropFilter: 'blur(5px)',
+                      WebkitBackdropFilter: 'blur(5px)',
+                      boxShadow: 'rgba(100,100,111,0.2) -10px 10px 20px 0px',
+                      transition: `all 0.5s ease-in-out`,
+                      transitionDelay: `${circle.delay}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
 
           <div 
