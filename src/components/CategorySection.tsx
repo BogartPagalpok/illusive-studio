@@ -69,7 +69,6 @@ function MonitorFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Each category now has 3 different quotes
 const QUOTES: Record<string, { text: string; author: string }[]> = {
   'Graphic Design': [
     { text: 'Design is thinking made visual.', author: 'Saul Bass' },
@@ -99,7 +98,6 @@ function QuoteCard({ category }: { category: string }) {
     { text: 'Every artist was first an amateur.', author: 'Ralph Waldo Emerson' },
     { text: 'Art is not what you see, but what you make others see.', author: 'Edgar Degas' },
   ];
-  // Pick a random quote each time, but stable per render
   const quote = quotes[Math.floor(Math.random() * quotes.length)];
 
   return (
@@ -263,7 +261,8 @@ export default function CategorySection({ category }: CategorySectionProps) {
           </div>
         )}
 
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
+        {/* CHANGED: 4 columns on desktop */}
+        <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
           {projects.map((project) => {
             const platform = project.video_url ? detectVideoPlatform(project.video_url) : null;
             const isVideo = !!platform;
@@ -301,7 +300,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
             );
           })}
 
-          {/* Single Quote Card — Desktop only, balances the grid */}
           <QuoteCard category={category} />
         </div>
       </div>
