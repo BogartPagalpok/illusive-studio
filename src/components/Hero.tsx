@@ -3,11 +3,8 @@ import { motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import ScrollSequence from './ScrollSequence';
+import VideoScroll from './VideoScroll';
 import { supabase } from '../lib/supabase';
-import KineticText from './KineticText';
-import CursorGlow from './CursorGlow';
-import MagneticButton from './MagneticButton';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -81,12 +78,10 @@ export default function Hero() {
 
   return (
     <section ref={sectionRef} id="hero" className="w-full overflow-hidden relative bg-transparent">
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={2}>
+      <VideoScroll videoUrl="https://ayfbrkudeqvvnhchmxas.supabase.co/storage/v1/object/public/media/ezgif-6112e225029ef273.webm" scrollLength={2}>
         <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
           <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
-
-          <CursorGlow containerRef={overlayRef as React.RefObject<HTMLElement>} />
 
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto">
             <motion.p
@@ -98,12 +93,11 @@ export default function Hero() {
               {content.subtitle}
             </motion.p>
 
-            <KineticText
-              line1={content.heading_line1}
-              line2={content.heading_line2}
-              line3={content.heading_line3}
-              triggerRef={sectionRef}
-            />
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-bold tracking-tighter leading-[1] uppercase text-center w-full">
+              {content.heading_line1}<br />
+              <span className="text-accent italic drop-shadow-[0_0_15px_var(--accent)]">{content.heading_line2}</span><br />
+              {content.heading_line3}
+            </h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -120,20 +114,8 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 1 }}
               className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full"
             >
-              <MagneticButton
-                href="#works"
-                onClick={(e) => scrollToId(e, 'works')}
-                className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto"
-              >
-                View Works
-              </MagneticButton>
-              <MagneticButton
-                href="#contact"
-                onClick={(e) => scrollToId(e, 'contact')}
-                className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto"
-              >
-                Get in Touch
-              </MagneticButton>
+              <a href="#works" onClick={(e) => scrollToId(e, 'works')} className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">View Works</a>
+              <a href="#contact" onClick={(e) => scrollToId(e, 'contact')} className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">Get in Touch</a>
             </motion.div>
           </div>
 
@@ -149,7 +131,7 @@ export default function Hero() {
             </button>
           </motion.div>
         </div>
-      </ScrollSequence>
+      </VideoScroll>
     </section>
   );
 }
