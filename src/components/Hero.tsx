@@ -85,7 +85,7 @@ export default function Hero() {
   return (
     <section ref={sectionRef} id="hero" className="w-full overflow-hidden relative bg-transparent">
       <VideoScroll videoUrl="https://ayfbrkudeqvvnhchmxas.supabase.co/storage/v1/object/public/media/ezgif-6112e225029ef273.webm">
-        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
+        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]" style={{ opacity: 1 }}>
           <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
 
