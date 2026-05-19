@@ -65,12 +65,12 @@ export default function Hero() {
         opacity: 0,
         duration: 0,
         ease: 'none',
+        immediateRender: false,
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
           end: '+=12%',
           scrub: true,
-          toggleActions: 'play none none reverse',
         },
       });
     });
