@@ -40,7 +40,6 @@ export default function ProjectManager() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Use `any` for file states to avoid missing DOM types in tsconfig
   const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
   const [cardFile, setCardFile] = useState<any>(null);
   const [desktopFile, setDesktopFile] = useState<any>(null);
@@ -68,7 +67,6 @@ export default function ProjectManager() {
     }
   };
 
-  // Accept `any` to avoid File dependency
   const uploadToStorage = async (file: any) => {
     const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
     const { error: uploadError } = await supabase.storage
@@ -176,7 +174,6 @@ export default function ProjectManager() {
 
   return (
     <div className="space-y-6">
-      {/* Background glows */}
       <div
         className="absolute top-[-10%] left-[-10%] w-[60%] h-[600px] pointer-events-none z-0 rounded-full mix-blend-screen"
         style={{ backgroundColor: 'var(--accent)', filter: 'blur(140px)', opacity: 0.15 }}
@@ -222,11 +219,16 @@ export default function ProjectManager() {
               </div>
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Category</label>
-                <input
+                <select
                   value={editingProject.category}
                   onChange={e => setEditingProject({ ...editingProject, category: e.target.value })}
                   className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
-                />
+                >
+                  <option value="Graphic Design">Graphic Design</option>
+                  <option value="Photography">Photography</option>
+                  <option value="UI/UX">UI/UX</option>
+                  <option value="Motion">Motion</option>
+                </select>
               </div>
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">
