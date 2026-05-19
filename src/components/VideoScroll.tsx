@@ -44,7 +44,7 @@ export default function VideoScroll({ videoUrl, children }: VideoScrollProps) {
         />
         <div 
           className="absolute inset-x-0 bottom-0 h-64 md:h-80 pointer-events-none z-[2]" 
-          style={{ background: 'linear-gradient(to top, var(--bg-primary, #000000) 0%, var(--bg-primary, #000000) 30%, transparent 100%)' }} 
+          style={{ background: 'linear-gradient(to top, var(--bg-primary) 0%, transparent 100%)' }} 
         /> 
         <div className="absolute inset-0 z-10 pointer-events-none">
           {children}
