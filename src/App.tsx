@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AdminDashboard from './pages/AdminDashboard';
-import Login from './pages/Login';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
-import { supabase } from './lib/supabase';
 import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
@@ -41,10 +39,158 @@ function AtmosphereGradient() {
   );
 }
 
+// ── Animated Pencil Loader ──────────────────────────────
+function PencilLoader() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-black gap-8">
+      <svg
+        className="pencil"
+        viewBox="0 0 200 200"
+        width="120"
+        height="120"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <linearGradient id="pencilGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="var(--accent)" />
+            <stop offset="100%" stopColor="#fff" />
+          </linearGradient>
+        </defs>
+
+        {/* Pencil body */}
+        <rect
+          className="pencil__body1"
+          x="90" y="50" width="8" height="60" rx="2"
+          fill="var(--accent)"
+          transform-origin="94 80"
+        />
+        <rect
+          className="pencil__body2"
+          x="95" y="55" width="3" height="50" rx="1"
+          fill="rgba(255,255,255,0.6)"
+          transform-origin="96.5 80"
+        />
+        <rect
+          className="pencil__body3"
+          x="100" y="50" width="8" height="60" rx="2"
+          fill="var(--accent)"
+          transform-origin="104 80"
+        />
+
+        {/* Eraser */}
+        <rect
+          className="pencil__eraser"
+          x="88" y="45" width="20" height="10" rx="3"
+          fill="#FF9FFC"
+          transform-origin="98 50"
+        />
+        <rect
+          className="pencil__eraser-skew"
+          x="90" y="42" width="16" height="5" rx="2"
+          fill="#FF9FFC"
+        />
+
+        {/* Point */}
+        <polygon
+          className="pencil__point"
+          points="90,110 98,95 106,110"
+          fill="#FFE0B2"
+          transform-origin="98 102"
+        />
+        <polygon
+          points="95,110 98,105 101,110"
+          fill="#333"
+        />
+
+        {/* Circular stroke being drawn */}
+        <circle
+          className="pencil__stroke"
+          cx="100" cy="100" r="70"
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth="2"
+          strokeDasharray="439.82"
+          strokeDashoffset="439.82"
+          transform-origin="100 100"
+        />
+
+        {/* Rotating pencil group */}
+        <g className="pencil__rotate" transform-origin="100 100">
+          <line x1="100" y1="100" x2="100" y2="25" stroke="var(--accent)" strokeWidth="2" opacity="0.3" />
+        </g>
+      </svg>
+
+      <style>{`
+        .pencil__body1,
+        .pencil__body2,
+        .pencil__body3,
+        .pencil__eraser,
+        .pencil__eraser-skew,
+        .pencil__point,
+        .pencil__rotate,
+        .pencil__stroke {
+          animation-duration: 3s;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+
+        .pencil__body1 { animation-name: pencilBody1; }
+        .pencil__body2 { animation-name: pencilBody2; }
+        .pencil__body3 { animation-name: pencilBody3; }
+        .pencil__eraser { animation-name: pencilEraser; }
+        .pencil__eraser-skew { animation-name: pencilEraserSkew; animation-timing-function: ease-in-out; }
+        .pencil__point { animation-name: pencilPoint; }
+        .pencil__rotate { animation-name: pencilRotate; }
+        .pencil__stroke { animation-name: pencilStroke; }
+
+        @keyframes pencilBody1 {
+          from, to { transform: rotate(-90deg); }
+          50% { transform: rotate(-225deg); }
+        }
+        @keyframes pencilBody2 {
+          from, to { transform: rotate(-90deg); }
+          50% { transform: rotate(-225deg); }
+        }
+        @keyframes pencilBody3 {
+          from, to { transform: rotate(-90deg); }
+          50% { transform: rotate(-225deg); }
+        }
+        @keyframes pencilEraser {
+          from, to { transform: rotate(-45deg) translate(49px,0); }
+          50% { transform: rotate(0deg) translate(49px,0); }
+        }
+        @keyframes pencilEraserSkew {
+          from, 32.5%, 67.5%, to { transform: skewX(0); }
+          35%, 65% { transform: skewX(-4deg); }
+          37.5%, 62.5% { transform: skewX(8deg); }
+          40%, 45%, 50%, 55%, 60% { transform: skewX(-15deg); }
+          42.5%, 47.5%, 52.5%, 57.5% { transform: skewX(15deg); }
+        }
+        @keyframes pencilPoint {
+          from, to { transform: rotate(-90deg) translate(49px,-30px); }
+          50% { transform: rotate(-225deg) translate(49px,-30px); }
+        }
+        @keyframes pencilRotate {
+          from { transform: rotate(0); }
+          to { transform: rotate(720deg); }
+        }
+        @keyframes pencilStroke {
+          from { stroke-dashoffset: 439.82; transform: rotate(-113deg); }
+          50% { stroke-dashoffset: 164.93; transform: rotate(-113deg); }
+          75%, to { stroke-dashoffset: 439.82; transform: rotate(112deg); }
+        }
+      `}</style>
+
+      <p className="text-white/40 text-xs font-heading tracking-[0.3em] uppercase animate-pulse">
+        Loading
+      </p>
+    </div>
+  );
+}
+
 function App() {
   useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -61,26 +207,11 @@ function App() {
     loadSavedTheme();
     const subscription = subscribeToThemeChanges();
 
-    const initAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) console.warn('Supabase Auth Warning:', error.message);
-        setSession(session);
-      } catch (err) {
-        console.error('Supabase connection failed:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initAuth();
-
-    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    // Simulate loading time (remove this when you have real auth)
+    const timer = setTimeout(() => setLoading(false), 1500);
 
     return () => {
-      authSubscription.unsubscribe();
+      clearTimeout(timer);
       subscription.unsubscribe();
     };
   }, []);
@@ -93,15 +224,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <span className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full" style={{ borderColor: '#9D00FF', borderTopColor: 'transparent' }} />
-      </div>
-    );
-  }
-
-  if (!session) {
-    return <Login />;
+    return <PencilLoader />;
   }
 
   if (isAdmin) {
@@ -116,7 +239,6 @@ function App() {
   return (
     <main className="min-h-screen relative overflow-x-hidden">
       <LiquidEtherBackground
-        colors={['#5227FF', '#FF9FFC', '#B19EEF']}
         mouseForce={20}
         cursorSize={100}
         resolution={0.25}
