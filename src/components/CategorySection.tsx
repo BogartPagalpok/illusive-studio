@@ -69,15 +69,39 @@ function MonitorFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-const QUOTES: Record<string, { text: string; author: string }> = {
-  'Graphic Design': { text: 'Design is thinking made visual.', author: 'Saul Bass' },
-  'Photography': { text: 'Taking pictures is savoring life intensely, every hundredth of a second.', author: 'Marc Riboud' },
-  'UI/UX': { text: 'Simple is harder than complex. You have to work hard to make something simple.', author: 'Steve Jobs' },
-  'Motion': { text: 'Animation is not the art of drawings that move, but the art of movements that are drawn.', author: 'Norman McLaren' },
+// Each category now has 3 different quotes
+const QUOTES: Record<string, { text: string; author: string }[]> = {
+  'Graphic Design': [
+    { text: 'Design is thinking made visual.', author: 'Saul Bass' },
+    { text: 'Creativity is nothing but a way to solve new problems.', author: 'Diana Santos' },
+    { text: 'Good design is obvious. Great design is transparent.', author: 'Joe Sparano' },
+  ],
+  'Photography': [
+    { text: 'Taking pictures is savoring life intensely, every hundredth of a second.', author: 'Marc Riboud' },
+    { text: 'The camera is an instrument that teaches people how to see.', author: 'Dorothea Lange' },
+    { text: 'Photography is the story I fail to put into words.', author: 'Destin Sparks' },
+  ],
+  'UI/UX': [
+    { text: 'Simple is harder than complex.', author: 'Steve Jobs' },
+    { text: 'Design is not just what it looks like. Design is how it works.', author: 'Steve Jobs' },
+    { text: 'The details are not the details. They make the design.', author: 'Charles Eames' },
+  ],
+  'Motion': [
+    { text: 'Animation is not the art of drawings that move.', author: 'Norman McLaren' },
+    { text: 'The illusion of life is the heart of animation.', author: 'Frank Thomas' },
+    { text: 'Motion creates emotion.', author: 'John Lasseter' },
+  ],
 };
 
 function QuoteCard({ category }: { category: string }) {
-  const quote = QUOTES[category] || { text: 'Creativity is intelligence having fun.', author: 'Albert Einstein' };
+  const quotes = QUOTES[category] || [
+    { text: 'Creativity is intelligence having fun.', author: 'Albert Einstein' },
+    { text: 'Every artist was first an amateur.', author: 'Ralph Waldo Emerson' },
+    { text: 'Art is not what you see, but what you make others see.', author: 'Edgar Degas' },
+  ];
+  // Pick a random quote each time, but stable per render
+  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+
   return (
     <div
       className="hidden md:flex break-inside-avoid mb-4 flex-col justify-center items-center text-center p-6 rounded-xl border backdrop-blur-xl"
@@ -277,9 +301,8 @@ export default function CategorySection({ category }: CategorySectionProps) {
             );
           })}
 
-          {/* Quote Cards — Desktop only */}
+          {/* Single Quote Card — Desktop only, balances the grid */}
           <QuoteCard category={category} />
-          {projects.length >= 3 && <QuoteCard category={category} />}
         </div>
       </div>
     </section>
