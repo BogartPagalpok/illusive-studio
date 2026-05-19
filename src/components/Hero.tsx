@@ -58,22 +58,21 @@ export default function Hero() {
     const overlay = overlayRef.current;
     if (!overlay) return;
 
+    gsap.set(overlay, { opacity: 1 });
+
     const ctx = gsap.context(() => {
-      gsap.fromTo(overlay,
-        { opacity: 1 },
-        {
-          opacity: 0,
-          duration: 0,
-          ease: 'none',
-          immediateRender: false,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top top',
-            end: '+=12%',
-            scrub: true,
-          },
-        }
-      );
+      gsap.to(overlay, {
+        opacity: 0,
+        duration: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: '+=12%',
+          scrub: true,
+          toggleActions: 'play none none reverse',
+        },
+      });
     });
 
     return () => ctx.revert();
