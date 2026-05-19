@@ -306,3 +306,108 @@ export default function CategorySection({ category }: CategorySectionProps) {
     </section>
   );
 }
+// ... all the above code stays exactly the same ...
+
+export default function CategorySection({ category }: CategorySectionProps) {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [columnCount, setColumnCount] = useState(3); // Track current columns
+
+  const fetchProjects = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('portfolio_projects')
+        .select('*')
+        .ilike('category', category.trim())
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setProjects(data || []);
+    } catch (err) {
+      console.error(`Failed to fetch ${category} projects:`, err);
+      setProjects([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [category]);
+
+  useEffect(() => { fetchProjects(); }, [fetchProjects]);
+
+  // Track column count based on screen size
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) setColumnCount(4);      // lg: 4 columns
+      else if (width >= 768) setColumnCount(2);  // md: 2 columns
+      else setColumnCount(1);                     // mobile: 1 column
+    };
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
+
+  if (!loading && projects.length === 0) return null;
+
+  // Only show quote if there's a gap to fill
+  const showQuote = projects.length % columnCount !== 0;
+
+  return (
+    <section className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+      <div className="section-container relative">
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
+          <span className="section-subtitle">Portfolio</span>
+          <h2 className="section-title">{category}</h2>
+          <div className="section-divider" />
+        </motion.div>
+
+        {loading && (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 text-accent animate-spin" />
+          </div>
+        )}
+
+        <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
+          {projects.map((project) => {
+            const platform = project.video_url ? detectVideoPlatform(project.video_url) : null;
+            const isVideo = !!platform;
+
+            return (
+              <div key={project.id} className="break-inside-avoid">
+                {isVideo ? (
+                  <div className="mb-3">
+                    <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
+                      {platform === 'tiktok' ? (
+                        <PhoneFrame>
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
+                            <Play size={32} className="text-white/50 mb-2" />
+                            <p className="text-white/70 text-xs text-center mb-3">{project.title}</p>
+                            <a href={project.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                              <ExternalLink size={12} /> Watch on TikTok
+                            </a>
+                          </div>
+                        </PhoneFrame>
+                      ) : (
+                        <MonitorFrame>
+                          <iframe src={getVideoEmbedUrl(project.video_url!, platform)} className="w-full h-full" allowFullScreen allow="autoplay; encrypted-media" title={project.title} />
+                        </MonitorFrame>
+                      )}
+                      <div className="p-3">
+                        <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{project.title}</h3>
+                        {project.description && <p className="text-[var(--text-secondary)] text-[10px] mt-1 line-clamp-2">{project.description}</p>}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <FlipCard project={project} />
+                )}
+              </div>
+            );
+          })}
+
+          {/* Quote only appears when there's a gap */}
+          {showQuote && <QuoteCard category={category} />}
+        </div>
+      </div>
+    </section>
+  );
+}
