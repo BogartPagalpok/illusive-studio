@@ -31,13 +31,13 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
             <div className="flex flex-col justify-between h-full min-h-[100px] lg:w-1/3 w-full">
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
-                  <Sparkles size={14} className="text-accent" />
-                  <span className="uppercase tracking-widest font-bold" style={{ color: 'var(--accent)', fontSize: 'clamp(0.75rem, 1vw, 0.875rem)' }}>Let's Talk</span>
+                  <Sparkles size={12} className="text-accent" />
+                  <span className="uppercase tracking-widest font-bold" style={{ color: 'var(--accent)', fontSize: 'clamp(8px, 0.8vw, 10px)' }}>Let's Talk</span>
                 </div>
-                <h3 className="font-black uppercase mb-2 leading-tight break-words w-full" style={{ color: 'var(--text-primary)', fontSize: 'clamp(1.125rem, 2vw, 1.5rem)' }}>
+                <h3 className="font-black uppercase mb-2 leading-tight break-words w-full" style={{ color: 'var(--text-primary)', fontSize: 'clamp(15px, 1.6vw, 22px)' }}>
                   {content?.hook_heading || "Want to elevate your visual identity? Let's collaborate."}
                 </h3>
-                <p className="max-w-sm leading-relaxed" style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.875rem, 1vw, 1rem)', lineHeight: 1.6 }}>
+                <p className="max-w-sm leading-relaxed" style={{ color: 'var(--text-secondary)', fontSize: 'clamp(9px, 0.85vw, 12px)' }}>
                   {content?.hook_desc || "From brand systems to digital art — I bring ideas to life with precision and passion."}
                 </p>
               </div>
@@ -52,8 +52,8 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
             <div className="grid grid-cols-3 gap-6 w-full lg:w-2/3 lg:justify-items-end">
               
               <div className="flex flex-col">
-                 <h4 className="uppercase tracking-widest mb-3 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(0.75rem, 0.9vw, 0.875rem)' }}>Navigation</h4>
-                 <ul className="space-y-2 font-bold uppercase" style={{ fontSize: 'clamp(0.875rem, 1vw, 1rem)' }}>
+                 <h4 className="uppercase tracking-widest mb-3 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(7px, 0.7vw, 9px)' }}>Navigation</h4>
+                 <ul className="space-y-2 font-bold uppercase" style={{ fontSize: 'clamp(9px, 0.85vw, 11px)' }}>
                    {['Home', 'Services', 'Works', 'About'].map(item => (
                      <li key={item}>
                        <button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors text-left" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
@@ -65,27 +65,27 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               </div>
 
               <div className="flex flex-col">
-                 <h4 className="uppercase tracking-widest mb-3 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(0.75rem, 0.9vw, 0.875rem)' }}>Contact</h4>
-                 <ul className="space-y-2 font-bold" style={{ fontSize: 'clamp(0.875rem, 1vw, 1rem)' }}>
+                 <h4 className="uppercase tracking-widest mb-3 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(7px, 0.7vw, 9px)' }}>Contact</h4>
+                 <ul className="space-y-2 font-bold" style={{ fontSize: 'clamp(9px, 0.85vw, 11px)' }}>
                    <li>
                      <a href={`mailto:${content?.email || 'yhanlhester@gmail.com'}`} className="flex items-center gap-2 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
-                       <Mail size={14} className="text-accent shrink-0" /> <span className="break-all">{content?.email || 'yhanlhester@gmail.com'}</span>
+                       <Mail size={10} className="text-accent shrink-0" /> <span className="break-all">{content?.email || 'yhanlhester@gmail.com'}</span>
                      </a>
                    </li>
                    <li>
                      <a href={`tel:${content?.phone || '+639524437988'}`} className="flex items-center gap-2 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
-                       <Phone size={14} className="text-accent shrink-0" /> <span>{content?.phone || '+639524437988'}</span>
+                       <Phone size={10} className="text-accent shrink-0" /> <span>{content?.phone || '+639524437988'}</span>
                      </a>
                    </li>
                  </ul>
               </div>
 
               <div className="flex flex-col">
-                 <h4 className="uppercase tracking-widest mb-3 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(0.75rem, 0.9vw, 0.875rem)' }}>Connect</h4>
-                 <ul className="space-y-2 font-bold" style={{ fontSize: 'clamp(0.875rem, 1vw, 1rem)' }}>
-                   <li><a href={content?.instagram} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Instagram size={14} className="text-accent" /> Instagram</a></li>
-                   <li><a href={content?.github} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Github size={14} className="text-accent" /> GitHub</a></li>
-                   <li><a href={content?.facebook} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Facebook size={14} className="text-accent" /> Facebook</a></li>
+                 <h4 className="uppercase tracking-widest mb-3 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(7px, 0.7vw, 9px)' }}>Connect</h4>
+                 <ul className="space-y-2 font-bold" style={{ fontSize: 'clamp(9px, 0.85vw, 11px)' }}>
+                   <li><a href={content?.instagram} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Instagram size={10} className="text-accent" /> Instagram</a></li>
+                   <li><a href={content?.github} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Github size={10} className="text-accent" /> GitHub</a></li>
+                   <li><a href={content?.facebook} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Facebook size={10} className="text-accent" /> Facebook</a></li>
                  </ul>
               </div>
 
@@ -100,7 +100,7 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
 
           <div 
             className="relative z-10 pt-4 border-t flex flex-col md:flex-row justify-between items-center gap-4 md:gap-3 uppercase tracking-widest font-bold text-center md:text-left"
-            style={{ borderColor: 'var(--glass-border)', fontSize: 'clamp(0.75rem, 0.8vw, 0.875rem)' }}
+            style={{ borderColor: 'var(--glass-border)', fontSize: 'clamp(7px, 0.7vw, 9px)' }}
           >
             <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
               <button 
