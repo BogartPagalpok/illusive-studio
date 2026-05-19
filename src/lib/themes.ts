@@ -293,8 +293,38 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
 }
 
 export async function loadSavedTheme() {
-  const theme = themePresets.find(t => t.id === localStorage.getItem('portfolio-theme')) || themePresets[0];
-  applyTheme(theme, false);
+  // 1. Always try Supabase first – this ensures admin's chosen theme is used for new visitors
+  try {
+    const { data, error } = await supabase
+      .from('site_config')
+      .select('active_theme')
+      .eq('id', 1)
+      .single();
+
+    if (!error && data?.active_theme) {
+      const theme = themePresets.find(t => t.id === data.active_theme);
+      if (theme) {
+        await applyTheme(theme, false);
+        return; // Successfully loaded from Supabase
+      }
+    }
+  } catch (err) {
+    console.warn('Could not fetch theme from Supabase, trying localStorage next.');
+  }
+
+  // 2. Fallback to localStorage (for returning visitors who already have a theme cached)
+  const localThemeId = localStorage.getItem('portfolio-theme');
+  if (localThemeId) {
+    const theme = themePresets.find(t => t.id === localThemeId);
+    if (theme) {
+      await applyTheme(theme, false);
+      return;
+    }
+  }
+
+  // 3. Ultimate fallback – a dark theme that looks professional (CYBER)
+  const fallbackTheme = themePresets.find(t => t.id === 'CYBER') || themePresets[0];
+  await applyTheme(fallbackTheme, false);
 }
 
 export function subscribeToThemeChanges() {
