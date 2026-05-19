@@ -11,7 +11,7 @@ interface LiquidEtherProps {
   style?: React.CSSProperties;
 }
 
-// ── Shader sources (minified for brevity) ──────────────
+// ── Shader sources (unchanged) ──────────────────────────
 const faceVert = `attribute vec3 position;uniform vec2 px;uniform vec2 boundarySpace;varying vec2 uv;void main(){vec3 pos=position;vec2 scale=1.0-boundarySpace*2.0;pos.xy=pos.xy*scale;uv=vec2(0.5)+(pos.xy)*0.5;gl_Position=vec4(pos,1.0);}`;
 const mouseVert = `precision highp float;attribute vec3 position;attribute vec2 uv;uniform vec2 center;uniform vec2 scale;uniform vec2 px;varying vec2 vUv;void main(){vec2 pos=position.xy*scale*2.0*px+center;vUv=uv;gl_Position=vec4(pos,0.0,1.0);}`;
 const advectionFrag = `precision highp float;uniform sampler2D velocity;uniform float dt;uniform bool isBFECC;uniform vec2 fboSize;uniform vec2 px;varying vec2 uv;void main(){vec2 ratio=max(fboSize.x,fboSize.y)/fboSize;if(isBFECC==false){vec2 vel=texture2D(velocity,uv).xy;vec2 uv2=uv-vel*dt*ratio;vec2 newVel=texture2D(velocity,uv2).xy;gl_FragColor=vec4(newVel,0.0,0.0);}else{vec2 spot_new=uv;vec2 vel_old=texture2D(velocity,uv).xy;vec2 spot_old=spot_new-vel_old*dt*ratio;vec2 vel_new1=texture2D(velocity,spot_old).xy;vec2 spot_new2=spot_old+vel_new1*dt*ratio;vec2 error=spot_new2-spot_new;vec2 spot_new3=spot_new-error/2.0;vec2 vel_2=texture2D(velocity,spot_new3).xy;vec2 spot_old2=spot_new3-vel_2*dt*ratio;vec2 newVel2=texture2D(velocity,spot_old2).xy;gl_FragColor=vec4(newVel2,0.0,0.0);}}`;
@@ -22,7 +22,7 @@ const poissonFrag = `precision highp float;uniform sampler2D pressure;uniform sa
 const pressureFrag = `precision highp float;uniform sampler2D pressure;uniform sampler2D velocity;uniform vec2 px;uniform float dt;varying vec2 uv;void main(){float p0=texture2D(pressure,uv+vec2(px.x,0.0)).r;float p1=texture2D(pressure,uv-vec2(px.x,0.0)).r;float p2=texture2D(pressure,uv+vec2(0.0,px.y)).r;float p3=texture2D(pressure,uv-vec2(0.0,px.y)).r;vec2 v=texture2D(velocity,uv).xy;vec2 gradP=vec2(p0-p1,p2-p3)*0.5;v=v-gradP*dt;gl_FragColor=vec4(v,0.0,1.0);}`;
 const viscousFrag = `precision highp float;uniform sampler2D velocity;uniform sampler2D velocity_new;uniform float v;uniform vec2 px;uniform float dt;varying vec2 uv;void main(){vec2 old=texture2D(velocity,uv).xy;vec2 new0=texture2D(velocity_new,uv+vec2(px.x*2.0,0.0)).xy;vec2 new1=texture2D(velocity_new,uv-vec2(px.x*2.0,0.0)).xy;vec2 new2=texture2D(velocity_new,uv+vec2(0.0,px.y*2.0)).xy;vec2 new3=texture2D(velocity_new,uv-vec2(0.0,px.y*2.0)).xy;vec2 newv=4.0*old+v*dt*(new0+new1+new2+new3);newv/=4.0*(1.0+v*dt);gl_FragColor=vec4(newv,0.0,0.0);}`;
 
-// ── Fluid simulation class ─────────────────────────────
+// ── Fluid simulation class (unchanged) ──────────────────
 class FluidSimulation {
   fbos: Record<string, THREE.WebGLRenderTarget | null> = {};
   fboSize = new THREE.Vector2();
@@ -190,7 +190,7 @@ class FluidSimulation {
   dispose() { this.renderer?.dispose(); }
 }
 
-// ── Mouse and Auto‐demo helpers ────────────────────────
+// ── Mouse and Auto‑demo helpers (unchanged) ─────────────
 class MouseTracker {
   coords = new THREE.Vector2();
   coordsOld = new THREE.Vector2();
@@ -234,7 +234,7 @@ class AutoDriver {
   }
 }
 
-// ── Dynamic accent helpers ─────────────────────────────
+// ── Dynamic accent helpers (unchanged) ──────────────────
 function getAccentHex(): string {
   if (typeof window === 'undefined') return '#9D00FF';
   const rootStyle = getComputedStyle(document.documentElement);
@@ -248,7 +248,7 @@ function getAccentPalette(): string[] {
   return [accent, '#' + lighter.getHexString(), '#FFFFFF'];
 }
 
-// ── Mobile wave background ─────────────────────────────
+// ── Mobile wave background (REDUCED OPACITY) ────────────
 function MobileWaveBg() {
   const [y, setY] = useState(0);
   const accent = getAccentHex();
@@ -265,8 +265,8 @@ function MobileWaveBg() {
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden', background: '#030305' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 30vw ${t1}vh, ${accent}33 0%, transparent 60%), radial-gradient(ellipse 70vw 50vh at 70vw ${t2}vh, ${accent}22 0%, transparent 55%)`, filter: 'blur(60px)', opacity: 0.7 }} />
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 50vw ${t3}vh, ${accent}44 0%, transparent 50%), radial-gradient(ellipse 70vw 50vh at 20vw ${t4}vh, ${accent}28 0%, transparent 60%)`, filter: 'blur(80px)', opacity: 0.5 }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 30vw ${t1}vh, ${accent}22 0%, transparent 60%), radial-gradient(ellipse 70vw 50vh at 70vw ${t2}vh, ${accent}18 0%, transparent 55%)`, filter: 'blur(60px)', opacity: 0.5 }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 50vw ${t3}vh, ${accent}33 0%, transparent 50%), radial-gradient(ellipse 70vw 50vh at 20vw ${t4}vh, ${accent}1a 0%, transparent 60%)`, filter: 'blur(80px)', opacity: 0.4 }} />
     </div>
   );
 }
@@ -285,7 +285,7 @@ export default function LiquidEtherBackground(props: LiquidEtherProps) {
   return <DesktopFluidSim {...props} palette={getAccentPalette()} />;
 }
 
-// ── Desktop fluid sim ──────────────────────────────────
+// ── Desktop fluid sim (REDUCED OPACITY VIA SHADER) ─────
 function DesktopFluidSim({
   palette,
   mouseForce = 20, cursorSize = 100, resolution = 0.25,
