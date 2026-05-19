@@ -234,7 +234,7 @@ class AutoDriver {
   }
 }
 
-// ── Dynamic accent helpers (unchanged) ──────────────────
+// ── Dynamic accent helpers (UPDATED – no more white) ────
 function getAccentHex(): string {
   if (typeof window === 'undefined') return '#9D00FF';
   const rootStyle = getComputedStyle(document.documentElement);
@@ -244,11 +244,12 @@ function getAccentHex(): string {
 function getAccentPalette(): string[] {
   const accent = getAccentHex();
   const c = new THREE.Color(accent);
-  const lighter = c.clone().lerp(new THREE.Color('#FFFFFF'), 0.5);
-  return [accent, '#' + lighter.getHexString(), '#FFFFFF'];
+  // Create a darker, less bright variant instead of white
+  const darker = c.clone().multiplyScalar(0.5);
+  return [accent, '#' + darker.getHexString(), '#000000']; // third color is black
 }
 
-// ── Mobile wave background (REDUCED OPACITY) ────────────
+// ── Mobile wave background (REDUCED BRIGHTNESS) ──────────
 function MobileWaveBg() {
   const [y, setY] = useState(0);
   const accent = getAccentHex();
@@ -265,8 +266,8 @@ function MobileWaveBg() {
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden', background: '#030305' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 30vw ${t1}vh, ${accent}22 0%, transparent 60%), radial-gradient(ellipse 70vw 50vh at 70vw ${t2}vh, ${accent}18 0%, transparent 55%)`, filter: 'blur(60px)', opacity: 0.5 }} />
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 50vw ${t3}vh, ${accent}33 0%, transparent 50%), radial-gradient(ellipse 70vw 50vh at 20vw ${t4}vh, ${accent}1a 0%, transparent 60%)`, filter: 'blur(80px)', opacity: 0.4 }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 30vw ${t1}vh, ${accent}18 0%, transparent 60%), radial-gradient(ellipse 70vw 50vh at 70vw ${t2}vh, ${accent}10 0%, transparent 55%)`, filter: 'blur(60px)', opacity: 0.3 }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 50vw ${t3}vh, ${accent}22 0%, transparent 50%), radial-gradient(ellipse 70vw 50vh at 20vw ${t4}vh, ${accent}0f 0%, transparent 60%)`, filter: 'blur(80px)', opacity: 0.2 }} />
     </div>
   );
 }
@@ -285,7 +286,7 @@ export default function LiquidEtherBackground(props: LiquidEtherProps) {
   return <DesktopFluidSim {...props} palette={getAccentPalette()} />;
 }
 
-// ── Desktop fluid sim (REDUCED OPACITY VIA SHADER) ─────
+// ── Desktop fluid sim (uses the updated palette) ─────────
 function DesktopFluidSim({
   palette,
   mouseForce = 20, cursorSize = 100, resolution = 0.25,
