@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ScrollSequence from './ScrollSequence';
 import { supabase } from '../lib/supabase';
+import FloatingCube from './FloatingCube';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -34,14 +35,23 @@ export default function Hero() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  });
+
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.15], ['0%', '-20%']);
+
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const { data: contentData } = await supabase
+        const { data: contentData, error: contentError } = await supabase
           .from('site_content')
           .select('key, value')
           .eq('section', 'hero');
-        if (contentData && contentData.length > 0) {
+
+        if (!contentError && contentData && contentData.length > 0) {
           const mapped = { ...defaultContent };
           for (const row of contentData) {
             const key = row.key.toLowerCase() as keyof HeroContent;
@@ -49,7 +59,9 @@ export default function Hero() {
           }
           setContent(mapped);
         }
-      } catch {}
+      } catch {
+        // Use defaults
+      }
     };
     fetchContent();
   }, []);
@@ -60,30 +72,52 @@ export default function Hero() {
 
     const ctx = gsap.context(() => {
       gsap.to(overlay, {
+        yPercent: -100,
         opacity: 0,
-        duration: 0,
         ease: 'none',
         immediateRender: false,
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: '+=12%',
-          scrub: true,
+          end: window.innerWidth < 768 ? '+=100%' : '+=150%',
+          scrub: 0.5,
         },
       });
     });
 
-    return () => ctx.revert();
+    const handleThemeChange = () => {
+      setTimeout(() => ScrollTrigger.refresh(), 150);
+    };
+    window.addEventListener('storage', handleThemeChange);
+
+    return () => {
+      ctx.revert();
+      window.removeEventListener('storage', handleThemeChange);
+    };
   }, []);
 
   return (
-    <section ref={sectionRef} id="hero" className="w-full overflow-hidden relative bg-transparent">
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={1}>
+    <section
+      ref={sectionRef}
+      id="hero"
+      className="w-full overflow-hidden relative bg-transparent"
+    >
+      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 2}>
+        <div className="hidden md:block">
+          <FloatingCube type="Ps" size={100} top="20%" left="10%" blur="2px" delay={0} duration={6} />
+          <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
+        </div>
+
         <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
+          {/* Darkening overlays – reduced opacity so background patterns show through */}
           <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
 
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto">
+          {/* LAYER 1: MAIN HERO TEXT */}
+          <motion.div
+            style={{ opacity: heroOpacity, y: heroY }}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto"
+          >
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -93,11 +127,20 @@ export default function Hero() {
               {content.subtitle}
             </motion.p>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-bold tracking-tighter leading-[1] uppercase text-center w-full">
-              {content.heading_line1}<br />
-              <span className="text-accent italic drop-shadow-[0_0_15px_var(--accent)]">{content.heading_line2}</span><br />
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-bold tracking-tighter leading-[1] uppercase text-center w-full"
+            >
+              {content.heading_line1}
+              <br />
+              <span className="text-accent italic drop-shadow-[0_0_15px_var(--accent)]">
+                {content.heading_line2}
+              </span>
+              <br />
               {content.heading_line3}
-            </h1>
+            </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -114,10 +157,22 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 1 }}
               className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full"
             >
-              <a href="#works" onClick={(e) => scrollToId(e, 'works')} className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">View Works</a>
-              <a href="#contact" onClick={(e) => scrollToId(e, 'contact')} className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto">Get in Touch</a>
+              <a
+                href="#works"
+                onClick={(e) => scrollToId(e, 'works')}
+                className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto"
+              >
+                View Works
+              </a>
+              <a
+                href="#contact"
+                onClick={(e) => scrollToId(e, 'contact')}
+                className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto"
+              >
+                Get in Touch
+              </a>
             </motion.div>
-          </div>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -125,7 +180,10 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 1.3 }}
             className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-auto z-20"
           >
-            <button onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })} className="flex flex-col items-center justify-center gap-2 text-[var(--text-secondary)]/40 hover:text-accent transition-colors duration-300 w-full">
+            <button
+              onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
+              className="flex flex-col items-center justify-center gap-2 text-[var(--text-secondary)]/40 hover:text-accent transition-colors duration-300 w-full"
+            >
               <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase text-center block">Scroll</span>
               <ArrowDown size={16} className="animate-bounce mx-auto" />
             </button>
