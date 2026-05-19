@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import Services from '../components/Services';
-import SelectedWorks from '../components/SelectedWorks';
 import About from '../components/About';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import AdminModal from '../components/AdminModal';
+import CategorySection from '../components/CategorySection';
 
 export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
   const [adminModalOpen, setAdminModalOpen] = useState(false);
@@ -33,9 +33,15 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       
       <main className="relative z-10">
         <Hero />
-        <Services />
-        <SelectedWorks />
         <About />
+        <Services />
+        
+        {/* Category Sections — each one auto-fetches its own projects */}
+        <CategorySection category="Graphic Design" />
+        <CategorySection category="UI/UX" />
+        <CategorySection category="Motion" />
+        <CategorySection category="Photography" />
+
         <Contact />
       </main>
 
