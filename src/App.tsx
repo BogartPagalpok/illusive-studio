@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AdminDashboard from './pages/AdminDashboard';
-import Login from './pages/Login';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
-import { supabase } from './lib/supabase';
 import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
@@ -44,8 +42,6 @@ function AtmosphereGradient() {
 function App() {
   useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [session, setSession] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,29 +56,7 @@ function App() {
   useEffect(() => {
     loadSavedTheme();
     const subscription = subscribeToThemeChanges();
-
-    const initAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) console.warn('Supabase Auth Warning:', error.message);
-        setSession(session);
-      } catch (err) {
-        console.error('Supabase connection failed:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initAuth();
-
-    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => {
-      authSubscription.unsubscribe();
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -91,18 +65,6 @@ function App() {
       history.scrollRestoration = 'manual';
     }
   }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <span className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full" style={{ borderColor: '#9D00FF', borderTopColor: 'transparent' }} />
-      </div>
-    );
-  }
-
-  if (!session) {
-    return <Login />;
-  }
 
   if (isAdmin) {
     return (
