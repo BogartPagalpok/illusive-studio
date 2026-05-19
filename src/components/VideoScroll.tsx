@@ -1,8 +1,4 @@
 import { useEffect, useRef, ReactNode } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface VideoScrollProps {
   videoUrl: string;
@@ -14,47 +10,20 @@ export default function VideoScroll({ videoUrl, children }: VideoScrollProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const container = containerRef.current;
     const video = videoRef.current;
-    if (!container || !video) return;
+    if (!video) return;
 
-    const duration = 15; // your video length in seconds
-    const fps = 30;
-    let scrubAnimation: gsap.core.Tween | null = null;
+    video.play().catch(() => {});
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: container,
-          start: 'top top',
-          end: '+=200%',
-          pin: true,
-          scrub: false,
-          onEnter: () => {
-            video.play();
-          },
-          onLeave: () => {
-            video.pause();
-          },
-          onEnterBack: () => {
-            video.play();
-          },
-          onLeaveBack: () => {
-            video.pause();
-          },
-          onUpdate: (self) => {
-            if (video.readyState >= 2) {
-              const time = self.progress * video.duration;
-              if (Math.abs(video.currentTime - time) > 0.1) {
-                video.currentTime = time;
-              }
-            }
-          },
-        },
-      });
-    });
+    const loop = () => {
+      if (video.ended) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      }
+    };
 
-    return () => ctx.revert();
+    video.addEventListener('ended', loop);
+    return () => video.removeEventListener('ended', loop);
   }, []);
 
   return (
@@ -67,7 +36,7 @@ export default function VideoScroll({ videoUrl, children }: VideoScrollProps) {
           muted
           playsInline
           preload="auto"
-          loop={false}
+          loop
         />
         <div 
           className="absolute inset-0 pointer-events-none z-[1]" 
