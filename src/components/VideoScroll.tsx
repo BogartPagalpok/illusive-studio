@@ -6,15 +6,10 @@ gsap.registerPlugin(ScrollTrigger);
 
 interface VideoScrollProps {
   videoUrl: string;
-  scrollLength?: number;
   children?: ReactNode;
 }
 
-export default function VideoScroll({
-  videoUrl,
-  scrollLength = 2,
-  children,
-}: VideoScrollProps) {
+export default function VideoScroll({ videoUrl, children }: VideoScrollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -23,36 +18,44 @@ export default function VideoScroll({
     const video = videoRef.current;
     if (!container || !video) return;
 
-    // Wait for video metadata to load
-    const initScroll = () => {
-      const ctx = gsap.context(() => {
-        ScrollTrigger.create({
+    const duration = 15; // your video length in seconds
+    const fps = 30;
+    let scrubAnimation: gsap.core.Tween | null = null;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
           trigger: container,
           start: 'top top',
-          end: `+=${scrollLength * 100}%`,
-          scrub: true,
+          end: '+=200%',
           pin: true,
+          scrub: false,
+          onEnter: () => {
+            video.play();
+          },
+          onLeave: () => {
+            video.pause();
+          },
+          onEnterBack: () => {
+            video.play();
+          },
+          onLeaveBack: () => {
+            video.pause();
+          },
           onUpdate: (self) => {
-            if (video.duration && video.readyState >= 2) {
-              video.currentTime = self.progress * video.duration;
+            if (video.readyState >= 2) {
+              const time = self.progress * video.duration;
+              if (Math.abs(video.currentTime - time) > 0.1) {
+                video.currentTime = time;
+              }
             }
           },
-        });
+        },
       });
+    });
 
-      return () => ctx.revert();
-    };
-
-    if (video.readyState >= 2) {
-      initScroll();
-    } else {
-      video.addEventListener('loadedmetadata', initScroll, { once: true });
-    }
-
-    return () => {
-      ScrollTrigger.getAll().forEach(st => st.kill());
-    };
-  }, [scrollLength]);
+    return () => ctx.revert();
+  }, []);
 
   return (
     <div ref={containerRef} className="relative w-full z-0 bg-black">
@@ -63,17 +66,16 @@ export default function VideoScroll({
           className="absolute inset-0 w-full h-full object-cover z-0"
           muted
           playsInline
-          preload="metadata"
+          preload="auto"
+          loop={false}
         />
         <div 
-          className="absolute inset-0 pointer-events-none transition-colors duration-500 z-[1]" 
+          className="absolute inset-0 pointer-events-none z-[1]" 
           style={{ backgroundColor: 'var(--accent)', mixBlendMode: 'color', opacity: 0.35 }} 
         />
         <div 
           className="absolute inset-x-0 bottom-0 h-48 md:h-64 pointer-events-none z-[2]" 
-          style={{ 
-            background: 'linear-gradient(to top, var(--bg-primary, var(--background, #000000)) 0%, transparent 100%)' 
-          }} 
+          style={{ background: 'linear-gradient(to top, var(--bg-primary, var(--background, #000000)) 0%, transparent 100%)' }} 
         /> 
         <div className="absolute inset-0 z-10 pointer-events-none">
           {children}
