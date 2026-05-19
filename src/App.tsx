@@ -8,7 +8,6 @@ import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import LiquidEtherBackground from './components/LiquidEtherBackground';
-import { SCROLL_SEQUENCE_BUCKET } from './lib/supabase';
 
 function AtmosphereGradient() {
   return (
@@ -40,10 +39,8 @@ function AtmosphereGradient() {
   );
 }
 
-// ── Brand Loader (Uiverse + ILLUSIVE STUDIO) ────────────
-function BrandLoader({ progress }: { progress: number }) {
-  const letters = 'ILLUSIVE STUDIO'.split('');
-
+// ── Simple Loader (no heavy rendering during load) ──────
+function BrandLoader() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black gap-8">
       <style>{`
@@ -117,11 +114,20 @@ function BrandLoader({ progress }: { progress: number }) {
           animation: loader-letter-anim 4s infinite linear;
           z-index: 2;
         }
-        ${letters.map((_, i) => `
-          .loader-letter:nth-child(${i + 1}) {
-            animation-delay: ${0.1 + i * 0.105}s;
-          }
-        `).join('')}
+        .loader-letter:nth-child(1) { animation-delay: 0.1s; }
+        .loader-letter:nth-child(2) { animation-delay: 0.205s; }
+        .loader-letter:nth-child(3) { animation-delay: 0.31s; }
+        .loader-letter:nth-child(4) { animation-delay: 0.415s; }
+        .loader-letter:nth-child(5) { animation-delay: 0.521s; }
+        .loader-letter:nth-child(6) { animation-delay: 0.626s; }
+        .loader-letter:nth-child(7) { animation-delay: 0.731s; }
+        .loader-letter:nth-child(8) { animation-delay: 0.837s; }
+        .loader-letter:nth-child(9) { animation-delay: 0.942s; }
+        .loader-letter:nth-child(10) { animation-delay: 1.047s; }
+        .loader-letter:nth-child(11) { animation-delay: 1.152s; }
+        .loader-letter:nth-child(12) { animation-delay: 1.257s; }
+        .loader-letter:nth-child(13) { animation-delay: 1.362s; }
+        .loader-letter:nth-child(14) { animation-delay: 1.467s; }
         @keyframes loader-letter-anim {
           0% { opacity: 0; }
           5% { opacity: 1; text-shadow: 0 0 4px #fff; transform: scale(1.1) translateY(-2px); }
@@ -137,116 +143,20 @@ function BrandLoader({ progress }: { progress: number }) {
 
       <div className="loader-wrapper">
         <span className="loader"></span>
-        {letters.map((letter, i) => (
+        {'ILLUSIVE STUDIO'.split('').map((letter, i) => (
           <span key={i} className="loader-letter">
             {letter === ' ' ? '\u00A0' : letter}
           </span>
         ))}
       </div>
-
-      {/* Progress bar */}
-      <div className="w-48 md:w-64 h-[1px] bg-white/10 overflow-hidden">
-        <div
-          className="h-full bg-white transition-all duration-500 ease-out"
-          style={{ width: `${Math.round(progress * 100)}%` }}
-        />
-      </div>
-
-      <p className="text-white/30 text-xs tracking-[0.3em] uppercase">
-        {Math.round(progress * 100)}%
-      </p>
     </div>
   );
-}
-
-// ── Frame Preloader ────────────────────────────────────
-function useHeroFramePreloader() {
-  const [ready, setReady] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const totalFrames = 261;
-  const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${SCROLL_SEQUENCE_BUCKET}/`;
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const preload = async () => {
-      const MIN_FRAMES_TO_START = 30;
-
-      // Phase 1: Load critical frames
-      for (let i = 0; i < MIN_FRAMES_TO_START; i++) {
-        if (cancelled) break;
-        const frameIndex = String(i).padStart(3, '0');
-        const url = `${baseUrl}frame_${frameIndex}.webp`;
-
-        try {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          await new Promise<void>((resolve, reject) => {
-            img.onload = () => img.decode().then(() => resolve()).catch(() => resolve());
-            img.onerror = () => reject();
-            img.src = url;
-          });
-        } catch {}
-
-        if (!cancelled) {
-          setProgress((i + 1) / totalFrames);
-        }
-      }
-
-      // Phase 2: Site ready
-      if (!cancelled) {
-        setReady(true);
-      }
-
-      // Phase 3: Background load rest
-      for (let i = MIN_FRAMES_TO_START; i < totalFrames; i++) {
-        if (cancelled) break;
-        const frameIndex = String(i).padStart(3, '0');
-        const url = `${baseUrl}frame_${frameIndex}.webp`;
-
-        try {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          await new Promise<void>((resolve, reject) => {
-            img.onload = () => img.decode().then(() => resolve()).catch(() => resolve());
-            img.onerror = () => reject();
-            img.src = url;
-          });
-        } catch {}
-
-        if (!cancelled) {
-          setProgress((i + 1) / totalFrames);
-        }
-      }
-    };
-
-    preload();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [baseUrl]);
-
-  return { ready, progress };
 }
 
 function App() {
   useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { ready: framesReady, progress } = useHeroFramePreloader();
-
-  useEffect(() => {
-    loadSavedTheme();
-    const subscription = subscribeToThemeChanges();
-    return () => subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (framesReady) {
-      setLoading(false);
-    }
-  }, [framesReady]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -259,6 +169,18 @@ function App() {
   }, []);
 
   useEffect(() => {
+    loadSavedTheme();
+    const subscription = subscribeToThemeChanges();
+
+    const timer = setTimeout(() => setLoading(false), 3000);
+
+    return () => {
+      clearTimeout(timer);
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
     window.scrollTo(0, 0);
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
@@ -266,7 +188,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return <BrandLoader progress={progress} />;
+    return <BrandLoader />;
   }
 
   if (isAdmin) {
