@@ -1,12 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import VideoScroll from './VideoScroll';
 import { supabase } from '../lib/supabase';
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface HeroContent {
   subtitle: string;
@@ -31,8 +27,14 @@ function scrollToId(e: React.MouseEvent, id: string) {
 
 export default function Hero() {
   const [content, setContent] = useState<HeroContent>(defaultContent);
-  const overlayRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  });
+
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -54,38 +56,10 @@ export default function Hero() {
     fetchContent();
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const overlay = overlayRef.current;
-      if (!overlay) return;
-
-      gsap.set(overlay, { opacity: 1 });
-
-      const ctx = gsap.context(() => {
-        gsap.to(overlay, {
-          opacity: 0,
-          duration: 0,
-          ease: 'none',
-          immediateRender: false,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top top',
-            end: '+=12%',
-            scrub: true,
-          },
-        });
-      });
-
-      return () => ctx.revert();
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <section ref={sectionRef} id="hero" className="w-full overflow-hidden relative bg-transparent">
       <VideoScroll videoUrl="https://ayfbrkudeqvvnhchmxas.supabase.co/storage/v1/object/public/media/ezgif-6112e225029ef273.webm">
-        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]" style={{ opacity: 1 }}>
+        <motion.div style={{ opacity: overlayOpacity }} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
           <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
 
@@ -136,7 +110,7 @@ export default function Hero() {
               <ArrowDown size={16} className="animate-bounce mx-auto" />
             </button>
           </motion.div>
-        </div>
+        </motion.div>
       </VideoScroll>
     </section>
   );
