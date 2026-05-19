@@ -58,6 +58,8 @@ export default function Hero() {
     const overlay = overlayRef.current;
     if (!overlay) return;
 
+    gsap.set(overlay, { opacity: 1 });
+
     const ctx = gsap.context(() => {
       gsap.to(overlay, {
         opacity: 0,
