@@ -55,27 +55,31 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    const overlay = overlayRef.current;
-    if (!overlay) return;
+    const timer = setTimeout(() => {
+      const overlay = overlayRef.current;
+      if (!overlay) return;
 
-    gsap.set(overlay, { opacity: 1 });
+      gsap.set(overlay, { opacity: 1 });
 
-    const ctx = gsap.context(() => {
-      gsap.to(overlay, {
-        opacity: 0,
-        duration: 0,
-        ease: 'none',
-        immediateRender: false,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: '+=12%',
-          scrub: true,
-        },
+      const ctx = gsap.context(() => {
+        gsap.to(overlay, {
+          opacity: 0,
+          duration: 0,
+          ease: 'none',
+          immediateRender: false,
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top top',
+            end: '+=12%',
+            scrub: true,
+          },
+        });
       });
-    });
 
-    return () => ctx.revert();
+      return () => ctx.revert();
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
