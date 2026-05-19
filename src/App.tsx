@@ -78,7 +78,6 @@ function App() {
   return (
     <main className="min-h-screen relative overflow-x-hidden">
       <LiquidEtherBackground
-        colors={['#5227FF', '#FF9FFC', '#B19EEF']}
         mouseForce={20}
         cursorSize={100}
         resolution={0.25}
