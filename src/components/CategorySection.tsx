@@ -223,7 +223,7 @@ function FlipCard({ project }: { project: Project }) {
 export default function CategorySection({ category }: CategorySectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [columnCount, setColumnCount] = useState(3);
+  const [columnCount, setColumnCount] = useState(3); // ← ADDED
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -245,6 +245,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
+  // ← ADDED THIS BLOCK
   useEffect(() => {
     const updateColumns = () => {
       const width = window.innerWidth;
@@ -256,10 +257,11 @@ export default function CategorySection({ category }: CategorySectionProps) {
     window.addEventListener('resize', updateColumns);
     return () => window.removeEventListener('resize', updateColumns);
   }, []);
+  // ← END ADDED BLOCK
 
   if (!loading && projects.length === 0) return null;
 
-  const showQuote = projects.length % columnCount !== 0;
+  const showQuote = projects.length % columnCount !== 0; // ← ADDED
 
   return (
     <section className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
@@ -276,6 +278,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
           </div>
         )}
 
+        {/* CHANGED: 4 columns on desktop */}
         <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
           {projects.map((project) => {
             const platform = project.video_url ? detectVideoPlatform(project.video_url) : null;
@@ -314,7 +317,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
             );
           })}
 
-          {showQuote && <QuoteCard category={category} />}
+          {showQuote && <QuoteCard category={category} />} {/* ← CHANGED */}
         </div>
       </div>
     </section>
