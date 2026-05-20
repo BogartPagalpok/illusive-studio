@@ -21,37 +21,26 @@ const skills = [
 interface AboutContent {
   subtitle: string;
   heading: string;
+  subheading: string;
   description_line1: string;
   description_line2: string;
   description_line3: string;
   skills_heading: string;
-  portrait_url: string;
 }
 
 const defaultContent: AboutContent = {
-  subtitle: 'About',
-  heading: 'Bridging Creative Vision & Execution',
-  description_line1: "I'm Ian Lester Eclevia — a graphic designer, photographer, and virtual assistant. With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories.",
-  description_line2: "",
-  description_line3: "Status: Available for Freelance & Roles",
+  subtitle: 'Who I Am',
+  heading: 'About & Skills',
+  subheading: 'Creative mind. Reliable hands.',
+  description_line1: "I'm Ian Lester Eclevia — a graphic designer, photographer, and virtual assistant who believes that great design is where timeless elegance meets modern trends.",
+  description_line2: "With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories that don't just look beautiful — they communicate, connect, and convert.",
+  description_line3: "Beyond design, I bring the same dedication to virtual assistance — organized, proactive, and committed to making your operations run seamlessly.",
   skills_heading: 'Skills & Proficiency',
-  portrait_url: '',
 };
-
-const serviceOffers = [
-  { value: '01', label: 'Brand Identity', desc: 'Complete visual identity systems — logos, color palettes, typography, and brand guidelines.' },
-  { value: '02', label: 'Graphic Design', desc: 'Stunning layouts for social media, print materials, and marketing collateral.' },
-  { value: '03', label: 'Photography', desc: 'Professional photo sessions from portraits to product photography, with expert post-processing.' },
-  { value: '04', label: 'Videography', desc: 'Creative video production and editing that tells your story with cinematic quality.' },
-  { value: '05', label: 'Digital Painting', desc: 'Custom digital illustrations and concept art that bring imagination to canvas.' },
-  { value: '06', label: 'Admin Support', desc: 'Reliable virtual assistance — email management, scheduling, and operational support.' },
-];
 
 export default function About() {
   const { ref, isVisible } = useScrollReveal();
   const [content, setContent] = useState<AboutContent>(defaultContent);
-  const [portraitLoaded, setPortraitLoaded] = useState(false);
-  const [portraitError, setPortraitError] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
@@ -89,16 +78,8 @@ export default function About() {
     return () => ctx.revert();
   }, []);
 
-  useEffect(() => {
-    if (!content.portrait_url) return;
-    const img = new Image();
-    img.onload = () => setPortraitLoaded(true);
-    img.onerror = () => setPortraitError(true);
-    img.src = content.portrait_url;
-  }, [content.portrait_url]);
-
   return (
-    <section ref={sectionRef} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+    <section ref={sectionRef} className="relative section-padding overflow-visible z-40 bg-transparent">
       <div id="about" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
 
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
@@ -106,138 +87,86 @@ export default function About() {
       </div>
 
       <div ref={ref} className="section-container relative">
-        {/* TOP TITLE LAYOUT */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-10 flex flex-col items-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8 flex flex-col items-center"
         >
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
-            {content.heading.split('&').map((part, i, arr) => (
+            {content.heading.split(' ').map((word, i, arr) => (
               <span key={i}>
-                {part}
-                {i < arr.length - 1 && <span className="text-accent">&</span>}
+                {word === '&' ? <span className="text-accent">&</span> : word}
+                {i < arr.length - 1 ? ' ' : ''}
               </span>
             ))}
           </h2>
           <div className="section-divider" />
         </motion.div>
 
-        {/* 12-COLUMN GRID (Image Right, Content Left) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-          
-          {/* Portrait + Bio — FIRST on mobile, RIGHT on desktop */}
-          <div className="lg:col-span-5 lg:order-last flex flex-col items-center lg:items-end gap-6 lg:sticky lg:top-28">
-            <div className="relative w-full max-w-sm aspect-[3/4]">
-              {content.portrait_url && !portraitError ? (
-                <div className="absolute inset-0 overflow-hidden" style={{
-                  maskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 100%)',
-                  WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 100%)',
-                }}>
-                  {!portraitLoaded && (
-                    <div className="absolute inset-0 bg-transparent" />
-                  )}
-                  <img 
-                    src={content.portrait_url} 
-                    alt="Ian Lester Eclevia" 
-                    className={`w-full h-full object-cover transition-opacity duration-500 ${portraitLoaded ? 'opacity-100' : 'opacity-0'}`}
-                  />
-                </div>
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-white/10">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                </div>
-              )}
-            </div>
-
-            <p className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight uppercase text-center lg:text-left">
-              IAN LESTER ECLEVIA
-            </p>
-          </div>
-
-          {/* Text, Services + Skills — SECOND on mobile, LEFT on desktop */}
-          <div className="lg:col-span-7 lg:order-first space-y-12">
-            
-            {/* Description Block */}
-            <div className="space-y-4">
-              <p className="text-sm md:text-base text-white/90 leading-relaxed max-w-xl">
-                {content.description_line1}
-              </p>
-              {content.description_line2 && (
-                <p className="text-sm md:text-base text-white/70 leading-relaxed max-w-xl">
-                  {content.description_line2}
-                </p>
-              )}
-              <span className="inline-block text-[10px] font-mono tracking-widest uppercase opacity-40 border border-white/10 px-3 py-1 rounded-full">
-                {content.description_line3}
-              </span>
-            </div>
-
-            {/* SERVICES INJECTED HERE */}
-            <div className="space-y-10">
-              {serviceOffers.map((item, index) => (
-                <motion.div
-                  key={item.value}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                  className="group relative border-t border-white/10 pt-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-start"
-                >
-                  <div className="md:col-span-2 font-heading font-black text-xl tracking-wider text-accent opacity-40 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300">
-                    {item.value}
-                  </div>
-                  <div className="md:col-span-10 space-y-2">
-                    <h3 className="font-heading font-bold text-base uppercase tracking-wide text-[var(--text-primary)] group-hover:text-accent transition-colors duration-300">
-                      {item.label}
-                    </h3>
-                    <p className="text-sm opacity-60 font-sans leading-relaxed max-w-xl">
-                      {item.desc}
-                    </p>
-                  </div>
-                  <span className="absolute top-0 left-0 w-0 h-[1px] bg-accent transition-all duration-500 group-hover:w-full shadow-[0_0_8px_var(--accent)]" />
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Core Technical Capabilities Graph */}
-            <div className="space-y-6 pt-10 border-t border-white/5">
-              <h3 className="font-black uppercase tracking-tighter text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 2vw, 24px)' }}>
-                {content.skills_heading}
+        <div className="grid lg:grid-cols-2 gap-10 items-start">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <div className="card-dark">
+              <h3 className="font-bold tracking-tighter mb-4 leading-tight text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 2vw, 24px)' }}>
+                {content.subheading.includes('.') ? (
+                  <>
+                    {content.subheading.split('.')[0]}. <span className="text-accent">{content.subheading.split('.')[1].trim()}</span>
+                  </>
+                ) : (
+                  content.subheading
+                )}
               </h3>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                {skills.map((skill, i) => (
-                  <div key={skill.name} className="group">
-                    <div className="flex justify-between items-end mb-1">
-                      <span className="font-bold uppercase text-[var(--text-primary)]/50 group-hover:text-accent transition-colors" style={{ fontSize: 'clamp(8px, 0.9vw, 12px)', letterSpacing: '0.2em' }}>
-                        {skill.name}
-                      </span>
-                      <span className="font-black text-[var(--text-primary)]/90" style={{ fontSize: 'clamp(9px, 0.9vw, 13px)' }}>
-                        {skill.level}%
-                      </span>
-                    </div>
-                    <div className="h-[3px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)]">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={isVisible ? { width: `${skill.level}%` } : {}}
-                        transition={{ duration: 1, delay: 0.3 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                        style={{ backgroundColor: 'var(--accent)' }}
-                        className="h-full relative rounded-full"
-                      >
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_#fff] opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </motion.div>
-                    </div>
-                  </div>
-                ))}
+              <div className="space-y-3 font-light text-[var(--text-secondary)]" style={{ fontSize: 'clamp(12px, 1.1vw, 16px)' }}>
+                <p className="first-letter:text-3xl first-letter:font-bold first-letter:text-accent first-letter:mr-2 first-letter:float-left">
+                  {content.description_line1}
+                </p>
+                <p>{content.description_line2}</p>
+                <p className="italic opacity-90">{content.description_line3}</p>
               </div>
             </div>
-            
-          </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="space-y-5"
+          >
+            <h3 className="font-black uppercase tracking-tighter text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 2vw, 24px)' }}>
+              Skills <span className="text-accent">&</span> Proficiency
+            </h3>
+
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              {skills.map((skill, i) => (
+                <div key={skill.name} className="group">
+                  <div className="flex justify-between items-end mb-1">
+                    <span className="font-bold uppercase text-[var(--text-primary)]/50 group-hover:text-accent transition-colors" style={{ fontSize: 'clamp(8px, 0.9vw, 12px)', letterSpacing: '0.2em' }}>
+                      {skill.name}
+                    </span>
+                    <span className="font-black text-[var(--text-primary)]/90" style={{ fontSize: 'clamp(9px, 0.9vw, 13px)' }}>
+                      {skill.level}%
+                    </span>
+                  </div>
+                  <div className="h-[3px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)]">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={isVisible ? { width: `${skill.level}%` } : {}}
+                      transition={{ duration: 1, delay: 0.3 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ backgroundColor: 'var(--accent)' }}
+                      className="h-full relative rounded-full"
+                    >
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_#fff] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </motion.div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
