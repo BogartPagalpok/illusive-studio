@@ -151,20 +151,9 @@ export default function About() {
               )}
             </div>
 
-            <div className="space-y-3 text-center lg:text-left">
-              <p className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight uppercase">
-                IAN LESTER ECLEVIA
-              </p>
-              <p className="text-sm md:text-base text-white/70 leading-relaxed">
-                Graphic designer, photographer, and virtual assistant.
-              </p>
-              <p className="text-sm md:text-base text-white/70 leading-relaxed">
-                With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories.
-              </p>
-              <p className="text-sm md:text-base text-white/70 leading-relaxed">
-                Beyond design, I bring the same dedication to virtual assistance — organized and proactive.
-              </p>
-            </div>
+                       <p className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight uppercase text-center lg:text-left">
+              IAN LESTER ECLEVIA
+            </p>
           </div>
 
           {/* Text + Skills — SECOND on mobile, LEFT on desktop */}
