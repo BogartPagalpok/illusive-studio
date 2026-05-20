@@ -31,7 +31,7 @@ interface AboutContent {
 const defaultContent: AboutContent = {
   subtitle: 'About',
   heading: 'Bridging Creative Vision & Execution',
-  description_line1: "I eliminate the friction between high-end digital design and production deployment. By operating fluidly across user experience architectures, clean layout engineering, and next-gen multimodal AI pipelines, I build high-retention digital ecosystems tailored for maximum visual impact.",
+  description_line1: "I'm Ian Lester Eclevia — a graphic designer, photographer, and virtual assistant. With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories.",
   description_line2: "",
   description_line3: "Status: Available for Freelance & Roles",
   skills_heading: 'Skills & Proficiency',
@@ -151,7 +151,7 @@ export default function About() {
               )}
             </div>
 
-                       <p className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight uppercase text-center lg:text-left">
+            <p className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight uppercase text-center lg:text-left">
               IAN LESTER ECLEVIA
             </p>
           </div>
@@ -159,11 +159,11 @@ export default function About() {
           {/* Text + Skills — SECOND on mobile, LEFT on desktop */}
           <div className="lg:col-span-7 lg:order-first space-y-12">
             <div className="space-y-4">
-              <p className="text-sm md:text-base opacity-70 font-sans leading-relaxed max-w-xl">
-                {content.description_line1}
+              <p className="text-sm md:text-base text-white/90 leading-relaxed max-w-xl">
+                <span className="text-accent font-medium">Ian Lester Eclevia</span> — a graphic designer, photographer, and virtual assistant. With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories.
               </p>
               {content.description_line2 && (
-                <p className="text-sm md:text-base opacity-70 font-sans leading-relaxed max-w-xl">
+                <p className="text-sm md:text-base text-white/70 leading-relaxed max-w-xl">
                   {content.description_line2}
                 </p>
               )}
