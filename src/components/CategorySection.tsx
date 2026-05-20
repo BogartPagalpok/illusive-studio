@@ -32,7 +32,10 @@ function detectVideoPlatform(url: string): VideoPlatform {
 function getVideoEmbedUrl(url: string, platform: VideoPlatform): string {
   if (platform === 'youtube') {
     const match = url.match(/(?:v=|\/|shorts\/)([a-zA-Z0-9_-]{11})/);
-    return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=0&rel=0` : url;
+    if (match) {
+      return `https://www.youtube.com/embed/${match[1]}?autoplay=0&rel=0&modestbranding=1&controls=1`;
+    }
+    return url;
   }
   if (platform === 'vimeo') {
     const match = url.match(/vimeo\.com\/(\d+)/);
@@ -349,7 +352,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
     return acc;
   }, {} as Record<string, Project[]>);
 
-  // Filter out titles that have no images and no videos
   const visibleGroups = Object.entries(groupedByTitle).filter(([_, titleProjects]) => {
     return titleProjects.some(p => p.image_url || (p.video_urls && p.video_urls.length > 0));
   });
