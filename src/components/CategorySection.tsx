@@ -92,7 +92,7 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
   return (
     <>
       <div
-        className={`flip-card cursor-pointer w-full ${isHero ? 'hero-fill' : ''}`}
+        className={`flip-card cursor-pointer w-full ${isHero ? 'hero-card' : ''}`}
         style={{ perspective: '1000px' }}
         onClick={handleCardClick}
         onMouseEnter={() => { if (!isMobile) setFlipped(true); }}
@@ -107,7 +107,7 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
           }}
         >
           <div
-            className={`flip-card-front relative w-full rounded-xl overflow-hidden border ${isHero ? 'hero-front' : ''}`}
+            className="flip-card-front relative w-full rounded-xl overflow-hidden border"
             style={{
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
@@ -117,8 +117,9 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
             <img
               src={project.hero_bg_desktop || project.image_url}
               alt={project.title}
-              className={`w-full block ${isHero ? 'hero-image' : 'h-auto'}`}
+              className={`w-full block ${isHero ? 'h-full object-cover' : 'h-auto'}`}
               loading="lazy"
+              style={isHero ? { minHeight: '300px' } : undefined}
             />
             <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
               <p className="text-white text-xs font-bold uppercase tracking-wider">{project.title}</p>
@@ -213,19 +214,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
   return (
     <section className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
-      <style>{`
-        .hero-fill {
-          column-span: all;
-        }
-        .hero-front {
-          aspect-ratio: 16/9;
-        }
-        .hero-image {
-          height: 100%;
-          object-fit: cover;
-        }
-      `}</style>
-
       <div className="section-container relative">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
           <span className="section-subtitle">Portfolio</span>
@@ -247,7 +235,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
             const isHero = hasGap && isLast && !isVideo;
 
             return (
-              <div key={project.id} className={`break-inside-avoid ${isHero ? 'hero-wrapper' : ''}`}>
+              <div key={project.id} className="break-inside-avoid">
                 {isVideo ? (
                   <div className="mb-3">
                     <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
