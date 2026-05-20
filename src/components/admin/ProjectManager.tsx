@@ -167,6 +167,8 @@ export default function ProjectManager() {
         }
         const projectData = { ...baseProjectData, image_url: finalUrl };
         
+        console.log('Saving project data:', JSON.stringify(projectData, null, 2));
+        
         if (editingProject.id) {
           const { error } = await supabase.from('portfolio_projects').update(projectData).eq('id', editingProject.id);
           if (error) throw error;
