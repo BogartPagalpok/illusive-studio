@@ -242,21 +242,18 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
         onClick={handleCardClick}
       >
         <div
-          className="flip-card-inner relative w-full"
+         className="flip-card cursor-pointer w-full group"
+        style={{ perspective: '1000px' }}
+        onClick={handleCardClick}
+      >
+        <div
+          className="flip-card-inner relative w-full transition-transform duration-300 group-hover:scale-[1.02]"
           style={{
             transformStyle: 'preserve-3d',
             transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
             transition: 'transform 0.8s',
+            boxShadow: flipped ? 'none' : '0 0 20px rgba(var(--accent-rgb), 0.1)',
           }}
-        >
-          <div
-            className="flip-card-front relative w-full rounded-xl overflow-hidden border"
-            style={{
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
-              borderColor: 'var(--glass-border)',
-              backgroundColor: 'var(--bg-primary)',
-            }}
           >
             {count === 3 ? (
               <div className="grid grid-cols-2 gap-1 p-1">
@@ -521,7 +518,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
           if (tiles.length === 0) return null;
 
           return (
-            <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+            <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 0 }}>
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                   <span className="section-subtitle">{category}</span>
@@ -579,7 +576,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
           });
 
           return (
-            <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+            <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 0 }}>
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                   <span className="section-subtitle">{category}</span>
@@ -602,7 +599,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
         const lastIndex = titleProjects.length - 1;
 
         return (
-          <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+          <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 0 }}>
             <div className="section-container relative">
               <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                 <span className="section-subtitle">{category}</span>
