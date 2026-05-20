@@ -109,31 +109,39 @@ function QuoteCard({ category }: { category: string }) {
           position: relative;
           display: grid;
           place-items: center;
-          overflow: hidden;
           border-radius: 20px;
+          overflow: hidden;
           box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 10px 0px, rgba(0, 0, 0, 0.5) 0px 2px 25px 0px;
         }
-        .quote-card-box::before {
+        .quote-card-box .quote-spinner {
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          overflow: hidden;
+          border-radius: 20px;
+        }
+        .quote-card-box .quote-spinner::before {
           content: "";
           position: absolute;
-          width: 40%;
-          height: 150%;
-          background: var(--accent);
-          background: linear-gradient(to right, var(--accent), #ffffff, var(--accent));
+          top: 50%;
+          left: 50%;
+          width: 60%;
+          height: 200%;
+          background: linear-gradient(to right, var(--accent), #ffffff44, var(--accent));
           transform-origin: center;
           animation: quote-glow 4s linear infinite;
         }
         @keyframes quote-glow {
-          0% { transform: rotate(0); }
-          100% { transform: rotate(360deg); }
+          0% { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         .quote-card-inner {
-          position: absolute;
-          width: 95%;
-          height: 95%;
-          background: var(--glass-bg);
-          border-radius: 20px;
+          position: relative;
           z-index: 5;
+          width: calc(100% - 8px);
+          height: calc(100% - 8px);
+          background: var(--bg-primary);
+          border-radius: 18px;
           display: flex;
           justify-content: center;
           align-items: center;
@@ -155,11 +163,14 @@ function QuoteCard({ category }: { category: string }) {
           pointer-events: none;
           opacity: 0.5;
           color: var(--accent);
+          transition: opacity 0.3s ease-in-out;
         }
         .quote-card-inner .quote-content {
           transform: translateY(100%);
           opacity: 0;
           transition: 0.3s ease-in-out;
+          position: relative;
+          z-index: 1;
         }
         .quote-card-inner:hover .quote-content {
           transform: translateY(0);
@@ -169,19 +180,20 @@ function QuoteCard({ category }: { category: string }) {
           opacity: 0;
         }
         .quote-card-inner .quote-text {
-          font-size: 18px;
+          font-size: 16px;
           font-weight: 800;
           margin-bottom: 10px;
           color: var(--text-primary);
         }
         .quote-card-inner .quote-author {
-          font-size: 14px;
+          font-size: 13px;
           line-height: 1.4em;
           color: var(--accent);
         }
       `}</style>
 
       <div className="quote-card-box">
+        <div className="quote-spinner" />
         <div className="quote-card-inner">
           <span className="quote-icon">"</span>
           <div className="quote-content">
