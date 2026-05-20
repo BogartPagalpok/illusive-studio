@@ -185,7 +185,7 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
         {selected && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
             style={{ backgroundColor: 'rgba(0,0,0,0.95)', touchAction: 'none' }}
             onClick={() => setSelected(false)}
             onWheel={(e) => e.stopPropagation()}
@@ -228,6 +228,9 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
   const handleCardClick = () => {
     if (isMobile) {
       setFlipped(prev => !prev);
+    } else {
+      setSelectedIndex(0);
+      setSelectedImage(images[0]);
     }
   };
 
@@ -237,8 +240,6 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
         className="flip-card cursor-pointer w-full"
         style={{ perspective: '1000px' }}
         onClick={handleCardClick}
-        onMouseEnter={() => { if (!isMobile) setFlipped(true); }}
-        onMouseLeave={() => { if (!isMobile) setFlipped(false); }}
       >
         <div
           className="flip-card-inner relative w-full"
@@ -329,7 +330,7 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
         {selectedImage && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
             style={{ backgroundColor: 'rgba(0,0,0,0.95)', touchAction: 'none' }}
             onClick={() => setSelectedImage(null)}
             onWheel={(e) => e.stopPropagation()}
