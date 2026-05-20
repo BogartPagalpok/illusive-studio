@@ -137,11 +137,17 @@ export default function ProjectManager() {
       if (mobileFile) mUrl = await uploadToStorage(mobileFile);
 
       const baseProjectData = {
-        ...editingProject,
+        title: editingProject.title,
+        category: editingProject.category,
+        description: editingProject.description,
+        process: editingProject.process,
+        tools: toolArray,
+        results: editingProject.results,
+        featured: editingProject.featured,
+        video_urls: editingProject.video_urls || [],
         card_thumbnail: cUrl,
         hero_bg_desktop: dUrl,
         hero_bg_mobile: mUrl,
-        tools: toolArray
       };
 
       if (selectedFiles.length > 1 && !editingProject.id) {
@@ -160,10 +166,14 @@ export default function ProjectManager() {
           finalUrl = await uploadToStorage(selectedFiles[0]);
         }
         const projectData = { ...baseProjectData, image_url: finalUrl };
-        const { error } = editingProject.id
-          ? await supabase.from('portfolio_projects').update(projectData).eq('id', editingProject.id)
-          : await supabase.from('portfolio_projects').insert([projectData]);
-        if (error) throw error;
+        
+        if (editingProject.id) {
+          const { error } = await supabase.from('portfolio_projects').update(projectData).eq('id', editingProject.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from('portfolio_projects').insert([projectData]);
+          if (error) throw error;
+        }
       }
 
       clearForm();
@@ -229,7 +239,7 @@ export default function ProjectManager() {
             setEditingProject(EMPTY_PROJECT);
           }}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition"
-          style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)', boxShadow: '0 4px 15px rgba(157,0,255,0.3)' }}
+          style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
         >
           <Plus size={16} /> New Entry
         </button>
@@ -408,7 +418,7 @@ export default function ProjectManager() {
             onClick={handleSave}
             disabled={isSaving}
             className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
-            style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)', boxShadow: '0 4px 15px rgba(157,0,255,0.3)' }}
+            style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
           >
             {isSaving ? (
               <>
@@ -425,7 +435,7 @@ export default function ProjectManager() {
       {/* FOLDER VIEW — Projects grouped by category */}
       <div className="space-y-3 relative z-10">
         {Object.entries(groupedProjects).map(([category, categoryProjects]) => {
-          const isCollapsed = collapsedFolders[category] || false;
+          const isCollapsed = collapsedFolders[category] ?? true;
           const projectCount = categoryProjects.length;
 
           return (
