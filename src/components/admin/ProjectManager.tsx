@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil } from 'lucide-react';
+import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight } from 'lucide-react';
 import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
 
 interface Project {
@@ -34,11 +34,14 @@ const EMPTY_PROJECT: Project = {
   featured: true,
 };
 
+const CATEGORIES = ['Graphic Design', 'Photography', 'UI/UX', 'Motion'];
+
 export default function ProjectManager() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
 
   const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
   const [cardFile, setCardFile] = useState<any>(null);
@@ -164,6 +167,22 @@ export default function ProjectManager() {
     }
   };
 
+  const toggleFolder = (category: string) => {
+    setCollapsedFolders(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
+
+  // Group projects by category
+  const groupedProjects = CATEGORIES.reduce((acc, category) => {
+    const categoryProjects = projects.filter(p => p.category === category);
+    if (categoryProjects.length > 0) {
+      acc[category] = categoryProjects;
+    }
+    return acc;
+  }, {} as Record<string, Project[]>);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -224,10 +243,9 @@ export default function ProjectManager() {
                   onChange={e => setEditingProject({ ...editingProject, category: e.target.value })}
                   className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
                 >
-                  <option value="Graphic Design">Graphic Design</option>
-                  <option value="Photography">Photography</option>
-                  <option value="UI/UX">UI/UX</option>
-                  <option value="Motion">Motion</option>
+                  {CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -346,44 +364,80 @@ export default function ProjectManager() {
         </div>
       )}
 
-      <div className="grid gap-3 relative z-10">
-        {projects.map(project => (
-          <div
-            key={project.id}
-            className="flex items-center justify-between p-4 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-xl hover:border-accent/30 transition group"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-lg overflow-hidden flex-shrink-0">
-                <img
-                  src={project.card_thumbnail || project.image_url}
-                  className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
-                  alt={project.title}
-                />
-              </div>
-              <div>
-                <h4 className="text-xs font-heading font-bold tracking-widest uppercase text-white">{project.title}</h4>
-                <p className="text-[10px] text-accent uppercase tracking-[0.2em] font-black">{project.category}</p>
-              </div>
-            </div>
-            <div className="flex gap-2">
+      {/* FOLDER VIEW — Projects grouped by category */}
+      <div className="space-y-3 relative z-10">
+        {Object.entries(groupedProjects).map(([category, categoryProjects]) => {
+          const isCollapsed = collapsedFolders[category] || false;
+          const projectCount = categoryProjects.length;
+
+          return (
+            <div key={category} className="rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-xl overflow-hidden">
+              {/* Folder Header */}
               <button
-                onClick={() => {
-                  clearForm();
-                  setEditingProject(project);
-                }}
-                className="p-2 text-white/20 hover:text-white transition bg-white/5 rounded-lg"
+                onClick={() => toggleFolder(category)}
+                className="w-full flex items-center justify-between p-4 hover:bg-white/[0.03] transition"
               >
-                <Pencil size={16} />
+                <div className="flex items-center gap-3">
+                  <Folder size={18} className="text-accent" />
+                  <div className="text-left">
+                    <h3 className="text-sm font-heading font-bold tracking-widest uppercase text-white">{category}</h3>
+                    <p className="text-[10px] text-white/30 font-heading uppercase tracking-[0.2em]">
+                      {projectCount} {projectCount === 1 ? 'project' : 'projects'}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-white/30">
+                  {isCollapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
+                </div>
               </button>
-              <button
-                onClick={() => project.id && handleDelete(project.id)}
-                className="p-2 text-white/20 hover:text-accent transition bg-white/5 rounded-lg"
-              >
-                <Trash2 size={16} />
-              </button>
+
+              {/* Folder Content */}
+              {!isCollapsed && (
+                <div className="border-t border-white/5">
+                  {categoryProjects.map(project => (
+                    <div
+                      key={project.id}
+                      className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition border-b border-white/5 last:border-b-0"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-lg overflow-hidden flex-shrink-0">
+                          <img
+                            src={project.card_thumbnail || project.image_url}
+                            className="w-full h-full object-cover"
+                            alt={project.title}
+                          />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-heading font-bold tracking-widest uppercase text-white">{project.title}</h4>
+                          {project.description && (
+                            <p className="text-[10px] text-white/30 line-clamp-1">{project.description}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            clearForm();
+                            setEditingProject(project);
+                          }}
+                          className="p-2 text-white/20 hover:text-white transition bg-white/5 rounded-lg"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          onClick={() => project.id && handleDelete(project.id)}
+                          className="p-2 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
