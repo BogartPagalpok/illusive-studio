@@ -186,8 +186,10 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-            style={{ backgroundColor: 'rgba(0,0,0,0.95)' }}
+            style={{ backgroundColor: 'rgba(0,0,0,0.95)', touchAction: 'none' }}
             onClick={() => setSelected(false)}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
           >
             <button onClick={() => setSelected(false)} className="absolute top-4 right-4 p-2.5 rounded-full border transition-all z-[10000]" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
               <X size={18} />
@@ -328,8 +330,10 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-            style={{ backgroundColor: 'rgba(0,0,0,0.95)' }}
+            style={{ backgroundColor: 'rgba(0,0,0,0.95)', touchAction: 'none' }}
             onClick={() => setSelectedImage(null)}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
           >
             <button onClick={() => setSelectedImage(null)} className="absolute top-4 right-4 p-2.5 rounded-full border transition-all z-[10000]" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
               <X size={18} />
@@ -359,8 +363,8 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
 
 function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> }) {
   return (
-  <div className="flex flex-col lg:flex-row gap-6">
-     <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-xl overflow-y-auto no-scrollbar" style={{ maxHeight: '80vh', touchAction: 'pan-y', backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
+    <div className="flex flex-col lg:flex-row gap-6">
+      <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-xl overflow-y-auto no-scrollbar" style={{ maxHeight: '80vh', touchAction: 'pan-y', backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
         <h3 className="text-xl font-heading font-black uppercase tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>{title}</h3>
         {description && (
           <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>{description}</p>
@@ -466,7 +470,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
     return acc;
   }, {} as Record<string, Project[]>);
 
-    const visibleGroups = Object.entries(groupedByTitle).filter(([_, titleProjects]) => {
+  const visibleGroups = Object.entries(groupedByTitle).filter(([_, titleProjects]) => {
     return titleProjects.some(p => 
       p.image_url || 
       (p.video_urls && p.video_urls.length > 0 && p.video_urls.some((entry: any) => {
@@ -493,19 +497,27 @@ export default function CategorySection({ category }: CategorySectionProps) {
   return (
     <>
       {visibleGroups.map(([title, titleProjects]) => {
-        // ── Graphics: Composite Card ─────────────────────
+        // ── Graphics: Tiles Grid ─────────────────────────
         if (isGraphics) {
-          const allImages: string[] = [];
-          let titleDescription = '';
-          let titleTools: string[] = [];
-
+          const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
+          
           titleProjects.forEach(project => {
-            if (project.image_url) allImages.push(project.image_url);
-            if (project.description && !titleDescription) titleDescription = project.description;
-            if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
+            if (!project.image_url) return;
+            const layout = project.image_layout || 'auto';
+            let tile = tiles.find(t => t.layout === layout && t.images.length < 6);
+            if (!tile) {
+              tile = { 
+                images: [], 
+                layout, 
+                description: project.description || titleProjects.find(p => p.description)?.description || '',
+                tools: project.tools || titleProjects.find(p => p.tools && p.tools.length > 0)?.tools || []
+              };
+              tiles.push(tile);
+            }
+            tile.images.push(project.image_url);
           });
 
-          if (allImages.length === 0) return null;
+          if (tiles.length === 0) return null;
 
           return (
             <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
@@ -515,12 +527,31 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   <h2 className="section-title">{title}</h2>
                   <div className="section-divider" />
                 </motion.div>
-                <GraphicsCompositeCard
-                  images={allImages}
-                  title={title}
-                  description={titleDescription}
-                  tools={titleTools}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {tiles.map((tile, i) => (
+                    tile.images.length === 1 ? (
+                      <FlipCard 
+                        key={i}
+                        project={{ 
+                          id: `${title}-${i}`, 
+                          title, 
+                          category, 
+                          image_url: tile.images[0], 
+                          description: tile.description, 
+                          tools: tile.tools 
+                        }} 
+                      />
+                    ) : (
+                      <GraphicsCompositeCard
+                        key={i}
+                        images={tile.images}
+                        title={title}
+                        description={tile.description}
+                        tools={tile.tools}
+                      />
+                    )
+                  ))}
+                </div>
               </div>
             </section>
           );
