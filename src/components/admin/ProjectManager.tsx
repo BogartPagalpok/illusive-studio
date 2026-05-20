@@ -163,17 +163,35 @@ export default function ProjectManager() {
       if (mobileFile) mUrl = await uploadToStorage(mobileFile);
 
       const baseProjectData = {
-        ...editingProject,
-        card_thumbnail: cUrl,
-        hero_bg_desktop: dUrl,
-        hero_bg_mobile: mUrl,
+        title: editingProject.title,
+        category: editingProject.category,
+        description: editingProject.description,
+        process: editingProject.process,
         tools: toolArray,
+        results: editingProject.results,
+        featured: editingProject.featured,
         video_urls: editingProject.video_urls || [],
         image_layout: editingProject.image_layout || 'auto',
         project_url: editingProject.project_url || '',
+        card_thumbnail: cUrl,
+        hero_bg_desktop: dUrl,
+        hero_bg_mobile: mUrl,
       };
 
-      if (selectedFiles.length > 1 && !editingProject.id) {
+      // Editing existing + new images → insert new rows (add to project)
+      if (editingProject.id && selectedFiles.length > 0) {
+        setProgress({ current: 0, total: selectedFiles.length });
+        const newRows = [];
+        for (let i = 0; i < selectedFiles.length; i++) {
+          setProgress(prev => ({ ...prev, current: i + 1 }));
+          const url = await uploadToStorage(selectedFiles[i]);
+          newRows.push({ ...baseProjectData, image_url: url });
+        }
+        const { error } = await supabase.from('portfolio_projects').insert(newRows);
+        if (error) throw error;
+      }
+      // Creating new with multiple files
+      else if (selectedFiles.length > 1 && !editingProject.id) {
         setProgress({ current: 0, total: selectedFiles.length });
         const batchProjects = [];
         for (let i = 0; i < selectedFiles.length; i++) {
@@ -183,7 +201,9 @@ export default function ProjectManager() {
         }
         const { error } = await supabase.from('portfolio_projects').insert(batchProjects);
         if (error) throw error;
-      } else {
+      }
+      // Single file or no file
+      else {
         let finalUrl = editingProject.image_url;
         if (selectedFiles.length === 1) {
           finalUrl = await uploadToStorage(selectedFiles[0]);
@@ -268,7 +288,7 @@ export default function ProjectManager() {
         <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl space-y-6 relative z-10">
           <div className="flex justify-between items-center border-b border-white/5 pb-4">
             <h3 className="text-sm font-heading font-black uppercase tracking-[0.2em] text-white">
-              {editingProject.id ? 'Modify Details' : `New Entry ${selectedFiles.length > 1 ? `(${selectedFiles.length} files)` : ''}`}
+              {editingProject.id ? 'Add to Project' : `New Entry ${selectedFiles.length > 1 ? `(${selectedFiles.length} files)` : ''}`}
             </h3>
             <button onClick={clearForm} className="text-white/20 hover:text-white"><X size={18} /></button>
           </div>
@@ -390,7 +410,7 @@ export default function ProjectManager() {
                   </div>
                   <label className="flex items-center justify-center p-3 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
                     <Upload size={14} />
-                    <input type="file" multiple={!editingProject.id} accept="image/*" onChange={handleFileChange} className="hidden" />
+                    <input type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
                   </label>
                 </div>
               </div>
