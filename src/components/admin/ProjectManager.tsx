@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, Link } from 'lucide-react';
 import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
 
 interface Project {
@@ -14,7 +14,7 @@ interface Project {
   tools: string[];
   results: string;
   image_url: string;
-  video_url?: string;
+  video_urls: string[];
   card_thumbnail?: string;
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
@@ -29,7 +29,7 @@ const EMPTY_PROJECT: Project = {
   tools: [],
   results: '',
   image_url: '',
-  video_url: '',
+  video_urls: [],
   card_thumbnail: '',
   hero_bg_desktop: '',
   hero_bg_mobile: '',
@@ -49,6 +49,7 @@ export default function ProjectManager() {
   const [cardFile, setCardFile] = useState<any>(null);
   const [desktopFile, setDesktopFile] = useState<any>(null);
   const [mobileFile, setMobileFile] = useState<any>(null);
+  const [newVideoUrl, setNewVideoUrl] = useState('');
 
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
@@ -98,16 +99,33 @@ export default function ProjectManager() {
     setCardFile(null);
     setDesktopFile(null);
     setMobileFile(null);
+    setNewVideoUrl('');
+  };
+
+  const addVideoUrl = () => {
+    if (!newVideoUrl.trim() || !editingProject) return;
+    setEditingProject({
+      ...editingProject,
+      video_urls: [...(editingProject.video_urls || []), newVideoUrl.trim()]
+    });
+    setNewVideoUrl('');
+  };
+
+  const removeVideoUrl = (index: number) => {
+    if (!editingProject) return;
+    const updated = [...(editingProject.video_urls || [])];
+    updated.splice(index, 1);
+    setEditingProject({ ...editingProject, video_urls: updated });
   };
 
   const handleSave = async () => {
-    if (!editingProject || (!editingProject.image_url && selectedFiles.length === 0 && !editingProject.id)) return;
+    if (!editingProject || !editingProject.title.trim()) return;
 
     setIsSaving(true);
     try {
       const toolArray = Array.isArray(editingProject.tools)
         ? editingProject.tools
-        : (editingProject.tools as string).split(',').map(t => t.trim());
+        : (editingProject.tools as any as string).split(',').map((t: string) => t.trim());
 
       let cUrl = editingProject.card_thumbnail;
       if (cardFile) cUrl = await uploadToStorage(cardFile);
@@ -195,11 +213,11 @@ export default function ProjectManager() {
   return (
     <div className="space-y-6">
       <div
-        className="absolute top-[-10%] left-[-10%] w-[60%] h-[600px] pointer-events-none z-0 rounded-full mix-blend-screen"
+        className="absolute top-[-10%] left-[-10%] w-[60%] h-[600px] pointer-events-none z-0 rounded-full"
         style={{ backgroundColor: 'var(--accent)', filter: 'blur(140px)', opacity: 0.15 }}
       />
       <div
-        className="absolute bottom-[20%] right-[-10%] w-[50%] h-[500px] pointer-events-none z-0 rounded-full mix-blend-screen"
+        className="absolute bottom-[20%] right-[-10%] w-[50%] h-[500px] pointer-events-none z-0 rounded-full"
         style={{ backgroundColor: 'var(--accent)', filter: 'blur(120px)', opacity: 0.1 }}
       />
 
@@ -229,7 +247,7 @@ export default function ProjectManager() {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Project Title</label>
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Project Title *</label>
                 <input
                   value={editingProject.title}
                   onChange={e => setEditingProject({ ...editingProject, title: e.target.value })}
@@ -256,17 +274,41 @@ export default function ProjectManager() {
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Video URL (Optional)</label>
-                <input
-                  value={editingProject.video_url || ''}
-                  onChange={e => setEditingProject({ ...editingProject, video_url: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
-                  placeholder="https://youtube.com/watch?v=... or tiktok.com/..."
-                />
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Video URLs (Optional)</label>
+                <div className="space-y-2">
+                  {(editingProject.video_urls || []).map((url, index) => (
+                    <div key={index} className="flex gap-2 items-center">
+                      <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/70 flex items-center overflow-hidden whitespace-nowrap">
+                        {url}
+                      </div>
+                      <button
+                        onClick={() => removeVideoUrl(index)}
+                        className="p-2 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg flex-shrink-0"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  <div className="flex gap-2">
+                    <input
+                      value={newVideoUrl}
+                      onChange={e => setNewVideoUrl(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && addVideoUrl()}
+                      className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
+                      placeholder="https://youtube.com/watch?v=..."
+                    />
+                    <button
+                      onClick={addVideoUrl}
+                      className="p-2 text-white/20 hover:text-accent transition bg-white/5 rounded-lg flex-shrink-0"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                </div>
               </div>
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">
-                  Main Image / Gallery {selectedFiles.length > 0 && <span className="text-accent ml-2">({selectedFiles.length} selected)</span>}
+                  Main Image / Gallery (Optional) {selectedFiles.length > 0 && <span className="text-accent ml-2">({selectedFiles.length} selected)</span>}
                 </label>
                 <div className="flex gap-2">
                   <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
@@ -415,18 +457,24 @@ export default function ProjectManager() {
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-lg overflow-hidden flex-shrink-0">
-                          <img
-                            src={project.card_thumbnail || project.image_url}
-                            className="w-full h-full object-cover"
-                            alt={project.title}
-                          />
+                          {(project.card_thumbnail || project.image_url) ? (
+                            <img
+                              src={project.card_thumbnail || project.image_url}
+                              className="w-full h-full object-cover"
+                              alt={project.title}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-white/10">
+                              <Link size={14} />
+                            </div>
+                          )}
                         </div>
                         <div>
                           <h4 className="text-xs font-heading font-bold tracking-widest uppercase text-white">{project.title}</h4>
                           <p className="text-[10px] text-accent uppercase tracking-[0.2em] font-black">{project.category}</p>
-                          {project.video_url && (
+                          {(project.video_urls || []).length > 0 && (
                             <p className="text-[10px] text-white/20 mt-0.5 flex items-center gap-1">
-                              <span className="w-1 h-1 rounded-full bg-accent inline-block" /> Video linked
+                              <span className="w-1 h-1 rounded-full bg-accent inline-block" /> {(project.video_urls || []).length} video{(project.video_urls || []).length > 1 ? 's' : ''} linked
                             </p>
                           )}
                         </div>
@@ -435,7 +483,7 @@ export default function ProjectManager() {
                         <button
                           onClick={() => {
                             clearForm();
-                            setEditingProject(project);
+                            setEditingProject({ ...project, video_urls: project.video_urls || [] });
                           }}
                           className="p-2 text-white/20 hover:text-white transition bg-white/5 rounded-lg"
                         >
