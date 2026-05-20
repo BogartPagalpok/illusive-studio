@@ -6,7 +6,7 @@ export default function Terms() {
     <div className="min-h-screen relative bg-black overflow-hidden font-sans">
       {/* Background Glows for Glassmorphism Context */}
       <div 
-        className="absolute top-[-10%] left-[-10%] w-[60%] h-[600px] pointer-events-none z-0 rounded-full mix-blend-screen"
+        className="absolute top-[-10%] left-[-10%] w-[60%] h-[600px] pointer-events-none z-0 rounded-full"
         style={{ backgroundColor: 'var(--accent)', filter: 'blur(140px)', opacity: 0.15 }}
       />
       <div 
