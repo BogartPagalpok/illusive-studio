@@ -39,7 +39,6 @@ function AtmosphereGradient() {
   );
 }
 
-// ── Simple Loader (no heavy rendering during load) ──────
 function BrandLoader() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black gap-8">
@@ -169,14 +168,38 @@ function App() {
   }, []);
 
   useEffect(() => {
-    loadSavedTheme();
-       const init = async () => {
+    const init = async () => {
       await loadSavedTheme();
       setLoading(false);
     };
     init();
     const subscription = subscribeToThemeChanges();
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Prevent accidental back-gesture exit on mobile
+  useEffect(() => {
+    let backCount = 0;
+    let resetTimer: ReturnType<typeof setTimeout>;
+
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = () => {
+      backCount++;
+      if (backCount >= 2) {
+        window.history.back();
+        return;
+      }
+      window.history.pushState(null, '', window.location.href);
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => { backCount = 0; }, 1000);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      clearTimeout(resetTimer);
+    };
   }, []);
 
   useEffect(() => {
