@@ -111,13 +111,64 @@ export default function About() {
           className="text-center mb-10 flex flex-col items-center"
         >
           <span className="section-subtitle">{content.subtitle}</span>
-          <h2 className="section-title">{content.heading}</h2>
+          <h2 className="section-title">
+            {content.heading.split('&').map((part, i, arr) => (
+              <span key={i}>
+                {part}
+                {i < arr.length - 1 && <span className="text-accent">&</span>}
+              </span>
+            ))}
+          </h2>
           <div className="section-divider" />
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
           
-          <div className="lg:col-span-7 space-y-12">
+          {/* Portrait + Bio — FIRST on mobile, RIGHT on desktop */}
+          <div className="lg:col-span-5 lg:order-last flex flex-col items-center lg:items-end gap-6">
+            <div className="relative w-full max-w-sm aspect-[3/4]">
+              {content.portrait_url && !portraitError ? (
+                <div className="absolute inset-0 overflow-hidden" style={{
+                  maskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 100%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 100%)',
+                }}>
+                  {!portraitLoaded && (
+                    <div className="absolute inset-0 bg-transparent" />
+                  )}
+                  <img 
+                    src={content.portrait_url} 
+                    alt="Ian Lester Eclevia" 
+                    className={`w-full h-full object-cover transition-opacity duration-500 ${portraitLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  />
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-white/10">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3 text-center lg:text-left">
+              <p className="text-2xl md:text-3xl font-black text-white leading-tight tracking-tight uppercase">
+                IAN LESTER ECLEVIA
+              </p>
+              <p className="text-sm md:text-base text-white/70 leading-relaxed">
+                Graphic designer, photographer, and virtual assistant.
+              </p>
+              <p className="text-sm md:text-base text-white/70 leading-relaxed">
+                With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories.
+              </p>
+              <p className="text-sm md:text-base text-white/70 leading-relaxed">
+                Beyond design, I bring the same dedication to virtual assistance — organized and proactive.
+              </p>
+            </div>
+          </div>
+
+          {/* Text + Skills — SECOND on mobile, LEFT on desktop */}
+          <div className="lg:col-span-7 lg:order-first space-y-12">
             <div className="space-y-4">
               <p className="text-sm md:text-base opacity-70 font-sans leading-relaxed max-w-xl">
                 {content.description_line1}
@@ -186,33 +237,6 @@ export default function About() {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-sm aspect-[3/4]">
-              {content.portrait_url && !portraitError ? (
-                <div className="absolute inset-0 rounded-2xl overflow-hidden" style={{
-                  maskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 100%)',
-                  WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 70%, transparent 100%)',
-                }}>
-                  {!portraitLoaded && (
-                    <div className="absolute inset-0 bg-white/5 animate-pulse rounded-2xl" />
-                  )}
-                  <img 
-                    src={content.portrait_url} 
-                    alt="Ian Lester Eclevia" 
-                    className={`w-full h-full object-cover transition-opacity duration-500 ${portraitLoaded ? 'opacity-100' : 'opacity-0'}`}
-                  />
-                </div>
-              ) : (
-                <div className="absolute inset-0 rounded-2xl border border-white/10 bg-gradient-to-b from-[var(--accent)]/10 to-transparent flex items-center justify-center">
-                  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-white/10">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                </div>
-              )}
             </div>
           </div>
 
