@@ -14,6 +14,7 @@ interface Project {
   tools: string[];
   results: string;
   image_url: string;
+  video_url?: string;
   card_thumbnail?: string;
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
@@ -28,6 +29,7 @@ const EMPTY_PROJECT: Project = {
   tools: [],
   results: '',
   image_url: '',
+  video_url: '',
   card_thumbnail: '',
   hero_bg_desktop: '',
   hero_bg_mobile: '',
@@ -174,7 +176,6 @@ export default function ProjectManager() {
     }));
   };
 
-  // Group projects by category
   const groupedProjects = CATEGORIES.reduce((acc, category) => {
     const categoryProjects = projects.filter(p => p.category === category);
     if (categoryProjects.length > 0) {
@@ -241,12 +242,27 @@ export default function ProjectManager() {
                 <select
                   value={editingProject.category}
                   onChange={e => setEditingProject({ ...editingProject, category: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition appearance-none cursor-pointer"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' opacity='0.3' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 12px center',
+                    paddingRight: '2.5rem',
+                  }}
                 >
                   {CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat} value={cat} className="bg-zinc-900 text-white">{cat}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Video URL (Optional)</label>
+                <input
+                  value={editingProject.video_url || ''}
+                  onChange={e => setEditingProject({ ...editingProject, video_url: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
+                  placeholder="https://youtube.com/watch?v=... or tiktok.com/..."
+                />
               </div>
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">
@@ -372,7 +388,6 @@ export default function ProjectManager() {
 
           return (
             <div key={category} className="rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-xl overflow-hidden">
-              {/* Folder Header */}
               <button
                 onClick={() => toggleFolder(category)}
                 className="w-full flex items-center justify-between p-4 hover:bg-white/[0.03] transition"
@@ -391,7 +406,6 @@ export default function ProjectManager() {
                 </div>
               </button>
 
-              {/* Folder Content */}
               {!isCollapsed && (
                 <div className="border-t border-white/5">
                   {categoryProjects.map(project => (
@@ -409,8 +423,11 @@ export default function ProjectManager() {
                         </div>
                         <div>
                           <h4 className="text-xs font-heading font-bold tracking-widest uppercase text-white">{project.title}</h4>
-                          {project.description && (
-                            <p className="text-[10px] text-white/30 line-clamp-1">{project.description}</p>
+                          <p className="text-[10px] text-accent uppercase tracking-[0.2em] font-black">{project.category}</p>
+                          {project.video_url && (
+                            <p className="text-[10px] text-white/20 mt-0.5 flex items-center gap-1">
+                              <span className="w-1 h-1 rounded-full bg-accent inline-block" /> Video linked
+                            </p>
                           )}
                         </div>
                       </div>
