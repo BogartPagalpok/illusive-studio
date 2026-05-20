@@ -14,8 +14,6 @@ interface Project {
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
   card_thumbnail?: string;
-  image_layout?: string;
-  project_url?: string;
 }
 
 interface CategorySectionProps {
@@ -46,104 +44,19 @@ function getVideoEmbedUrl(url: string, platform: VideoPlatform): string {
   return url;
 }
 
-// ── Phone Frame (unchanged) ─────────────────────────────
 function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative mx-auto" style={{ width: '100%', maxWidth: '210px', aspectRatio: '210/400' }}>
-      <style>{`
-        .phone-card {
-          width: 100%;
-          height: 100%;
-          background: black;
-          border-radius: 35px;
-          border: 2px solid rgb(40, 40, 40);
-          padding: 7px;
-          position: relative;
-          box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.486);
-        }
-        .phone-screen {
-          height: 100%;
-          border-radius: 25px;
-          overflow: hidden;
-          background: black;
-        }
-        .phone-top {
-          position: absolute;
-          top: 0px;
-          right: 50%;
-          transform: translate(50%, 0%);
-          width: 35%;
-          height: 18px;
-          background-color: black;
-          border-bottom-left-radius: 10px;
-          border-bottom-right-radius: 10px;
-          z-index: 10;
-        }
-        .phone-speaker {
-          position: absolute;
-          top: 2px;
-          right: 50%;
-          transform: translate(50%, 0%);
-          width: 40%;
-          height: 2px;
-          border-radius: 2px;
-          background-color: rgb(20, 20, 20);
-          z-index: 10;
-        }
-        .phone-camera {
-          position: absolute;
-          top: 6px;
-          right: 84%;
-          transform: translate(50%, 0%);
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background-color: rgba(255, 255, 255, 0.048);
-          z-index: 10;
-        }
-        .phone-btn1, .phone-btn2, .phone-btn3 {
-          position: absolute;
-          width: 2px;
-        }
-        .phone-btn1 {
-          height: 45px;
-          top: 30%;
-          right: -3px;
-          background-image: linear-gradient(to right, #111, #333, #595959);
-          border-radius: 0 2px 2px 0;
-        }
-        .phone-btn2 {
-          height: 30px;
-          top: 26%;
-          left: -3px;
-          background-image: linear-gradient(to left, #111, #333, #595959);
-          border-radius: 2px 0 0 2px;
-        }
-        .phone-btn3 {
-          height: 30px;
-          top: 36%;
-          left: -3px;
-          background-image: linear-gradient(to left, #111, #333, #595959);
-          border-radius: 2px 0 0 2px;
-        }
-      `}</style>
-
-      <div className="phone-card">
-        <div className="phone-screen">
+    <div className="relative w-full" style={{ aspectRatio: '9/16', maxWidth: '320px', margin: '0 auto' }}>
+      <div className="relative w-full h-full bg-zinc-900 rounded-[2rem] p-2 shadow-2xl border-2 border-zinc-700">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/4 h-5 bg-zinc-900 rounded-b-xl z-10" />
+        <div className="w-full h-full rounded-[1.8rem] overflow-hidden bg-black">
           {children}
         </div>
-        <div className="phone-top" />
-        <div className="phone-speaker" />
-        <div className="phone-camera" />
-        <div className="phone-btn1" />
-        <div className="phone-btn2" />
-        <div className="phone-btn3" />
       </div>
     </div>
   );
 }
 
-// ── Landscape Frame (for Motion videos) ─────────────────
 function LandscapeFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
@@ -156,7 +69,6 @@ function LandscapeFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ── Flip Card (unchanged) ───────────────────────────────
 function FlipCard({ project, isHero = false }: { project: Project; isHero?: boolean }) {
   const [flipped, setFlipped] = useState(false);
   const [selected, setSelected] = useState(false);
@@ -258,7 +170,6 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
   );
 }
 
-// ── Graphics Composite Card ─────────────────────────────
 function GraphicsCompositeCard({ images, title, description, tools }: { images: string[]; title: string; description?: string; tools?: string[] }) {
   const [flipped, setFlipped] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -275,14 +186,6 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
   const count = images.length;
   const displayImages = images.slice(0, 6);
   const remaining = count > 6 ? count - 6 : 0;
-
-  const getGridClass = () => {
-    if (count === 1) return 'grid-cols-1';
-    if (count === 2) return 'grid-cols-2';
-    if (count === 3) return 'grid-cols-2';
-    if (count === 4) return 'grid-cols-2';
-    return 'grid-cols-3';
-  };
 
   const handleImageClick = (e: React.MouseEvent, index: number) => {
     e.stopPropagation();
@@ -313,7 +216,6 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
             transition: 'transform 0.8s',
           }}
         >
-          {/* Front - Image Grid */}
           <div
             className="flip-card-front relative w-full rounded-xl overflow-hidden border"
             style={{
@@ -323,46 +225,49 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
               backgroundColor: 'var(--bg-primary)',
             }}
           >
-            <div className={`grid ${getGridClass()} gap-1 p-1`}>
-              {count === 3 ? (
-                <>
-                  <div
-                    className="row-span-2 cursor-pointer overflow-hidden"
-                    onClick={(e) => handleImageClick(e, 0)}
-                  >
-                    <img src={displayImages[0]} alt={`${title} 1`} className="w-full h-full object-cover" loading="lazy" />
+            {count === 3 ? (
+              <div className="grid grid-cols-2 gap-1 p-1">
+                <div className="row-span-2 cursor-pointer overflow-hidden" onClick={(e) => handleImageClick(e, 0)}>
+                  <img src={displayImages[0]} alt={`${title} 1`} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+                <div className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, 1)}>
+                  <img src={displayImages[1]} alt={`${title} 2`} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+                <div className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, 2)}>
+                  <img src={displayImages[2]} alt={`${title} 3`} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              </div>
+            ) : count === 4 ? (
+              <div className="grid grid-cols-2 gap-1 p-1">
+                {displayImages.map((img, i) => (
+                  <div key={i} className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, i)}>
+                    <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                   </div>
-                  <div className="cursor-pointer overflow-hidden" onClick={(e) => handleImageClick(e, 1)}>
-                    <img src={displayImages[1]} alt={`${title} 2`} className="w-full h-full object-cover aspect-square" loading="lazy" />
-                  </div>
-                  <div className="cursor-pointer overflow-hidden" onClick={(e) => handleImageClick(e, 2)}>
-                    <img src={displayImages[2]} alt={`${title} 3`} className="w-full h-full object-cover aspect-square" loading="lazy" />
-                  </div>
-                </>
-              ) : (
-                displayImages.map((img, i) => (
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-1 p-1">
+                {displayImages.map((img, i) => (
                   <div
                     key={i}
-                    className={`cursor-pointer overflow-hidden relative ${i === 5 && remaining > 0 ? 'overlay-container' : ''}`}
+                    className="cursor-pointer overflow-hidden aspect-square relative"
                     onClick={(e) => handleImageClick(e, i)}
                   >
-                    <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover aspect-square" loading="lazy" />
+                    <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                     {i === 5 && remaining > 0 && (
                       <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                         <span className="text-white text-lg font-bold">+{remaining}</span>
                       </div>
                     )}
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
             <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
               <p className="text-white text-xs font-bold uppercase tracking-wider">{title}</p>
               {isMobile && <p className="text-white/50 text-[8px] mt-0.5">Tap to flip</p>}
             </div>
           </div>
-
-          {/* Back - Info */}
           <div
             className="flip-card-back absolute inset-0 w-full h-full rounded-xl overflow-hidden border flex flex-col justify-center items-center p-4"
             style={{
@@ -388,8 +293,6 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
           </div>
         </div>
       </div>
-
-      {/* Lightbox */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div
@@ -424,11 +327,9 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
   );
 }
 
-// ── Motion Panel Layout ─────────────────────────────────
-function MotionPanel({ title, description, tools, videoItems, imageItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string }>; imageItems: Project[] }) {
+function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string }> }) {
   return (
-    <div className="flex flex-col lg:flex-row gap-6 mb-8">
-      {/* Left Panel - Title & Description */}
+    <div className="flex flex-col lg:flex-row gap-6">
       <div className="lg:w-1/4 flex flex-col justify-center p-6 rounded-xl border backdrop-blur-xl" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
         <h3 className="text-xl font-heading font-black uppercase tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>{title}</h3>
         {description && (
@@ -442,12 +343,10 @@ function MotionPanel({ title, description, tools, videoItems, imageItems }: { ti
           </div>
         )}
       </div>
-
-      {/* Right Panel - Videos Grid */}
       <div className="lg:w-3/4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {videoItems.map((item, i) => (
-            <div key={`${item.projectId}-video-${i}`} className="break-inside-avoid">
+            <div key={`${item.projectId}-${i}`}>
               <LandscapeFrame>
                 {item.platform === 'tiktok' ? (
                   <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
@@ -476,100 +375,10 @@ function MotionPanel({ title, description, tools, videoItems, imageItems }: { ti
   );
 }
 
-// ── Title Grid (for non-Graphics, non-Motion categories) ─
-function TitleGrid({ projects, categoryIndex }: { projects: Project[]; categoryIndex: number }) {
-  const [columnCount, setColumnCount] = useState(3);
-
-  useEffect(() => {
-    const updateColumns = () => {
-      const width = window.innerWidth;
-      if (width >= 1024) setColumnCount(4);
-      else if (width >= 768) setColumnCount(2);
-      else setColumnCount(1);
-    };
-    updateColumns();
-    window.addEventListener('resize', updateColumns);
-    return () => window.removeEventListener('resize', updateColumns);
-  }, []);
-
-  const allCards: Array<{ type: 'image' | 'video'; project: Project; videoUrl?: string; platform?: VideoPlatform }> = [];
-  
-  projects.forEach(project => {
-    if (project.image_url) {
-      allCards.push({ type: 'image', project });
-    }
-    const urls = project.video_urls || [];
-    urls.forEach(videoUrl => {
-      const platform = detectVideoPlatform(videoUrl);
-      if (platform) {
-        allCards.push({ type: 'video', project, videoUrl, platform });
-      }
-    });
-  });
-
-  if (allCards.length === 0) return null;
-
-  const hasGap = allCards.length % columnCount !== 0;
-  const lastIndex = allCards.length - 1;
-  const isOdd = categoryIndex % 2 === 0;
-
-  // For alternating hero pattern
-  const heroCard = allCards.find(c => c.type === 'image');
-  const remainingCards = heroCard ? allCards.filter(c => c !== heroCard) : allCards;
-
-  return (
-    <div className="flex flex-col lg:flex-row gap-6">
-      {/* Hero side */}
-      <div className={isOdd ? 'lg:w-1/2 lg:order-2' : 'lg:w-1/2 lg:order-1'}>
-        {heroCard && (
-          <FlipCard project={heroCard.project} isHero={true} />
-        )}
-      </div>
-      {/* Small items side */}
-      <div className={isOdd ? 'lg:w-1/2 lg:order-1' : 'lg:w-1/2 lg:order-2'}>
-        <div className="grid grid-cols-2 gap-4">
-          {remainingCards.map((card, index) => {
-            if (card.type === 'video') {
-              return (
-                <div key={`${card.project.id}-video-${index}`} className="break-inside-avoid">
-                  <PhoneFrame>
-                    {card.platform === 'tiktok' ? (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
-                        <Play size={24} className="text-white/50 mb-1" />
-                        <p className="text-white/70 text-[10px] text-center mb-2">{card.project.title}</p>
-                        <a href={card.videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-2 py-1 bg-accent text-white text-[8px] rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
-                          <ExternalLink size={10} /> Watch
-                        </a>
-                      </div>
-                    ) : (
-                      <iframe
-                        src={getVideoEmbedUrl(card.videoUrl!, card.platform!)}
-                        className="w-full h-full"
-                        allowFullScreen
-                        allow="autoplay; encrypted-media"
-                        title={card.project.title}
-                      />
-                    )}
-                  </PhoneFrame>
-                </div>
-              );
-            }
-            return (
-              <div key={card.project.id} className="break-inside-avoid">
-                <FlipCard project={card.project} />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Main CategorySection ────────────────────────────────
 export default function CategorySection({ category }: CategorySectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [columnCount, setColumnCount] = useState(3);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -591,6 +400,18 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) setColumnCount(4);
+      else if (width >= 768) setColumnCount(2);
+      else setColumnCount(1);
+    };
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
+
   if (!loading && projects.length === 0) return null;
 
   const groupedByTitle = projects.reduce((acc, project) => {
@@ -609,30 +430,29 @@ export default function CategorySection({ category }: CategorySectionProps) {
   const isGraphics = category === 'Graphic Design';
   const isMotion = category === 'Motion';
 
+  const getVideoUrl = (project: Project): string | null => {
+    if (project.video_urls && project.video_urls.length > 0) return project.video_urls[0];
+    if ((project as any).video_url) return (project as any).video_url;
+    return null;
+  };
+
   return (
     <>
-      {visibleGroups.map(([title, titleProjects], groupIndex) => {
-        // Collect all images and videos for this title
-        const allImages: string[] = [];
-        const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string }> = [];
-        let titleDescription = '';
-        let titleTools: string[] = [];
-
-        titleProjects.forEach(project => {
-          if (project.image_url) allImages.push(project.image_url);
-          if (project.description && !titleDescription) titleDescription = project.description;
-          if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
-          const urls = project.video_urls || [];
-          urls.forEach(url => {
-            const platform = detectVideoPlatform(url);
-            if (platform) {
-              allVideos.push({ url, platform, projectId: project.id, projectTitle: project.title });
-            }
-          });
-        });
-
+      {visibleGroups.map(([title, titleProjects]) => {
         // ── Graphics: Composite Card ─────────────────────
-        if (isGraphics && allImages.length > 0 && allVideos.length === 0) {
+        if (isGraphics) {
+          const allImages: string[] = [];
+          let titleDescription = '';
+          let titleTools: string[] = [];
+
+          titleProjects.forEach(project => {
+            if (project.image_url) allImages.push(project.image_url);
+            if (project.description && !titleDescription) titleDescription = project.description;
+            if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
+          });
+
+          if (allImages.length === 0) return null;
+
           return (
             <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
               <div className="section-container relative">
@@ -654,6 +474,22 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
         // ── Motion: Panel Layout ─────────────────────────
         if (isMotion) {
+          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string }> = [];
+          let titleDescription = '';
+          let titleTools: string[] = [];
+
+          titleProjects.forEach(project => {
+            if (project.description && !titleDescription) titleDescription = project.description;
+            if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
+            const urls = project.video_urls || [];
+            urls.forEach(url => {
+              const platform = detectVideoPlatform(url);
+              if (platform) {
+                allVideos.push({ url, platform, projectId: project.id, projectTitle: project.title });
+              }
+            });
+          });
+
           return (
             <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
               <div className="section-container relative">
@@ -667,24 +503,76 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   description={titleDescription}
                   tools={titleTools}
                   videoItems={allVideos}
-                  imageItems={titleProjects.filter(p => p.image_url)}
                 />
               </div>
             </section>
           );
         }
 
-        // ── Photography & UI/UX: Alternating Hero Pattern ─
-        const sectionKey = `${title}-${groupIndex}`;
+        // ── Photography & UI/UX: Original masonry ────────
+        const hasGap = titleProjects.length % columnCount !== 0;
+        const lastIndex = titleProjects.length - 1;
+
         return (
-          <section key={sectionKey} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+          <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
             <div className="section-container relative">
               <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                 <span className="section-subtitle">{category}</span>
                 <h2 className="section-title">{title}</h2>
                 <div className="section-divider" />
               </motion.div>
-              <TitleGrid projects={titleProjects} categoryIndex={groupIndex} />
+
+              {loading && (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="w-8 h-8 text-accent animate-spin" />
+                </div>
+              )}
+
+              <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
+                {titleProjects.map((project, index) => {
+                  const videoUrl = getVideoUrl(project);
+                  const platform = videoUrl ? detectVideoPlatform(videoUrl) : null;
+                  const isVideo = !!platform;
+                  const isLast = index === lastIndex;
+                  const isHero = hasGap && isLast && !isVideo;
+
+                  return (
+                    <div key={project.id} className="break-inside-avoid">
+                      {isVideo ? (
+                        <div className="mb-3">
+                          <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
+                            <PhoneFrame>
+                              {platform === 'tiktok' ? (
+                                <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
+                                  <Play size={32} className="text-white/50 mb-2" />
+                                  <p className="text-white/70 text-xs text-center mb-3">{project.title}</p>
+                                  <a href={videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                                    <ExternalLink size={12} /> Watch on TikTok
+                                  </a>
+                                </div>
+                              ) : (
+                                <iframe
+                                  src={getVideoEmbedUrl(videoUrl!, platform)}
+                                  className="w-full h-full"
+                                  allowFullScreen
+                                  allow="autoplay; encrypted-media"
+                                  title={project.title}
+                                />
+                              )}
+                            </PhoneFrame>
+                            <div className="p-3">
+                              <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{project.title}</h3>
+                              {project.description && <p className="text-[var(--text-secondary)] text-[10px] mt-1 line-clamp-2">{project.description}</p>}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <FlipCard project={project} isHero={isHero} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </section>
         );
