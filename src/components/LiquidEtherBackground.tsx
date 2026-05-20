@@ -251,23 +251,40 @@ function getAccentPalette(): string[] {
 
 // ── Mobile wave background (REDUCED BRIGHTNESS) ──────────
 function MobileWaveBg() {
-  const [y, setY] = useState(0);
   const accent = getAccentHex();
-  useEffect(() => {
-    const cb = () => setY(window.scrollY);
-    window.addEventListener('scroll', cb, { passive: true });
-    return () => window.removeEventListener('scroll', cb);
-  }, []);
-
-  const t1 = 50 + Math.sin(y * 0.002) * 20;
-  const t2 = 40 + Math.cos(y * 0.003) * 25;
-  const t3 = 60 + Math.sin(y * 0.0015 + 1) * 30;
-  const t4 = 30 + Math.cos(y * 0.0025) * 20;
-
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden', background: '#030305' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 30vw ${t1}vh, ${accent}18 0%, transparent 60%), radial-gradient(ellipse 70vw 50vh at 70vw ${t2}vh, ${accent}10 0%, transparent 55%)`, filter: 'blur(60px)', opacity: 0.3 }} />
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `radial-gradient(ellipse 80vw 60vh at 50vw ${t3}vh, ${accent}22 0%, transparent 50%), radial-gradient(ellipse 70vw 50vh at 20vw ${t4}vh, ${accent}0f 0%, transparent 60%)`, filter: 'blur(80px)', opacity: 0.2 }} />
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
+      <style>{`
+        .mobile-glow {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(60px);
+          animation: float1 8s ease-in-out infinite;
+        }
+        .mobile-glow:nth-child(2) {
+          animation-name: float2;
+          animation-delay: -4s;
+        }
+        .mobile-glow:nth-child(3) {
+          animation-name: float3;
+          animation-delay: -6s;
+        }
+        @keyframes float1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(15px, -10px) scale(1.05); }
+        }
+        @keyframes float2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-20px, 15px) scale(1.08); }
+        }
+        @keyframes float3 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(10px, -20px) scale(1.03); }
+        }
+      `}</style>
+      <div className="mobile-glow" style={{ top: '-10%', left: '-10%', width: '60%', height: '60%', background: `radial-gradient(circle, ${accent} 0%, transparent 70%)`, opacity: 0.5 }} />
+      <div className="mobile-glow" style={{ bottom: '-10%', right: '-10%', width: '50%', height: '50%', background: `radial-gradient(circle, ${accent} 0%, transparent 70%)`, opacity: 0.35 }} />
+      <div className="mobile-glow" style={{ top: '40%', left: '20%', width: '40%', height: '40%', background: `radial-gradient(circle, ${accent} 0%, transparent 70%)`, opacity: 0.25 }} />
     </div>
   );
 }
