@@ -31,7 +31,7 @@ function detectVideoPlatform(url: string): VideoPlatform {
 
 function getVideoEmbedUrl(url: string, platform: VideoPlatform): string {
   if (platform === 'youtube') {
-    const match = url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/);
+    const match = url.match(/(?:v=|\/|shorts\/)([a-zA-Z0-9_-]{11})/);
     return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=0&rel=0` : url;
   }
   if (platform === 'vimeo') {
@@ -43,28 +43,13 @@ function getVideoEmbedUrl(url: string, platform: VideoPlatform): string {
 
 function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative w-full" style={{ aspectRatio: '9/16', maxWidth: '300px', margin: '0 auto' }}>
+    <div className="relative w-full" style={{ aspectRatio: '9/16', maxWidth: '320px', margin: '0 auto' }}>
       <div className="relative w-full h-full bg-zinc-900 rounded-[2rem] p-2 shadow-2xl border-2 border-zinc-700">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/4 h-5 bg-zinc-900 rounded-b-xl z-10" />
         <div className="w-full h-full rounded-[1.8rem] overflow-hidden bg-black">
           {children}
         </div>
       </div>
-    </div>
-  );
-}
-
-function MonitorFrame({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
-      <div className="relative w-full h-full bg-zinc-800 rounded-t-xl overflow-hidden shadow-2xl border-2 border-zinc-600 border-b-0">
-        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-zinc-900 rounded-full" />
-        <div className="w-full h-full bg-black">
-          {children}
-        </div>
-      </div>
-      <div className="mx-auto w-1/5 h-3 bg-zinc-700 rounded-b-md" />
-      <div className="mx-auto w-1/3 h-1.5 bg-zinc-600 rounded-b-md" />
     </div>
   );
 }
@@ -212,7 +197,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
   const hasGap = projects.length % columnCount !== 0;
   const lastIndex = projects.length - 1;
 
-  // Helper to get first video URL from array or legacy field
   const getVideoUrl = (project: Project): string | null => {
     if (project.video_urls && project.video_urls.length > 0) return project.video_urls[0];
     if ((project as any).video_url) return (project as any).video_url;
@@ -247,8 +231,8 @@ export default function CategorySection({ category }: CategorySectionProps) {
                 {isVideo ? (
                   <div className="mb-3">
                     <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
-                      {platform === 'tiktok' ? (
-                        <PhoneFrame>
+                      <PhoneFrame>
+                        {platform === 'tiktok' ? (
                           <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
                             <Play size={32} className="text-white/50 mb-2" />
                             <p className="text-white/70 text-xs text-center mb-3">{project.title}</p>
@@ -256,12 +240,17 @@ export default function CategorySection({ category }: CategorySectionProps) {
                               <ExternalLink size={12} /> Watch on TikTok
                             </a>
                           </div>
-                        </PhoneFrame>
-                      ) : (
-                        <MonitorFrame>
-                          <iframe src={getVideoEmbedUrl(videoUrl!, platform)} className="w-full h-full" allowFullScreen allow="autoplay; encrypted-media" title={project.title} />
-                        </MonitorFrame>
-                      )}
+                        ) : (
+                          <iframe
+                            src={getVideoEmbedUrl(videoUrl!, platform)}
+                            className="w-full h-full"
+                            allowFullScreen
+                            allow="autoplay; encrypted-media"
+                            title={project.title}
+                            loading="lazy"
+                          />
+                        )}
+                      </PhoneFrame>
                       <div className="p-3">
                         <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{project.title}</h3>
                         {project.description && <p className="text-[var(--text-secondary)] text-[10px] mt-1 line-clamp-2">{project.description}</p>}
