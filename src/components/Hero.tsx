@@ -109,11 +109,9 @@ export default function Hero() {
         </div>
 
         <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
-          {/* Darkening overlays – reduced opacity so background patterns show through */}
           <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
 
-          {/* LAYER 1: MAIN HERO TEXT */}
           <motion.div
             style={{ opacity: heroOpacity, y: heroY }}
             className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto"
@@ -122,7 +120,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-[9px] md:text-xs font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-[var(--text-secondary)]/70 text-center w-full"
+              className="text-[9px] md:text-sm font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-white/50 text-center w-full"
             >
               {content.subtitle}
             </motion.p>
@@ -131,7 +129,8 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-bold tracking-tighter leading-[1] uppercase text-center w-full"
+              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white font-bold tracking-tighter leading-[0.9] uppercase text-center w-full"
+              style={{ fontFamily: "'Clash Display', sans-serif" }}
             >
               {content.heading_line1}
               <br />
@@ -146,7 +145,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="mt-6 md:mt-8 text-xs md:text-base max-w-lg mx-auto text-center leading-relaxed text-[var(--text-secondary)]/80 w-full"
+              className="mt-6 md:mt-8 text-xs md:text-lg max-w-2xl mx-auto text-center leading-relaxed text-white/70 w-full"
             >
               {content.description}
             </motion.p>
@@ -155,7 +154,7 @@ export default function Hero() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 1 }}
-              className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full"
+              className="mt-8 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 w-full"
             >
               <a
                 href="#works"
@@ -182,7 +181,7 @@ export default function Hero() {
           >
             <button
               onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
-              className="flex flex-col items-center justify-center gap-2 text-[var(--text-secondary)]/40 hover:text-accent transition-colors duration-300 w-full"
+              className="flex flex-col items-center justify-center gap-2 text-white/40 hover:text-accent transition-colors duration-300 w-full"
             >
               <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase text-center block">Scroll</span>
               <ArrowDown size={16} className="animate-bounce mx-auto" />
