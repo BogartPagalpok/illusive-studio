@@ -38,6 +38,15 @@ const defaultContent: AboutContent = {
   portrait_url: '',
 };
 
+const serviceOffers = [
+  { value: '01', label: 'Brand Identity', desc: 'Complete visual identity systems — logos, color palettes, typography, and brand guidelines.' },
+  { value: '02', label: 'Graphic Design', desc: 'Stunning layouts for social media, print materials, and marketing collateral.' },
+  { value: '03', label: 'Photography', desc: 'Professional photo sessions from portraits to product photography, with expert post-processing.' },
+  { value: '04', label: 'Videography', desc: 'Creative video production and editing that tells your story with cinematic quality.' },
+  { value: '05', label: 'Digital Painting', desc: 'Custom digital illustrations and concept art that bring imagination to canvas.' },
+  { value: '06', label: 'Admin Support', desc: 'Reliable virtual assistance — email management, scheduling, and operational support.' },
+];
+
 export default function About() {
   const { ref, isVisible } = useScrollReveal();
   const [content, setContent] = useState<AboutContent>(defaultContent);
@@ -88,12 +97,6 @@ export default function About() {
     img.src = content.portrait_url;
   }, [content.portrait_url]);
 
-  const stats = [
-    { value: '01', label: 'UI/UX & Visual Architecture', desc: 'Specializing in high-contrast dark aesthetics, crisp layout geometry, and intentional grid structures that scale seamlessly across devices.' },
-    { value: '02', label: 'Frontend Engineering', desc: 'Writing clean, component-driven React and Tailwind code. Prioritizing hardware-accelerated transitions and optimized rendering.' },
-    { value: '03', label: 'Next-Gen Asset Pipelines', desc: 'Leveraging advanced multi-modal AI prompt engineering and asset generation to deliver cinematic, high-fidelity visual content rapidly.' },
-  ];
-
   return (
     <section ref={sectionRef} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
       <div id="about" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
@@ -103,6 +106,7 @@ export default function About() {
       </div>
 
       <div ref={ref} className="section-container relative">
+        {/* TOP TITLE LAYOUT */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -122,10 +126,11 @@ export default function About() {
           <div className="section-divider" />
         </motion.div>
 
+        {/* 12-COLUMN GRID (Image Right, Content Left) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
           
           {/* Portrait + Bio — FIRST on mobile, RIGHT on desktop */}
-          <div className="lg:col-span-5 lg:order-last flex flex-col items-center lg:items-end gap-6">
+          <div className="lg:col-span-5 lg:order-last flex flex-col items-center lg:items-end gap-6 lg:sticky lg:top-28">
             <div className="relative w-full max-w-sm aspect-[3/4]">
               {content.portrait_url && !portraitError ? (
                 <div className="absolute inset-0 overflow-hidden" style={{
@@ -156,11 +161,13 @@ export default function About() {
             </p>
           </div>
 
-          {/* Text + Skills — SECOND on mobile, LEFT on desktop */}
+          {/* Text, Services + Skills — SECOND on mobile, LEFT on desktop */}
           <div className="lg:col-span-7 lg:order-first space-y-12">
+            
+            {/* Description Block */}
             <div className="space-y-4">
               <p className="text-sm md:text-base text-white/90 leading-relaxed max-w-xl">
-                <span className="text-accent font-medium">Ian Lester Eclevia</span> — a graphic designer, photographer, and virtual assistant. With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories.
+                {content.description_line1}
               </p>
               {content.description_line2 && (
                 <p className="text-sm md:text-base text-white/70 leading-relaxed max-w-xl">
@@ -172,20 +179,21 @@ export default function About() {
               </span>
             </div>
 
+            {/* SERVICES INJECTED HERE */}
             <div className="space-y-10">
-              {stats.map((item, index) => (
+              {serviceOffers.map((item, index) => (
                 <motion.div
                   key={item.value}
                   initial={{ opacity: 0, y: 20 }}
                   animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.6, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
                   className="group relative border-t border-white/10 pt-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-start"
                 >
-                  <div className="md:col-span-2 font-heading font-black text-2xl tracking-wider text-accent opacity-40 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300">
+                  <div className="md:col-span-2 font-heading font-black text-xl tracking-wider text-accent opacity-40 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300">
                     {item.value}
                   </div>
                   <div className="md:col-span-10 space-y-2">
-                    <h3 className="font-heading font-bold text-lg uppercase tracking-wide text-[var(--text-primary)] group-hover:text-accent transition-colors duration-300">
+                    <h3 className="font-heading font-bold text-base uppercase tracking-wide text-[var(--text-primary)] group-hover:text-accent transition-colors duration-300">
                       {item.label}
                     </h3>
                     <p className="text-sm opacity-60 font-sans leading-relaxed max-w-xl">
@@ -197,7 +205,8 @@ export default function About() {
               ))}
             </div>
 
-            <div className="space-y-6 pt-4 border-t border-white/5">
+            {/* Core Technical Capabilities Graph */}
+            <div className="space-y-6 pt-10 border-t border-white/5">
               <h3 className="font-black uppercase tracking-tighter text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 2vw, 24px)' }}>
                 {content.skills_heading}
               </h3>
@@ -227,8 +236,8 @@ export default function About() {
                 ))}
               </div>
             </div>
+            
           </div>
-
         </div>
       </div>
     </section>
