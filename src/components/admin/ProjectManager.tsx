@@ -5,6 +5,11 @@ import { motion } from 'framer-motion';
 import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, Link } from 'lucide-react';
 import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
 
+interface VideoEntry {
+  url: string;
+  vertical: boolean;
+}
+
 interface Project {
   id?: string;
   title: string;
@@ -14,7 +19,7 @@ interface Project {
   tools: string[];
   results: string;
   image_url: string;
-  video_urls?: string[];
+  video_urls?: VideoEntry[];
   image_layout?: string;
   project_url?: string;
   card_thumbnail?: string;
@@ -61,6 +66,7 @@ export default function ProjectManager() {
   const [desktopFile, setDesktopFile] = useState<any>(null);
   const [mobileFile, setMobileFile] = useState<any>(null);
   const [newVideoUrl, setNewVideoUrl] = useState('');
+  const [newVideoVertical, setNewVideoVertical] = useState(false);
 
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
@@ -111,21 +117,30 @@ export default function ProjectManager() {
     setDesktopFile(null);
     setMobileFile(null);
     setNewVideoUrl('');
+    setNewVideoVertical(false);
   };
 
   const addVideoUrl = () => {
     if (!newVideoUrl.trim() || !editingProject) return;
     setEditingProject({
       ...editingProject,
-      video_urls: [...(editingProject.video_urls || []), newVideoUrl.trim()]
+      video_urls: [...(editingProject.video_urls || []), { url: newVideoUrl.trim(), vertical: newVideoVertical }]
     });
     setNewVideoUrl('');
+    setNewVideoVertical(false);
   };
 
   const removeVideoUrl = (index: number) => {
     if (!editingProject) return;
     const updated = [...(editingProject.video_urls || [])];
     updated.splice(index, 1);
+    setEditingProject({ ...editingProject, video_urls: updated });
+  };
+
+  const toggleVideoVertical = (index: number) => {
+    if (!editingProject) return;
+    const updated = [...(editingProject.video_urls || [])];
+    updated[index] = { ...updated[index], vertical: !updated[index].vertical };
     setEditingProject({ ...editingProject, video_urls: updated });
   };
 
@@ -317,11 +332,20 @@ export default function ProjectManager() {
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Video URLs (Optional)</label>
                 <div className="space-y-2">
-                  {(editingProject.video_urls || []).map((url, index) => (
+                  {(editingProject.video_urls || []).map((entry, index) => (
                     <div key={index} className="flex gap-2 items-center">
                       <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/70 flex items-center overflow-hidden whitespace-nowrap">
-                        {url}
+                        {entry.url}
                       </div>
+                      <label className="flex items-center gap-1 text-[10px] text-white/40 cursor-pointer flex-shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={entry.vertical}
+                          onChange={() => toggleVideoVertical(index)}
+                          className="w-3 h-3 rounded accent-accent"
+                        />
+                        V
+                      </label>
                       <button
                         onClick={() => removeVideoUrl(index)}
                         className="p-2 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg flex-shrink-0"
@@ -330,7 +354,7 @@ export default function ProjectManager() {
                       </button>
                     </div>
                   ))}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <input
                       value={newVideoUrl}
                       onChange={e => setNewVideoUrl(e.target.value)}
@@ -338,6 +362,15 @@ export default function ProjectManager() {
                       className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
                       placeholder="https://youtube.com/watch?v=..."
                     />
+                    <label className="flex items-center gap-1 text-[10px] text-white/40 cursor-pointer flex-shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={newVideoVertical}
+                        onChange={e => setNewVideoVertical(e.target.checked)}
+                        className="w-3 h-3 rounded accent-accent"
+                      />
+                      V
+                    </label>
                     <button
                       onClick={addVideoUrl}
                       className="p-2 text-white/20 hover:text-accent transition bg-white/5 rounded-lg flex-shrink-0"
