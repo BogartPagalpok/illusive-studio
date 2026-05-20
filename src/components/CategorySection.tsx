@@ -237,12 +237,7 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
   return (
     <>
       <div
-        className="flip-card cursor-pointer w-full"
-        style={{ perspective: '1000px' }}
-        onClick={handleCardClick}
-      >
-        <div
-         className="flip-card cursor-pointer w-full group"
+        className="flip-card cursor-pointer w-full group"
         style={{ perspective: '1000px' }}
         onClick={handleCardClick}
       >
@@ -252,8 +247,17 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
             transformStyle: 'preserve-3d',
             transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
             transition: 'transform 0.8s',
-            boxShadow: flipped ? 'none' : '0 0 20px rgba(var(--accent-rgb), 0.1)',
+            boxShadow: flipped ? 'none' : '0 0 20px rgba(157, 0, 255, 0.15)',
           }}
+        >
+          <div
+            className="flip-card-front relative w-full rounded-xl overflow-hidden border"
+            style={{
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              borderColor: 'var(--glass-border)',
+              backgroundColor: 'var(--bg-primary)',
+            }}
           >
             {count === 3 ? (
               <div className="grid grid-cols-2 gap-1 p-1">
