@@ -522,7 +522,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
           if (tiles.length === 0) return null;
 
           return (
-            <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 0 }}>
+            <section key={title} className="section-padding relative overflow-visible bg-transparent">
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                   <span className="section-subtitle">{category}</span>
@@ -580,7 +580,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
           });
 
           return (
-           <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 0 }}>
+           <section key={title} className="section-padding relative overflow-visible bg-transparent">
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center" style={{ zIndex: -1 }}>
                   <span className="section-subtitle">{category}</span>
@@ -603,7 +603,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
         const lastIndex = titleProjects.length - 1;
 
         return (
-          <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 0 }}>
+          <section key={title} className="section-padding relative overflow-visible bg-transparent">
             <div className="section-container relative">
               <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                 <span className="section-subtitle">{category}</span>
