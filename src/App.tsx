@@ -170,14 +170,13 @@ function App() {
 
   useEffect(() => {
     loadSavedTheme();
-    const subscription = subscribeToThemeChanges();
-
-    const timer = setTimeout(() => setLoading(false), 3000);
-
-    return () => {
-      clearTimeout(timer);
-      subscription.unsubscribe();
+       const init = async () => {
+      await loadSavedTheme();
+      setLoading(false);
     };
+    init();
+    const subscription = subscribeToThemeChanges();
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
