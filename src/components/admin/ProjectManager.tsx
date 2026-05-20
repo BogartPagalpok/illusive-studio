@@ -15,6 +15,8 @@ interface Project {
   results: string;
   image_url: string;
   video_urls?: string[];
+  image_layout?: string;
+  project_url?: string;
   card_thumbnail?: string;
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
@@ -30,6 +32,8 @@ const EMPTY_PROJECT: Project = {
   results: '',
   image_url: '',
   video_urls: [],
+  image_layout: 'auto',
+  project_url: '',
   card_thumbnail: '',
   hero_bg_desktop: '',
   hero_bg_mobile: '',
@@ -37,6 +41,13 @@ const EMPTY_PROJECT: Project = {
 };
 
 const CATEGORIES = ['Graphic Design', 'Photography', 'UI/UX', 'Motion'];
+const LAYOUT_OPTIONS = [
+  { value: 'auto', label: 'Auto (Count-based)' },
+  { value: 'single', label: 'Single Image' },
+  { value: '3up-portrait-left', label: '3-up Portrait Left' },
+  { value: '4up-grid', label: '4-up Grid (2×2)' },
+  { value: 'preview-grid', label: 'Preview Grid (+more)' },
+];
 
 export default function ProjectManager() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -143,6 +154,8 @@ export default function ProjectManager() {
         hero_bg_mobile: mUrl,
         tools: toolArray,
         video_urls: editingProject.video_urls || [],
+        image_layout: editingProject.image_layout || 'auto',
+        project_url: editingProject.project_url || '',
       };
 
       if (selectedFiles.length > 1 && !editingProject.id) {
@@ -273,6 +286,33 @@ export default function ProjectManager() {
                     <option key={cat} value={cat} className="bg-zinc-900 text-white">{cat}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Display Layout</label>
+                <select
+                  value={editingProject.image_layout || 'auto'}
+                  onChange={e => setEditingProject({ ...editingProject, image_layout: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition appearance-none cursor-pointer"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' opacity='0.3' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 12px center',
+                    paddingRight: '2.5rem',
+                  }}
+                >
+                  {LAYOUT_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value} className="bg-zinc-900 text-white">{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Project URL (Optional)</label>
+                <input
+                  value={editingProject.project_url || ''}
+                  onChange={e => setEditingProject({ ...editingProject, project_url: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
+                  placeholder="https://behance.net/your-project"
+                />
               </div>
               <div>
                 <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Video URLs (Optional)</label>
@@ -473,9 +513,17 @@ export default function ProjectManager() {
                         <div>
                           <h4 className="text-xs font-heading font-bold tracking-widest uppercase text-white">{project.title}</h4>
                           <p className="text-[10px] text-accent uppercase tracking-[0.2em] font-black">{project.category}</p>
+                          {project.image_layout && project.image_layout !== 'auto' && (
+                            <p className="text-[10px] text-white/20 mt-0.5">Layout: {project.image_layout}</p>
+                          )}
                           {(project.video_urls || []).length > 0 && (
                             <p className="text-[10px] text-white/20 mt-0.5 flex items-center gap-1">
                               <span className="w-1 h-1 rounded-full bg-accent inline-block" /> {(project.video_urls || []).length} video{(project.video_urls || []).length > 1 ? 's' : ''} linked
+                            </p>
+                          )}
+                          {project.project_url && (
+                            <p className="text-[10px] text-white/20 mt-0.5 flex items-center gap-1">
+                              <span className="w-1 h-1 rounded-full bg-accent inline-block" /> External link
                             </p>
                           )}
                         </div>
