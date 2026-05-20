@@ -43,12 +43,95 @@ function getVideoEmbedUrl(url: string, platform: VideoPlatform): string {
 
 function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative w-full" style={{ aspectRatio: '9/16', maxWidth: '320px', margin: '0 auto' }}>
-      <div className="relative w-full h-full bg-zinc-900 rounded-[2rem] p-2 shadow-2xl border-2 border-zinc-700">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/4 h-5 bg-zinc-900 rounded-b-xl z-10" />
-        <div className="w-full h-full rounded-[1.8rem] overflow-hidden bg-black">
+    <div className="relative mx-auto" style={{ width: '100%', maxWidth: '210px', aspectRatio: '210/400' }}>
+      <style>{`
+        .phone-card {
+          width: 100%;
+          height: 100%;
+          background: black;
+          border-radius: 35px;
+          border: 2px solid rgb(40, 40, 40);
+          padding: 7px;
+          position: relative;
+          box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.486);
+        }
+        .phone-screen {
+          height: 100%;
+          border-radius: 25px;
+          overflow: hidden;
+          background: black;
+        }
+        .phone-top {
+          position: absolute;
+          top: 0px;
+          right: 50%;
+          transform: translate(50%, 0%);
+          width: 35%;
+          height: 18px;
+          background-color: black;
+          border-bottom-left-radius: 10px;
+          border-bottom-right-radius: 10px;
+          z-index: 10;
+        }
+        .phone-speaker {
+          position: absolute;
+          top: 2px;
+          right: 50%;
+          transform: translate(50%, 0%);
+          width: 40%;
+          height: 2px;
+          border-radius: 2px;
+          background-color: rgb(20, 20, 20);
+          z-index: 10;
+        }
+        .phone-camera {
+          position: absolute;
+          top: 6px;
+          right: 84%;
+          transform: translate(50%, 0%);
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background-color: rgba(255, 255, 255, 0.048);
+          z-index: 10;
+        }
+        .phone-btn1, .phone-btn2, .phone-btn3 {
+          position: absolute;
+          width: 2px;
+        }
+        .phone-btn1 {
+          height: 45px;
+          top: 30%;
+          right: -3px;
+          background-image: linear-gradient(to right, #111, #333, #595959);
+          border-radius: 0 2px 2px 0;
+        }
+        .phone-btn2 {
+          height: 30px;
+          top: 26%;
+          left: -3px;
+          background-image: linear-gradient(to left, #111, #333, #595959);
+          border-radius: 2px 0 0 2px;
+        }
+        .phone-btn3 {
+          height: 30px;
+          top: 36%;
+          left: -3px;
+          background-image: linear-gradient(to left, #111, #333, #595959);
+          border-radius: 2px 0 0 2px;
+        }
+      `}</style>
+
+      <div className="phone-card">
+        <div className="phone-screen">
           {children}
         </div>
+        <div className="phone-top" />
+        <div className="phone-speaker" />
+        <div className="phone-camera" />
+        <div className="phone-btn1" />
+        <div className="phone-btn2" />
+        <div className="phone-btn3" />
       </div>
     </div>
   );
@@ -155,7 +238,6 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
   );
 }
 
-// ── Grid section for a single title ────────────────────
 function TitleGrid({ projects }: { projects: Project[] }) {
   const [columnCount, setColumnCount] = useState(3);
 
@@ -171,15 +253,12 @@ function TitleGrid({ projects }: { projects: Project[] }) {
     return () => window.removeEventListener('resize', updateColumns);
   }, []);
 
-  // Build all cards: images + videos
   const allCards: Array<{ type: 'image' | 'video'; project: Project; videoUrl?: string; platform?: VideoPlatform }> = [];
   
   projects.forEach(project => {
-    // Add image card
     if (project.image_url) {
       allCards.push({ type: 'image', project });
     }
-    // Add video cards
     const urls = project.video_urls || [];
     urls.forEach(videoUrl => {
       const platform = detectVideoPlatform(videoUrl);
@@ -188,6 +267,8 @@ function TitleGrid({ projects }: { projects: Project[] }) {
       }
     });
   });
+
+  if (allCards.length === 0) return null;
 
   const hasGap = allCards.length % columnCount !== 0;
   const lastIndex = allCards.length - 1;
@@ -201,30 +282,26 @@ function TitleGrid({ projects }: { projects: Project[] }) {
         if (card.type === 'video') {
           return (
             <div key={`${card.project.id}-video-${index}`} className="break-inside-avoid mb-3">
-              <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
-                <PhoneFrame>
-                  {card.platform === 'tiktok' ? (
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
-                      <Play size={32} className="text-white/50 mb-2" />
-                      <p className="text-white/70 text-xs text-center mb-3">{card.project.title}</p>
-                      <a href={card.videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
-                        <ExternalLink size={12} /> Watch on TikTok
-                      </a>
-                    </div>
-                  ) : (
-                    <iframe
-                      src={getVideoEmbedUrl(card.videoUrl!, card.platform!)}
-                      className="w-full h-full"
-                      allowFullScreen
-                      allow="autoplay; encrypted-media"
-                      title={card.project.title}
-                    />
-                  )}
-                </PhoneFrame>
-                <div className="p-3">
-                  <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{card.project.title}</h3>
-                </div>
-              </div>
+              <PhoneFrame>
+                {card.platform === 'tiktok' ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
+                    <Play size={32} className="text-white/50 mb-2" />
+                    <p className="text-white/70 text-xs text-center mb-3">{card.project.title}</p>
+                    <a href={card.videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                      <ExternalLink size={12} /> Watch on TikTok
+                    </a>
+                  </div>
+                ) : (
+                  <iframe
+                    src={getVideoEmbedUrl(card.videoUrl!, card.platform!)}
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="autoplay; encrypted-media"
+                    title={card.project.title}
+                  />
+                )}
+              </PhoneFrame>
+              <p className="text-center text-[10px] font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{card.project.title}</p>
             </div>
           );
         }
@@ -265,7 +342,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
   if (!loading && projects.length === 0) return null;
 
-  // Group projects by title
   const groupedByTitle = projects.reduce((acc, project) => {
     const title = project.title || 'Untitled';
     if (!acc[title]) acc[title] = [];
@@ -273,9 +349,16 @@ export default function CategorySection({ category }: CategorySectionProps) {
     return acc;
   }, {} as Record<string, Project[]>);
 
+  // Filter out titles that have no images and no videos
+  const visibleGroups = Object.entries(groupedByTitle).filter(([_, titleProjects]) => {
+    return titleProjects.some(p => p.image_url || (p.video_urls && p.video_urls.length > 0));
+  });
+
+  if (visibleGroups.length === 0) return null;
+
   return (
     <>
-      {Object.entries(groupedByTitle).map(([title, titleProjects]) => (
+      {visibleGroups.map(([title, titleProjects]) => (
         <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
           <div className="section-container relative">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
