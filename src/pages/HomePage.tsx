@@ -33,16 +33,26 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       
       <main className="relative z-10">
         <Hero />
-        <About />
-        <Services />
         
-        {/* Category Sections — each one auto-fetches its own projects */}
-        <CategorySection category="Graphic Design" />
-        <CategorySection category="UI/UX" />
-        <CategorySection category="Motion" />
-        <CategorySection category="Photography" />
+        <div id="about">
+          <About />
+        </div>
+        
+        <div id="services">
+          <Services />
+        </div>
+        
+        {/* Works Section */}
+        <div id="works">
+          <CategorySection category="Graphic Design" />
+          <CategorySection category="UI/UX" />
+          <CategorySection category="Motion" />
+          <CategorySection category="Photography" />
+        </div>
 
-        <Contact />
+        <div id="contact">
+          <Contact />
+        </div>
       </main>
 
       <Footer onAdminTrigger={handleAdminTrigger} />
