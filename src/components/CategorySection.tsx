@@ -3,13 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, X, Play, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
+interface VideoEntry {
+  url: string;
+  vertical: boolean;
+}
+
 interface Project {
   id: string;
   title: string;
   category: string;
   description?: string;
   image_url: string;
-  video_urls?: string[];
+  video_urls?: VideoEntry[] | string[];
   tools?: string[];
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
@@ -44,6 +49,18 @@ function getVideoEmbedUrl(url: string, platform: VideoPlatform): string {
   return url;
 }
 
+function isShort(url: string): boolean {
+  return /\/shorts\//.test(url);
+}
+
+function getUrl(entry: any): string {
+  return typeof entry === 'string' ? entry : entry.url;
+}
+
+function getVertical(entry: any): boolean {
+  return typeof entry === 'string' ? false : (entry.vertical || false);
+}
+
 function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative w-full" style={{ aspectRatio: '9/16', maxWidth: '320px', margin: '0 auto' }}>
@@ -57,13 +74,26 @@ function PhoneFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-function LandscapeFrame({ children }: { children: React.ReactNode }) {
+function BrowserFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
-      <div className="relative w-full h-full bg-zinc-900 rounded-xl overflow-hidden border border-zinc-600 shadow-lg">
-        <div className="w-full h-full bg-black">
-          {children}
+      <style>{`
+        .browser-card { width: 100%; height: 100%; background: #1a1a1a; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.486); border: 1px solid rgb(40, 40, 40); }
+        .browser-top { height: 32px; display: flex; align-items: center; padding: 0 12px; gap: 8px; background: #1a1a1a; flex-shrink: 0; }
+        .browser-dots { display: flex; gap: 6px; }
+        .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .browser-dot.red { background: #ff5f56; } .browser-dot.yellow { background: #ffbd2e; } .browser-dot.green { background: #27c93f; }
+        .browser-search { flex: 1; height: 22px; border-radius: 4px; background: #111; display: flex; align-items: center; padding: 0 10px; font-size: 10px; color: #555; margin-left: 8px; }
+        .browser-content { flex: 1; background: black; overflow: hidden; }
+      `}</style>
+      <div className="browser-card">
+        <div className="browser-top">
+          <div className="browser-dots">
+            <div className="browser-dot red" /><div className="browser-dot yellow" /><div className="browser-dot green" />
+          </div>
+          <div className="browser-search">iframe</div>
         </div>
+        <div className="browser-content">{children}</div>
       </div>
     </div>
   );
@@ -327,7 +357,7 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
   );
 }
 
-function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string }> }) {
+function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> }) {
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       <div className="lg:w-1/4 flex flex-col justify-center p-6 rounded-xl border backdrop-blur-xl" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
@@ -345,30 +375,45 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
       </div>
       <div className="lg:w-3/4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {videoItems.map((item, i) => (
-            <div key={`${item.projectId}-${i}`}>
-              <LandscapeFrame>
-                {item.platform === 'tiktok' ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
-                    <Play size={32} className="text-white/50 mb-2" />
-                    <p className="text-white/70 text-xs text-center mb-3">{item.projectTitle}</p>
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
-                      <ExternalLink size={12} /> Watch on TikTok
-                    </a>
-                  </div>
+          {videoItems.map((item, i) => {
+            const usePhone = item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url));
+            return (
+              <div key={`${item.projectId}-${i}`}>
+                {usePhone ? (
+                  <PhoneFrame>
+                    {item.platform === 'tiktok' ? (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
+                        <Play size={32} className="text-white/50 mb-2" />
+                        <p className="text-white/70 text-xs text-center mb-3">{item.projectTitle}</p>
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                          <ExternalLink size={12} /> Watch on TikTok
+                        </a>
+                      </div>
+                    ) : (
+                      <iframe
+                        src={getVideoEmbedUrl(item.url, item.platform!)}
+                        className="w-full h-full"
+                        allowFullScreen
+                        allow="autoplay; encrypted-media"
+                        title={item.projectTitle}
+                      />
+                    )}
+                  </PhoneFrame>
                 ) : (
-                  <iframe
-                    src={getVideoEmbedUrl(item.url, item.platform!)}
-                    className="w-full h-full"
-                    allowFullScreen
-                    allow="autoplay; encrypted-media"
-                    title={item.projectTitle}
-                  />
+                  <BrowserFrame>
+                    <iframe
+                      src={getVideoEmbedUrl(item.url, item.platform!)}
+                      className="w-full h-full"
+                      allowFullScreen
+                      allow="autoplay; encrypted-media"
+                      title={item.projectTitle}
+                    />
+                  </BrowserFrame>
                 )}
-              </LandscapeFrame>
-              <p className="text-center text-[10px] font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{item.projectTitle}</p>
-            </div>
-          ))}
+                <p className="text-center text-[10px] font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{item.projectTitle}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -431,7 +476,10 @@ export default function CategorySection({ category }: CategorySectionProps) {
   const isMotion = category === 'Motion';
 
   const getVideoUrl = (project: Project): string | null => {
-    if (project.video_urls && project.video_urls.length > 0) return project.video_urls[0];
+    if (project.video_urls && project.video_urls.length > 0) {
+      const first = project.video_urls[0];
+      return getUrl(first);
+    }
     if ((project as any).video_url) return (project as any).video_url;
     return null;
   };
@@ -474,7 +522,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
         // ── Motion: Panel Layout ─────────────────────────
         if (isMotion) {
-          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string }> = [];
+          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> = [];
           let titleDescription = '';
           let titleTools: string[] = [];
 
@@ -482,10 +530,12 @@ export default function CategorySection({ category }: CategorySectionProps) {
             if (project.description && !titleDescription) titleDescription = project.description;
             if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
             const urls = project.video_urls || [];
-            urls.forEach(url => {
+            urls.forEach(entry => {
+              const url = getUrl(entry);
+              const vertical = getVertical(entry);
               const platform = detectVideoPlatform(url);
               if (platform) {
-                allVideos.push({ url, platform, projectId: project.id, projectTitle: project.title });
+                allVideos.push({ url, platform, projectId: project.id, projectTitle: project.title, vertical });
               }
             });
           });
