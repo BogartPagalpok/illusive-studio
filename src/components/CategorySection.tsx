@@ -69,144 +69,7 @@ function MonitorFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-const QUOTES: Record<string, { text: string; author: string }[]> = {
-  'Graphic Design': [
-    { text: 'Design is thinking made visual.', author: 'Saul Bass' },
-    { text: 'Creativity is nothing but a way to solve new problems.', author: 'Diana Santos' },
-    { text: 'Good design is obvious. Great design is transparent.', author: 'Joe Sparano' },
-  ],
-  'Photography': [
-    { text: 'Taking pictures is savoring life intensely, every hundredth of a second.', author: 'Marc Riboud' },
-    { text: 'The camera is an instrument that teaches people how to see.', author: 'Dorothea Lange' },
-    { text: 'Photography is the story I fail to put into words.', author: 'Destin Sparks' },
-  ],
-  'UI/UX': [
-    { text: 'Simple is harder than complex.', author: 'Steve Jobs' },
-    { text: 'Design is not just what it looks like. Design is how it works.', author: 'Steve Jobs' },
-    { text: 'The details are not the details. They make the design.', author: 'Charles Eames' },
-  ],
-  'Motion': [
-    { text: 'Animation is not the art of drawings that move.', author: 'Norman McLaren' },
-    { text: 'The illusion of life is the heart of animation.', author: 'Frank Thomas' },
-    { text: 'Motion creates emotion.', author: 'John Lasseter' },
-  ],
-};
-
-function QuoteCard({ category }: { category: string }) {
-  const quotes = QUOTES[category] || [
-    { text: 'Creativity is intelligence having fun.', author: 'Albert Einstein' },
-    { text: 'Every artist was first an amateur.', author: 'Ralph Waldo Emerson' },
-    { text: 'Art is not what you see, but what you make others see.', author: 'Edgar Degas' },
-  ];
-  const quote = quotes[Math.floor(Math.random() * quotes.length)];
-
-  return (
-    <div className="hidden md:block break-inside-avoid mb-4">
-      <style>{`
-        .quote-card-box {
-          width: 100%;
-          min-height: 300px;
-          position: relative;
-          display: grid;
-          place-items: center;
-          border-radius: 20px;
-          overflow: hidden;
-          box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 10px 0px, rgba(0, 0, 0, 0.5) 0px 2px 25px 0px;
-        }
-        .quote-card-box .quote-spinner {
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-          overflow: hidden;
-          border-radius: 20px;
-        }
-        .quote-card-box .quote-spinner::before {
-          content: "";
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 60%;
-          height: 200%;
-          background: linear-gradient(to right, var(--accent), #ffffff44, var(--accent));
-          transform-origin: center;
-          animation: quote-glow 4s linear infinite;
-        }
-        @keyframes quote-glow {
-          0% { transform: translate(-50%, -50%) rotate(0deg); }
-          100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        .quote-card-inner {
-          position: relative;
-          z-index: 5;
-          width: calc(100% - 8px);
-          height: calc(100% - 8px);
-          background: var(--bg-primary);
-          border-radius: 18px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          flex-direction: column;
-          text-align: center;
-          overflow: hidden;
-          padding: 20px;
-          cursor: pointer;
-          box-shadow: rgba(0, 0, 0, 0.4) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.5) 0px 18px 36px -18px inset;
-          border: 1px solid var(--glass-border);
-        }
-        .quote-card-inner .quote-icon {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          font-size: 60px;
-          font-weight: 800;
-          pointer-events: none;
-          opacity: 0.5;
-          color: var(--accent);
-          transition: opacity 0.3s ease-in-out;
-        }
-        .quote-card-inner .quote-content {
-          transform: translateY(100%);
-          opacity: 0;
-          transition: 0.3s ease-in-out;
-          position: relative;
-          z-index: 1;
-        }
-        .quote-card-inner:hover .quote-content {
-          transform: translateY(0);
-          opacity: 1;
-        }
-        .quote-card-inner:hover .quote-icon {
-          opacity: 0;
-        }
-        .quote-card-inner .quote-text {
-          font-size: 16px;
-          font-weight: 800;
-          margin-bottom: 10px;
-          color: var(--text-primary);
-        }
-        .quote-card-inner .quote-author {
-          font-size: 13px;
-          line-height: 1.4em;
-          color: var(--accent);
-        }
-      `}</style>
-
-      <div className="quote-card-box">
-        <div className="quote-spinner" />
-        <div className="quote-card-inner">
-          <span className="quote-icon">"</span>
-          <div className="quote-content">
-            <p className="quote-text">{quote.text}</p>
-            <p className="quote-author">— {quote.author}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FlipCard({ project }: { project: Project }) {
+function FlipCard({ project, isHero = false }: { project: Project; isHero?: boolean }) {
   const [flipped, setFlipped] = useState(false);
   const [selected, setSelected] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -229,7 +92,7 @@ function FlipCard({ project }: { project: Project }) {
   return (
     <>
       <div
-        className="flip-card cursor-pointer w-full"
+        className={`flip-card cursor-pointer w-full ${isHero ? 'hero-fill' : ''}`}
         style={{ perspective: '1000px' }}
         onClick={handleCardClick}
         onMouseEnter={() => { if (!isMobile) setFlipped(true); }}
@@ -244,7 +107,7 @@ function FlipCard({ project }: { project: Project }) {
           }}
         >
           <div
-            className="flip-card-front relative w-full rounded-xl overflow-hidden border"
+            className={`flip-card-front relative w-full rounded-xl overflow-hidden border ${isHero ? 'hero-front' : ''}`}
             style={{
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
@@ -254,7 +117,7 @@ function FlipCard({ project }: { project: Project }) {
             <img
               src={project.hero_bg_desktop || project.image_url}
               alt={project.title}
-              className="w-full h-auto block"
+              className={`w-full block ${isHero ? 'hero-image' : 'h-auto'}`}
               loading="lazy"
             />
             <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
@@ -345,10 +208,24 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
   if (!loading && projects.length === 0) return null;
 
-  const showQuote = projects.length % columnCount !== 0;
+  const hasGap = projects.length % columnCount !== 0;
+  const lastIndex = projects.length - 1;
 
   return (
     <section className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+      <style>{`
+        .hero-fill {
+          column-span: all;
+        }
+        .hero-front {
+          aspect-ratio: 16/9;
+        }
+        .hero-image {
+          height: 100%;
+          object-fit: cover;
+        }
+      `}</style>
+
       <div className="section-container relative">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
           <span className="section-subtitle">Portfolio</span>
@@ -363,12 +240,14 @@ export default function CategorySection({ category }: CategorySectionProps) {
         )}
 
         <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
-          {projects.map((project) => {
+          {projects.map((project, index) => {
             const platform = project.video_url ? detectVideoPlatform(project.video_url) : null;
             const isVideo = !!platform;
+            const isLast = index === lastIndex;
+            const isHero = hasGap && isLast && !isVideo;
 
             return (
-              <div key={project.id} className="break-inside-avoid">
+              <div key={project.id} className={`break-inside-avoid ${isHero ? 'hero-wrapper' : ''}`}>
                 {isVideo ? (
                   <div className="mb-3">
                     <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
@@ -394,13 +273,11 @@ export default function CategorySection({ category }: CategorySectionProps) {
                     </div>
                   </div>
                 ) : (
-                  <FlipCard project={project} />
+                  <FlipCard project={project} isHero={isHero} />
                 )}
               </div>
             );
           })}
-
-          {showQuote && <QuoteCard category={category} />}
         </div>
       </div>
     </section>
