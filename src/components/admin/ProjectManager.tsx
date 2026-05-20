@@ -1,559 +1,582 @@
-"use client";
-
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, Link } from 'lucide-react';
-import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
+import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, X, Play, ExternalLink } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface Project {
-  id?: string;
+  id: string;
   title: string;
   category: string;
-  description: string;
-  process: string;
-  tools: string[];
-  results: string;
+  description?: string;
   image_url: string;
   video_urls?: string[];
-  image_layout?: string;
-  project_url?: string;
-  card_thumbnail?: string;
+  tools?: string[];
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
-  featured: boolean;
+  card_thumbnail?: string;
 }
 
-const EMPTY_PROJECT: Project = {
-  title: '',
-  category: 'Graphic Design',
-  description: '',
-  process: '',
-  tools: [],
-  results: '',
-  image_url: '',
-  video_urls: [],
-  image_layout: 'auto',
-  project_url: '',
-  card_thumbnail: '',
-  hero_bg_desktop: '',
-  hero_bg_mobile: '',
-  featured: true,
-};
+interface CategorySectionProps {
+  category: string;
+}
 
-const CATEGORIES = ['Graphic Design', 'Photography', 'UI/UX', 'Motion'];
+type VideoPlatform = 'youtube' | 'vimeo' | 'tiktok' | null;
 
-const LAYOUT_OPTIONS = [
-  { value: 'auto', label: 'Auto (Count-based)' },
-  { value: 'single', label: 'Single Image' },
-  { value: '3up-portrait-left', label: '3-up Portrait Left' },
-  { value: '4up-grid', label: '4-up Grid (2×2)' },
-  { value: 'preview-grid', label: 'Preview Grid (+more)' },
-];
+function detectVideoPlatform(url: string): VideoPlatform {
+  if (/youtube\.com|youtu\.be/i.test(url)) return 'youtube';
+  if (/vimeo\.com/i.test(url)) return 'vimeo';
+  if (/tiktok\.com/i.test(url)) return 'tiktok';
+  return null;
+}
 
-export default function ProjectManager() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
+function getVideoEmbedUrl(url: string, platform: VideoPlatform): string {
+  if (platform === 'youtube') {
+    const match = url.match(/(?:v=|\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+    if (match) {
+      return `https://www.youtube.com/embed/${match[1]}?autoplay=0&rel=0&modestbranding=1&controls=1`;
+    }
+    return url;
+  }
+  if (platform === 'vimeo') {
+    const match = url.match(/vimeo\.com\/(\d+)/);
+    return match ? `https://player.vimeo.com/video/${match[1]}?autoplay=0` : url;
+  }
+  return url;
+}
 
-  const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
-  const [cardFile, setCardFile] = useState<any>(null);
-  const [desktopFile, setDesktopFile] = useState<any>(null);
-  const [mobileFile, setMobileFile] = useState<any>(null);
-  const [newVideoUrl, setNewVideoUrl] = useState('');
+function PhoneFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative w-full" style={{ aspectRatio: '9/16', maxWidth: '320px', margin: '0 auto' }}>
+      <div className="relative w-full h-full bg-zinc-900 rounded-[2rem] p-2 shadow-2xl border-2 border-zinc-700">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/4 h-5 bg-zinc-900 rounded-b-xl z-10" />
+        <div className="w-full h-full rounded-[1.8rem] overflow-hidden bg-black">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  const [progress, setProgress] = useState({ current: 0, total: 0 });
+function LandscapeFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+      <div className="relative w-full h-full bg-zinc-900 rounded-xl overflow-hidden border border-zinc-600 shadow-lg">
+        <div className="w-full h-full bg-black">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FlipCard({ project, isHero = false }: { project: Project; isHero?: boolean }) {
+  const [flipped, setFlipped] = useState(false);
+  const [selected, setSelected] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    fetchProjects();
+    setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
   }, []);
 
-  const fetchProjects = async () => {
-    setLoading(true);
+  const handleCardClick = () => {
+    if (isMobile) {
+      setFlipped(prev => !prev);
+    } else {
+      setSelected(true);
+    }
+  };
+
+  return (
+    <>
+      <div
+        className={`flip-card cursor-pointer w-full ${isHero ? 'hero-card' : ''}`}
+        style={{ perspective: '1000px' }}
+        onClick={handleCardClick}
+        onMouseEnter={() => { if (!isMobile) setFlipped(true); }}
+        onMouseLeave={() => { if (!isMobile) setFlipped(false); }}
+      >
+        <div
+          className="flip-card-inner relative w-full"
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            transition: 'transform 0.8s',
+          }}
+        >
+          <div
+            className="flip-card-front relative w-full rounded-xl overflow-hidden border"
+            style={{
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              borderColor: 'var(--glass-border)',
+            }}
+          >
+            <img
+              src={project.hero_bg_desktop || project.image_url}
+              alt={project.title}
+              className={`w-full block ${isHero ? 'h-full object-cover' : 'h-auto'}`}
+              loading="lazy"
+              style={isHero ? { minHeight: '300px' } : undefined}
+            />
+            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+              <p className="text-white text-xs font-bold uppercase tracking-wider">{project.title}</p>
+              {isMobile && <p className="text-white/50 text-[8px] mt-0.5">Tap to flip</p>}
+            </div>
+          </div>
+          <div
+            className="flip-card-back absolute inset-0 w-full h-full rounded-xl overflow-hidden border flex flex-col justify-center items-center p-4"
+            style={{
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
+              backgroundColor: 'var(--glass-bg)',
+              borderColor: 'var(--glass-border)',
+            }}
+          >
+            <h3 className="font-black uppercase text-center" style={{ fontSize: '1.2em', color: 'var(--text-primary)' }}>{project.title}</h3>
+            {project.description && (
+              <p className="text-xs mt-2 leading-relaxed text-center" style={{ color: 'var(--text-secondary)' }}>{project.description}</p>
+            )}
+            {project.tools && (
+              <div className="flex flex-wrap gap-1 mt-3 justify-center">
+                {project.tools.slice(0, 3).map(t => (
+                  <span key={t} className="px-2 py-0.5 text-[8px] uppercase tracking-wider rounded border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
+                ))}
+              </div>
+            )}
+            {isMobile && <p className="text-accent text-[8px] mt-3 font-bold">Tap to view full</p>}
+          </div>
+        </div>
+      </div>
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.95)' }}
+            onClick={() => setSelected(false)}
+          >
+            <button onClick={() => setSelected(false)} className="absolute top-4 right-4 p-2.5 rounded-full border transition-all z-[10000]" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
+              <X size={18} />
+            </button>
+            <img src={project.hero_bg_desktop || project.image_url} alt={project.title} className="max-w-full max-h-[90vh] object-contain rounded-2xl" onClick={(e) => e.stopPropagation()} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+function GraphicsCompositeCard({ images, title, description, tools }: { images: string[]; title: string; description?: string; tools?: string[] }) {
+  const [flipped, setFlipped] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  const count = images.length;
+  const displayImages = images.slice(0, 6);
+  const remaining = count > 6 ? count - 6 : 0;
+
+  const handleImageClick = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    setSelectedIndex(index);
+    setSelectedImage(images[index]);
+  };
+
+  const handleCardClick = () => {
+    if (isMobile) {
+      setFlipped(prev => !prev);
+    }
+  };
+
+  return (
+    <>
+      <div
+        className="flip-card cursor-pointer w-full"
+        style={{ perspective: '1000px' }}
+        onClick={handleCardClick}
+        onMouseEnter={() => { if (!isMobile) setFlipped(true); }}
+        onMouseLeave={() => { if (!isMobile) setFlipped(false); }}
+      >
+        <div
+          className="flip-card-inner relative w-full"
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            transition: 'transform 0.8s',
+          }}
+        >
+          <div
+            className="flip-card-front relative w-full rounded-xl overflow-hidden border"
+            style={{
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              borderColor: 'var(--glass-border)',
+              backgroundColor: 'var(--bg-primary)',
+            }}
+          >
+            {count === 3 ? (
+              <div className="grid grid-cols-2 gap-1 p-1">
+                <div className="row-span-2 cursor-pointer overflow-hidden" onClick={(e) => handleImageClick(e, 0)}>
+                  <img src={displayImages[0]} alt={`${title} 1`} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+                <div className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, 1)}>
+                  <img src={displayImages[1]} alt={`${title} 2`} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+                <div className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, 2)}>
+                  <img src={displayImages[2]} alt={`${title} 3`} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              </div>
+            ) : count === 4 ? (
+              <div className="grid grid-cols-2 gap-1 p-1">
+                {displayImages.map((img, i) => (
+                  <div key={i} className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, i)}>
+                    <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-1 p-1">
+                {displayImages.map((img, i) => (
+                  <div
+                    key={i}
+                    className="cursor-pointer overflow-hidden aspect-square relative"
+                    onClick={(e) => handleImageClick(e, i)}
+                  >
+                    <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                    {i === 5 && remaining > 0 && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <span className="text-white text-lg font-bold">+{remaining}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+              <p className="text-white text-xs font-bold uppercase tracking-wider">{title}</p>
+              {isMobile && <p className="text-white/50 text-[8px] mt-0.5">Tap to flip</p>}
+            </div>
+          </div>
+          <div
+            className="flip-card-back absolute inset-0 w-full h-full rounded-xl overflow-hidden border flex flex-col justify-center items-center p-4"
+            style={{
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
+              backgroundColor: 'var(--glass-bg)',
+              borderColor: 'var(--glass-border)',
+            }}
+          >
+            <h3 className="font-black uppercase text-center" style={{ fontSize: '1.2em', color: 'var(--text-primary)' }}>{title}</h3>
+            {description && (
+              <p className="text-xs mt-2 leading-relaxed text-center" style={{ color: 'var(--text-secondary)' }}>{description}</p>
+            )}
+            {tools && tools.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-3 justify-center">
+                {tools.slice(0, 3).map(t => (
+                  <span key={t} className="px-2 py-0.5 text-[8px] uppercase tracking-wider rounded border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
+                ))}
+              </div>
+            )}
+            {isMobile && <p className="text-accent text-[8px] mt-3 font-bold">Tap to view full</p>}
+          </div>
+        </div>
+      </div>
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.95)' }}
+            onClick={() => setSelectedImage(null)}
+          >
+            <button onClick={() => setSelectedImage(null)} className="absolute top-4 right-4 p-2.5 rounded-full border transition-all z-[10000]" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
+              <X size={18} />
+            </button>
+            <img src={selectedImage} alt={title} className="max-w-full max-h-[90vh] object-contain rounded-2xl" onClick={(e) => e.stopPropagation()} />
+            {images.length > 1 && (
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                {images.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedIndex(i);
+                      setSelectedImage(images[i]);
+                    }}
+                    className={`w-2 h-2 rounded-full transition-all ${i === selectedIndex ? 'bg-white scale-125' : 'bg-white/30'}`}
+                  />
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string }> }) {
+  return (
+    <div className="flex flex-col lg:flex-row gap-6">
+      <div className="lg:w-1/4 flex flex-col justify-center p-6 rounded-xl border backdrop-blur-xl" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
+        <h3 className="text-xl font-heading font-black uppercase tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+        {description && (
+          <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>{description}</p>
+        )}
+        {tools && tools.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {tools.map(t => (
+              <span key={t} className="px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="lg:w-3/4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {videoItems.map((item, i) => (
+            <div key={`${item.projectId}-${i}`}>
+              <LandscapeFrame>
+                {item.platform === 'tiktok' ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
+                    <Play size={32} className="text-white/50 mb-2" />
+                    <p className="text-white/70 text-xs text-center mb-3">{item.projectTitle}</p>
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                      <ExternalLink size={12} /> Watch on TikTok
+                    </a>
+                  </div>
+                ) : (
+                  <iframe
+                    src={getVideoEmbedUrl(item.url, item.platform!)}
+                    className="w-full h-full"
+                    allowFullScreen
+                    allow="autoplay; encrypted-media"
+                    title={item.projectTitle}
+                  />
+                )}
+              </LandscapeFrame>
+              <p className="text-center text-[10px] font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{item.projectTitle}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function CategorySection({ category }: CategorySectionProps) {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [columnCount, setColumnCount] = useState(3);
+
+  const fetchProjects = useCallback(async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('portfolio_projects')
         .select('*')
-        .order('created_at', { ascending: false });
+        .ilike('category', category.trim())
+        .order('created_at', { ascending: true });
       if (error) throw error;
       setProjects(data || []);
-    } catch (error) {
-      console.error('Error fetching projects:', error);
+    } catch (err) {
+      console.error(`Failed to fetch ${category} projects:`, err);
+      setProjects([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [category]);
 
-  const uploadToStorage = async (file: any) => {
-    const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-    const { error: uploadError } = await supabase.storage
-      .from(PORTFOLIO_BUCKET)
-      .upload(fileName, file);
-    if (uploadError) throw uploadError;
-    const { data: urlData } = supabase.storage
-      .from(PORTFOLIO_BUCKET)
-      .getPublicUrl(fileName);
-    return urlData.publicUrl;
-  };
+  useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setSelectedFiles(files);
-    if (files.length === 1 && editingProject) {
-      setEditingProject({ ...editingProject, image_url: files[0].name });
-    }
-  };
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) setColumnCount(4);
+      else if (width >= 768) setColumnCount(2);
+      else setColumnCount(1);
+    };
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
 
-  const clearForm = () => {
-    setEditingProject(null);
-    setSelectedFiles([]);
-    setCardFile(null);
-    setDesktopFile(null);
-    setMobileFile(null);
-    setNewVideoUrl('');
-  };
+  if (!loading && projects.length === 0) return null;
 
-  const addVideoUrl = () => {
-    if (!newVideoUrl.trim() || !editingProject) return;
-    setEditingProject({
-      ...editingProject,
-      video_urls: [...(editingProject.video_urls || []), newVideoUrl.trim()]
-    });
-    setNewVideoUrl('');
-  };
-
-  const removeVideoUrl = (index: number) => {
-    if (!editingProject) return;
-    const updated = [...(editingProject.video_urls || [])];
-    updated.splice(index, 1);
-    setEditingProject({ ...editingProject, video_urls: updated });
-  };
-
-  const handleSave = async () => {
-    if (!editingProject || !editingProject.title.trim()) return;
-
-    setIsSaving(true);
-    try {
-      const toolArray = Array.isArray(editingProject.tools)
-        ? editingProject.tools
-        : (editingProject.tools as string).split(',').map(t => t.trim());
-
-      let cUrl = editingProject.card_thumbnail;
-      if (cardFile) cUrl = await uploadToStorage(cardFile);
-
-      let dUrl = editingProject.hero_bg_desktop;
-      if (desktopFile) dUrl = await uploadToStorage(desktopFile);
-
-      let mUrl = editingProject.hero_bg_mobile;
-      if (mobileFile) mUrl = await uploadToStorage(mobileFile);
-
-      const baseProjectData = {
-        ...editingProject,
-        card_thumbnail: cUrl,
-        hero_bg_desktop: dUrl,
-        hero_bg_mobile: mUrl,
-        tools: toolArray,
-        video_urls: editingProject.video_urls || [],
-        image_layout: editingProject.image_layout || 'auto',
-        project_url: editingProject.project_url || '',
-      };
-
-      if (selectedFiles.length > 1 && !editingProject.id) {
-        setProgress({ current: 0, total: selectedFiles.length });
-        const batchProjects = [];
-        for (let i = 0; i < selectedFiles.length; i++) {
-          setProgress(prev => ({ ...prev, current: i + 1 }));
-          const url = await uploadToStorage(selectedFiles[i]);
-          batchProjects.push({ ...baseProjectData, image_url: url });
-        }
-        const { error } = await supabase.from('portfolio_projects').insert(batchProjects);
-        if (error) throw error;
-      } else {
-        let finalUrl = editingProject.image_url;
-        if (selectedFiles.length === 1) {
-          finalUrl = await uploadToStorage(selectedFiles[0]);
-        }
-        const projectData = { ...baseProjectData, image_url: finalUrl };
-        const { error } = editingProject.id
-          ? await supabase.from('portfolio_projects').update(projectData).eq('id', editingProject.id)
-          : await supabase.from('portfolio_projects').insert([projectData]);
-        if (error) throw error;
-      }
-
-      clearForm();
-      fetchProjects();
-    } catch (error: any) {
-      alert(`Operation failed: ${error.message}`);
-    } finally {
-      setIsSaving(false);
-      setProgress({ current: 0, total: 0 });
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Permanently delete this item?')) return;
-    try {
-      const { error } = await supabase.from('portfolio_projects').delete().eq('id', id);
-      if (error) throw error;
-      fetchProjects();
-    } catch (error: any) {
-      console.error('Delete error:', error);
-    }
-  };
-
-  const toggleFolder = (category: string) => {
-    setCollapsedFolders(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
-  };
-
-  const groupedProjects = CATEGORIES.reduce((acc, category) => {
-    const categoryProjects = projects.filter(p => p.category === category);
-    if (categoryProjects.length > 0) {
-      acc[category] = categoryProjects;
-    }
+  const groupedByTitle = projects.reduce((acc, project) => {
+    const title = project.title || 'Untitled';
+    if (!acc[title]) acc[title] = [];
+    acc[title].push(project);
     return acc;
   }, {} as Record<string, Project[]>);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <RefreshCw className="animate-spin text-accent" size={24} />
-      </div>
-    );
-  }
+  const visibleGroups = Object.entries(groupedByTitle).filter(([_, titleProjects]) => {
+    return titleProjects.some(p => p.image_url || (p.video_urls && p.video_urls.length > 0));
+  });
+
+  if (visibleGroups.length === 0) return null;
+
+  const isGraphics = category === 'Graphic Design';
+  const isMotion = category === 'Motion';
+
+  const getVideoUrl = (project: Project): string | null => {
+    if (project.video_urls && project.video_urls.length > 0) return project.video_urls[0];
+    if ((project as any).video_url) return (project as any).video_url;
+    return null;
+  };
 
   return (
-    <div className="space-y-6">
-      <div
-        className="absolute top-[-10%] left-[-10%] w-[60%] h-[600px] pointer-events-none z-0 rounded-full"
-        style={{ backgroundColor: 'var(--accent)', filter: 'blur(140px)', opacity: 0.15 }}
-      />
-      <div
-        className="absolute bottom-[20%] right-[-10%] w-[50%] h-[500px] pointer-events-none z-0 rounded-full"
-        style={{ backgroundColor: 'var(--accent)', filter: 'blur(120px)', opacity: 0.1 }}
-      />
+    <>
+      {visibleGroups.map(([title, titleProjects]) => {
+        // ── Graphics: Composite Card ─────────────────────
+        if (isGraphics) {
+          const allImages: string[] = [];
+          let titleDescription = '';
+          let titleTools: string[] = [];
 
-      <div className="flex justify-between items-center relative z-10">
-        <h2 className="text-base font-heading font-bold tracking-widest uppercase text-white">Portfolio Manager</h2>
-        <button
-          onClick={() => {
-            clearForm();
-            setEditingProject(EMPTY_PROJECT);
-          }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition"
-          style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
-        >
-          <Plus size={16} /> New Entry
-        </button>
-      </div>
+          titleProjects.forEach(project => {
+            if (project.image_url) allImages.push(project.image_url);
+            if (project.description && !titleDescription) titleDescription = project.description;
+            if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
+          });
 
-      {editingProject && (
-        <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl space-y-6 relative z-10">
-          <div className="flex justify-between items-center border-b border-white/5 pb-4">
-            <h3 className="text-sm font-heading font-black uppercase tracking-[0.2em] text-white">
-              {editingProject.id ? 'Modify Details' : `New Entry ${selectedFiles.length > 1 ? `(${selectedFiles.length} files)` : ''}`}
-            </h3>
-            <button onClick={clearForm} className="text-white/20 hover:text-white"><X size={18} /></button>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Project Title *</label>
-                <input
-                  value={editingProject.title}
-                  onChange={e => setEditingProject({ ...editingProject, title: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
-                  placeholder="Shared title"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Category</label>
-                <select
-                  value={editingProject.category}
-                  onChange={e => setEditingProject({ ...editingProject, category: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition appearance-none cursor-pointer"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' opacity='0.3' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 12px center',
-                    paddingRight: '2.5rem',
-                  }}
-                >
-                  {CATEGORIES.map(cat => (
-                    <option key={cat} value={cat} className="bg-zinc-900 text-white">{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Display Layout</label>
-                <select
-                  value={editingProject.image_layout || 'auto'}
-                  onChange={e => setEditingProject({ ...editingProject, image_layout: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition appearance-none cursor-pointer"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' opacity='0.3' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 12px center',
-                    paddingRight: '2.5rem',
-                  }}
-                >
-                  {LAYOUT_OPTIONS.map(opt => (
-                    <option key={opt.value} value={opt.value} className="bg-zinc-900 text-white">{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Project URL (Optional)</label>
-                <input
-                  value={editingProject.project_url || ''}
-                  onChange={e => setEditingProject({ ...editingProject, project_url: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
-                  placeholder="https://behance.net/your-project"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Video URLs (Optional)</label>
-                <div className="space-y-2">
-                  {(editingProject.video_urls || []).map((url, index) => (
-                    <div key={index} className="flex gap-2 items-center">
-                      <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/70 flex items-center overflow-hidden whitespace-nowrap">
-                        {url}
-                      </div>
-                      <button
-                        onClick={() => removeVideoUrl(index)}
-                        className="p-2 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg flex-shrink-0"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
-                  <div className="flex gap-2">
-                    <input
-                      value={newVideoUrl}
-                      onChange={e => setNewVideoUrl(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && addVideoUrl()}
-                      className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
-                      placeholder="https://youtube.com/watch?v=..."
-                    />
-                    <button
-                      onClick={addVideoUrl}
-                      className="p-2 text-white/20 hover:text-accent transition bg-white/5 rounded-lg flex-shrink-0"
-                    >
-                      <Plus size={14} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">
-                  Main Image / Gallery (Optional) {selectedFiles.length > 0 && <span className="text-accent ml-2">({selectedFiles.length} selected)</span>}
-                </label>
-                <div className="flex gap-2">
-                  <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
-                    {selectedFiles.length > 0 ? `${selectedFiles.length} files selected` : editingProject.image_url || 'No file chosen'}
-                  </div>
-                  <label className="flex items-center justify-center p-3 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
-                    <Upload size={14} />
-                    <input type="file" multiple={!editingProject.id} accept="image/*" onChange={handleFileChange} className="hidden" />
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Tech Stack</label>
-                <input
-                  value={Array.isArray(editingProject.tools) ? editingProject.tools.join(', ') : editingProject.tools}
-                  onChange={e => setEditingProject({ ...editingProject, tools: e.target.value.split(',').map(t => t.trim()) })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
-                  placeholder="Photoshop, Illustrator..."
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Overview</label>
-                <textarea
-                  value={editingProject.description}
-                  onChange={e => setEditingProject({ ...editingProject, description: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition resize-none"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Workflow / Process</label>
-                <textarea
-                  value={editingProject.process}
-                  onChange={e => setEditingProject({ ...editingProject, process: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition resize-none"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Results</label>
-                <textarea
-                  value={editingProject.results}
-                  onChange={e => setEditingProject({ ...editingProject, results: e.target.value })}
-                  rows={2}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition resize-none"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-white/5 pt-6 mt-2 space-y-4">
-            <h4 className="text-[10px] font-heading font-black uppercase tracking-[0.2em] text-accent">Layout Assets (Optional)</h4>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Card Thumbnail</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
-                    {cardFile ? cardFile.name : editingProject.card_thumbnail ? 'URL exists' : 'Fallback to Main'}
-                  </div>
-                  <label className="flex items-center justify-center p-3 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
-                    <Upload size={14} />
-                    <input type="file" accept="image/*" onChange={(e) => e.target.files && setCardFile(e.target.files[0])} className="hidden" />
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Hero (Desktop)</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
-                    {desktopFile ? desktopFile.name : editingProject.hero_bg_desktop ? 'URL exists' : 'Fallback to Main'}
-                  </div>
-                  <label className="flex items-center justify-center p-3 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
-                    <Upload size={14} />
-                    <input type="file" accept="image/*" onChange={(e) => e.target.files && setDesktopFile(e.target.files[0])} className="hidden" />
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Hero (Mobile)</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
-                    {mobileFile ? mobileFile.name : editingProject.hero_bg_mobile ? 'URL exists' : 'Fallback to Main'}
-                  </div>
-                  <label className="flex items-center justify-center p-3 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
-                    <Upload size={14} />
-                    <input type="file" accept="image/*" onChange={(e) => e.target.files && setMobileFile(e.target.files[0])} className="hidden" />
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
-            style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
-          >
-            {isSaving ? (
-              <>
-                <RefreshCw className="animate-spin" size={16} />
-                {progress.total > 1 && <span>Processing {progress.current} of {progress.total}</span>}
-              </>
-            ) : (
-              <><Save size={16} /> Deploy to Production</>
-            )}
-          </button>
-        </div>
-      )}
-
-      {/* FOLDER VIEW */}
-      <div className="space-y-3 relative z-10">
-        {Object.entries(groupedProjects).map(([category, categoryProjects]) => {
-          const isCollapsed = collapsedFolders[category] ?? true;
-          const projectCount = categoryProjects.length;
+          if (allImages.length === 0) return null;
 
           return (
-            <div key={category} className="rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-xl overflow-hidden">
-              <button
-                onClick={() => toggleFolder(category)}
-                className="w-full flex items-center justify-between p-4 hover:bg-white/[0.03] transition"
-              >
-                <div className="flex items-center gap-3">
-                  <Folder size={18} className="text-accent" />
-                  <div className="text-left">
-                    <h3 className="text-sm font-heading font-bold tracking-widest uppercase text-white">{category}</h3>
-                    <p className="text-[10px] text-white/30 font-heading uppercase tracking-[0.2em]">
-                      {projectCount} {projectCount === 1 ? 'project' : 'projects'}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-white/30">
-                  {isCollapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
-                </div>
-              </button>
+            <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+              <div className="section-container relative">
+                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
+                  <span className="section-subtitle">{category}</span>
+                  <h2 className="section-title">{title}</h2>
+                  <div className="section-divider" />
+                </motion.div>
+                <GraphicsCompositeCard
+                  images={allImages}
+                  title={title}
+                  description={titleDescription}
+                  tools={titleTools}
+                />
+              </div>
+            </section>
+          );
+        }
 
-              {!isCollapsed && (
-                <div className="border-t border-white/5">
-                  {categoryProjects.map(project => (
-                    <div
-                      key={project.id}
-                      className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition border-b border-white/5 last:border-b-0"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-lg overflow-hidden flex-shrink-0">
-                          {(project.card_thumbnail || project.image_url) ? (
-                            <img
-                              src={project.card_thumbnail || project.image_url}
-                              className="w-full h-full object-cover"
-                              alt={project.title}
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-white/10">
-                              <Link size={14} />
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-heading font-bold tracking-widest uppercase text-white">{project.title}</h4>
-                          <p className="text-[10px] text-accent uppercase tracking-[0.2em] font-black">{project.category}</p>
-                          {project.image_layout && project.image_layout !== 'auto' && (
-                            <p className="text-[10px] text-white/20 mt-0.5">Layout: {project.image_layout}</p>
-                          )}
-                          {(project.video_urls || []).length > 0 && (
-                            <p className="text-[10px] text-white/20 mt-0.5 flex items-center gap-1">
-                              <span className="w-1 h-1 rounded-full bg-accent inline-block" /> {(project.video_urls || []).length} video{(project.video_urls || []).length > 1 ? 's' : ''} linked
-                            </p>
-                          )}
-                          {project.project_url && (
-                            <p className="text-[10px] text-white/20 mt-0.5 flex items-center gap-1">
-                              <span className="w-1 h-1 rounded-full bg-accent inline-block" /> External link
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            clearForm();
-                            setEditingProject({ ...project, video_urls: project.video_urls || [] });
-                          }}
-                          className="p-2 text-white/20 hover:text-white transition bg-white/5 rounded-lg"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          onClick={() => project.id && handleDelete(project.id)}
-                          className="p-2 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+        // ── Motion: Panel Layout ─────────────────────────
+        if (isMotion) {
+          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string }> = [];
+          let titleDescription = '';
+          let titleTools: string[] = [];
+
+          titleProjects.forEach(project => {
+            if (project.description && !titleDescription) titleDescription = project.description;
+            if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
+            const urls = project.video_urls || [];
+            urls.forEach(url => {
+              const platform = detectVideoPlatform(url);
+              if (platform) {
+                allVideos.push({ url, platform, projectId: project.id, projectTitle: project.title });
+              }
+            });
+          });
+
+          return (
+            <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+              <div className="section-container relative">
+                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
+                  <span className="section-subtitle">{category}</span>
+                  <h2 className="section-title">{title}</h2>
+                  <div className="section-divider" />
+                </motion.div>
+                <MotionPanel
+                  title={title}
+                  description={titleDescription}
+                  tools={titleTools}
+                  videoItems={allVideos}
+                />
+              </div>
+            </section>
+          );
+        }
+
+        // ── Photography & UI/UX: Original masonry ────────
+        const hasGap = titleProjects.length % columnCount !== 0;
+        const lastIndex = titleProjects.length - 1;
+
+        return (
+          <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+            <div className="section-container relative">
+              <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
+                <span className="section-subtitle">{category}</span>
+                <h2 className="section-title">{title}</h2>
+                <div className="section-divider" />
+              </motion.div>
+
+              {loading && (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="w-8 h-8 text-accent animate-spin" />
                 </div>
               )}
+
+              <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
+                {titleProjects.map((project, index) => {
+                  const videoUrl = getVideoUrl(project);
+                  const platform = videoUrl ? detectVideoPlatform(videoUrl) : null;
+                  const isVideo = !!platform;
+                  const isLast = index === lastIndex;
+                  const isHero = hasGap && isLast && !isVideo;
+
+                  return (
+                    <div key={project.id} className="break-inside-avoid">
+                      {isVideo ? (
+                        <div className="mb-3">
+                          <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
+                            <PhoneFrame>
+                              {platform === 'tiktok' ? (
+                                <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
+                                  <Play size={32} className="text-white/50 mb-2" />
+                                  <p className="text-white/70 text-xs text-center mb-3">{project.title}</p>
+                                  <a href={videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                                    <ExternalLink size={12} /> Watch on TikTok
+                                  </a>
+                                </div>
+                              ) : (
+                                <iframe
+                                  src={getVideoEmbedUrl(videoUrl!, platform)}
+                                  className="w-full h-full"
+                                  allowFullScreen
+                                  allow="autoplay; encrypted-media"
+                                  title={project.title}
+                                />
+                              )}
+                            </PhoneFrame>
+                            <div className="p-3">
+                              <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{project.title}</h3>
+                              {project.description && <p className="text-[var(--text-secondary)] text-[10px] mt-1 line-clamp-2">{project.description}</p>}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <FlipCard project={project} isHero={isHero} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          );
-        })}
-      </div>
-    </div>
+          </section>
+        );
+      })}
+    </>
   );
 }
