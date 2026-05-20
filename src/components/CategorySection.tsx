@@ -9,7 +9,7 @@ interface Project {
   category: string;
   description?: string;
   image_url: string;
-  video_url?: string;
+  video_urls?: string[];
   tools?: string[];
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
@@ -43,10 +43,10 @@ function getVideoEmbedUrl(url: string, platform: VideoPlatform): string {
 
 function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative mx-auto" style={{ maxWidth: '300px' }}>
-      <div className="relative bg-zinc-900 rounded-[3rem] p-3 shadow-2xl border-4 border-zinc-700" style={{ aspectRatio: '9/16' }}>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-7 bg-zinc-900 rounded-b-2xl z-10" />
-        <div className="w-full h-full rounded-[2.5rem] overflow-hidden bg-black">
+    <div className="relative w-full" style={{ aspectRatio: '9/16', maxWidth: '300px', margin: '0 auto' }}>
+      <div className="relative w-full h-full bg-zinc-900 rounded-[2rem] p-2 shadow-2xl border-2 border-zinc-700">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/4 h-5 bg-zinc-900 rounded-b-xl z-10" />
+        <div className="w-full h-full rounded-[1.8rem] overflow-hidden bg-black">
           {children}
         </div>
       </div>
@@ -56,15 +56,15 @@ function PhoneFrame({ children }: { children: React.ReactNode }) {
 
 function MonitorFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative mx-auto" style={{ maxWidth: '600px' }}>
-      <div className="relative bg-zinc-800 rounded-t-2xl p-3 shadow-2xl border-4 border-zinc-600 border-b-0">
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-900 rounded-full" />
-        <div className="w-full rounded-lg overflow-hidden bg-black" style={{ aspectRatio: '16/9' }}>
+    <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+      <div className="relative w-full h-full bg-zinc-800 rounded-t-xl overflow-hidden shadow-2xl border-2 border-zinc-600 border-b-0">
+        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-zinc-900 rounded-full" />
+        <div className="w-full h-full bg-black">
           {children}
         </div>
       </div>
-      <div className="mx-auto w-1/4 h-4 bg-zinc-700 rounded-b-lg" />
-      <div className="mx-auto w-1/2 h-2 bg-zinc-600 rounded-b-lg" />
+      <div className="mx-auto w-1/5 h-3 bg-zinc-700 rounded-b-md" />
+      <div className="mx-auto w-1/3 h-1.5 bg-zinc-600 rounded-b-md" />
     </div>
   );
 }
@@ -212,6 +212,13 @@ export default function CategorySection({ category }: CategorySectionProps) {
   const hasGap = projects.length % columnCount !== 0;
   const lastIndex = projects.length - 1;
 
+  // Helper to get first video URL from array or legacy field
+  const getVideoUrl = (project: Project): string | null => {
+    if (project.video_urls && project.video_urls.length > 0) return project.video_urls[0];
+    if ((project as any).video_url) return (project as any).video_url;
+    return null;
+  };
+
   return (
     <section className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
       <div className="section-container relative">
@@ -229,7 +236,8 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
         <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
           {projects.map((project, index) => {
-            const platform = project.video_url ? detectVideoPlatform(project.video_url) : null;
+            const videoUrl = getVideoUrl(project);
+            const platform = videoUrl ? detectVideoPlatform(videoUrl) : null;
             const isVideo = !!platform;
             const isLast = index === lastIndex;
             const isHero = hasGap && isLast && !isVideo;
@@ -244,14 +252,14 @@ export default function CategorySection({ category }: CategorySectionProps) {
                           <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
                             <Play size={32} className="text-white/50 mb-2" />
                             <p className="text-white/70 text-xs text-center mb-3">{project.title}</p>
-                            <a href={project.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                            <a href={videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
                               <ExternalLink size={12} /> Watch on TikTok
                             </a>
                           </div>
                         </PhoneFrame>
                       ) : (
                         <MonitorFrame>
-                          <iframe src={getVideoEmbedUrl(project.video_url!, platform)} className="w-full h-full" allowFullScreen allow="autoplay; encrypted-media" title={project.title} />
+                          <iframe src={getVideoEmbedUrl(videoUrl!, platform)} className="w-full h-full" allowFullScreen allow="autoplay; encrypted-media" title={project.title} />
                         </MonitorFrame>
                       )}
                       <div className="p-3">
