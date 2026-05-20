@@ -43,7 +43,7 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
         </div>
         
         {/* Works Section */}
-        <div id="works">
+        <div id="works" style={{ minHeight: '50vh' }}>
           <CategorySection category="Graphic Design" />
           <CategorySection category="UI/UX" />
           <CategorySection category="Motion" />
