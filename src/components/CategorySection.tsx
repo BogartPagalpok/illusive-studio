@@ -155,10 +155,93 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
   );
 }
 
+// ── Grid section for a single title ────────────────────
+function TitleGrid({ projects }: { projects: Project[] }) {
+  const [columnCount, setColumnCount] = useState(3);
+
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) setColumnCount(4);
+      else if (width >= 768) setColumnCount(2);
+      else setColumnCount(1);
+    };
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
+
+  // Build all cards: images + videos
+  const allCards: Array<{ type: 'image' | 'video'; project: Project; videoUrl?: string; platform?: VideoPlatform }> = [];
+  
+  projects.forEach(project => {
+    // Add image card
+    if (project.image_url) {
+      allCards.push({ type: 'image', project });
+    }
+    // Add video cards
+    const urls = project.video_urls || [];
+    urls.forEach(videoUrl => {
+      const platform = detectVideoPlatform(videoUrl);
+      if (platform) {
+        allCards.push({ type: 'video', project, videoUrl, platform });
+      }
+    });
+  });
+
+  const hasGap = allCards.length % columnCount !== 0;
+  const lastIndex = allCards.length - 1;
+
+  return (
+    <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
+      {allCards.map((card, index) => {
+        const isLast = index === lastIndex;
+        const isHero = hasGap && isLast && card.type === 'image';
+
+        if (card.type === 'video') {
+          return (
+            <div key={`${card.project.id}-video-${index}`} className="break-inside-avoid mb-3">
+              <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
+                <PhoneFrame>
+                  {card.platform === 'tiktok' ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
+                      <Play size={32} className="text-white/50 mb-2" />
+                      <p className="text-white/70 text-xs text-center mb-3">{card.project.title}</p>
+                      <a href={card.videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                        <ExternalLink size={12} /> Watch on TikTok
+                      </a>
+                    </div>
+                  ) : (
+                    <iframe
+                      src={getVideoEmbedUrl(card.videoUrl!, card.platform!)}
+                      className="w-full h-full"
+                      allowFullScreen
+                      allow="autoplay; encrypted-media"
+                      title={card.project.title}
+                    />
+                  )}
+                </PhoneFrame>
+                <div className="p-3">
+                  <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{card.project.title}</h3>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div key={card.project.id} className="break-inside-avoid">
+            <FlipCard project={card.project} isHero={isHero} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function CategorySection({ category }: CategorySectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [columnCount, setColumnCount] = useState(3);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -180,91 +263,37 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
-  useEffect(() => {
-    const updateColumns = () => {
-      const width = window.innerWidth;
-      if (width >= 1024) setColumnCount(4);
-      else if (width >= 768) setColumnCount(2);
-      else setColumnCount(1);
-    };
-    updateColumns();
-    window.addEventListener('resize', updateColumns);
-    return () => window.removeEventListener('resize', updateColumns);
-  }, []);
-
   if (!loading && projects.length === 0) return null;
 
-  const hasGap = projects.length % columnCount !== 0;
-  const lastIndex = projects.length - 1;
-
-  const getVideoUrl = (project: Project): string | null => {
-    if (project.video_urls && project.video_urls.length > 0) return project.video_urls[0];
-    if ((project as any).video_url) return (project as any).video_url;
-    return null;
-  };
+  // Group projects by title
+  const groupedByTitle = projects.reduce((acc, project) => {
+    const title = project.title || 'Untitled';
+    if (!acc[title]) acc[title] = [];
+    acc[title].push(project);
+    return acc;
+  }, {} as Record<string, Project[]>);
 
   return (
-    <section className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
-      <div className="section-container relative">
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
-          <span className="section-subtitle">Portfolio</span>
-          <h2 className="section-title">{category}</h2>
-          <div className="section-divider" />
-        </motion.div>
+    <>
+      {Object.entries(groupedByTitle).map(([title, titleProjects]) => (
+        <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
+          <div className="section-container relative">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
+              <span className="section-subtitle">{category}</span>
+              <h2 className="section-title">{title}</h2>
+              <div className="section-divider" />
+            </motion.div>
 
-        {loading && (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 text-accent animate-spin" />
-          </div>
-        )}
-
-        <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
-          {projects.map((project, index) => {
-            const videoUrl = getVideoUrl(project);
-            const platform = videoUrl ? detectVideoPlatform(videoUrl) : null;
-            const isVideo = !!platform;
-            const isLast = index === lastIndex;
-            const isHero = hasGap && isLast && !isVideo;
-
-            return (
-              <div key={project.id} className="break-inside-avoid">
-                {isVideo ? (
-                  <div className="mb-3">
-                    <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
-                      <PhoneFrame>
-                        {platform === 'tiktok' ? (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
-                            <Play size={32} className="text-white/50 mb-2" />
-                            <p className="text-white/70 text-xs text-center mb-3">{project.title}</p>
-                            <a href={videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
-                              <ExternalLink size={12} /> Watch on TikTok
-                            </a>
-                          </div>
-                        ) : (
-                          <iframe
-                            src={getVideoEmbedUrl(videoUrl!, platform)}
-                            className="w-full h-full"
-                            allowFullScreen
-                            allow="autoplay; encrypted-media"
-                            title={project.title}
-                            loading="lazy"
-                          />
-                        )}
-                      </PhoneFrame>
-                      <div className="p-3">
-                        <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{project.title}</h3>
-                        {project.description && <p className="text-[var(--text-secondary)] text-[10px] mt-1 line-clamp-2">{project.description}</p>}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <FlipCard project={project} isHero={isHero} />
-                )}
+            {loading && (
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-8 h-8 text-accent animate-spin" />
               </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
+            )}
+
+            <TitleGrid projects={titleProjects} />
+          </div>
+        </section>
+      ))}
+    </>
   );
 }
