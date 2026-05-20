@@ -242,14 +242,14 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
         onClick={handleCardClick}
       >
         <div
-          className="flip-card-inner relative w-full transition-transform duration-300 group-hover:scale-[1.02]"
+          className="flip-card-inner relative w-full group-hover:scale-[1.02]"
           style={{
             transformStyle: 'preserve-3d',
             transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-            transition: 'transform 0.8s',
+            transition: 'transform 0.8s, box-shadow 0.3s',
             boxShadow: flipped ? 'none' : '0 0 20px rgba(157, 0, 255, 0.15)',
           }}
-        >
+        >      
           <div
             className="flip-card-front relative w-full rounded-xl overflow-hidden border"
             style={{
@@ -580,9 +580,9 @@ export default function CategorySection({ category }: CategorySectionProps) {
           });
 
           return (
-            <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 0 }}>
+           <section key={title} className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 0 }}>
               <div className="section-container relative">
-                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
+                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center" style={{ zIndex: -1 }}>
                   <span className="section-subtitle">{category}</span>
                   <h2 className="section-title">{title}</h2>
                   <div className="section-divider" />
