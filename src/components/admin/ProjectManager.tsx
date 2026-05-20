@@ -14,7 +14,7 @@ interface Project {
   tools: string[];
   results: string;
   image_url: string;
-  video_urls: string[];
+  video_urls?: string[];
   card_thumbnail?: string;
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
@@ -125,7 +125,7 @@ export default function ProjectManager() {
     try {
       const toolArray = Array.isArray(editingProject.tools)
         ? editingProject.tools
-        : (editingProject.tools as any as string).split(',').map((t: string) => t.trim());
+        : (editingProject.tools as string).split(',').map(t => t.trim());
 
       let cUrl = editingProject.card_thumbnail;
       if (cardFile) cUrl = await uploadToStorage(cardFile);
@@ -137,17 +137,12 @@ export default function ProjectManager() {
       if (mobileFile) mUrl = await uploadToStorage(mobileFile);
 
       const baseProjectData = {
-        title: editingProject.title,
-        category: editingProject.category,
-        description: editingProject.description,
-        process: editingProject.process,
-        tools: toolArray,
-        results: editingProject.results,
-        featured: editingProject.featured,
-        video_urls: editingProject.video_urls || [],
+        ...editingProject,
         card_thumbnail: cUrl,
         hero_bg_desktop: dUrl,
         hero_bg_mobile: mUrl,
+        tools: toolArray,
+        video_urls: editingProject.video_urls || [],
       };
 
       if (selectedFiles.length > 1 && !editingProject.id) {
@@ -166,16 +161,10 @@ export default function ProjectManager() {
           finalUrl = await uploadToStorage(selectedFiles[0]);
         }
         const projectData = { ...baseProjectData, image_url: finalUrl };
-        
-        console.log('Saving project data:', JSON.stringify(projectData, null, 2));
-        
-        if (editingProject.id) {
-          const { error } = await supabase.from('portfolio_projects').update(projectData).eq('id', editingProject.id);
-          if (error) throw error;
-        } else {
-          const { error } = await supabase.from('portfolio_projects').insert([projectData]);
-          if (error) throw error;
-        }
+        const { error } = editingProject.id
+          ? await supabase.from('portfolio_projects').update(projectData).eq('id', editingProject.id)
+          : await supabase.from('portfolio_projects').insert([projectData]);
+        if (error) throw error;
       }
 
       clearForm();
@@ -434,7 +423,7 @@ export default function ProjectManager() {
         </div>
       )}
 
-      {/* FOLDER VIEW — Projects grouped by category */}
+      {/* FOLDER VIEW */}
       <div className="space-y-3 relative z-10">
         {Object.entries(groupedProjects).map(([category, categoryProjects]) => {
           const isCollapsed = collapsedFolders[category] ?? true;
