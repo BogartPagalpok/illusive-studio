@@ -360,7 +360,7 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
 function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> }) {
   return (
     <div className="flex flex-col lg:flex-row gap-6">
-      <div className="lg:w-1/4 flex flex-col justify-center p-6 rounded-xl border backdrop-blur-xl" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
+      <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-xl overflow-y-auto" style={{ maxHeight: '80vh', backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
         <h3 className="text-xl font-heading font-black uppercase tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>{title}</h3>
         {description && (
           <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>{description}</p>
@@ -466,8 +466,14 @@ export default function CategorySection({ category }: CategorySectionProps) {
     return acc;
   }, {} as Record<string, Project[]>);
 
-  const visibleGroups = Object.entries(groupedByTitle).filter(([_, titleProjects]) => {
-    return titleProjects.some(p => p.image_url || (p.video_urls && p.video_urls.length > 0));
+    const visibleGroups = Object.entries(groupedByTitle).filter(([_, titleProjects]) => {
+    return titleProjects.some(p => 
+      p.image_url || 
+      (p.video_urls && p.video_urls.length > 0 && p.video_urls.some((entry: any) => {
+        const url = getUrl(entry);
+        return url && url.trim().length > 0;
+      }))
+    );
   });
 
   if (visibleGroups.length === 0) return null;
