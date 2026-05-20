@@ -101,21 +101,95 @@ function QuoteCard({ category }: { category: string }) {
   const quote = quotes[Math.floor(Math.random() * quotes.length)];
 
   return (
-    <div
-      className="hidden md:flex break-inside-avoid mb-4 flex-col justify-center items-center text-center p-6 rounded-xl border backdrop-blur-xl"
-      style={{
-        backgroundColor: 'var(--glass-bg)',
-        borderColor: 'var(--glass-border)',
-        minHeight: '200px',
-      }}
-    >
-      <span className="text-4xl mb-3 opacity-20" style={{ color: 'var(--accent)' }}>"</span>
-      <p className="text-sm italic leading-relaxed mb-3" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>
-        {quote.text}
-      </p>
-      <span className="text-[10px] uppercase tracking-widest font-bold" style={{ color: 'var(--accent)' }}>
-        — {quote.author}
-      </span>
+    <div className="hidden md:block break-inside-avoid mb-4">
+      <style>{`
+        .quote-card-box {
+          width: 100%;
+          min-height: 300px;
+          position: relative;
+          display: grid;
+          place-items: center;
+          overflow: hidden;
+          border-radius: 20px;
+          box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 10px 0px, rgba(0, 0, 0, 0.5) 0px 2px 25px 0px;
+        }
+        .quote-card-box::before {
+          content: "";
+          position: absolute;
+          width: 40%;
+          height: 150%;
+          background: var(--accent);
+          background: linear-gradient(to right, var(--accent), #ffffff, var(--accent));
+          transform-origin: center;
+          animation: quote-glow 4s linear infinite;
+        }
+        @keyframes quote-glow {
+          0% { transform: rotate(0); }
+          100% { transform: rotate(360deg); }
+        }
+        .quote-card-inner {
+          position: absolute;
+          width: 95%;
+          height: 95%;
+          background: var(--glass-bg);
+          border-radius: 20px;
+          z-index: 5;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          text-align: center;
+          overflow: hidden;
+          padding: 20px;
+          cursor: pointer;
+          box-shadow: rgba(0, 0, 0, 0.4) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.5) 0px 18px 36px -18px inset;
+          border: 1px solid var(--glass-border);
+        }
+        .quote-card-inner .quote-icon {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 60px;
+          font-weight: 800;
+          pointer-events: none;
+          opacity: 0.5;
+          color: var(--accent);
+        }
+        .quote-card-inner .quote-content {
+          transform: translateY(100%);
+          opacity: 0;
+          transition: 0.3s ease-in-out;
+        }
+        .quote-card-inner:hover .quote-content {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        .quote-card-inner:hover .quote-icon {
+          opacity: 0;
+        }
+        .quote-card-inner .quote-text {
+          font-size: 18px;
+          font-weight: 800;
+          margin-bottom: 10px;
+          color: var(--text-primary);
+        }
+        .quote-card-inner .quote-author {
+          font-size: 14px;
+          line-height: 1.4em;
+          color: var(--accent);
+        }
+      `}</style>
+
+      <div className="quote-card-box">
+        <div className="quote-card-inner">
+          <span className="quote-icon">"</span>
+          <div className="quote-content">
+            <p className="quote-text">{quote.text}</p>
+            <p className="quote-author">— {quote.author}</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -223,7 +297,7 @@ function FlipCard({ project }: { project: Project }) {
 export default function CategorySection({ category }: CategorySectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [columnCount, setColumnCount] = useState(3); // ← ADDED
+  const [columnCount, setColumnCount] = useState(3);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -245,7 +319,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
-  // ← ADDED THIS BLOCK
   useEffect(() => {
     const updateColumns = () => {
       const width = window.innerWidth;
@@ -257,11 +330,10 @@ export default function CategorySection({ category }: CategorySectionProps) {
     window.addEventListener('resize', updateColumns);
     return () => window.removeEventListener('resize', updateColumns);
   }, []);
-  // ← END ADDED BLOCK
 
   if (!loading && projects.length === 0) return null;
 
-  const showQuote = projects.length % columnCount !== 0; // ← ADDED
+  const showQuote = projects.length % columnCount !== 0;
 
   return (
     <section className="section-padding relative overflow-visible bg-transparent" style={{ zIndex: 30 }}>
@@ -278,7 +350,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
           </div>
         )}
 
-        {/* CHANGED: 4 columns on desktop */}
         <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
           {projects.map((project) => {
             const platform = project.video_url ? detectVideoPlatform(project.video_url) : null;
@@ -317,7 +388,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
             );
           })}
 
-          {showQuote && <QuoteCard category={category} />} {/* ← CHANGED */}
+          {showQuote && <QuoteCard category={category} />}
         </div>
       </div>
     </section>
