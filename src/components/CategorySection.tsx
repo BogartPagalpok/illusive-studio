@@ -359,8 +359,9 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
 
 function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> }) {
   return (
-   <div className="flex flex-col lg:flex-row gap-6">
-      <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-xl" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
+  <div className="flex flex-col lg:flex-row gap-6">
+      <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-xl overflow-y-auto no-scrollbar" style={{ maxHeight: '80vh', backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
+        <style>{`.no-scrollbar::-webkit-scrollbar{display:none;}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}`}</style>
         <h3 className="text-xl font-heading font-black uppercase tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>{title}</h3>
         {description && (
           <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>{description}</p>
