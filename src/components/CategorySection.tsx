@@ -504,22 +504,21 @@ export default function CategorySection({ category }: CategorySectionProps) {
           const singles = titleProjects.filter(p => p.image_url && p.image_layout === 'single');
           const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
           
-          titleProjects.forEach(project => {
+                             titleProjects.forEach(project => {
             if (!project.image_url) return;
             if (project.image_layout === 'single') return;
-                        const layout = project.image_layout || 'auto';
-            const maxPerTile = layout === '3up-portrait-left' ? 3 : 4;
-            let tile = tiles.find(t => t.layout === layout && t.images.length < maxPerTile);
-            if (!tile) {
-              tile = { 
-                images: [], 
-                layout, 
+            const layout = project.image_layout || 'auto';
+            const existingTile = tiles[tiles.length - 1];
+            if (existingTile && existingTile.layout === layout) {
+              existingTile.images.push(project.image_url);
+            } else {
+              tiles.push({
+                images: [project.image_url],
+                layout,
                 description: project.description || titleProjects.find(p => p.description)?.description || '',
                 tools: project.tools || titleProjects.find(p => p.tools && p.tools.length > 0)?.tools || []
-              };
-              tiles.push(tile);
+              });
             }
-            tile.images.push(project.image_url);
           });
 
           if (singles.length === 0 && tiles.length === 0) return null;
