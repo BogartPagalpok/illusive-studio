@@ -369,18 +369,17 @@ function FacebookEmbed({ url }: { url: string }) {
     ? url.match(/href=["']?(https:\/\/www\.facebook\.com\/[^"'\s&]+)/)?.[1] || url
     : url;
   
-  const embedUrl = `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(cleanUrl)}&show_text=true&width=500&lazy=true`;
+  const embedUrl = `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(cleanUrl)}&show_text=true&width=500`;
   
   return (
     <div className="w-full flex justify-center">
       <iframe 
         src={embedUrl}
         width="500"
-        style={{ border: 'none', overflow: 'hidden', maxWidth: '100%', minHeight: '250px' }}
+        style={{ border: 'none', overflow: 'hidden', maxWidth: '100%', minHeight: '400px', height: 'auto' }}
         scrolling="no"
         frameBorder="0"
         allowFullScreen={true}
-        loading="lazy"
         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
       />
     </div>
