@@ -22,23 +22,8 @@ export default function Contact() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [content, setContent] = useState<ContactContent>(defaultContent);
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user?.email) {
-        setForm(prev => ({ ...prev, email: session.user.email || '' }));
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user?.email) {
-        setForm(prev => ({ ...prev, email: session.user.email || '' }));
-      }
-    });
-
     const fetchContent = async () => {
       try {
         const { data, error } = await supabase
@@ -57,25 +42,33 @@ export default function Contact() {
     };
 
     fetchContent();
-    return () => subscription.unsubscribe();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
     setSending(true);
+    
     try {
+      // Step 1: Insert into Supabase (This triggers your Vercel Webhook)
       const { error } = await supabase.from('contact_messages').insert([
-        { name: form.name, email: form.email, message: form.message, user_id: user.id },
+        { 
+          name: form.name, 
+          email: form.email, 
+          message: form.message 
+        },
       ]);
+      
       if (error) throw error;
+      
       setSent(true);
-      setForm(prev => ({ ...prev, name: '', message: '' }));
+      setForm({ name: '', email: '', message: '' });
       setTimeout(() => setSent(false), 4000);
     } catch (e: any) {
       console.error('Error sending message:', e.message);
+      alert("There was an issue sending your message. Please try again.");
+    } finally {
+      setSending(false);
     }
-    setSending(false);
   };
 
   return (
@@ -115,12 +108,9 @@ export default function Contact() {
             style={{ boxShadow: '0 15px 30px -8px rgba(0, 0, 0, 0.4)' }}
           >
             <div className="flex flex-col gap-1 mb-5">
-              <p className="uppercase font-bold text-[var(--text-secondary)]/50" style={{ fontSize: 'clamp(8px, 0.8vw, 11px)', letterSpacing: '0.3em' }}>Secure Channel</p>
-              {user && (
-                <p className="text-accent uppercase font-black italic" style={{ fontSize: 'clamp(7px, 0.7vw, 10px)', letterSpacing: '0.2em' }}>
-                  Authenticated: {user.email}
-                </p>
-              )}
+              <p className="uppercase font-bold text-[var(--text-secondary)]/50" style={{ fontSize: 'clamp(8px, 0.8vw, 11px)', letterSpacing: '0.3em' }}>
+                Secure Channel
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 w-full">
@@ -136,8 +126,9 @@ export default function Contact() {
               <div className="w-full">
                 <label className="block font-heading uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60" style={{ fontSize: 'clamp(7px, 0.7vw, 10px)', letterSpacing: '0.2em' }}>EMAIL</label>
                 <input
-                  type="email" required value={form.email} readOnly
-                  className="input-dark cursor-not-allowed"
+                  type="email" required value={form.email} 
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="input-dark cursor-text" placeholder="your@email.com"
                 />
               </div>
 
@@ -155,7 +146,7 @@ export default function Contact() {
                 {sending ? (
                   <span className="flex items-center gap-2">
                     <span className="w-3.5 h-3.5 border-2 border-t-transparent animate-spin rounded-full border-current" />
-                    <span>SYNCING...</span>
+                    <span>TRANSMITTING...</span>
                   </span>
                 ) : sent ? (
                   <span className="font-black italic">TRANSMISSION COMPLETE</span>
