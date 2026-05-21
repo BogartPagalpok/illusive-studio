@@ -570,7 +570,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
               </div>
             </section>
           );
-
+        }
         // ── Motion: Panel Layout ─────────────────────────
         if (isMotion) {
           const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> = [];
