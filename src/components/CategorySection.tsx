@@ -149,7 +149,7 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
               alt={project.title}
               className={`w-full block ${isHero ? 'h-full object-cover' : 'h-auto'}`}
               loading="lazy"
-              style={isHero ? { height: '100%' } : undefined}
+              style={isHero ? { minHeight: '300px' } : undefined}
             />
             <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
               <p className="text-white text-xs font-bold uppercase tracking-wider">{project.title}</p>
@@ -499,13 +499,14 @@ export default function CategorySection({ category }: CategorySectionProps) {
   return (
     <>
       {visibleGroups.map(([title, titleProjects]) => {
+              // ── Graphics: Tiles Grid ─────────────────────────
         if (isGraphics) {
           const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
           
           titleProjects.forEach(project => {
             if (!project.image_url) return;
             const layout = project.image_layout || 'auto';
-            let tile = layout === 'single' ? null : tiles.find(t => t.layout === layout && t.images.length < 6);
+            let tile = tiles.find(t => t.layout === layout && t.images.length < 6);
             if (!tile) {
               tile = { 
                 images: [], 
@@ -529,7 +530,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   <div className="section-divider" />
                 </motion.div>
                 {tiles.length === 1 && tiles[0].images.length === 1 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
                     <div className="break-inside-avoid">
                       <FlipCard 
                         project={{ 
@@ -544,7 +545,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {tiles.map((tile, i) => (
                       tile.images.length === 1 ? (
                         <FlipCard 
@@ -574,7 +575,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
             </section>
           );
         }
-
+        // ── Motion: Panel Layout ─────────────────────────
         if (isMotion) {
           const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> = [];
           let titleDescription = '';
@@ -613,6 +614,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
           );
         }
 
+        // ── Photography & UI/UX: Original masonry ────────
         const hasGap = titleProjects.length % columnCount !== 0;
         const lastIndex = titleProjects.length - 1;
 
