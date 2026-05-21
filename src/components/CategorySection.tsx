@@ -15,6 +15,7 @@ interface Project {
   description?: string;
   image_url: string;
   video_urls?: VideoEntry[] | string[];
+  facebook_urls?: string[];
   tools?: string[];
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
@@ -363,6 +364,19 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
   );
 }
 
+function FacebookEmbed({ url }: { url: string }) {
+  useEffect(() => {
+    if ((window as any).FB) (window as any).FB.XFBML.parse();
+  }, [url]);
+  return (
+    <div className="fb-post w-full" data-href={url} data-width="100%">
+      <div className="fb-xfbml-parse-ignore">
+        <blockquote cite={url}><a href={url}>View on Facebook</a></blockquote>
+      </div>
+    </div>
+  );
+}
+
 function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> }) {
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -478,7 +492,8 @@ export default function CategorySection({ category }: CategorySectionProps) {
       (p.video_urls && p.video_urls.length > 0 && p.video_urls.some((entry: any) => {
         const url = getUrl(entry);
         return url && url.trim().length > 0;
-      }))
+      })) ||
+      (p.facebook_urls && p.facebook_urls.length > 0)
     );
   });
 
@@ -499,9 +514,10 @@ export default function CategorySection({ category }: CategorySectionProps) {
   return (
     <>
       {visibleGroups.map(([title, titleProjects]) => {
-        // ── Graphics: Singles + Tiles ────────────────────
+        // ── Graphics: Singles + Tiles + FB ───────────────
         if (isGraphics) {
-                    const singles = titleProjects.filter(p => p.image_url && p.image_layout === 'single');
+          const singles = titleProjects.filter(p => p.image_url && p.image_layout === 'single');
+          const fbPosts = titleProjects.filter(p => p.facebook_urls && p.facebook_urls.length > 0);
           const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
           
           titleProjects.forEach(project => {
@@ -521,9 +537,9 @@ export default function CategorySection({ category }: CategorySectionProps) {
               });
             }
           });
-          if (singles.length === 0 && tiles.length === 0) return null;
+          if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0) return null;
 
-                    return (
+          return (
             <section key={title} className="section-padding relative overflow-visible bg-transparent">
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
@@ -541,7 +557,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   </div>
                 )}
                 {tiles.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     {tiles.map((tile, i) => (
                       tile.images.length === 1 ? (
                         <FlipCard 
@@ -565,6 +581,15 @@ export default function CategorySection({ category }: CategorySectionProps) {
                         />
                       )
                     ))}
+                  </div>
+                )}
+                {fbPosts.length > 0 && (
+                  <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
+                    {fbPosts.map((project) => (project.facebook_urls || []).map((url, i) => (
+                      <div className="break-inside-avoid" key={`${project.id}-fb-${i}`}>
+                        <FacebookEmbed url={url} />
+                      </div>
+                    )))}
                   </div>
                 )}
               </div>
