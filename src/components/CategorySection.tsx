@@ -523,7 +523,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
           if (singles.length === 0 && tiles.length === 0) return null;
 
-          return (
+                    return (
             <section key={title} className="section-padding relative overflow-visible bg-transparent">
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
@@ -531,16 +531,21 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   <h2 className="section-title">{title}</h2>
                   <div className="section-divider" />
                 </motion.div>
-                <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
-                  {singles.map((project) => (
-                    <div className="break-inside-avoid" key={project.id}>
-                      <FlipCard project={project} />
-                    </div>
-                  ))}
-                  {tiles.map((tile, i) => (
-                    <div className="break-inside-avoid" key={`tile-${i}`}>
-                      {tile.images.length === 1 ? (
+                {singles.length > 0 && (
+                  <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4 mb-6">
+                    {singles.map((project) => (
+                      <div className="break-inside-avoid" key={project.id}>
+                        <FlipCard project={project} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {tiles.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {tiles.map((tile, i) => (
+                      tile.images.length === 1 ? (
                         <FlipCard 
+                          key={`tile-${i}`}
                           project={{ 
                             id: `${title}-tile-${i}`, 
                             title, 
@@ -552,19 +557,19 @@ export default function CategorySection({ category }: CategorySectionProps) {
                         />
                       ) : (
                         <GraphicsCompositeCard
+                          key={`tile-${i}`}
                           images={tile.images}
                           title={title}
                           description={tile.description}
                           tools={tile.tools}
                         />
-                      )}
-                    </div>
-                  ))}
-                </div>
+                      )
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
           );
-        }
 
         // ── Motion: Panel Layout ─────────────────────────
         if (isMotion) {
