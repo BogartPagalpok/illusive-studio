@@ -144,6 +144,7 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
               borderColor: 'var(--glass-border)',
             }}
           >
+            <img
               src={project.hero_bg_desktop || project.image_url}
               alt={project.title}
               className={`w-full block ${isHero ? 'h-full object-cover aspect-square' : 'h-auto'}`}
