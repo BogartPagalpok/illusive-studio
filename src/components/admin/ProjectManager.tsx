@@ -178,7 +178,6 @@ export default function ProjectManager() {
         hero_bg_mobile: mUrl,
       };
 
-      // Editing existing + new images → insert new rows (add to project)
       if (editingProject.id && selectedFiles.length > 0) {
         setProgress({ current: 0, total: selectedFiles.length });
         const newRows = [];
@@ -189,9 +188,7 @@ export default function ProjectManager() {
         }
         const { error } = await supabase.from('portfolio_projects').insert(newRows);
         if (error) throw error;
-      }
-      // Creating new with multiple files
-      else if (selectedFiles.length > 1 && !editingProject.id) {
+      } else if (selectedFiles.length > 1 && !editingProject.id) {
         setProgress({ current: 0, total: selectedFiles.length });
         const batchProjects = [];
         for (let i = 0; i < selectedFiles.length; i++) {
@@ -201,9 +198,7 @@ export default function ProjectManager() {
         }
         const { error } = await supabase.from('portfolio_projects').insert(batchProjects);
         if (error) throw error;
-      }
-      // Single file or no file
-      else {
+      } else {
         let finalUrl = editingProject.image_url;
         if (selectedFiles.length === 1) {
           finalUrl = await uploadToStorage(selectedFiles[0]);
@@ -251,6 +246,17 @@ export default function ProjectManager() {
     return acc;
   }, {} as Record<string, Project[]>);
 
+  // Group by title within each category
+  const getGroupedByTitle = (categoryProjects: Project[]) => {
+    const grouped: Record<string, Project[]> = {};
+    categoryProjects.forEach(project => {
+      const title = project.title || 'Untitled';
+      if (!grouped[title]) grouped[title] = [];
+      grouped[title].push(project);
+    });
+    return grouped;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -260,7 +266,7 @@ export default function ProjectManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div
         className="absolute top-[-10%] left-[-10%] w-[60%] h-[600px] pointer-events-none z-0 rounded-full"
         style={{ backgroundColor: 'var(--accent)', filter: 'blur(140px)', opacity: 0.15 }}
@@ -271,45 +277,45 @@ export default function ProjectManager() {
       />
 
       <div className="flex justify-between items-center relative z-10">
-        <h2 className="text-base font-heading font-bold tracking-widest uppercase text-white">Portfolio Manager</h2>
+        <h2 className="text-sm sm:text-base font-heading font-bold tracking-widest uppercase text-white">Portfolio Manager</h2>
         <button
           onClick={() => {
             clearForm();
             setEditingProject(EMPTY_PROJECT);
           }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition"
+          className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition"
           style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
         >
-          <Plus size={16} /> New Entry
+          <Plus size={14} /> New
         </button>
       </div>
 
       {editingProject && (
-        <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl space-y-6 relative z-10">
-          <div className="flex justify-between items-center border-b border-white/5 pb-4">
-            <h3 className="text-sm font-heading font-black uppercase tracking-[0.2em] text-white">
+        <div className="p-4 sm:p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl space-y-4 sm:space-y-6 relative z-10">
+          <div className="flex justify-between items-center border-b border-white/5 pb-3 sm:pb-4">
+            <h3 className="text-xs sm:text-sm font-heading font-black uppercase tracking-[0.2em] text-white">
               {editingProject.id ? 'Add to Project' : `New Entry ${selectedFiles.length > 1 ? `(${selectedFiles.length} files)` : ''}`}
             </h3>
-            <button onClick={clearForm} className="text-white/20 hover:text-white"><X size={18} /></button>
+            <button onClick={clearForm} className="text-white/20 hover:text-white"><X size={16} /></button>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Project Title *</label>
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Project Title *</label>
                 <input
                   value={editingProject.title}
                   onChange={e => setEditingProject({ ...editingProject, title: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
                   placeholder="Shared title"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Category</label>
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Category</label>
                 <select
                   value={editingProject.category}
                   onChange={e => setEditingProject({ ...editingProject, category: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition appearance-none cursor-pointer"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition appearance-none cursor-pointer"
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' opacity='0.3' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E")`,
                     backgroundRepeat: 'no-repeat',
@@ -323,11 +329,11 @@ export default function ProjectManager() {
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Display Layout</label>
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Display Layout</label>
                 <select
                   value={editingProject.image_layout || 'auto'}
                   onChange={e => setEditingProject({ ...editingProject, image_layout: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition appearance-none cursor-pointer"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition appearance-none cursor-pointer"
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' opacity='0.3' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E")`,
                     backgroundRepeat: 'no-repeat',
@@ -341,156 +347,140 @@ export default function ProjectManager() {
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Project URL (Optional)</label>
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Project URL (Optional)</label>
                 <input
                   value={editingProject.project_url || ''}
                   onChange={e => setEditingProject({ ...editingProject, project_url: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
                   placeholder="https://behance.net/your-project"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Video URLs (Optional)</label>
-                <div className="space-y-2">
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Video URLs (Optional)</label>
+                <div className="space-y-1.5">
                   {(editingProject.video_urls || []).map((entry, index) => (
-                    <div key={index} className="flex gap-2 items-center">
-                      <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/70 flex items-center overflow-hidden whitespace-nowrap">
+                    <div key={index} className="flex gap-1.5 items-center">
+                      <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] sm:text-sm text-white/70 flex items-center overflow-hidden whitespace-nowrap">
                         {entry.url}
                       </div>
-                      <label className="flex items-center gap-1 text-[10px] text-white/40 cursor-pointer flex-shrink-0">
-                        <input
-                          type="checkbox"
-                          checked={entry.vertical}
-                          onChange={() => toggleVideoVertical(index)}
-                          className="w-3 h-3 rounded accent-accent"
-                        />
+                      <label className="flex items-center gap-1 text-[9px] text-white/40 cursor-pointer flex-shrink-0">
+                        <input type="checkbox" checked={entry.vertical} onChange={() => toggleVideoVertical(index)} className="w-3 h-3 rounded accent-accent" />
                         V
                       </label>
-                      <button
-                        onClick={() => removeVideoUrl(index)}
-                        className="p-2 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg flex-shrink-0"
-                      >
-                        <X size={14} />
+                      <button onClick={() => removeVideoUrl(index)} className="p-1.5 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg flex-shrink-0">
+                        <X size={12} />
                       </button>
                     </div>
                   ))}
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-1.5 items-center">
                     <input
                       value={newVideoUrl}
                       onChange={e => setNewVideoUrl(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && addVideoUrl()}
-                      className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
+                      className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
                       placeholder="https://youtube.com/watch?v=..."
                     />
-                    <label className="flex items-center gap-1 text-[10px] text-white/40 cursor-pointer flex-shrink-0">
-                      <input
-                        type="checkbox"
-                        checked={newVideoVertical}
-                        onChange={e => setNewVideoVertical(e.target.checked)}
-                        className="w-3 h-3 rounded accent-accent"
-                      />
+                    <label className="flex items-center gap-1 text-[9px] text-white/40 cursor-pointer flex-shrink-0">
+                      <input type="checkbox" checked={newVideoVertical} onChange={e => setNewVideoVertical(e.target.checked)} className="w-3 h-3 rounded accent-accent" />
                       V
                     </label>
-                    <button
-                      onClick={addVideoUrl}
-                      className="p-2 text-white/20 hover:text-accent transition bg-white/5 rounded-lg flex-shrink-0"
-                    >
-                      <Plus size={14} />
+                    <button onClick={addVideoUrl} className="p-1.5 text-white/20 hover:text-accent transition bg-white/5 rounded-lg flex-shrink-0">
+                      <Plus size={12} />
                     </button>
                   </div>
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">
-                  Main Image / Gallery (Optional) {selectedFiles.length > 0 && <span className="text-accent ml-2">({selectedFiles.length} selected)</span>}
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">
+                  Main Image / Gallery {selectedFiles.length > 0 && <span className="text-accent ml-1">({selectedFiles.length} selected)</span>}
                 </label>
-                <div className="flex gap-2">
-                  <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
+                <div className="flex gap-1.5">
+                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] sm:text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
                     {selectedFiles.length > 0 ? `${selectedFiles.length} files selected` : editingProject.image_url || 'No file chosen'}
                   </div>
-                  <label className="flex items-center justify-center p-3 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
-                    <Upload size={14} />
+                  <label className="flex items-center justify-center p-2 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
+                    <Upload size={12} />
                     <input type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
                   </label>
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Tech Stack</label>
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Tech Stack</label>
                 <input
                   value={Array.isArray(editingProject.tools) ? editingProject.tools.join(', ') : editingProject.tools}
                   onChange={e => setEditingProject({ ...editingProject, tools: e.target.value.split(',').map(t => t.trim()) })}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
                   placeholder="Photoshop, Illustrator..."
                 />
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Overview</label>
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Overview</label>
                 <textarea
                   value={editingProject.description}
                   onChange={e => setEditingProject({ ...editingProject, description: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition resize-none"
+                  rows={2}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition resize-none"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Workflow / Process</label>
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Workflow / Process</label>
                 <textarea
                   value={editingProject.process}
                   onChange={e => setEditingProject({ ...editingProject, process: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition resize-none"
+                  rows={2}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition resize-none"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Results</label>
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Results</label>
                 <textarea
                   value={editingProject.results}
                   onChange={e => setEditingProject({ ...editingProject, results: e.target.value })}
                   rows={2}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition resize-none"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition resize-none"
                 />
               </div>
             </div>
           </div>
 
-          <div className="border-t border-white/5 pt-6 mt-2 space-y-4">
-            <h4 className="text-[10px] font-heading font-black uppercase tracking-[0.2em] text-accent">Layout Assets (Optional)</h4>
-            <div className="grid md:grid-cols-3 gap-4">
+          <div className="border-t border-white/5 pt-4 mt-2 space-y-3">
+            <h4 className="text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-accent">Layout Assets (Optional)</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Card Thumbnail</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Card Thumbnail</label>
+                <div className="flex gap-1.5">
+                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/50 flex items-center overflow-hidden whitespace-nowrap">
                     {cardFile ? cardFile.name : editingProject.card_thumbnail ? 'URL exists' : 'Fallback to Main'}
                   </div>
-                  <label className="flex items-center justify-center p-3 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
-                    <Upload size={14} />
+                  <label className="flex items-center justify-center p-2 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
+                    <Upload size={12} />
                     <input type="file" accept="image/*" onChange={(e) => e.target.files && setCardFile(e.target.files[0])} className="hidden" />
                   </label>
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Hero (Desktop)</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Hero (Desktop)</label>
+                <div className="flex gap-1.5">
+                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/50 flex items-center overflow-hidden whitespace-nowrap">
                     {desktopFile ? desktopFile.name : editingProject.hero_bg_desktop ? 'URL exists' : 'Fallback to Main'}
                   </div>
-                  <label className="flex items-center justify-center p-3 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
-                    <Upload size={14} />
+                  <label className="flex items-center justify-center p-2 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
+                    <Upload size={12} />
                     <input type="file" accept="image/*" onChange={(e) => e.target.files && setDesktopFile(e.target.files[0])} className="hidden" />
                   </label>
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-2">Hero (Mobile)</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Hero (Mobile)</label>
+                <div className="flex gap-1.5">
+                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/50 flex items-center overflow-hidden whitespace-nowrap">
                     {mobileFile ? mobileFile.name : editingProject.hero_bg_mobile ? 'URL exists' : 'Fallback to Main'}
                   </div>
-                  <label className="flex items-center justify-center p-3 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
-                    <Upload size={14} />
+                  <label className="flex items-center justify-center p-2 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
+                    <Upload size={12} />
                     <input type="file" accept="image/*" onChange={(e) => e.target.files && setMobileFile(e.target.files[0])} className="hidden" />
                   </label>
                 </div>
@@ -501,103 +491,103 @@ export default function ProjectManager() {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
+            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
             style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
           >
             {isSaving ? (
               <>
-                <RefreshCw className="animate-spin" size={16} />
+                <RefreshCw className="animate-spin" size={14} />
                 {progress.total > 1 && <span>Processing {progress.current} of {progress.total}</span>}
               </>
             ) : (
-              <><Save size={16} /> Deploy to Production</>
+              <><Save size={14} /> Deploy to Production</>
             )}
           </button>
         </div>
       )}
 
-      {/* FOLDER VIEW */}
-      <div className="space-y-3 relative z-10">
+      {/* FOLDER VIEW — Category → Title → Items */}
+      <div className="space-y-2 sm:space-y-3 relative z-10">
         {Object.entries(groupedProjects).map(([category, categoryProjects]) => {
           const isCollapsed = collapsedFolders[category] ?? true;
           const projectCount = categoryProjects.length;
+          const byTitle = getGroupedByTitle(categoryProjects);
 
           return (
             <div key={category} className="rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-xl overflow-hidden">
               <button
                 onClick={() => toggleFolder(category)}
-                className="w-full flex items-center justify-between p-4 hover:bg-white/[0.03] transition"
+                className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-white/[0.03] transition"
               >
-                <div className="flex items-center gap-3">
-                  <Folder size={18} className="text-accent" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Folder size={16} className="text-accent flex-shrink-0" />
                   <div className="text-left">
-                    <h3 className="text-sm font-heading font-bold tracking-widest uppercase text-white">{category}</h3>
-                    <p className="text-[10px] text-white/30 font-heading uppercase tracking-[0.2em]">
+                    <h3 className="text-xs sm:text-sm font-heading font-bold tracking-widest uppercase text-white">{category}</h3>
+                    <p className="text-[9px] sm:text-[10px] text-white/30 font-heading uppercase tracking-[0.2em]">
                       {projectCount} {projectCount === 1 ? 'project' : 'projects'}
                     </p>
                   </div>
                 </div>
-                <div className="text-white/30">
-                  {isCollapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
+                <div className="text-white/30 flex-shrink-0">
+                  {isCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
                 </div>
               </button>
 
               {!isCollapsed && (
                 <div className="border-t border-white/5">
-                  {categoryProjects.map(project => (
-                    <div
-                      key={project.id}
-                      className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition border-b border-white/5 last:border-b-0"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-lg overflow-hidden flex-shrink-0">
-                          {(project.card_thumbnail || project.image_url) ? (
-                            <img
-                              src={project.card_thumbnail || project.image_url}
-                              className="w-full h-full object-cover"
-                              alt={project.title}
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-white/10">
-                              <Link size={14} />
+                  {Object.entries(byTitle).map(([title, titleProjects]) => (
+                    <div key={title}>
+                      <div className="px-3 sm:px-4 py-2 bg-white/[0.01] border-b border-white/5">
+                        <span className="text-[10px] sm:text-xs font-heading font-bold uppercase tracking-wider text-white/50">{title}</span>
+                        <span className="text-[9px] sm:text-[10px] text-white/20 ml-2">({titleProjects.length})</span>
+                      </div>
+                      {titleProjects.map(project => (
+                        <div
+                          key={project.id}
+                          className="flex items-center justify-between pl-6 sm:pl-8 pr-3 sm:pr-4 py-2.5 sm:py-3 hover:bg-white/[0.02] transition border-b border-white/5 last:border-b-0"
+                        >
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/5 border border-white/10 rounded-lg overflow-hidden flex-shrink-0">
+                              {(project.card_thumbnail || project.image_url) ? (
+                                <img
+                                  src={project.card_thumbnail || project.image_url}
+                                  className="w-full h-full object-cover"
+                                  alt={project.title}
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-white/10">
+                                  <Link size={12} />
+                                </div>
+                              )}
                             </div>
-                          )}
+                            <div className="min-w-0">
+                              <p className="text-[10px] sm:text-xs text-white/60 truncate">{project.image_layout !== 'auto' ? `Layout: ${project.image_layout}` : 'Image'}</p>
+                              {(project.video_urls || []).length > 0 && (
+                                <p className="text-[9px] sm:text-[10px] text-white/20 flex items-center gap-1">
+                                  <span className="w-1 h-1 rounded-full bg-accent inline-block flex-shrink-0" /> {(project.video_urls || []).length} video
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-1 sm:gap-2 flex-shrink-0">
+                            <button
+                              onClick={() => {
+                                clearForm();
+                                setEditingProject({ ...project, video_urls: project.video_urls || [] });
+                              }}
+                              className="p-1.5 sm:p-2 text-white/20 hover:text-white transition bg-white/5 rounded-lg"
+                            >
+                              <Pencil size={12} />
+                            </button>
+                            <button
+                              onClick={() => project.id && handleDelete(project.id)}
+                              className="p-1.5 sm:p-2 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="text-xs font-heading font-bold tracking-widest uppercase text-white">{project.title}</h4>
-                          <p className="text-[10px] text-accent uppercase tracking-[0.2em] font-black">{project.category}</p>
-                          {project.image_layout && project.image_layout !== 'auto' && (
-                            <p className="text-[10px] text-white/20 mt-0.5">Layout: {project.image_layout}</p>
-                          )}
-                          {(project.video_urls || []).length > 0 && (
-                            <p className="text-[10px] text-white/20 mt-0.5 flex items-center gap-1">
-                              <span className="w-1 h-1 rounded-full bg-accent inline-block" /> {(project.video_urls || []).length} video{(project.video_urls || []).length > 1 ? 's' : ''} linked
-                            </p>
-                          )}
-                          {project.project_url && (
-                            <p className="text-[10px] text-white/20 mt-0.5 flex items-center gap-1">
-                              <span className="w-1 h-1 rounded-full bg-accent inline-block" /> External link
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            clearForm();
-                            setEditingProject({ ...project, video_urls: project.video_urls || [] });
-                          }}
-                          className="p-2 text-white/20 hover:text-white transition bg-white/5 rounded-lg"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          onClick={() => project.id && handleDelete(project.id)}
-                          className="p-2 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                      ))}
                     </div>
                   ))}
                 </div>
