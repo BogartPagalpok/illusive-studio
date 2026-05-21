@@ -18,16 +18,31 @@ interface HeroContent {
 }
 
 const defaultContent: HeroContent = {
-  subtitle: 'Graphic Designer • Photographer • Virtual Assistant',
+  subtitle: 'Digital Art Director • Frontend Developer',
   heading_line1: 'Crafting Visual',
   heading_line2: 'Stories',
   heading_line3: 'Resonate',
-  description: "I'm Ian Lester Eclevia — where timeless design meets modern execution. From brand identity to digital painting, I bring ideas to life with precision and passion.",
+  description: "I'm Ian Lester Eclevia — operating a hybrid, end-to-end creative production pipeline. I bridge the gap between premium aesthetic design, technical execution, and algorithmic strategy to engineer visual experiences that command attention.",
 };
+
+// Removed the standard HTML smooth scroll fallback from here
+// since you are utilizing GSAP and Framer Motion which can conflict with standard CSS scrolling behaviors.
 
 function scrollToId(e: React.MouseEvent, id: string) {
   e.preventDefault();
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  
+  // Implemented robust smooth scrolling logic that plays nicely with React and avoids jumpiness
+  const element = document.getElementById(id);
+  if (element) {
+    const headerOffset = 80; // Adjust this if you have a sticky navbar covering the target
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+  
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  }
 }
 
 export default function Hero() {
@@ -180,7 +195,8 @@ export default function Hero() {
             className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-auto z-20"
           >
             <button
-              onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
+              // Updated to use the more robust scroll function
+              onClick={(e) => scrollToId(e as any, 'services')} 
               className="flex flex-col items-center justify-center gap-2 text-white/40 hover:text-accent transition-colors duration-300 w-full"
             >
               <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase text-center block">Scroll</span>
