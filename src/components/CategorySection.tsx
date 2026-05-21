@@ -147,7 +147,7 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
             <img
               src={project.hero_bg_desktop || project.image_url}
               alt={project.title}
-              className={`w-full block ${isHero ? 'h-full object-cover aspect-square' : 'h-auto'}`}
+              className={`w-full block ${isHero ? 'h-full object-cover' : 'h-auto'}`}
               loading="lazy"
               style={isHero ? { height: '100%' } : undefined}
             />
