@@ -544,8 +544,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
                         }}
                         isHero={true}
                       />
-                        }} 
-                      />
                     ) : (
                       <GraphicsCompositeCard
                         key={i}
