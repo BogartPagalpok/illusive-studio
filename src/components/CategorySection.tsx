@@ -365,14 +365,20 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
 }
 
 function FacebookEmbed({ url }: { url: string }) {
-  useEffect(() => {
-    if ((window as any).FB) (window as any).FB.XFBML.parse();
-  }, [url]);
+  const embedUrl = `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}&show_text=true&width=500`;
+  
   return (
-    <div className="fb-post w-full" data-href={url} data-width="100%">
-      <div className="fb-xfbml-parse-ignore">
-        <blockquote cite={url}><a href={url}>View on Facebook</a></blockquote>
-      </div>
+    <div className="w-full flex justify-center">
+      <iframe 
+        src={embedUrl}
+        width="500"
+        height="683"
+        style={{ border: 'none', overflow: 'hidden', maxWidth: '100%' }}
+        scrolling="no"
+        frameBorder="0"
+        allowFullScreen={true}
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+      />
     </div>
   );
 }
