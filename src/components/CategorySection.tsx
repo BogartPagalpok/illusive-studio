@@ -529,7 +529,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   <div className="section-divider" />
                 </motion.div>
                 {tiles.length === 1 && tiles[0].images.length === 1 ? (
-                  <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="break-inside-avoid">
                       <FlipCard 
                         project={{ 
