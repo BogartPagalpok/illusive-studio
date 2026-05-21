@@ -528,29 +528,49 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   <span className="section-subtitle">{category}</span>
                   <h2 className="section-title">{title}</h2>
                   <div className="section-divider" />
-                </motion.div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {tiles.map((tile, i) => (
-                    tile.images.length === 1 ? (
+                                </motion.div>
+                {tiles.length === 1 && tiles[0].images.length === 1 ? (
+                  <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
+                    <div className="break-inside-avoid">
                       <FlipCard 
-                        key={i}
                         project={{ 
-                          id: `${title}-${i}`, 
+                          id: `${title}-0`, 
                           title, 
                           category, 
-                          image_url: tile.images[0], 
-                          description: tile.description, 
-                          tools: tile.tools 
-                        }}
-                          />
-                    ) : (
-                      <GraphicsCompositeCard
-                        key={i}
-                        images={tile.images}
-                        title={title}
-                        description={tile.description}
-                        tools={tile.tools}
+                          image_url: tiles[0].images[0], 
+                          description: tiles[0].description, 
+                          tools: tiles[0].tools 
+                        }} 
                       />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {tiles.map((tile, i) => (
+                      tile.images.length === 1 ? (
+                        <FlipCard 
+                          key={i}
+                          project={{ 
+                            id: `${title}-${i}`, 
+                            title, 
+                            category, 
+                            image_url: tile.images[0], 
+                            description: tile.description, 
+                            tools: tile.tools 
+                          }} 
+                        />
+                      ) : (
+                        <GraphicsCompositeCard
+                          key={i}
+                          images={tile.images}
+                          title={title}
+                          description={tile.description}
+                          tools={tile.tools}
+                        />
+                      )
+                    ))}
+                  </div>
+                )}
                     )
                   ))}
                 </div>
