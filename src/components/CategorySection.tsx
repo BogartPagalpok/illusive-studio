@@ -567,9 +567,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
                           description={tile.description}
                           tools={tile.tools}
                         />
-                      )
-                    ))}
-                  </div>
                 )}
                     )
                   ))}
