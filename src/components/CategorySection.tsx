@@ -501,15 +501,16 @@ export default function CategorySection({ category }: CategorySectionProps) {
       {visibleGroups.map(([title, titleProjects]) => {
         // ── Graphics: Singles + Tiles ────────────────────
         if (isGraphics) {
-          const singles = titleProjects.filter(p => p.image_url && p.image_layout === 'single');
+                    const singles = titleProjects.filter(p => p.image_url && p.image_layout === 'single');
           const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
           
-                             titleProjects.forEach(project => {
+          titleProjects.forEach(project => {
             if (!project.image_url) return;
             if (project.image_layout === 'single') return;
             const layout = project.image_layout || 'auto';
+            const maxPerTile = layout === '3up-portrait-left' ? 3 : 4;
             const existingTile = tiles[tiles.length - 1];
-            if (existingTile && existingTile.layout === layout) {
+            if (existingTile && existingTile.layout === layout && existingTile.images.length < maxPerTile) {
               existingTile.images.push(project.image_url);
             } else {
               tiles.push({
@@ -520,7 +521,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
               });
             }
           });
-
           if (singles.length === 0 && tiles.length === 0) return null;
 
                     return (
