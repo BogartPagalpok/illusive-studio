@@ -198,6 +198,20 @@ export default function ProjectManager() {
         }
         const { error } = await supabase.from('portfolio_projects').insert(batchProjects);
         if (error) throw error;
+      } else if (editingProject.id && selectedFiles.length === 0) {
+        const { error } = await supabase
+          .from('portfolio_projects')
+          .update({ 
+            title: editingProject.title,
+            description: editingProject.description,
+            tools: toolArray,
+            process: editingProject.process,
+            results: editingProject.results,
+            category: editingProject.category,
+            project_url: editingProject.project_url || '',
+          })
+          .eq('title', editingProject.title);
+        if (error) throw error;
       } else {
         let finalUrl = editingProject.image_url;
         if (selectedFiles.length === 1) {
@@ -246,7 +260,6 @@ export default function ProjectManager() {
     return acc;
   }, {} as Record<string, Project[]>);
 
-  // Group by title within each category
   const getGroupedByTitle = (categoryProjects: Project[]) => {
     const grouped: Record<string, Project[]> = {};
     categoryProjects.forEach(project => {
@@ -294,7 +307,7 @@ export default function ProjectManager() {
         <div className="p-4 sm:p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl space-y-4 sm:space-y-6 relative z-10">
           <div className="flex justify-between items-center border-b border-white/5 pb-3 sm:pb-4">
             <h3 className="text-xs sm:text-sm font-heading font-black uppercase tracking-[0.2em] text-white">
-              {editingProject.id ? 'Add to Project' : `New Entry ${selectedFiles.length > 1 ? `(${selectedFiles.length} files)` : ''}`}
+              {editingProject.id ? 'Edit Details' : `New Entry ${selectedFiles.length > 1 ? `(${selectedFiles.length} files)` : ''}`}
             </h3>
             <button onClick={clearForm} className="text-white/20 hover:text-white"><X size={16} /></button>
           </div>
@@ -537,9 +550,27 @@ export default function ProjectManager() {
                 <div className="border-t border-white/5">
                   {Object.entries(byTitle).map(([title, titleProjects]) => (
                     <div key={title}>
-                      <div className="px-3 sm:px-4 py-2 bg-white/[0.01] border-b border-white/5">
-                        <span className="text-[10px] sm:text-xs font-heading font-bold uppercase tracking-wider text-white/50">{title}</span>
-                        <span className="text-[9px] sm:text-[10px] text-white/20 ml-2">({titleProjects.length})</span>
+                      <div className="px-3 sm:px-4 py-2 bg-white/[0.01] border-b border-white/5 flex items-center justify-between">
+                        <div>
+                          <span className="text-[10px] sm:text-xs font-heading font-bold uppercase tracking-wider text-white/50">{title}</span>
+                          <span className="text-[9px] sm:text-[10px] text-white/20 ml-2">({titleProjects.length})</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const first = titleProjects[0];
+                            clearForm();
+                            setEditingProject({ 
+                              ...first, 
+                              video_urls: first.video_urls || [],
+                              image_url: '',
+                              image_layout: ''
+                            });
+                          }}
+                          className="p-1 text-white/20 hover:text-accent transition"
+                          title="Edit details for all"
+                        >
+                          <Pencil size={12} />
+                        </button>
                       </div>
                       {titleProjects.map(project => (
                         <div
