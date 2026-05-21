@@ -541,6 +541,9 @@ export default function CategorySection({ category }: CategorySectionProps) {
                           image_url: tile.images[0], 
                           description: tile.description, 
                           tools: tile.tools 
+                        }}
+                        isHero={true}
+                      />
                         }} 
                       />
                     ) : (
