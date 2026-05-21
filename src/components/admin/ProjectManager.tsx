@@ -20,6 +20,7 @@ interface Project {
   results: string;
   image_url: string;
   video_urls?: VideoEntry[];
+  facebook_urls?: string[];
   image_layout?: string;
   project_url?: string;
   card_thumbnail?: string;
@@ -37,6 +38,7 @@ const EMPTY_PROJECT: Project = {
   results: '',
   image_url: '',
   video_urls: [],
+  facebook_urls: [],
   image_layout: 'auto',
   project_url: '',
   card_thumbnail: '',
@@ -67,6 +69,7 @@ export default function ProjectManager() {
   const [mobileFile, setMobileFile] = useState<any>(null);
   const [newVideoUrl, setNewVideoUrl] = useState('');
   const [newVideoVertical, setNewVideoVertical] = useState(false);
+  const [newFacebookUrl, setNewFacebookUrl] = useState('');
 
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
@@ -118,6 +121,7 @@ export default function ProjectManager() {
     setMobileFile(null);
     setNewVideoUrl('');
     setNewVideoVertical(false);
+    setNewFacebookUrl('');
   };
 
   const addVideoUrl = () => {
@@ -142,6 +146,22 @@ export default function ProjectManager() {
     const updated = [...(editingProject.video_urls || [])];
     updated[index] = { ...updated[index], vertical: !updated[index].vertical };
     setEditingProject({ ...editingProject, video_urls: updated });
+  };
+
+  const addFacebookUrl = () => {
+    if (!newFacebookUrl.trim() || !editingProject) return;
+    setEditingProject({
+      ...editingProject,
+      facebook_urls: [...(editingProject.facebook_urls || []), newFacebookUrl.trim()]
+    });
+    setNewFacebookUrl('');
+  };
+
+  const removeFacebookUrl = (index: number) => {
+    if (!editingProject) return;
+    const updated = [...(editingProject.facebook_urls || [])];
+    updated.splice(index, 1);
+    setEditingProject({ ...editingProject, facebook_urls: updated });
   };
 
   const handleSave = async () => {
@@ -171,6 +191,7 @@ export default function ProjectManager() {
         results: editingProject.results,
         featured: editingProject.featured,
         video_urls: editingProject.video_urls || [],
+        facebook_urls: editingProject.facebook_urls || [],
         image_layout: editingProject.image_layout || 'auto',
         project_url: editingProject.project_url || '',
         card_thumbnail: cUrl,
@@ -198,7 +219,7 @@ export default function ProjectManager() {
         }
         const { error } = await supabase.from('portfolio_projects').insert(batchProjects);
         if (error) throw error;
-           } else if (editingProject.id && selectedFiles.length === 0) {
+      } else if (editingProject.id && selectedFiles.length === 0) {
         const originalTitle = projects.find(p => p.id === editingProject.id)?.title || editingProject.title;
         const { error } = await supabase
           .from('portfolio_projects')
@@ -210,6 +231,8 @@ export default function ProjectManager() {
             results: editingProject.results,
             category: editingProject.category,
             project_url: editingProject.project_url || '',
+            facebook_urls: editingProject.facebook_urls || [],
+            video_urls: editingProject.video_urls || [],
           })
           .eq('title', originalTitle);
         if (error) throw error;
@@ -405,6 +428,33 @@ export default function ProjectManager() {
                 </div>
               </div>
               <div>
+                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Facebook URLs (Optional)</label>
+                <div className="space-y-1.5">
+                  {(editingProject.facebook_urls || []).map((url, index) => (
+                    <div key={index} className="flex gap-1.5 items-center">
+                      <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] sm:text-sm text-white/70 flex items-center overflow-hidden whitespace-nowrap">
+                        {url}
+                      </div>
+                      <button onClick={() => removeFacebookUrl(index)} className="p-1.5 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg flex-shrink-0">
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                  <div className="flex gap-1.5 items-center">
+                    <input
+                      value={newFacebookUrl}
+                      onChange={e => setNewFacebookUrl(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && addFacebookUrl()}
+                      className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
+                      placeholder="https://facebook.com/your-post"
+                    />
+                    <button onClick={addFacebookUrl} className="p-1.5 text-white/20 hover:text-accent transition bg-white/5 rounded-lg flex-shrink-0">
+                      <Plus size={12} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div>
                 <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">
                   Main Image / Gallery {selectedFiles.length > 0 && <span className="text-accent ml-1">({selectedFiles.length} selected)</span>}
                 </label>
@@ -563,6 +613,7 @@ export default function ProjectManager() {
                             setEditingProject({ 
                               ...first, 
                               video_urls: first.video_urls || [],
+                              facebook_urls: first.facebook_urls || [],
                               image_url: '',
                               image_layout: ''
                             });
@@ -599,13 +650,18 @@ export default function ProjectManager() {
                                   <span className="w-1 h-1 rounded-full bg-accent inline-block flex-shrink-0" /> {(project.video_urls || []).length} video
                                 </p>
                               )}
+                              {(project.facebook_urls || []).length > 0 && (
+                                <p className="text-[9px] sm:text-[10px] text-white/20 flex items-center gap-1">
+                                  <span className="w-1 h-1 rounded-full bg-accent inline-block flex-shrink-0" /> {(project.facebook_urls || []).length} FB post
+                                </p>
+                              )}
                             </div>
                           </div>
                           <div className="flex gap-1 sm:gap-2 flex-shrink-0">
                             <button
                               onClick={() => {
                                 clearForm();
-                                setEditingProject({ ...project, video_urls: project.video_urls || [] });
+                                setEditingProject({ ...project, video_urls: project.video_urls || [], facebook_urls: project.facebook_urls || [] });
                               }}
                               className="p-1.5 sm:p-2 text-white/20 hover:text-white transition bg-white/5 rounded-lg"
                             >
