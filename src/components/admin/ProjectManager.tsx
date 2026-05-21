@@ -198,7 +198,8 @@ export default function ProjectManager() {
         }
         const { error } = await supabase.from('portfolio_projects').insert(batchProjects);
         if (error) throw error;
-      } else if (editingProject.id && selectedFiles.length === 0) {
+           } else if (editingProject.id && selectedFiles.length === 0) {
+        const originalTitle = projects.find(p => p.id === editingProject.id)?.title || editingProject.title;
         const { error } = await supabase
           .from('portfolio_projects')
           .update({ 
@@ -210,7 +211,7 @@ export default function ProjectManager() {
             category: editingProject.category,
             project_url: editingProject.project_url || '',
           })
-          .eq('title', editingProject.title);
+          .eq('title', originalTitle);
         if (error) throw error;
       } else {
         let finalUrl = editingProject.image_url;
