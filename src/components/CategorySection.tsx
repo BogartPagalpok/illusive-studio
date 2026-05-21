@@ -542,8 +542,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
                           description: tile.description, 
                           tools: tile.tools 
                         }}
-                        isHero={true}
-                      />
+                          />
                     ) : (
                       <GraphicsCompositeCard
                         key={i}
