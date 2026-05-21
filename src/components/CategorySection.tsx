@@ -365,14 +365,19 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
 }
 
 function FacebookEmbed({ url }: { url: string }) {
-  const embedUrl = `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}&show_text=true&width=500`;
+  // Clean the URL - extract just the Facebook post URL if full embed code was pasted
+  const cleanUrl = url.includes('iframe') 
+    ? url.match(/href=["']?(https:\/\/www\.facebook\.com\/[^"'\s&]+)/)?.[1] || url
+    : url;
+  
+  const embedUrl = `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(cleanUrl)}&show_text=true&width=500`;
   
   return (
     <div className="w-full flex justify-center">
       <iframe 
         src={embedUrl}
         width="500"
-        height="683"
+        height="250"
         style={{ border: 'none', overflow: 'hidden', maxWidth: '100%' }}
         scrolling="no"
         frameBorder="0"
