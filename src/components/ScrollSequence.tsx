@@ -72,10 +72,13 @@ export default function ScrollSequence({
     };
 
     const loadAll = async () => {
+      // 1. Await the first frame so the initial canvas paints instantly
       await loadFrame(0);
+      
+      // 2. Fire off all other frames concurrently without blocking the queue
       for (let i = 1; i < frameCount; i++) {
         if (cancelled) break;
-        await loadFrame(i);
+        loadFrame(i);
       }
     };
 
