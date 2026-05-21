@@ -144,12 +144,11 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
               borderColor: 'var(--glass-border)',
             }}
           >
-            <img
               src={project.hero_bg_desktop || project.image_url}
               alt={project.title}
-              className={`w-full block ${isHero ? 'h-full object-cover' : 'h-auto'}`}
+              className={`w-full block ${isHero ? 'h-full object-cover aspect-square' : 'h-auto'}`}
               loading="lazy"
-              style={isHero ? { minHeight: '300px' } : undefined}
+              style={isHero ? { height: '100%' } : undefined}
             />
             <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
               <p className="text-white text-xs font-bold uppercase tracking-wider">{project.title}</p>
