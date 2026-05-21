@@ -506,7 +506,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
           titleProjects.forEach(project => {
             if (!project.image_url) return;
             const layout = project.image_layout || 'auto';
-            let tile = tiles.find(t => t.layout === layout && t.images.length < 6);
+            let tile = layout === 'single' ? null : tiles.find(t => t.layout === layout && t.images.length < 6);
             if (!tile) {
               tile = { 
                 images: [], 
