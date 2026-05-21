@@ -499,7 +499,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
   return (
     <>
       {visibleGroups.map(([title, titleProjects]) => {
-        // ── Graphics: Tiles Grid ─────────────────────────
         if (isGraphics) {
           const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
           
@@ -528,7 +527,8 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   <span className="section-subtitle">{category}</span>
                   <h2 className="section-title">{title}</h2>
                   <div className="section-divider" />
-                                                {tiles.length === 1 && tiles[0].images.length === 1 ? (
+                </motion.div>
+                {tiles.length === 1 && tiles[0].images.length === 1 ? (
                   <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
                     <div className="break-inside-avoid">
                       <FlipCard 
@@ -574,7 +574,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
             </section>
           );
         }
-        // ── Motion: Panel Layout ─────────────────────────
+
         if (isMotion) {
           const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> = [];
           let titleDescription = '';
@@ -613,7 +613,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
           );
         }
 
-        // ── Photography & UI/UX: Original masonry ────────
         const hasGap = titleProjects.length % columnCount !== 0;
         const lastIndex = titleProjects.length - 1;
 
