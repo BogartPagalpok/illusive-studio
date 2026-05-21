@@ -499,12 +499,14 @@ export default function CategorySection({ category }: CategorySectionProps) {
   return (
     <>
       {visibleGroups.map(([title, titleProjects]) => {
-              // ── Graphics: Tiles Grid ─────────────────────────
+        // ── Graphics: Singles + Tiles ────────────────────
         if (isGraphics) {
+          const singles = titleProjects.filter(p => p.image_url && p.image_layout === 'single');
           const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
           
           titleProjects.forEach(project => {
             if (!project.image_url) return;
+            if (project.image_layout === 'single') return;
             const layout = project.image_layout || 'auto';
             let tile = tiles.find(t => t.layout === layout && t.images.length < 6);
             if (!tile) {
@@ -519,7 +521,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
             tile.images.push(project.image_url);
           });
 
-          if (tiles.length === 0) return null;
+          if (singles.length === 0 && tiles.length === 0) return null;
 
           return (
             <section key={title} className="section-padding relative overflow-visible bg-transparent">
@@ -529,29 +531,18 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   <h2 className="section-title">{title}</h2>
                   <div className="section-divider" />
                 </motion.div>
-                {tiles.length === 1 && tiles[0].images.length === 1 ? (
-                  <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
-                    <div className="break-inside-avoid">
-                      <FlipCard 
-                        project={{ 
-                          id: `${title}-0`, 
-                          title, 
-                          category, 
-                          image_url: tiles[0].images[0], 
-                          description: tiles[0].description, 
-                          tools: tiles[0].tools 
-                        }} 
-                      />
+                <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
+                  {singles.map((project) => (
+                    <div className="break-inside-avoid" key={project.id}>
+                      <FlipCard project={project} />
                     </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {tiles.map((tile, i) => (
-                      tile.images.length === 1 ? (
+                  ))}
+                  {tiles.map((tile, i) => (
+                    <div className="break-inside-avoid" key={`tile-${i}`}>
+                      {tile.images.length === 1 ? (
                         <FlipCard 
-                          key={i}
                           project={{ 
-                            id: `${title}-${i}`, 
+                            id: `${title}-tile-${i}`, 
                             title, 
                             category, 
                             image_url: tile.images[0], 
@@ -561,20 +552,20 @@ export default function CategorySection({ category }: CategorySectionProps) {
                         />
                       ) : (
                         <GraphicsCompositeCard
-                          key={i}
                           images={tile.images}
                           title={title}
                           description={tile.description}
                           tools={tile.tools}
                         />
-                      )
-                    ))}
-                  </div>
-                )}
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             </section>
           );
         }
+
         // ── Motion: Panel Layout ─────────────────────────
         if (isMotion) {
           const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> = [];
