@@ -8,14 +8,14 @@ import { supabase } from '../lib/supabase';
 gsap.registerPlugin(ScrollTrigger);
 
 const skills = [
-  { name: 'Photoshop', level: 95 },
-  { name: 'Digital Painting', level: 90 },
-  { name: 'Adobe Lightroom', level: 88 },
-  { name: 'Traditional Arts', level: 85 },
-  { name: 'Photography', level: 92 },
-  { name: 'Canva', level: 90 },
-  { name: 'Videography', level: 80 },
-  { name: 'Typography', level: 87 },
+  { name: 'Frontend Dev (React / Tailwind)', level: 90 },
+  { name: 'Advanced Compositing (Ps)', level: 95 },
+  { name: 'Motion Graphics & VFX', level: 85 },
+  { name: 'Editorial Photography', level: 92 },
+  { name: 'UI/UX Prototyping', level: 88 },
+  { name: 'Agile Pipelines (Canva Pro)', level: 95 },
+  { name: 'Digital Illustration', level: 90 },
+  { name: 'Typography & Grid Systems', level: 87 },
 ];
 
 interface AboutContent {
