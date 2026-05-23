@@ -257,7 +257,7 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
               borderColor: 'var(--glass-border)',
-              backgroundColor: 'var(--bg-primary)',
+              backgroundColor: 'transparent', /* Changed from var(--bg-primary) */
             }}
           >
             {count === 3 ? (
@@ -298,7 +298,7 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
                 ))}
               </div>
             )}
-            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent pointer-events-none">
               <p className="text-white text-xs font-bold uppercase tracking-wider">{title}</p>
               {isMobile && <p className="text-white/50 text-[8px] mt-0.5">Tap to flip</p>}
             </div>
