@@ -190,20 +190,23 @@ class FluidSimulation {
   dispose() { this.renderer?.dispose(); }
 }
 
-// ── Mouse and Auto‑demo helpers (unchanged) ─────────────
+// ── Mouse and Auto‑demo helpers (UPDATED) ─────────────
 class MouseTracker {
   coords = new THREE.Vector2();
   coordsOld = new THREE.Vector2();
   diff = new THREE.Vector2();
   lastInteraction = performance.now();
-  update(clientX: number, clientY: number, rect: DOMRect) {
-    const x = ((clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -((clientY - rect.top) / rect.height) * 2 + 1;
+  
+  update(clientX: number, clientY: number) {
+    const x = (clientX / window.innerWidth) * 2 - 1;
+    const y = -(clientY / window.innerHeight) * 2 + 1;
+    
     this.coordsOld.copy(this.coords);
     this.coords.set(x, y);
     this.diff.subVectors(this.coords, this.coordsOld);
     this.lastInteraction = performance.now();
   }
+  
   setCoords(x: number, y: number) {
     this.coordsOld.copy(this.coords);
     this.coords.set(x, y);
@@ -336,8 +339,7 @@ function DesktopFluidSim({
     sim.init(container, paletteTex);
 
     const onMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      mouse.update(e.clientX, e.clientY, rect);
+      mouse.update(e.clientX, e.clientY);
     };
     window.addEventListener('mousemove', onMouseMove);
 
@@ -345,15 +347,13 @@ function DesktopFluidSim({
     const onTouchStart = (e: TouchEvent) => {
       e.preventDefault();
       if (e.touches.length === 1) {
-        const rect = container.getBoundingClientRect();
-        mouse.update(e.touches[0].clientX, e.touches[0].clientY, rect);
+        mouse.update(e.touches[0].clientX, e.touches[0].clientY);
       }
     };
     const onTouchMove = (e: TouchEvent) => {
       e.preventDefault();
       if (e.touches.length === 1) {
-        const rect = container.getBoundingClientRect();
-        mouse.update(e.touches[0].clientX, e.touches[0].clientY, rect);
+        mouse.update(e.touches[0].clientX, e.touches[0].clientY);
       }
     };
     if (canvas) {
