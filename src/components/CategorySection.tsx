@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, X, Play, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import ScrollingMasonry from '../components/ScrollingMasonry';
 
 interface VideoEntry {
   url: string;
@@ -644,7 +645,33 @@ export default function CategorySection({ category }: CategorySectionProps) {
           );
         }
 
-        // ── Photography & UI/UX: Original masonry ────────
+               // ── Photography & UI/UX: Scrolling Masonry ────────
+        const isPhotography = category === 'Photography';
+        const isUIUX = category === 'UI/UX';
+
+        if (isPhotography || isUIUX) {
+          return (
+            <section key={title} className="section-padding relative overflow-visible bg-transparent">
+              <div className="section-container relative">
+                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
+                  <span className="section-subtitle">{category}</span>
+                  <h2 className="section-title">{title}</h2>
+                  <div className="section-divider" />
+                </motion.div>
+
+                {loading && (
+                  <div className="flex justify-center py-12">
+                    <Loader2 className="w-8 h-8 text-accent animate-spin" />
+                  </div>
+                )}
+
+                <ScrollingMasonry projects={titleProjects} height={600} speed={100} />
+              </div>
+            </section>
+          );
+        }
+
+        // ── Fallback masonry ─────────────────────────────
         const hasGap = titleProjects.length % columnCount !== 0;
         const lastIndex = titleProjects.length - 1;
 
