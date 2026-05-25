@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { shoes as originalShoesData } from '../data/shoes';
 
 interface ShoeVariant {
   id: string;
@@ -14,28 +13,33 @@ interface ShoeVariant {
 export default function ProjectPortal() {
   const [activeShoe, setActiveShoe] = useState<ShoeVariant | null>(null);
 
-  // Maps all items directly from your source data using the temporary GitHub raw fallback assets
-  const dynamicShoes: ShoeVariant[] = originalShoesData.map((s) => {
-    let fallbackImage = s.image;
-    
-    // Wire up clean local asset fallback mappings to prevent broken image cards on load
-    if (s.id === 'proto' || s.tags.some(t => t.toLowerCase().includes('volt'))) {
-      fallbackImage = 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/proto.png';
-    } else if (s.id === 'dn' || s.tags.some(t => t.toLowerCase().includes('purple'))) {
-      fallbackImage = 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/purple.png';
-    } else if (s.tags.some(t => t.toLowerCase().includes('red')) || s.id.includes('red')) {
-      fallbackImage = 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/red.png';
+  // Self-contained shoe dataset mapped directly inside to fix the missing dataset build error
+  const dynamicShoes: ShoeVariant[] = [
+    {
+      id: 'proto',
+      title: 'Alphafly Proto',
+      colorName: 'Volt Energy',
+      colorHex: '#ccff00',
+      url: 'https://demo-6py.pages.dev/?color=volt',
+      image: 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/proto.png'
+    },
+    {
+      id: 'dn',
+      title: 'Air Max Dn',
+      colorName: 'Dynamic Purple',
+      colorHex: '#8a2be2',
+      url: 'https://demo-6py.pages.dev/?color=purple',
+      image: 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/purple.png'
+    },
+    {
+      id: 'red',
+      title: 'Air Zoom Red',
+      colorName: 'Chili Red',
+      colorHex: '#e60000',
+      url: 'https://demo-6py.pages.dev/?color=red',
+      image: 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/red.png'
     }
-
-    return {
-      id: s.id,
-      title: s.line1 + " " + s.line2,
-      colorName: s.subtitle,
-      colorHex: s.theme.accent,
-      url: `https://demo-6py.pages.dev/?color=${s.tags[0]?.toLowerCase() || 'volt'}`,
-      image: fallbackImage
-    };
-  });
+  ];
 
   const imageWidth = 220;
   const imageHeight = 150;
@@ -155,7 +159,7 @@ export default function ProjectPortal() {
               </button>
             </div>
 
-            {/* Split Screen Matrix Framework Layout */}
+            {/* Split Screen Grid Layout */}
             <div className="w-full grid grid-cols-1 lg:grid-cols-[1.65fr_1fr] gap-6 xl:gap-10 items-center justify-center">
               
               {/* DESKTOP WEB FRAME */}
