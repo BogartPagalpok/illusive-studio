@@ -7,15 +7,12 @@ interface ShoeVariant {
   colorName: string;
   colorHex: string;
   url: string;
-  bgImage: string;
   shoeImage: string;
 }
 
 export default function ProjectPortal() {
   const [activeShoe, setActiveShoe] = useState<ShoeVariant | null>(null);
 
-  // Mapped all 5 shoes utilizing your exact GitHub repo asset filenames
-  // Compositing the background card with the isolated bouncing shoe
   const dynamicShoes: ShoeVariant[] = [
     {
       id: 'blue',
@@ -23,7 +20,6 @@ export default function ProjectPortal() {
       colorName: 'Ocean Surge',
       colorHex: '#00d2ff',
       url: 'https://demo-6py.pages.dev/?color=blue',
-      bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/blue.png',
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_blue.png'
     },
     {
@@ -32,7 +28,6 @@ export default function ProjectPortal() {
       colorName: 'Cherry Bomb',
       colorHex: '#ff0055',
       url: 'https://demo-6py.pages.dev/?color=cherry',
-      bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/cherry.png',
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_cherry.png'
     },
     {
@@ -41,7 +36,6 @@ export default function ProjectPortal() {
       colorName: 'Volt Energy',
       colorHex: '#ccff00',
       url: 'https://demo-6py.pages.dev/?color=volt',
-      bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/green.png',
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_green.png'
     },
     {
@@ -50,7 +44,6 @@ export default function ProjectPortal() {
       colorName: 'Dynamic Purple',
       colorHex: '#8a2be2',
       url: 'https://demo-6py.pages.dev/?color=purple',
-      bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/purple.png',
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_purple.png'
     },
     {
@@ -59,122 +52,102 @@ export default function ProjectPortal() {
       colorName: 'Chili Red',
       colorHex: '#e60000',
       url: 'https://demo-6py.pages.dev/?color=red',
-      bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/red.png',
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_red.png'
     }
   ];
 
-  const imageWidth = 260;
-  const imageHeight = 340;
-  const translateZ = 380; 
-  const spreadAngle = 360 / dynamicShoes.length;
+  const marqueeShoes = [...dynamicShoes, ...dynamicShoes, ...dynamicShoes];
 
   return (
-    <section className="w-full min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative z-10 bg-[#060606] overflow-hidden select-none">
+    <section className="w-full min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
       
-      <style>{`
-        @keyframes rotation {
-          from { transform: rotateY(0deg); }
-          to { transform: rotateY(360deg); }
-        }
-        @keyframes floatBounce {
-          0%, 100% { transform: translateY(0px) rotate(-8deg) scale(1.1); }
-          50% { transform: translateY(-16px) rotate(-8deg) scale(1.1); }
-        }
-        .carousel-container {
-          perspective: 1600px;
-          overflow: visible;
-        }
-        /* Slowed to 40s, hover pause removed per your instructions */
-        .carousel-3d {
-          transform-style: preserve-3d;
-          transform-origin: center center;
-          animation: rotation 40s infinite linear;
-        }
-        .carousel-item {
-          position: absolute;
-          margin: 0;
-          top: 50%;
-          left: 50%;
-          transform-origin: center center;
-          transform-style: preserve-3d;
-          backface-visibility: hidden; /* Hides the mirrored back view completely on the far side of the orbit */
-        }
-        .shoe-float {
-          animation: floatBounce 4s ease-in-out infinite;
-        }
-      `}</style>
-
       <AnimatePresence mode="wait">
         {!activeShoe ? (
-          /* STATE 1: 3D ROTATING CAROUSEL VIEWPORT */
+          /* STATE 1: SELECTION VIEWPORT (Desktop Grid / Mobile Marquee) */
           <motion.div
-            key="carousel-view"
+            key="selection-view"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5 }}
-            className="w-full flex flex-col items-center justify-center min-h-[700px]"
+            className="w-full flex flex-col items-center justify-center min-h-[600px]"
           >
-            <div className="text-center mb-32">
+            <div className="text-center mb-12 lg:mb-24">
               <span className="text-xs font-black tracking-[0.4em] text-white/50 uppercase">Interactive Showroom</span>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white uppercase mt-1">Select A Variant</h2>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white uppercase mt-2">Select A Variant</h2>
             </div>
 
-            <div className="carousel-container relative w-full max-w-5xl h-[400px] flex items-center justify-center">
-              <div className="carousel-3d w-full h-full relative flex items-center justify-center">
-                {dynamicShoes.map((shoe, index) => {
-                  const angle = index * spreadAngle;
-                  const transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(${translateZ}px)`;
-
-                  return (
-                    <figure
-                      key={shoe.id}
-                      className="carousel-item group cursor-pointer"
-                      style={{ width: imageWidth, height: imageHeight, transform }}
-                      onClick={() => setActiveShoe(shoe)}
-                    >
-                      {/* OPAQUE CARD BACKGROUND: Blocks mirrored text from showing through */}
-                      <div 
-                        className="relative w-full h-full rounded-[32px] border border-white/10 bg-[#0a0a0a] overflow-hidden transition-all duration-500 group-hover:border-white/30 group-hover:-translate-y-4"
-                        style={{ boxShadow: `0 20px 40px rgba(0,0,0,0.8)` }}
-                      >
-                        
-                        {/* Hover Glow Effect Hook */}
-                        <div 
-                          className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500 blur-2xl z-0"
-                          style={{ backgroundColor: shoe.colorHex }}
-                        />
-
-                        {/* Static Card Background Image */}
-                        <img 
-                          src={shoe.bgImage} 
-                          alt="Card Background" 
-                          className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen z-10 transition-opacity duration-500 group-hover:opacity-70"
-                        />
-                        
-                        {/* Floating Bouncing Shoe Image composited on top */}
-                        <div className="absolute inset-0 z-20 flex items-center justify-center p-6">
-                          <img 
-                            src={shoe.shoeImage} 
-                            alt={shoe.title} 
-                            className="w-full h-auto object-contain shoe-float drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)]"
-                          />
-                        </div>
-
-                        {/* Typography Layer */}
-                        <div className="absolute bottom-0 left-0 w-full p-6 z-30 bg-gradient-to-t from-black via-black/80 to-transparent">
-                          <h4 className="text-[14px] font-black text-white uppercase tracking-wider">{shoe.title}</h4>
-                          <span className="text-[10px] font-bold uppercase tracking-widest mt-1 block" style={{ color: shoe.colorHex }}>
-                            {shoe.colorName}
-                          </span>
-                        </div>
-                      </div>
-                    </figure>
-                  );
-                })}
-              </div>
+            {/* --- DESKTOP VIEW: Sleek Floating Flex Row --- */}
+            <div className="hidden lg:flex flex-wrap justify-center items-center gap-12 max-w-[1400px] w-full px-8">
+              {dynamicShoes.map((shoe) => (
+                <button
+                  key={`desktop-${shoe.id}`}
+                  onClick={() => setActiveShoe(shoe)}
+                  className="group relative flex flex-col items-center justify-center w-[220px] transition-all duration-500"
+                >
+                  <div className="relative w-full h-[220px] flex items-center justify-center mb-6">
+                    {/* Hover Glow Behind Shoe */}
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-20 blur-3xl transition-opacity duration-700 rounded-full"
+                      style={{ backgroundColor: shoe.colorHex }}
+                    />
+                    
+                    {/* Floating Shoe Image */}
+                    <img 
+                      src={shoe.shoeImage} 
+                      alt={shoe.title} 
+                      className="w-full h-auto object-contain transition-all duration-500 group-hover:scale-125 group-hover:-translate-y-6 group-hover:-rotate-12 filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.6)]"
+                    />
+                  </div>
+                  
+                  {/* Clean Typography Layout */}
+                  <h4 className="text-[14px] font-black text-white uppercase tracking-wider transition-transform duration-500 group-hover:-translate-y-2">{shoe.title}</h4>
+                  <span 
+                    className="text-[10px] font-bold uppercase tracking-widest mt-1 transition-transform duration-500 group-hover:-translate-y-2" 
+                    style={{ color: shoe.colorHex }}
+                  >
+                    {shoe.colorName}
+                  </span>
+                </button>
+              ))}
             </div>
+
+            {/* --- MOBILE VIEW: Infinite Left-to-Right Auto-Scroll Marquee --- */}
+            <div className="flex lg:hidden w-full overflow-hidden relative py-10 fade-edges">
+              <style>{`
+                .fade-edges {
+                  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+                  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+                }
+              `}</style>
+
+              <motion.div
+                className="flex gap-10 w-max cursor-grab active:cursor-grabbing"
+                animate={{ x: ["-50%", "0%"] }}
+                transition={{ ease: "linear", duration: 25, repeat: Infinity }}
+              >
+                {marqueeShoes.map((shoe, idx) => (
+                  <button
+                    key={`mobile-${shoe.id}-${idx}`}
+                    onClick={() => setActiveShoe(shoe)}
+                    className="flex flex-col items-center justify-center w-[200px] shrink-0 group focus:outline-none"
+                  >
+                    <div className="relative w-full h-[180px] flex items-center justify-center mb-4">
+                       <img 
+                        src={shoe.shoeImage} 
+                        alt={shoe.title} 
+                        className="w-full h-auto object-contain filter drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] transition-transform duration-300 active:scale-95"
+                      />
+                    </div>
+                    <h4 className="text-[13px] font-black text-white uppercase tracking-wider">{shoe.title}</h4>
+                    <span className="text-[9px] font-bold uppercase tracking-widest mt-1" style={{ color: shoe.colorHex }}>
+                      {shoe.colorName}
+                    </span>
+                  </button>
+                ))}
+              </motion.div>
+            </div>
+
           </motion.div>
         ) : (
           /* STATE 2: AD CONVERSION LIVE PORTAL */
@@ -197,13 +170,12 @@ export default function ProjectPortal() {
                 onClick={() => setActiveShoe(null)}
                 className="px-6 py-3 border border-neutral-800 text-neutral-400 bg-transparent hover:bg-neutral-900 hover:text-white rounded-xl text-xs font-bold tracking-widest uppercase transition-all duration-200"
               >
-                &larr; Back To Carousel
+                &larr; Back To Selection
               </button>
             </div>
 
             <div className="w-full grid grid-cols-1 lg:grid-cols-[1.95fr_1fr] gap-6 xl:gap-8 items-center justify-center">
               
-              {/* DESKTOP WEB PORTAL FRAME */}
               <div className="hidden lg:flex flex-col w-full h-[760px] bg-neutral-900 rounded-2xl p-3.5 border border-neutral-800 shadow-2xl relative">
                 <div className="absolute top-4 left-6 flex gap-1.5 z-30">
                   <div className="w-3 h-3 rounded-full bg-red-500/80" />
@@ -218,7 +190,6 @@ export default function ProjectPortal() {
                 </div>
               </div>
 
-              {/* MOBILE PHONE PORTAL FRAME */}
               <div className="flex justify-center items-center w-full h-[760px]">
                 <div 
                   className="relative w-full max-w-[360px] h-[740px] bg-neutral-900 rounded-[50px] p-4 border-[4px] border-neutral-800 shadow-2xl ring-4 ring-neutral-950 overscroll-contain"
