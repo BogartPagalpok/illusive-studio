@@ -8,7 +8,6 @@ import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import LiquidEtherBackground from './components/LiquidEtherBackground';
-import ProjectPortal from './components/ProjectPortal';
 
 function AtmosphereGradient() {
   return (
@@ -43,7 +42,7 @@ function AtmosphereGradient() {
 function BrandLoader() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black gap-8">
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .loader-wrapper {
           position: relative;
           display: flex;
@@ -139,7 +138,7 @@ function BrandLoader() {
             scale: 1.4;
           }
         }
-      `}</style>
+      `}} />
 
       <div className="loader-wrapper">
         <span className="loader"></span>
