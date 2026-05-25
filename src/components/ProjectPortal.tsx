@@ -1,4 +1,3 @@
-```tsx
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -110,7 +109,7 @@ export default function ProjectPortal() {
   return (
     <section className="w-full min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
       
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         /* The slow, smooth bouncing animation */
         @keyframes floatBounce {
           0%, 100% { transform: translateY(0px); }
@@ -123,7 +122,7 @@ export default function ProjectPortal() {
           mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
           -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
         }
-      `}</style>
+      `}} />
 
       <AnimatePresence mode="wait">
         {!activeShoe ? (
@@ -349,5 +348,3 @@ export default function ProjectPortal() {
     </section>
   );
 }
-
-```
