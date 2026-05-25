@@ -43,14 +43,13 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
           <Services />
         </div>
         
+        {/* Embedded Device Frame Portal */}
+        <ProjectPortal />
+
         {/* Works Section */}
         <div id="works" style={{ minHeight: '50vh' }}>
           <CategorySection category="Graphic Design" />
           <CategorySection category="UI/UX" />
-          
-          {/* Embedded Device Frame Portal */}
-          <ProjectPortal />
-
           <CategorySection category="Motion" />
           <CategorySection category="Photography" />
         </div>
