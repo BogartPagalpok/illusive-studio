@@ -13,6 +13,7 @@ interface ShoeVariant {
 export default function ProjectPortal() {
   const [activeShoe, setActiveShoe] = useState<ShoeVariant | null>(null);
 
+  // Hardcoded variant items explicitly using your real GitHub repository image URLs
   const dynamicShoes: ShoeVariant[] = [
     {
       id: 'proto',
@@ -20,7 +21,7 @@ export default function ProjectPortal() {
       colorName: 'Volt Energy',
       colorHex: '#ccff00',
       url: 'https://demo-6py.pages.dev/?color=volt',
-      image: 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/proto.png'
+      image: 'https://raw.githubusercontent.com/BogartPagalpok/demo/main/public/shoes/proto.png'
     },
     {
       id: 'dn',
@@ -28,7 +29,7 @@ export default function ProjectPortal() {
       colorName: 'Dynamic Purple',
       colorHex: '#8a2be2',
       url: 'https://demo-6py.pages.dev/?color=purple',
-      image: 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/purple.png'
+      image: 'https://raw.githubusercontent.com/BogartPagalpok/demo/main/public/shoes/purple.png'
     },
     {
       id: 'red',
@@ -36,13 +37,13 @@ export default function ProjectPortal() {
       colorName: 'Chili Red',
       colorHex: '#e60000',
       url: 'https://demo-6py.pages.dev/?color=red',
-      image: 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/red.png'
+      image: 'https://raw.githubusercontent.com/BogartPagalpok/demo/main/public/shoes/red.png'
     }
   ];
 
-  const imageWidth = 220;
-  const imageHeight = 150;
-  const translateZ = 340; 
+  const imageWidth = 240;
+  const imageHeight = 160;
+  const translateZ = 280; 
   const spreadAngle = 360 / dynamicShoes.length;
 
   return (
@@ -57,27 +58,25 @@ export default function ProjectPortal() {
           perspective: 1400px;
           overflow: visible;
         }
+        /* Slowed animation down drastically (50s) to create an elegant, fluid showcase rotation */
         .carousel-3d {
           transform-style: preserve-3d;
           transform-origin: center center;
-          animation: rotation 28s infinite linear;
+          animation: rotation 50s infinite linear;
         }
-        .carousel-3d:hover {
-          animation-play-state: paused;
-        }
+        /* Completely removed the old animation-play-state freeze logic */
         .carousel-item {
           position: absolute;
           margin: 0;
           top: 50%;
           left: 50%;
           transform-origin: center center;
-          backface-visibility: visible;
         }
-        .carousel-item img {
+        /* Added preserve-3d to child elements to force crisp image layers on top of backfaces */
+        .carousel-card-inner {
+          transform-style: preserve-3d;
           width: 100%;
           height: 100%;
-          object-fit: contain;
-          backface-visibility: visible;
         }
       `}</style>
 
@@ -92,7 +91,7 @@ export default function ProjectPortal() {
             transition={{ duration: 0.5 }}
             className="w-full flex flex-col items-center justify-center min-h-[550px]"
           >
-            <div className="text-center mb-20">
+            <div className="text-center mb-24">
               <span className="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Interactive Showroom</span>
               <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white uppercase mt-1">Select A Variant</h2>
             </div>
@@ -101,27 +100,38 @@ export default function ProjectPortal() {
               <div className="carousel-3d w-full h-full relative flex items-center justify-center">
                 {dynamicShoes.map((shoe, index) => {
                   const angle = index * spreadAngle;
+                  // Corrected transform matrix chains back-to-front to keep text readable throughout the orbit
                   const transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(${translateZ}px)`;
 
                   return (
                     <figure
                       key={shoe.id}
-                      className="carousel-item group cursor-pointer transition-all duration-300"
+                      className="carousel-item group cursor-pointer"
                       style={{ width: imageWidth, height: imageHeight, transform }}
                       onClick={() => setActiveShoe(shoe)}
                     >
-                      <div className="absolute inset-0 bg-neutral-900/40 border border-white/5 rounded-2xl backdrop-blur-sm -z-10 transition-all duration-300 group-hover:border-white/20" 
-                           style={{ boxShadow: `0 10px 30px rgba(0,0,0,0.5)` }}/>
-                      
-                      <div className="w-full h-full p-4 flex flex-col items-center justify-between">
-                        <img 
-                          src={shoe.image} 
-                          alt={shoe.title} 
-                          className="transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
+                      <div className="carousel-card-inner relative w-full h-full p-4 flex flex-col items-center justify-between rounded-2xl border border-white/5 bg-neutral-900/30 backdrop-blur-md transition-all duration-500 group-hover:border-white/20"
+                           style={{ 
+                             boxShadow: `0 10px 30px rgba(0,0,0,0.5)`,
+                           }}>
+                        
+                        {/* Hover Backlight Glow Glow Engine Hook */}
+                        <div 
+                          className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl -z-10 pointer-events-none"
+                          style={{ backgroundColor: shoe.colorHex, boxShadow: `0 0 40px ${shoe.colorHex}` }}
                         />
-                        <div className="text-center pb-2">
+                        
+                        <div className="w-full flex-1 flex items-center justify-center min-h-[80px]">
+                          <img 
+                            src={shoe.image} 
+                            alt={shoe.title} 
+                            className="max-h-[85px] w-auto object-contain transition-transform duration-500 group-hover:scale-115 group-hover:-rotate-6 filter drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]"
+                          />
+                        </div>
+
+                        <div className="text-center w-full pt-2 border-t border-white/[0.03]">
                           <h4 className="text-[11px] font-black text-white uppercase tracking-wider line-clamp-1">{shoe.title}</h4>
-                          <span className="text-[9px] font-bold uppercase tracking-wider opacity-50" style={{ color: shoe.colorHex }}>
+                          <span className="text-[9px] font-bold uppercase tracking-wider transition-colors duration-300" style={{ color: shoe.colorHex }}>
                             {shoe.colorName}
                           </span>
                         </div>
@@ -152,13 +162,13 @@ export default function ProjectPortal() {
               </div>
               <button
                 onClick={() => setActiveShoe(null)}
-                className="px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-xs font-bold uppercase tracking-widest text-white rounded-xl transition-all duration-200"
+                className="px-6 py-3 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-xs font-bold uppercase tracking-widest text-white rounded-xl transition-all duration-200"
               >
                 &larr; Back To Carousel
               </button>
             </div>
 
-            {/* Split Screen Grid Layout — Expanded weights to give desktop frame 70% bounds */}
+            {/* Split Screen Framework */}
             <div className="w-full grid grid-cols-1 lg:grid-cols-[1.75fr_1fr] gap-6 xl:gap-8 items-center justify-center">
               
               {/* DESKTOP WEB FRAME */}
