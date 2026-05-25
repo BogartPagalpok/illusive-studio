@@ -106,11 +106,26 @@ export default function ProjectPortal() {
 
   const marqueeShoes = [...dynamicShoes, ...dynamicShoes, ...dynamicShoes];
 
+  // Reusable badge component to indicate interactivity
+  const InteractiveBadge = () => (
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.8, duration: 0.5 }}
+      className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md border border-white/20 text-white text-[10px] sm:text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 z-50 pointer-events-none shadow-2xl tracking-widest uppercase"
+    >
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+      </span>
+      Scroll To Interact
+    </motion.div>
+  );
+
   return (
     <section className="w-full min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
       
       <style dangerouslySetInnerHTML={{ __html: `
-        /* The slow, smooth bouncing animation */
         @keyframes floatBounce {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-20px); }
@@ -134,7 +149,7 @@ export default function ProjectPortal() {
             transition={{ duration: 0.5 }}
             className="w-full flex flex-col items-center justify-center min-h-[700px]"
           >
-            {/* 1. FIXED TITLE AND DESCRIPTION: Explains the case study context to non-technical users */}
+            {/* Context Header */}
             <div className="text-center mb-16 lg:mb-24 flex flex-col items-center px-4">
               <span className="text-[clamp(0.75rem,1vw,0.875rem)] font-bold tracking-[0.3em] uppercase mb-4" style={{ color: 'var(--accent)' }}>
                 Growth Marketing Case Study
@@ -148,7 +163,6 @@ export default function ProjectPortal() {
               </p>
             </div>
 
-            {/* 3. FIXED DISTRIBUTION: Using explicit 5-column grid instead of flex-wrap */}
             {/* DESKTOP VIEW */}
             <div className="hidden lg:grid grid-cols-5 gap-6 xl:gap-8 max-w-[1600px] w-full px-8">
               {dynamicShoes.map((shoe) => (
@@ -158,14 +172,11 @@ export default function ProjectPortal() {
                   className="group relative flex flex-col items-center justify-start w-full outline-none"
                 >
                   <div className="relative w-full aspect-square flex items-center justify-center mb-6">
-                    
                     <img 
                       src={shoe.bgImage} 
                       alt={`${shoe.title} Background`} 
                       className="absolute inset-0 w-full h-full object-cover rounded-3xl transition-transform duration-500 group-hover:scale-105"
                     />
-                    
-                    {/* 2. FIXED SHOE SIZE: Scaled down from 110% to 90%, adjusted top positioning */}
                     <img 
                       src={shoe.shoeImage} 
                       alt={shoe.title} 
@@ -182,12 +193,7 @@ export default function ProjectPortal() {
                     {shoe.colorName}
                   </span>
 
-                  {/* --- FIXED DETAILS SECTION (WCAG COMPLIANT) --- */}
                   <div className="mt-4 w-full text-left space-y-1.5 border-t border-white/10 pt-3">
-                    <div className="flex justify-between items-center text-[clamp(0.75rem,1vw,0.875rem)] uppercase tracking-widest text-[var(--text-secondary)]">
-                      <span>Path</span>
-                      <span className="text-[var(--text-primary)] font-mono">{shoe.routingPath}</span>
-                    </div>
                     <div className="flex justify-between items-center text-[clamp(0.75rem,1vw,0.875rem)] uppercase tracking-widest text-[var(--text-secondary)]">
                       <span>Target</span>
                       <span className="text-[var(--text-primary)] font-bold">{shoe.audience}</span>
@@ -197,7 +203,6 @@ export default function ProjectPortal() {
                       <span className="text-[var(--text-primary)] font-bold">{shoe.conversionFocus}</span>
                     </div>
                     
-                    {/* --- NEW META METRICS SECTION --- */}
                     <div className="mt-3 pt-3 border-t border-white/5 space-y-1.5">
                       <div className="flex justify-between items-center text-[clamp(0.75rem,1vw,0.875rem)] uppercase tracking-widest text-[var(--text-secondary)]">
                         <span>{shoe.primaryMetricLabel}</span>
@@ -227,24 +232,11 @@ export default function ProjectPortal() {
                     className="flex flex-col items-center justify-center w-[220px] shrink-0 group focus:outline-none"
                   >
                     <div className="relative w-full aspect-square flex items-center justify-center mb-4">
-                      <img 
-                        src={shoe.bgImage} 
-                        alt={`${shoe.title} Background`} 
-                        className="absolute inset-0 w-full h-full object-cover rounded-2xl"
-                      />
-                      
-                      <img 
-                        src={shoe.shoeImage} 
-                        alt={shoe.title} 
-                        className="absolute z-10 w-[90%] h-auto object-contain shoe-float drop-shadow-[0_15px_15px_rgba(0,0,0,0.7)]"
-                        style={{ top: '0%', left: '5%' }}
-                      />
+                      <img src={shoe.bgImage} alt={`${shoe.title} Background`} className="absolute inset-0 w-full h-full object-cover rounded-2xl" />
+                      <img src={shoe.shoeImage} alt={shoe.title} className="absolute z-10 w-[90%] h-auto object-contain shoe-float drop-shadow-[0_15px_15px_rgba(0,0,0,0.7)]" style={{ top: '0%', left: '5%' }} />
                     </div>
-                    
                     <h4 className="text-[clamp(0.875rem,1vw,1rem)] font-black text-[var(--text-primary)] uppercase tracking-wider">{shoe.title}</h4>
-                    <span className="text-[clamp(0.75rem,1vw,0.875rem)] font-bold uppercase tracking-widest mt-1" style={{ color: shoe.colorHex }}>
-                      {shoe.colorName}
-                    </span>
+                    <span className="text-[clamp(0.75rem,1vw,0.875rem)] font-bold uppercase tracking-widest mt-1" style={{ color: shoe.colorHex }}>{shoe.colorName}</span>
                   </button>
                 ))}
               </motion.div>
@@ -276,7 +268,7 @@ export default function ProjectPortal() {
               </button>
             </div>
 
-            {/* --- NEW MODULAR TESTING NARRATIVE BLOCK --- */}
+            {/* Growth Strategy Analysis Narrative Block */}
             <div className="w-full bg-[var(--bg-secondary)] border border-[var(--glass-border)] rounded-2xl p-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl relative overflow-hidden">
               <div className="flex-1 space-y-3 z-10">
                 <h4 className="text-[clamp(0.75rem,1vw,0.875rem)] font-black tracking-widest uppercase text-[var(--text-secondary)]">
@@ -296,14 +288,7 @@ export default function ProjectPortal() {
                    <span className="text-[10px] font-mono text-green-400 font-bold">-22%</span>
                 </div>
                 <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible" preserveAspectRatio="none">
-                  <path 
-                    d="M0,35 Q20,35 40,25 T80,10 T100,5" 
-                    fill="none" 
-                    stroke={activeShoe.colorHex} 
-                    strokeWidth="3" 
-                    vectorEffect="non-scaling-stroke" 
-                    strokeLinecap="round" 
-                  />
+                  <path d="M0,35 Q20,35 40,25 T80,10 T100,5" fill="none" stroke={activeShoe.colorHex} strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
                   <circle cx="100" cy="5" r="3" fill={activeShoe.colorHex} />
                 </svg>
               </div>
@@ -311,6 +296,7 @@ export default function ProjectPortal() {
 
             <div className="w-full grid grid-cols-1 lg:grid-cols-[1.95fr_1fr] gap-6 xl:gap-8 items-center justify-center">
               
+              {/* Desktop Frame */}
               <div className="hidden lg:flex flex-col w-full h-[760px] bg-[var(--bg-secondary)] rounded-2xl p-3.5 border border-[var(--glass-border)] shadow-2xl relative">
                 <div className="absolute top-4 left-6 flex gap-1.5 z-30">
                   <div className="w-3 h-3 rounded-full bg-red-500/80" />
@@ -320,11 +306,14 @@ export default function ProjectPortal() {
                 <div className="w-full h-8 flex items-center justify-center text-[10px] font-bold text-[var(--text-secondary)] border-b border-white/5 uppercase tracking-widest mb-2 bg-[var(--glass-bg)] rounded-t-lg">
                   Desktop Live Context
                 </div>
-                <div className="w-full h-full rounded-xl overflow-hidden border border-[var(--glass-border)] bg-black">
-                  <iframe src={activeShoe.url} className="w-full h-full border-0 select-none bg-black" title="Desktop Showroom Frame" />
+                <div className="w-full h-full rounded-xl overflow-hidden border border-[var(--glass-border)] bg-black relative group">
+                  <iframe src={activeShoe.url} className="w-full h-full border-0 bg-black" title="Desktop Showroom Frame" />
+                  {/* Badge added here */}
+                  <InteractiveBadge />
                 </div>
               </div>
 
+              {/* Mobile Frame */}
               <div className="flex justify-center items-center w-full h-[760px]">
                 <div 
                   className="relative w-full max-w-[360px] h-[740px] bg-[var(--bg-secondary)] rounded-[50px] p-4 border-[4px] border-[var(--glass-border)] shadow-2xl ring-4 ring-black overscroll-contain"
@@ -334,12 +323,14 @@ export default function ProjectPortal() {
                     <div className="w-12 h-1 bg-neutral-800 rounded-full" />
                   </div>
                   
-                  <div className="w-full h-full rounded-[36px] overflow-hidden border border-black bg-black relative">
+                  <div className="w-full h-full rounded-[36px] overflow-hidden border border-black bg-black relative group">
                     <iframe 
                       src={activeShoe.url} 
                       className="w-full h-full border-0 absolute inset-0 bg-black" 
                       title="Mobile Showroom Frame" 
                     />
+                    {/* Badge added here */}
+                    <InteractiveBadge />
                   </div>
                 </div>
               </div>
