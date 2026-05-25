@@ -13,7 +13,6 @@ interface ShoeVariant {
 export default function ProjectPortal() {
   const [activeShoe, setActiveShoe] = useState<ShoeVariant | null>(null);
 
-  // Self-contained shoe dataset mapped directly inside to fix the missing dataset build error
   const dynamicShoes: ShoeVariant[] = [
     {
       id: 'proto',
@@ -47,7 +46,7 @@ export default function ProjectPortal() {
   const spreadAngle = 360 / dynamicShoes.length;
 
   return (
-    <section className="w-full min-h-screen py-12 px-4 sm:px-8 lg:px-12 flex flex-col justify-center items-center relative z-10 bg-[#060606] overflow-hidden select-none">
+    <section className="w-full min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative z-10 bg-[#060606] overflow-hidden select-none">
       
       <style>{`
         @keyframes rotation {
@@ -141,7 +140,7 @@ export default function ProjectPortal() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full flex flex-col max-w-[1700px]"
+            className="w-full flex flex-col max-w-[1750px]"
           >
             {/* Top Navigation Bar */}
             <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 px-2">
@@ -159,8 +158,8 @@ export default function ProjectPortal() {
               </button>
             </div>
 
-            {/* Split Screen Grid Layout */}
-            <div className="w-full grid grid-cols-1 lg:grid-cols-[1.65fr_1fr] gap-6 xl:gap-10 items-center justify-center">
+            {/* Split Screen Grid Layout — Expanded weights to give desktop frame 70% bounds */}
+            <div className="w-full grid grid-cols-1 lg:grid-cols-[1.75fr_1fr] gap-6 xl:gap-8 items-center justify-center">
               
               {/* DESKTOP WEB FRAME */}
               <div className="hidden lg:flex flex-col w-full h-[760px] bg-neutral-900 rounded-2xl p-3.5 border border-neutral-800 shadow-2xl relative">
