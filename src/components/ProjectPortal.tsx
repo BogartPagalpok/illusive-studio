@@ -1,339 +1,213 @@
-import { useState, useEffect, useCallback } from 'react';
-import { shoes } from './data/shoes';
-import Navbar from './components/Navbar';
-import HeroSection from './components/HeroSection';
-import PaginationDots from './components/PaginationDots';
-import CartDrawer, { CartItem } from './components/CartDrawer';
-import SizeModal from './components/SizeModal';
-import VideoModal from './components/VideoModal';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export default function App() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [transitioning, setTransitioning] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [sizeModalOpen, setSizeModalOpen] = useState(false);
-  const [videoModalOpen, setVideoModalOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+interface ShoeVariant {
+  id: string;
+  title: string;
+  colorName: string;
+  colorHex: string;
+  url: string;
+  shoeImage: string;
+}
 
-  // Parse inbound ad campaign query paths before drawing layout elements
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const targetColor = params.get('color'); // Reads 'volt', 'purple', etc.
-    
-    if (targetColor) {
-      const query = targetColor.toLowerCase();
-      // Bulletproof Matcher: Checks ID, name, lines, subtitle, image path, AND tags
-      const matchIndex = shoes.findIndex(s => {
-        const shoeDataString = `${s.id} ${s.name} ${s.line1} ${s.line2} ${s.subtitle} ${s.image} ${(s.tags || []).join(' ')}`.toLowerCase();
-        return shoeDataString.includes(query);
-      });
-      
-      if (matchIndex !== -1) {
-        setCurrentIndex(matchIndex);
-      }
+export default function ProjectPortal() {
+  const [activeShoe, setActiveShoe] = useState<ShoeVariant | null>(null);
+
+  const dynamicShoes: ShoeVariant[] = [
+    {
+      id: 'blue',
+      title: 'ZoomX Blue',
+      colorName: 'Ocean Surge',
+      colorHex: '#00d2ff',
+      url: 'https://demo-6py.pages.dev/?color=blue',
+      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_blue.png'
+    },
+    {
+      id: 'cherry',
+      title: 'Air Cherry',
+      colorName: 'Cherry Bomb',
+      colorHex: '#ff0055',
+      url: 'https://demo-6py.pages.dev/?color=cherry',
+      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_cherry.png'
+    },
+    {
+      id: 'green',
+      title: 'Alphafly Proto',
+      colorName: 'Volt Energy',
+      colorHex: '#ccff00',
+      url: 'https://demo-6py.pages.dev/?color=volt',
+      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_green.png'
+    },
+    {
+      id: 'purple',
+      title: 'Air Max Dn',
+      colorName: 'Dynamic Purple',
+      colorHex: '#8a2be2',
+      url: 'https://demo-6py.pages.dev/?color=purple',
+      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_purple.png'
+    },
+    {
+      id: 'red',
+      title: 'Air Zoom Red',
+      colorName: 'Chili Red',
+      colorHex: '#e60000',
+      url: 'https://demo-6py.pages.dev/?color=red',
+      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_red.png'
     }
-  }, []); // Only runs once on mount
+  ];
 
-  const currentShoe = shoes[currentIndex];
-
-  const navigate = useCallback(
-    (targetIndex: number) => {
-      if (transitioning || targetIndex === currentIndex) return;
-      setTransitioning(true);
-      setTimeout(() => {
-        setCurrentIndex(targetIndex);
-        setTransitioning(false);
-      }, 400);
-    },
-    [transitioning, currentIndex]
-  );
-
-  const handleNextShoe = useCallback(() => {
-    const nextIndex = (currentIndex + 1) % shoes.length;
-    navigate(nextIndex);
-  }, [currentIndex, navigate]);
-
-  const handlePrevShoe = useCallback(() => {
-    const prevIndex = (currentIndex - 1 + shoes.length) % shoes.length;
-    navigate(prevIndex);
-  }, [currentIndex, navigate]);
-
-  const handleAddToCart = useCallback(
-    (size: number) => {
-      setCartItems((prev) => {
-        const existing = prev.find((i) => i.shoe.id === currentShoe.id && i.size === size);
-        if (existing) {
-          return prev.map((i) =>
-            i.shoe.id === currentShoe.id && i.size === size ? { ...i, quantity: i.quantity + 1 } : i
-          );
-        }
-        return [...prev, { shoe: currentShoe, size, quantity: 1 }];
-      });
-      setCartOpen(true);
-    },
-    [currentShoe]
-  );
-
-  const handleRemoveFromCart = useCallback((shoeId: string, size: number) => {
-    setCartItems((prev) => prev.filter((i) => !(i.shoe.id === shoeId && i.size === size)));
-  }, []);
-
-  const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
+  const marqueeShoes = [...dynamicShoes, ...dynamicShoes, ...dynamicShoes];
 
   return (
-    <div
-      className="relative w-full h-screen overflow-hidden flex flex-col select-none"
-      style={{
-        backgroundColor: currentShoe.theme.primary,
-        transition: 'background-color 0.6s ease',
-      }}
-    >
-      <div
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background: currentShoe.theme.topRightGlow,
-          transition: 'background 0.6s ease',
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background: currentShoe.theme.bottomLeftGlow,
-          transition: 'background 0.6s ease',
-        }}
-      />
+    <section className="w-full min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
+      
+      <AnimatePresence mode="wait">
+        {!activeShoe ? (
+          /* STATE 1: SELECTION VIEWPORT (Desktop Grid / Mobile Marquee) */
+          <motion.div
+            key="selection-view"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5 }}
+            className="w-full flex flex-col items-center justify-center min-h-[600px]"
+          >
+            <div className="text-center mb-12 lg:mb-24">
+              <span className="text-xs font-black tracking-[0.4em] text-white/50 uppercase">Interactive Showroom</span>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white uppercase mt-2">Select A Variant</h2>
+            </div>
 
-      <div
-        className="pointer-events-none absolute inset-0 z-0 opacity-[0.025]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '160px',
-        }}
-      />
+            {/* --- DESKTOP VIEW: Sleek Floating Flex Row --- */}
+            <div className="hidden lg:flex flex-wrap justify-center items-center gap-12 max-w-[1400px] w-full px-8">
+              {dynamicShoes.map((shoe) => (
+                <button
+                  key={`desktop-${shoe.id}`}
+                  onClick={() => setActiveShoe(shoe)}
+                  className="group relative flex flex-col items-center justify-center w-[220px] transition-all duration-500"
+                >
+                  <div className="relative w-full h-[220px] flex items-center justify-center mb-6">
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-20 blur-3xl transition-opacity duration-700 rounded-full"
+                      style={{ backgroundColor: shoe.colorHex }}
+                    />
+                    <img 
+                      src={shoe.shoeImage} 
+                      alt={shoe.title} 
+                      className="w-full h-auto object-contain transition-all duration-500 group-hover:scale-125 group-hover:-translate-y-6 group-hover:-rotate-12 filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.6)]"
+                    />
+                  </div>
+                  <h4 className="text-[14px] font-black text-white uppercase tracking-wider transition-transform duration-500 group-hover:-translate-y-2">{shoe.title}</h4>
+                  <span 
+                    className="text-[10px] font-bold uppercase tracking-widest mt-1 transition-transform duration-500 group-hover:-translate-y-2" 
+                    style={{ color: shoe.colorHex }}
+                  >
+                    {shoe.colorName}
+                  </span>
+                </button>
+              ))}
+            </div>
 
-      <div
-        className="pointer-events-none absolute inset-0 z-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
-          backgroundSize: '80px 80px',
-        }}
-      />
+            {/* --- MOBILE VIEW: Infinite Left-to-Right Auto-Scroll Marquee --- */}
+            <div className="flex lg:hidden w-full overflow-hidden relative py-10 fade-edges">
+              <style>{`
+                .fade-edges {
+                  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+                  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+                }
+              `}</style>
 
-      <Navbar
-        theme={currentShoe.theme}
-        cartCount={cartCount}
-        onCartClick={() => setCartOpen(true)}
-        onMenuToggle={() => setMenuOpen((v) => !v)}
-        menuOpen={menuOpen}
-      />
+              <motion.div
+                className="flex gap-10 w-max cursor-grab active:cursor-grabbing"
+                animate={{ x: ["-50%", "0%"] }}
+                transition={{ ease: "linear", duration: 25, repeat: Infinity }}
+              >
+                {marqueeShoes.map((shoe, idx) => (
+                  <button
+                    key={`mobile-${shoe.id}-${idx}`}
+                    onClick={() => setActiveShoe(shoe)}
+                    className="flex flex-col items-center justify-center w-[200px] shrink-0 group focus:outline-none"
+                  >
+                    <div className="relative w-full h-[180px] flex items-center justify-center mb-4">
+                       <img 
+                        src={shoe.shoeImage} 
+                        alt={shoe.title} 
+                        className="w-full h-auto object-contain filter drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] transition-transform duration-300 active:scale-95"
+                      />
+                    </div>
+                    <h4 className="text-[13px] font-black text-white uppercase tracking-wider">{shoe.title}</h4>
+                    <span className="text-[9px] font-bold uppercase tracking-widest mt-1" style={{ color: shoe.colorHex }}>
+                      {shoe.colorName}
+                    </span>
+                  </button>
+                ))}
+              </motion.div>
+            </div>
 
-      <PaginationDots
-        total={shoes.length}
-        active={currentIndex}
-        theme={currentShoe.theme}
-        onChange={navigate}
-      />
+          </motion.div>
+        ) : (
+          /* STATE 2: AD CONVERSION LIVE PORTAL */
+          <motion.div
+            key="portal-view"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full flex flex-col max-w-[1800px]"
+          >
+            <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 px-2">
+              <div>
+                <span className="text-xs font-black tracking-[0.4em] uppercase" style={{ color: activeShoe.colorHex }}>
+                  Campaign Live Portal &rarr; {activeShoe.colorName}
+                </span>
+                <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight">Match Verification Frame</h3>
+              </div>
+              <button
+                onClick={() => setActiveShoe(null)}
+                className="px-6 py-3 border border-neutral-800 text-neutral-400 bg-transparent hover:bg-neutral-900 hover:text-white rounded-xl text-xs font-bold tracking-widest uppercase transition-all duration-200"
+              >
+                &larr; Back To Selection
+              </button>
+            </div>
 
-      <HeroSection
-        shoe={currentShoe}
-        transitioning={transitioning}
-        onLearnMore={() => setVideoModalOpen(true)}
-        onAddToCart={() => setSizeModalOpen(true)}
-        onNextShoe={handleNextShoe}
-        onPrevShoe={handlePrevShoe}
-      />
+            <div className="w-full grid grid-cols-1 lg:grid-cols-[1.95fr_1fr] gap-6 xl:gap-8 items-center justify-center">
+              
+              <div className="hidden lg:flex flex-col w-full h-[760px] bg-neutral-900 rounded-2xl p-3.5 border border-neutral-800 shadow-2xl relative">
+                <div className="absolute top-4 left-6 flex gap-1.5 z-30">
+                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                </div>
+                <div className="w-full h-8 flex items-center justify-center text-[10px] font-bold text-neutral-500 border-b border-neutral-800/40 uppercase tracking-widest mb-2 bg-neutral-950/20 rounded-t-lg">
+                  Desktop Live Context
+                </div>
+                <div className="w-full h-full rounded-xl overflow-hidden border border-neutral-950 bg-black">
+                  <iframe src={activeShoe.url} className="w-full h-full border-0 select-none bg-black" title="Desktop Showroom Frame" />
+                </div>
+              </div>
 
-      <CartDrawer
-        open={cartOpen}
-        items={cartItems}
-        onClose={() => setCartOpen(false)}
-        onRemove={handleRemoveFromCart}
-        theme={currentShoe.theme}
-      />
+              <div className="flex justify-center items-center w-full h-[760px]">
+                <div 
+                  className="relative w-full max-w-[360px] h-[740px] bg-neutral-900 rounded-[50px] p-4 border-[4px] border-neutral-800 shadow-2xl ring-4 ring-neutral-950 overscroll-contain"
+                  style={{ touchAction: 'auto' }}
+                >
+                  <div className="absolute top-6 left-1/2 -translate-x-1/2 w-32 h-4 bg-neutral-950 rounded-full z-50 flex items-center justify-center">
+                    <div className="w-12 h-1 bg-neutral-800 rounded-full" />
+                  </div>
+                  
+                  <div className="w-full h-full rounded-[36px] overflow-hidden border border-neutral-950 bg-black relative">
+                    <iframe 
+                      src={activeShoe.url} 
+                      className="w-full h-full border-0 absolute inset-0 bg-black" 
+                      title="Mobile Showroom Frame" 
+                    />
+                  </div>
+                </div>
+              </div>
 
-      <SizeModal
-        open={sizeModalOpen}
-        shoe={currentShoe}
-        onClose={() => setSizeModalOpen(false)}
-        onConfirm={handleAddToCart}
-      />
-
-      <VideoModal
-        open={videoModalOpen}
-        shoe={currentShoe}
-        onClose={() => setVideoModalOpen(false)}
-      />
-    </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
   );
 }
-
-
-export interface ShoeTheme {
-  primary: string;
-  secondary: string;
-  accent: string;
-  accentDark: string;
-  glowRgb: string;
-  topRightGlow: string;
-  bottomLeftGlow: string;
-  buttonBorder: string;
-  buttonHover: string;
-}
-
-export interface Shoe {
-  id: string;
-  index: number;
-  name: string;
-  line1: string;
-  line2: string;
-  subtitle: string;
-  description: string;
-  price: string;
-  originalPrice: string;
-  image: string;
-  theme: ShoeTheme;
-  sizes: number[];
-  tags: string[];
-}
-
-export const shoes: Shoe[] = [
-  {
-    id: '01',
-    index: 0,
-    name: 'ALPHAFLY 3',
-    line1: 'ALPHAFLY',
-    line2: 'PROTO',
-    subtitle: 'VOLT ENERGY RETURN SUPER-SHOE',
-    description:
-      'The pinnacle of marathon engineering. Built with a continuous dual-density ZoomX foam bed, a full-length carbon fiber Flyplate, and twin Zoom Air pods for maximum propulsion.',
-    price: '$285',
-    originalPrice: '$350',
-    image: '/shoes/1.png',
-    theme: {
-      primary: '#0d1110',
-      secondary: '#071c19',
-      accent: '#a3e635',
-      accentDark: '#4d7c0f',
-      glowRgb: '163, 230, 53',
-      topRightGlow: 'radial-gradient(ellipse 60% 50% at 100% 0%, rgba(163,230,53,0.3) 0%, transparent 70%)',
-      bottomLeftGlow: 'radial-gradient(ellipse 60% 50% at 0% 100%, rgba(77,124,15,0.2) 0%, transparent 70%)',
-      buttonBorder: '#a3e635',
-      buttonHover: '#a3e635',
-    },
-    sizes: [7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 12, 13],
-    tags: ['RACE DAY ELITE', 'SOLD OUT'],
-  },
-  {
-    id: '02',
-    index: 1,
-    name: 'ZOOM DRIVE',
-    line1: 'INFRA',
-    line2: 'RED',
-    subtitle: 'PREMIUM SPEED PROFILE',
-    description:
-      'Streamlined performance silhouette optimized for instant response. Wraps the foot in lightweight engineered mesh anchored by an explosive propulsion plate layout.',
-    price: '$150',
-    originalPrice: '$190',
-    image: '/shoes/2.png',
-    theme: {
-      primary: '#09090b',
-      secondary: '#18181b',
-      accent: '#ff4500',
-      accentDark: '#dc2626',
-      glowRgb: '255, 69, 0',
-      topRightGlow: 'radial-gradient(ellipse 60% 50% at 100% 0%, rgba(255,69,0,0.25) 0%, transparent 70%)',
-      bottomLeftGlow: 'radial-gradient(ellipse 60% 50% at 0% 100%, rgba(220,38,38,0.15) 0%, transparent 70%)',
-      buttonBorder: '#ff4500',
-      buttonHover: '#ff4500',
-    },
-    sizes: [6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 11, 12, 13],
-    tags: ['FAST CAPTURE'],
-  },
-  {
-    id: '03',
-    index: 2,
-    name: 'AIR MAX PLUS',
-    line1: 'CHERRY',
-    line2: 'STRIKER',
-    subtitle: 'TUNED AIR GRADIENT',
-    description:
-      'An aggressive modern legend. Undulating structural TPU cage lines fuse with a deep fire-gradient textile mesh upper for high-heat lifestyle aesthetics.',
-    price: '$185',
-    originalPrice: '$240',
-    image: '/shoes/3.png',
-    theme: {
-      primary: '#0e0809',
-      secondary: '#1c0d0f',
-      accent: '#ef233c',
-      accentDark: '#b91c1c',
-      glowRgb: '239, 35, 60',
-      topRightGlow: 'radial-gradient(ellipse 60% 50% at 100% 0%, rgba(239,35,60,0.35) 0%, transparent 70%)',
-      bottomLeftGlow: 'radial-gradient(ellipse 60% 50% at 0% 100%, rgba(185,28,28,0.2) 0%, transparent 70%)',
-      buttonBorder: '#ef233c',
-      buttonHover: '#ef233c',
-    },
-    sizes: [7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 12, 13],
-    tags: ['HIGH RETENTION'],
-  },
-  {
-    id: '04',
-    index: 3,
-    name: 'ZOOM X INVINCIBLE 3',
-    line1: 'ZOOMX',
-    line2: 'INVINCIBLE',
-    subtitle: 'MAXIMUM CUSHION COMFORT',
-    description:
-      'Engineered to protect and perform. Utilizing an extra-thick slab of ultra-responsive ZoomX foam for extreme shock attenuation and unmatched bounce on recovery miles.',
-    price: '$180',
-    originalPrice: '$230',
-    image: '/shoes/4.png',
-    theme: {
-      primary: '#060f14',
-      secondary: '#0b1d28',
-      accent: '#06b6d4',
-      accentDark: '#0891b2',
-      glowRgb: '6, 182, 212',
-      topRightGlow: 'radial-gradient(ellipse 60% 50% at 100% 0%, rgba(6,182,212,0.35) 0%, transparent 70%)',
-      bottomLeftGlow: 'radial-gradient(ellipse 60% 50% at 0% 100%, rgba(8,145,178,0.2) 0%, transparent 70%)',
-      buttonBorder: '#06b6d4',
-      buttonHover: '#06b6d4',
-    },
-    sizes: [7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12, 13],
-    tags: ['MAX ZOOM X'],
-  },
-  {
-    id: '05',
-    index: 4,
-    name: 'AIR MAX DN',
-    line1: 'DYNAMIC',
-    line2: 'PURPLE',
-    subtitle: 'FLAGSHIP MULTI-CHAMBER CUSHIONING',
-    description:
-      'Nike’s flagship sub-lifestyle sneaker. Featuring multi-pressure dynamic air cylinders that actively shift air pressure with every stride for a revolutionary bouncing sensation.',
-    price: '$160',
-    originalPrice: '$210',
-    image: '/shoes/5.png',
-    theme: {
-      primary: '#080810',
-      secondary: '#0c0c18',
-      accent: '#a855f7',
-      accentDark: '#9333ea',
-      glowRgb: '168, 85, 247',
-      topRightGlow: 'radial-gradient(ellipse 60% 50% at 100% 0%, rgba(168,85,247,0.3) 0%, transparent 70%)',
-      bottomLeftGlow: 'radial-gradient(ellipse 60% 50% at 0% 100%, rgba(147,51,234,0.25) 0%, transparent 70%)',
-      buttonBorder: '#a855f7',
-      buttonHover: '#a855f7',
-    },
-    sizes: [6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 11, 12],
-    tags: ['NEXT-GEN TECH'],
-  },
-];
-
-export const getAdjacentIds = (currentIndex: number) => {
-  const len = shoes.length;
-  const prev = shoes[(currentIndex - 1 + len) % len];
-  const next = shoes[(currentIndex + 1) % len];
-  return { prev, next };
-};
