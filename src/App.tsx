@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import LiquidEtherBackground from './components/LiquidEtherBackground';
+import ProjectPortal from './components/ProjectPortal';
 
 function AtmosphereGradient() {
   return (
