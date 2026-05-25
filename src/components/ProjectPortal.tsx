@@ -1,3 +1,4 @@
+```tsx
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,6 +13,10 @@ interface ShoeVariant {
   routingPath: string;
   audience: string;
   conversionFocus: string;
+  primaryMetricLabel: string;
+  primaryMetricValue: string;
+  secondaryMetricLabel: string;
+  secondaryMetricValue: string;
 }
 
 export default function ProjectPortal() {
@@ -28,7 +33,11 @@ export default function ProjectPortal() {
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_blue.png',
       routingPath: '/v1/blue-surge',
       audience: 'Cold Traffic',
-      conversionFocus: 'Brand Awareness'
+      conversionFocus: 'Brand Awareness',
+      primaryMetricLabel: 'CPM',
+      primaryMetricValue: '$4.50',
+      secondaryMetricLabel: 'Impressions',
+      secondaryMetricValue: '1.2M'
     },
     {
       id: 'cherry',
@@ -40,7 +49,11 @@ export default function ProjectPortal() {
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_cherry.png',
       routingPath: '/v1/cherry-bomb',
       audience: 'Retargeting',
-      conversionFocus: 'Direct Sale'
+      conversionFocus: 'Direct Sale',
+      primaryMetricLabel: 'ROAS',
+      primaryMetricValue: '4.8x',
+      secondaryMetricLabel: 'CPA',
+      secondaryMetricValue: '$12.50'
     },
     {
       id: 'green',
@@ -52,7 +65,11 @@ export default function ProjectPortal() {
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_green.png',
       routingPath: '/v1/volt-elite',
       audience: 'Performance',
-      conversionFocus: 'Lead Gen'
+      conversionFocus: 'Lead Gen',
+      primaryMetricLabel: 'CPL',
+      primaryMetricValue: '$8.20',
+      secondaryMetricLabel: 'Leads Gen',
+      secondaryMetricValue: '850'
     },
     {
       id: 'purple',
@@ -64,7 +81,11 @@ export default function ProjectPortal() {
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_purple.png',
       routingPath: '/v1/dn-lifestyle',
       audience: 'Gen Z/Culture',
-      conversionFocus: 'Engagement'
+      conversionFocus: 'Engagement',
+      primaryMetricLabel: 'CTR',
+      primaryMetricValue: '3.5%',
+      secondaryMetricLabel: 'Cost Per Click',
+      secondaryMetricValue: '$0.45'
     },
     {
       id: 'red',
@@ -76,7 +97,11 @@ export default function ProjectPortal() {
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_red.png',
       routingPath: '/v1/infra-red',
       audience: 'Sneakerheads',
-      conversionFocus: 'High Conversion'
+      conversionFocus: 'High Conversion',
+      primaryMetricLabel: 'CPA',
+      primaryMetricValue: '$18.00',
+      secondaryMetricLabel: 'Conv. Rate',
+      secondaryMetricValue: '3.2%'
     }
   ];
 
@@ -169,6 +194,18 @@ export default function ProjectPortal() {
                       <span>Goal</span>
                       <span className="text-[var(--text-primary)] font-bold">{shoe.conversionFocus}</span>
                     </div>
+                    
+                    {/* --- NEW META METRICS SECTION --- */}
+                    <div className="mt-3 pt-3 border-t border-white/5 space-y-1.5">
+                      <div className="flex justify-between items-center text-[clamp(0.75rem,1vw,0.875rem)] uppercase tracking-widest text-[var(--text-secondary)]">
+                        <span>{shoe.primaryMetricLabel}</span>
+                        <span className="font-mono font-bold" style={{ color: shoe.colorHex }}>{shoe.primaryMetricValue}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[clamp(0.75rem,1vw,0.875rem)] uppercase tracking-widest text-[var(--text-secondary)]">
+                        <span>{shoe.secondaryMetricLabel}</span>
+                        <span className="font-mono text-[var(--text-primary)] font-bold">{shoe.secondaryMetricValue}</span>
+                      </div>
+                    </div>
                   </div>
                 </button>
               ))}
@@ -222,7 +259,7 @@ export default function ProjectPortal() {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="w-full flex flex-col max-w-[1800px]"
           >
-            <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 px-2">
+            <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 px-2">
               <div>
                 <span className="text-[clamp(0.75rem,1vw,0.875rem)] font-black tracking-[0.4em] uppercase" style={{ color: activeShoe.colorHex }}>
                   Campaign Live Portal &rarr; {activeShoe.colorName}
@@ -235,6 +272,39 @@ export default function ProjectPortal() {
               >
                 &larr; Back To Selection
               </button>
+            </div>
+
+            {/* --- NEW MODULAR TESTING NARRATIVE BLOCK --- */}
+            <div className="w-full bg-[var(--bg-secondary)] border border-[var(--glass-border)] rounded-2xl p-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl relative overflow-hidden">
+              <div className="flex-1 space-y-3 z-10">
+                <h4 className="text-[clamp(0.75rem,1vw,0.875rem)] font-black tracking-widest uppercase text-[var(--text-secondary)]">
+                  Growth Strategy Analysis
+                </h4>
+                <div className="text-[clamp(0.75rem,1vw,0.875rem)] text-[var(--text-primary)] leading-relaxed space-y-1">
+                  <p><span style={{ color: activeShoe.colorHex }} className="font-bold uppercase tracking-wider">Hypothesis:</span> Testing modular visual hooks against distinct audience segments using Meta Advantage+.</p>
+                  <p><span style={{ color: activeShoe.colorHex }} className="font-bold uppercase tracking-wider">Execution:</span> Deployed rapid UI variations to isolate which creative acted as the best targeting filter.</p>
+                  <p><span style={{ color: activeShoe.colorHex }} className="font-bold uppercase tracking-wider">Result:</span> Scaled budget safely while achieving a <span className="font-mono font-bold">{activeShoe.primaryMetricValue} {activeShoe.primaryMetricLabel}</span>.</p>
+                </div>
+              </div>
+              
+              {/* Fake UI Graph Line */}
+              <div className="w-full md:w-72 h-24 border border-white/10 rounded-xl relative overflow-hidden bg-black/40 p-3 flex flex-col justify-end z-10 shrink-0">
+                <div className="absolute top-3 left-4 flex justify-between w-[calc(100%-2rem)]">
+                   <span className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)] font-bold">CPA Trend Optimization</span>
+                   <span className="text-[10px] font-mono text-green-400 font-bold">-22%</span>
+                </div>
+                <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                  <path 
+                    d="M0,35 Q20,35 40,25 T80,10 T100,5" 
+                    fill="none" 
+                    stroke={activeShoe.colorHex} 
+                    strokeWidth="3" 
+                    vectorEffect="non-scaling-stroke" 
+                    strokeLinecap="round" 
+                  />
+                  <circle cx="100" cy="5" r="3" fill={activeShoe.colorHex} />
+                </svg>
+              </div>
             </div>
 
             <div className="w-full grid grid-cols-1 lg:grid-cols-[1.95fr_1fr] gap-6 xl:gap-8 items-center justify-center">
@@ -279,3 +349,5 @@ export default function ProjectPortal() {
     </section>
   );
 }
+
+```
