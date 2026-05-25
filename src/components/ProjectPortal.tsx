@@ -7,6 +7,7 @@ interface ShoeVariant {
   colorName: string;
   colorHex: string;
   url: string;
+  bgImage: string;
   shoeImage: string;
 }
 
@@ -20,6 +21,7 @@ export default function ProjectPortal() {
       colorName: 'Ocean Surge',
       colorHex: '#00d2ff',
       url: 'https://demo-6py.pages.dev/?color=blue',
+      bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/blue.png',
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_blue.png'
     },
     {
@@ -28,6 +30,7 @@ export default function ProjectPortal() {
       colorName: 'Cherry Bomb',
       colorHex: '#ff0055',
       url: 'https://demo-6py.pages.dev/?color=cherry',
+      bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/cherry.png',
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_cherry.png'
     },
     {
@@ -36,6 +39,7 @@ export default function ProjectPortal() {
       colorName: 'Volt Energy',
       colorHex: '#ccff00',
       url: 'https://demo-6py.pages.dev/?color=volt',
+      bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/green.png',
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_green.png'
     },
     {
@@ -44,6 +48,7 @@ export default function ProjectPortal() {
       colorName: 'Dynamic Purple',
       colorHex: '#8a2be2',
       url: 'https://demo-6py.pages.dev/?color=purple',
+      bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/purple.png',
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_purple.png'
     },
     {
@@ -52,6 +57,7 @@ export default function ProjectPortal() {
       colorName: 'Chili Red',
       colorHex: '#e60000',
       url: 'https://demo-6py.pages.dev/?color=red',
+      bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/red.png',
       shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_red.png'
     }
   ];
@@ -61,44 +67,66 @@ export default function ProjectPortal() {
   return (
     <section className="w-full min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
       
+      <style>{`
+        /* The slow, smooth bouncing animation */
+        @keyframes floatBounce {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        .shoe-float {
+          animation: floatBounce 4s ease-in-out infinite;
+        }
+        .fade-edges {
+          mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+          -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+        }
+      `}</style>
+
       <AnimatePresence mode="wait">
         {!activeShoe ? (
-          /* STATE 1: SELECTION VIEWPORT (Desktop Grid / Mobile Marquee) */
           <motion.div
             key="selection-view"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5 }}
-            className="w-full flex flex-col items-center justify-center min-h-[600px]"
+            className="w-full flex flex-col items-center justify-center min-h-[700px]"
           >
-            <div className="text-center mb-12 lg:mb-24">
+            <div className="text-center mb-16 lg:mb-32">
               <span className="text-xs font-black tracking-[0.4em] text-white/50 uppercase">Interactive Showroom</span>
               <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white uppercase mt-2">Select A Variant</h2>
             </div>
 
-            {/* --- DESKTOP VIEW: Sleek Floating Flex Row --- */}
-            <div className="hidden lg:flex flex-wrap justify-center items-center gap-12 max-w-[1400px] w-full px-8">
+            {/* DESKTOP VIEW */}
+            <div className="hidden lg:flex flex-wrap justify-center items-center gap-16 max-w-[1600px] w-full px-8">
               {dynamicShoes.map((shoe) => (
                 <button
                   key={`desktop-${shoe.id}`}
                   onClick={() => setActiveShoe(shoe)}
-                  className="group relative flex flex-col items-center justify-center w-[220px] transition-all duration-500"
+                  className="group relative flex flex-col items-center justify-center w-[300px] outline-none"
                 >
-                  <div className="relative w-full h-[220px] flex items-center justify-center mb-6">
-                    <div 
-                      className="absolute inset-0 opacity-0 group-hover:opacity-20 blur-3xl transition-opacity duration-700 rounded-full"
-                      style={{ backgroundColor: shoe.colorHex }}
+                  {/* Container allowing the shoe to break out of the frame */}
+                  <div className="relative w-full aspect-square flex items-center justify-center mb-6">
+                    
+                    {/* 1. Base Mockup (The two phones) */}
+                    <img 
+                      src={shoe.bgImage} 
+                      alt={`${shoe.title} Background`} 
+                      className="absolute inset-0 w-full h-full object-cover rounded-3xl transition-transform duration-500 group-hover:scale-105"
                     />
+                    
+                    {/* 2. Floating Shoe (Giant, layered on top, offset to match the image you sent) */}
                     <img 
                       src={shoe.shoeImage} 
                       alt={shoe.title} 
-                      className="w-full h-auto object-contain transition-all duration-500 group-hover:scale-125 group-hover:-translate-y-6 group-hover:-rotate-12 filter drop-shadow-[0_20px_20px_rgba(0,0,0,0.6)]"
+                      className="absolute z-10 w-[110%] h-auto object-contain shoe-float drop-shadow-[0_25px_25px_rgba(0,0,0,0.85)] transition-transform duration-500 group-hover:scale-110"
+                      style={{ top: '-15%', left: '5%' }} 
                     />
                   </div>
-                  <h4 className="text-[14px] font-black text-white uppercase tracking-wider transition-transform duration-500 group-hover:-translate-y-2">{shoe.title}</h4>
+                  
+                  <h4 className="text-[15px] font-black text-white uppercase tracking-wider transition-transform duration-500 group-hover:-translate-y-2">{shoe.title}</h4>
                   <span 
-                    className="text-[10px] font-bold uppercase tracking-widest mt-1 transition-transform duration-500 group-hover:-translate-y-2" 
+                    className="text-[11px] font-bold uppercase tracking-widest mt-1 transition-transform duration-500 group-hover:-translate-y-2" 
                     style={{ color: shoe.colorHex }}
                   >
                     {shoe.colorName}
@@ -107,17 +135,10 @@ export default function ProjectPortal() {
               ))}
             </div>
 
-            {/* --- MOBILE VIEW: Infinite Left-to-Right Auto-Scroll Marquee --- */}
-            <div className="flex lg:hidden w-full overflow-hidden relative py-10 fade-edges">
-              <style>{`
-                .fade-edges {
-                  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-                  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-                }
-              `}</style>
-
+            {/* MOBILE VIEW MARQUEE */}
+            <div className="flex lg:hidden w-full overflow-visible relative py-12 fade-edges">
               <motion.div
-                className="flex gap-10 w-max cursor-grab active:cursor-grabbing"
+                className="flex gap-12 w-max cursor-grab active:cursor-grabbing px-8"
                 animate={{ x: ["-50%", "0%"] }}
                 transition={{ ease: "linear", duration: 25, repeat: Infinity }}
               >
@@ -125,17 +146,27 @@ export default function ProjectPortal() {
                   <button
                     key={`mobile-${shoe.id}-${idx}`}
                     onClick={() => setActiveShoe(shoe)}
-                    className="flex flex-col items-center justify-center w-[200px] shrink-0 group focus:outline-none"
+                    className="flex flex-col items-center justify-center w-[220px] shrink-0 group focus:outline-none"
                   >
-                    <div className="relative w-full h-[180px] flex items-center justify-center mb-4">
-                       <img 
+                    <div className="relative w-full aspect-square flex items-center justify-center mb-4">
+                      {/* Base Mockup */}
+                      <img 
+                        src={shoe.bgImage} 
+                        alt={`${shoe.title} Background`} 
+                        className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+                      />
+                      
+                      {/* Floating Shoe */}
+                      <img 
                         src={shoe.shoeImage} 
                         alt={shoe.title} 
-                        className="w-full h-auto object-contain filter drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] transition-transform duration-300 active:scale-95"
+                        className="absolute z-10 w-[110%] h-auto object-contain shoe-float drop-shadow-[0_15px_15px_rgba(0,0,0,0.7)]"
+                        style={{ top: '-15%', left: '5%' }}
                       />
                     </div>
-                    <h4 className="text-[13px] font-black text-white uppercase tracking-wider">{shoe.title}</h4>
-                    <span className="text-[9px] font-bold uppercase tracking-widest mt-1" style={{ color: shoe.colorHex }}>
+                    
+                    <h4 className="text-[14px] font-black text-white uppercase tracking-wider">{shoe.title}</h4>
+                    <span className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: shoe.colorHex }}>
                       {shoe.colorName}
                     </span>
                   </button>
