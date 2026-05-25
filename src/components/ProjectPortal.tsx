@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { shoes as originalShoesData } from '../data/shoes';
 
 interface ShoeVariant {
   id: string;
@@ -13,40 +14,36 @@ interface ShoeVariant {
 export default function ProjectPortal() {
   const [activeShoe, setActiveShoe] = useState<ShoeVariant | null>(null);
 
-  const shoes: ShoeVariant[] = [
-    {
-      id: 'volt',
-      title: 'Alphafly Proto',
-      colorName: 'Volt Energy',
-      colorHex: '#ccff00',
-      url: 'https://demo-6py.pages.dev/?color=volt',
-      image: 'https://ayfbrkudeqvvnhchmxas.supabase.co/storage/v1/object/public/media/proto.png'
-    },
-    {
-      id: 'purple',
-      title: 'Air Max Dn',
-      colorName: 'Dynamic Purple',
-      colorHex: '#8a2be2',
-      url: 'https://demo-6py.pages.dev/?color=purple',
-      image: 'https://ayfbrkudeqvvnhchmxas.supabase.co/storage/v1/object/public/media/purple.png'
-    },
-    {
-      id: 'red',
-      title: 'Air Zoom Red',
-      colorName: 'Chili Red',
-      colorHex: '#e60000',
-      url: 'https://demo-6py.pages.dev/?color=red',
-      image: 'https://ayfbrkudeqvvnhchmxas.supabase.co/storage/v1/object/public/media/proto.png' 
+  // Maps all items directly from your source data using the temporary GitHub raw fallback assets
+  const dynamicShoes: ShoeVariant[] = originalShoesData.map((s) => {
+    let fallbackImage = s.image;
+    
+    // Wire up clean local asset fallback mappings to prevent broken image cards on load
+    if (s.id === 'proto' || s.tags.some(t => t.toLowerCase().includes('volt'))) {
+      fallbackImage = 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/proto.png';
+    } else if (s.id === 'dn' || s.tags.some(t => t.toLowerCase().includes('purple'))) {
+      fallbackImage = 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/purple.png';
+    } else if (s.tags.some(t => t.toLowerCase().includes('red')) || s.id.includes('red')) {
+      fallbackImage = 'https://raw.githubusercontent.com/BogartPagalpok/demo/85ba49837705fc8ba0dda4a93525d3411485aadc/public/shoes/red.png';
     }
-  ];
+
+    return {
+      id: s.id,
+      title: s.line1 + " " + s.line2,
+      colorName: s.subtitle,
+      colorHex: s.theme.accent,
+      url: `https://demo-6py.pages.dev/?color=${s.tags[0]?.toLowerCase() || 'volt'}`,
+      image: fallbackImage
+    };
+  });
 
   const imageWidth = 220;
   const imageHeight = 150;
-  const translateZ = 320; 
-  const spreadAngle = 360 / shoes.length;
+  const translateZ = 340; 
+  const spreadAngle = 360 / dynamicShoes.length;
 
   return (
-    <section className="w-full min-h-screen py-16 px-4 md:px-12 lg:px-24 flex flex-col justify-center items-center relative z-10 bg-[#060606] overflow-hidden select-none">
+    <section className="w-full min-h-screen py-12 px-4 sm:px-8 lg:px-12 flex flex-col justify-center items-center relative z-10 bg-[#060606] overflow-hidden select-none">
       
       <style>{`
         @keyframes rotation {
@@ -54,13 +51,13 @@ export default function ProjectPortal() {
           to { transform: rotateY(360deg); }
         }
         .carousel-container {
-          perspective: 1200px;
+          perspective: 1400px;
           overflow: visible;
         }
         .carousel-3d {
           transform-style: preserve-3d;
           transform-origin: center center;
-          animation: rotation 25s infinite linear;
+          animation: rotation 28s infinite linear;
         }
         .carousel-3d:hover {
           animation-play-state: paused;
@@ -90,16 +87,16 @@ export default function ProjectPortal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5 }}
-            className="w-full flex flex-col items-center justify-center min-h-[500px]"
+            className="w-full flex flex-col items-center justify-center min-h-[550px]"
           >
-            <div className="text-center mb-16">
+            <div className="text-center mb-20">
               <span className="text-xs font-black tracking-[0.4em] text-[var(--accent)] uppercase">Interactive Showroom</span>
               <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white uppercase mt-1">Select A Variant</h2>
             </div>
 
-            <div className="carousel-container relative w-full max-w-4xl h-[300px] flex items-center justify-center">
+            <div className="carousel-container relative w-full max-w-5xl h-[320px] flex items-center justify-center">
               <div className="carousel-3d w-full h-full relative flex items-center justify-center">
-                {shoes.map((shoe, index) => {
+                {dynamicShoes.map((shoe, index) => {
                   const angle = index * spreadAngle;
                   const transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(${translateZ}px)`;
 
@@ -120,8 +117,8 @@ export default function ProjectPortal() {
                           className="transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
                         />
                         <div className="text-center pb-2">
-                          <h4 className="text-xs font-black text-white uppercase tracking-wider">{shoe.title}</h4>
-                          <span className="text-[10px] font-bold uppercase tracking-wider opacity-40" style={{ color: shoe.colorHex }}>
+                          <h4 className="text-[11px] font-black text-white uppercase tracking-wider line-clamp-1">{shoe.title}</h4>
+                          <span className="text-[9px] font-bold uppercase tracking-wider opacity-50" style={{ color: shoe.colorHex }}>
                             {shoe.colorName}
                           </span>
                         </div>
@@ -136,13 +133,14 @@ export default function ProjectPortal() {
           /* STATE 2: AD CONVERSION LIVE PORTAL */
           <motion.div
             key="portal-view"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full flex flex-col"
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full flex flex-col max-w-[1700px]"
           >
-            <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            {/* Top Navigation Bar */}
+            <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 px-2">
               <div>
                 <span className="text-xs font-black tracking-[0.4em] uppercase" style={{ color: activeShoe.colorHex }}>
                   Campaign Live Portal &rarr; {activeShoe.colorName}
@@ -157,10 +155,11 @@ export default function ProjectPortal() {
               </button>
             </div>
 
-            <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center justify-center min-h-[760px]">
+            {/* Split Screen Matrix Framework Layout */}
+            <div className="w-full grid grid-cols-1 lg:grid-cols-[1.65fr_1fr] gap-6 xl:gap-10 items-center justify-center">
               
               {/* DESKTOP WEB FRAME */}
-              <div className="hidden lg:flex flex-col w-full h-[740px] bg-neutral-900 rounded-2xl p-3.5 border border-neutral-800 shadow-2xl relative">
+              <div className="hidden lg:flex flex-col w-full h-[760px] bg-neutral-900 rounded-2xl p-3.5 border border-neutral-800 shadow-2xl relative">
                 <div className="absolute top-4 left-6 flex gap-1.5 z-30">
                   <div className="w-3 h-3 rounded-full bg-red-500/80" />
                   <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
@@ -170,28 +169,24 @@ export default function ProjectPortal() {
                   Desktop Live Context
                 </div>
                 <div className="w-full h-full rounded-xl overflow-hidden border border-neutral-950 bg-black">
-                  <iframe src={activeShoe.url} className="w-full h-full border-0" title="Desktop Showroom Frame" />
+                  <iframe src={activeShoe.url} className="w-full h-full border-0 select-none bg-black" title="Desktop Showroom Frame" />
                 </div>
               </div>
 
-              {/* MOBILE PHONE FRAME - Isolated scrolling wrapper added here */}
-              <div className="flex justify-center items-center w-full">
+              {/* MOBILE PHONE FRAME */}
+              <div className="flex justify-center items-center w-full h-[760px]">
                 <div 
-                  className="relative w-[360px] h-[740px] bg-neutral-900 rounded-[50px] p-4 border-[4px] border-neutral-800 shadow-2xl ring-4 ring-neutral-950 overscroll-contain"
-                  style={{ touchAction: 'pan-y' }}
-                  onTouchMove={(e) => e.stopPropagation()} // Halts scroll chain propagation back out to portfolio root body
+                  className="relative w-full max-w-[360px] h-[740px] bg-neutral-900 rounded-[50px] p-4 border-[4px] border-neutral-800 shadow-2xl ring-4 ring-neutral-950 overscroll-contain"
+                  style={{ touchAction: 'auto' }}
                 >
-                  {/* iPhone Hardware Top Notch */}
                   <div className="absolute top-6 left-1/2 -translate-x-1/2 w-32 h-4 bg-neutral-950 rounded-full z-50 flex items-center justify-center">
                     <div className="w-12 h-1 bg-neutral-800 rounded-full" />
                   </div>
                   
-                  {/* Dynamic Mobile Screen Display */}
-                  <div className="w-full h-full rounded-[36px] overflow-hidden border border-neutral-950 bg-black [-webkit-overflow-scrolling:touch]">
+                  <div className="w-full h-full rounded-[36px] overflow-hidden border border-neutral-950 bg-black relative">
                     <iframe 
                       src={activeShoe.url} 
-                      className="w-full h-full border-0 overflow-y-auto" 
-                      style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
+                      className="w-full h-full border-0 absolute inset-0 bg-black" 
                       title="Mobile Showroom Frame" 
                     />
                   </div>
