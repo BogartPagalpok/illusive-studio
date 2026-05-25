@@ -43,15 +43,21 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
           <Services />
         </div>
         
-        {/* Embedded Device Frame Portal */}
-        <ProjectPortal />
+        {/* --- FIXED WORKS SECTION --- */}
+        {/* The id="works" is now wrapping the entire portfolio block */}
+        <div id="works" className="w-full">
+          
+          {/* 1. Portal is the absolute first thing they see when clicking 'Works' */}
+          <ProjectPortal />
 
-        {/* Works Section */}
-        <div id="works" style={{ minHeight: '50vh' }}>
-          <CategorySection category="Graphic Design" />
-          <CategorySection category="UI/UX" />
-          <CategorySection category="Motion" />
-          <CategorySection category="Photography" />
+          {/* 2. Then they scroll down into your standard categories */}
+          <div style={{ minHeight: '50vh' }}>
+            <CategorySection category="Graphic Design" />
+            <CategorySection category="UI/UX" />
+            <CategorySection category="Motion" />
+            <CategorySection category="Photography" />
+          </div>
+          
         </div>
 
         <div id="contact">
