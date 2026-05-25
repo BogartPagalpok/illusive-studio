@@ -9,6 +9,9 @@ interface ShoeVariant {
   url: string;
   bgImage: string;
   shoeImage: string;
+  routingPath: string;
+  audience: string;
+  conversionFocus: string;
 }
 
 export default function ProjectPortal() {
@@ -22,7 +25,10 @@ export default function ProjectPortal() {
       colorHex: '#00d2ff',
       url: 'https://demo-6py.pages.dev/?color=blue',
       bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/blue.png',
-      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_blue.png'
+      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_blue.png',
+      routingPath: '/v1/blue-surge',
+      audience: 'Cold Traffic',
+      conversionFocus: 'Brand Awareness'
     },
     {
       id: 'cherry',
@@ -31,7 +37,10 @@ export default function ProjectPortal() {
       colorHex: '#ff0055',
       url: 'https://demo-6py.pages.dev/?color=cherry',
       bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/cherry.png',
-      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_cherry.png'
+      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_cherry.png',
+      routingPath: '/v1/cherry-bomb',
+      audience: 'Retargeting',
+      conversionFocus: 'Direct Sale'
     },
     {
       id: 'green',
@@ -40,7 +49,10 @@ export default function ProjectPortal() {
       colorHex: '#ccff00',
       url: 'https://demo-6py.pages.dev/?color=volt',
       bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/green.png',
-      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_green.png'
+      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_green.png',
+      routingPath: '/v1/volt-elite',
+      audience: 'Performance',
+      conversionFocus: 'Lead Gen'
     },
     {
       id: 'purple',
@@ -49,7 +61,10 @@ export default function ProjectPortal() {
       colorHex: '#8a2be2',
       url: 'https://demo-6py.pages.dev/?color=purple',
       bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/purple.png',
-      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_purple.png'
+      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_purple.png',
+      routingPath: '/v1/dn-lifestyle',
+      audience: 'Gen Z/Culture',
+      conversionFocus: 'Engagement'
     },
     {
       id: 'red',
@@ -58,7 +73,10 @@ export default function ProjectPortal() {
       colorHex: '#e60000',
       url: 'https://demo-6py.pages.dev/?color=red',
       bgImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/red.png',
-      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_red.png'
+      shoeImage: 'https://raw.githubusercontent.com/BogartPagalpok/illusive-studio/main/public/shoe_red.png',
+      routingPath: '/v1/infra-red',
+      audience: 'Sneakerheads',
+      conversionFocus: 'High Conversion'
     }
   ];
 
@@ -136,6 +154,22 @@ export default function ProjectPortal() {
                   >
                     {shoe.colorName}
                   </span>
+
+                  {/* --- NEW DETAILS SECTION --- */}
+                  <div className="mt-4 w-full text-left space-y-1.5 border-t border-neutral-800 pt-3">
+                    <div className="flex justify-between items-center text-[9px] uppercase tracking-widest text-neutral-500">
+                      <span>Path</span>
+                      <span className="text-neutral-300 font-mono">{shoe.routingPath}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[9px] uppercase tracking-widest text-neutral-500">
+                      <span>Target</span>
+                      <span className="text-neutral-300">{shoe.audience}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[9px] uppercase tracking-widest text-neutral-500">
+                      <span>Goal</span>
+                      <span className="text-neutral-300">{shoe.conversionFocus}</span>
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
@@ -160,7 +194,6 @@ export default function ProjectPortal() {
                         className="absolute inset-0 w-full h-full object-cover rounded-2xl"
                       />
                       
-                      {/* Fixed shoe size for mobile as well */}
                       <img 
                         src={shoe.shoeImage} 
                         alt={shoe.title} 
