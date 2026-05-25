@@ -7,6 +7,7 @@ import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import AdminModal from '../components/AdminModal';
 import CategorySection from '../components/CategorySection';
+import ProjectPortal from '../components/ProjectPortal';
 
 export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
   const [adminModalOpen, setAdminModalOpen] = useState(false);
@@ -46,6 +47,10 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
         <div id="works" style={{ minHeight: '50vh' }}>
           <CategorySection category="Graphic Design" />
           <CategorySection category="UI/UX" />
+          
+          {/* Embedded Device Frame Portal */}
+          <ProjectPortal />
+
           <CategorySection category="Motion" />
           <CategorySection category="Photography" />
         </div>
