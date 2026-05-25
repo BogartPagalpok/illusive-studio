@@ -92,41 +92,46 @@ export default function ProjectPortal() {
             transition={{ duration: 0.5 }}
             className="w-full flex flex-col items-center justify-center min-h-[700px]"
           >
-            <div className="text-center mb-16 lg:mb-32">
-              <span className="text-xs font-black tracking-[0.4em] text-white/50 uppercase">Interactive Showroom</span>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white uppercase mt-2">Select A Variant</h2>
+            {/* 1. FIXED TITLE: Matches global style with gold subtitle, white title, and gold underline */}
+            <div className="text-center mb-16 lg:mb-24 flex flex-col items-center">
+              <span className="text-[11px] font-bold tracking-[0.3em] text-[#c29b62] uppercase mb-4">
+                Interactive Showroom
+              </span>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white uppercase mb-6">
+                Select A Variant
+              </h2>
+              <div className="w-12 h-[2px] bg-[#c29b62]" />
             </div>
 
+            {/* 3. FIXED DISTRIBUTION: Using explicit 5-column grid instead of flex-wrap */}
             {/* DESKTOP VIEW */}
-            <div className="hidden lg:flex flex-wrap justify-center items-center gap-16 max-w-[1600px] w-full px-8">
+            <div className="hidden lg:grid grid-cols-5 gap-6 xl:gap-8 max-w-[1600px] w-full px-8">
               {dynamicShoes.map((shoe) => (
                 <button
                   key={`desktop-${shoe.id}`}
                   onClick={() => setActiveShoe(shoe)}
-                  className="group relative flex flex-col items-center justify-center w-[300px] outline-none"
+                  className="group relative flex flex-col items-center justify-start w-full outline-none"
                 >
-                  {/* Container allowing the shoe to break out of the frame */}
                   <div className="relative w-full aspect-square flex items-center justify-center mb-6">
                     
-                    {/* 1. Base Mockup (The two phones) */}
                     <img 
                       src={shoe.bgImage} 
                       alt={`${shoe.title} Background`} 
                       className="absolute inset-0 w-full h-full object-cover rounded-3xl transition-transform duration-500 group-hover:scale-105"
                     />
                     
-                    {/* 2. Floating Shoe (Giant, layered on top, offset to match the image you sent) */}
+                    {/* 2. FIXED SHOE SIZE: Scaled down from 110% to 90%, adjusted top positioning */}
                     <img 
                       src={shoe.shoeImage} 
                       alt={shoe.title} 
-                      className="absolute z-10 w-[110%] h-auto object-contain shoe-float drop-shadow-[0_25px_25px_rgba(0,0,0,0.85)] transition-transform duration-500 group-hover:scale-110"
-                      style={{ top: '-15%', left: '5%' }} 
+                      className="absolute z-10 w-[90%] h-auto object-contain shoe-float drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-105"
+                      style={{ top: '0%', left: '5%' }} 
                     />
                   </div>
                   
-                  <h4 className="text-[15px] font-black text-white uppercase tracking-wider transition-transform duration-500 group-hover:-translate-y-2">{shoe.title}</h4>
+                  <h4 className="text-[13px] xl:text-[14px] font-black text-white uppercase tracking-wider transition-transform duration-500 group-hover:-translate-y-2 text-center">{shoe.title}</h4>
                   <span 
-                    className="text-[11px] font-bold uppercase tracking-widest mt-1 transition-transform duration-500 group-hover:-translate-y-2" 
+                    className="text-[9px] xl:text-[10px] font-bold uppercase tracking-widest mt-1 transition-transform duration-500 group-hover:-translate-y-2 text-center" 
                     style={{ color: shoe.colorHex }}
                   >
                     {shoe.colorName}
@@ -149,19 +154,18 @@ export default function ProjectPortal() {
                     className="flex flex-col items-center justify-center w-[220px] shrink-0 group focus:outline-none"
                   >
                     <div className="relative w-full aspect-square flex items-center justify-center mb-4">
-                      {/* Base Mockup */}
                       <img 
                         src={shoe.bgImage} 
                         alt={`${shoe.title} Background`} 
                         className="absolute inset-0 w-full h-full object-cover rounded-2xl"
                       />
                       
-                      {/* Floating Shoe */}
+                      {/* Fixed shoe size for mobile as well */}
                       <img 
                         src={shoe.shoeImage} 
                         alt={shoe.title} 
-                        className="absolute z-10 w-[110%] h-auto object-contain shoe-float drop-shadow-[0_15px_15px_rgba(0,0,0,0.7)]"
-                        style={{ top: '-15%', left: '5%' }}
+                        className="absolute z-10 w-[90%] h-auto object-contain shoe-float drop-shadow-[0_15px_15px_rgba(0,0,0,0.7)]"
+                        style={{ top: '0%', left: '5%' }}
                       />
                     </div>
                     
