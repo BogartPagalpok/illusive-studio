@@ -223,11 +223,39 @@ function App() {
     };
   }, []);
 
+  // Force scroll to top on every full page load / hard refresh.
+  // Runs in three phases because different browsers (esp. Chrome on Android
+  // and Safari) restore scroll at different points:
+  //   1. Immediately on mount (catches most cases)
+  //   2. After first paint (catches layout-shift-induced jumps)
+  //   3. After image/font loads settle (catches the stragglers)
   useEffect(() => {
-    window.scrollTo(0, 0);
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
+
+    const forceTop = () => window.scrollTo(0, 0);
+
+    forceTop(); // phase 1: immediate
+
+    // phase 2: after the next two animation frames (layout has settled)
+    const raf1 = requestAnimationFrame(() => {
+      const raf2 = requestAnimationFrame(forceTop);
+      (forceTop as any)._raf2 = raf2;
+    });
+
+    // phase 3: once the window has fully loaded (fonts/images done)
+    const onLoad = () => forceTop();
+    if (document.readyState === 'complete') {
+      forceTop();
+    } else {
+      window.addEventListener('load', onLoad, { once: true });
+    }
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      window.removeEventListener('load', onLoad);
+    };
   }, []);
 
   if (loading) {
