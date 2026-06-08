@@ -120,7 +120,7 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               </div>
             </div>
 
-            <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors mt-1 md:mt-0" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
+            <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors mt-1 md:mt-0" style={{ color: 'var(--text-primary)', opacity: 0.5 }} aria-label="Scroll back to top of page">
               Back to Top ↑
             </button>
           </div>

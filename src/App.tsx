@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import AdminDashboard from './pages/AdminDashboard';
-import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
 import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
-import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
+import { loadSavedTheme, subscribeToThemeChanges, themePresets, applyTheme } from './lib/themes';
 import LiquidEtherBackground from './components/LiquidEtherBackground';
+
+// Lazy-load admin / legal pages so they don't bloat the main bundle
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Privacy = lazy(() => import('./pages/Privacy'));
 
 function AtmosphereGradient() {
   return (
@@ -156,11 +158,22 @@ function App() {
   useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  // Tracks the current accent color so LiquidEther re-mounts (rebuilding its
+  // WebGL palette) when the user / admin switches theme.
+  const [accentKey, setAccentKey] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'default';
+    return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || 'default';
+  });
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const offset = window.scrollY;
-      document.documentElement.style.setProperty('--scroll-offset', `${offset}px`);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        document.documentElement.style.setProperty('--scroll-offset', `${window.scrollY}px`);
+        ticking = false;
+      });
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
@@ -168,45 +181,81 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const init = async () => {
-      await loadSavedTheme();
-      setLoading(false);
-    };
-    init();
-    const subscription = subscribeToThemeChanges();
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Prevent accidental back-gesture exit on mobile
-  useEffect(() => {
-    let backCount = 0;
-    let resetTimer: ReturnType<typeof setTimeout>;
-
-    window.history.pushState(null, '', window.location.href);
-
-    const handlePopState = () => {
-      backCount++;
-      if (backCount >= 2) {
-        window.history.back();
-        return;
+    // STEP 1: Apply cached theme synchronously from localStorage so the
+    // LiquidEther background reads the correct --accent color on first paint.
+    // This is the critical fix — without it the BG samples the default purple
+    // before the saved theme is applied.
+    try {
+      const cachedId = localStorage.getItem('portfolio-theme');
+      if (cachedId) {
+        const cached = themePresets.find((t) => t.id === cachedId);
+        if (cached) applyTheme(cached, false);
       }
-      window.history.pushState(null, '', window.location.href);
-      clearTimeout(resetTimer);
-      resetTimer = setTimeout(() => { backCount = 0; }, 1000);
-    };
+    } catch {
+      // localStorage blocked — fine, fall through to remote load
+    }
 
-    window.addEventListener('popstate', handlePopState);
+    // STEP 2: Mount the app immediately. Don't wait on Supabase.
+    setLoading(false);
+
+    // STEP 3: In the background, fetch the latest theme from Supabase.
+    // If admin changed it remotely, it will swap in seamlessly.
+    let cancelled = false;
+    loadSavedTheme().catch(() => {
+      /* network failure is fine, we already have the cached theme */
+    });
+
+    const subscription = subscribeToThemeChanges();
+
+    // Watch for accent-color changes (theme switcher in admin or remote update)
+    // and refresh the accentKey so LiquidEther rebuilds with the new palette.
+    const accentObserver = new MutationObserver(() => {
+      const newAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      if (newAccent) setAccentKey(newAccent);
+    });
+    accentObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'data-theme'] });
+
     return () => {
-      window.removeEventListener('popstate', handlePopState);
-      clearTimeout(resetTimer);
+      cancelled = true;
+      void cancelled;
+      subscription.unsubscribe();
+      accentObserver.disconnect();
     };
   }, []);
 
+  // Force scroll to top on every full page load / hard refresh.
+  // Runs in three phases because different browsers (esp. Chrome on Android
+  // and Safari) restore scroll at different points:
+  //   1. Immediately on mount (catches most cases)
+  //   2. After first paint (catches layout-shift-induced jumps)
+  //   3. After image/font loads settle (catches the stragglers)
   useEffect(() => {
-    window.scrollTo(0, 0);
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
+
+    const forceTop = () => window.scrollTo(0, 0);
+
+    forceTop(); // phase 1: immediate
+
+    // phase 2: after the next two animation frames (layout has settled)
+    const raf1 = requestAnimationFrame(() => {
+      const raf2 = requestAnimationFrame(forceTop);
+      (forceTop as any)._raf2 = raf2;
+    });
+
+    // phase 3: once the window has fully loaded (fonts/images done)
+    const onLoad = () => forceTop();
+    if (document.readyState === 'complete') {
+      forceTop();
+    } else {
+      window.addEventListener('load', onLoad, { once: true });
+    }
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      window.removeEventListener('load', onLoad);
+    };
   }, []);
 
   if (loading) {
@@ -217,7 +266,9 @@ function App() {
     return (
       <main className="min-h-screen relative">
         <AtmosphereGradient />
-        <AdminDashboard onLogout={() => setIsAdmin(false)} />
+        <Suspense fallback={<BrandLoader />}>
+          <AdminDashboard onLogout={() => setIsAdmin(false)} />
+        </Suspense>
       </main>
     );
   }
@@ -225,18 +276,21 @@ function App() {
   return (
     <main className="min-h-screen relative overflow-x-hidden">
       <LiquidEtherBackground
+        key={accentKey}
         mouseForce={20}
         cursorSize={100}
         resolution={0.25}
         autoDemo={true}
         autoSpeed={0.5}
       />
-      <Routes>
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/" element={<HomePage onAdminAuth={() => setIsAdmin(true)} />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/" element={<HomePage onAdminAuth={() => setIsAdmin(true)} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </main>
   );
 }

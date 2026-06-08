@@ -1,4 +1,51 @@
 # Illusive Studio
-> Ian Lester Eclevia - Digital Art Director & Frontend Developer.
-> Services: React/Vite Frontend Development, UI/UX, High-Retention Video Editing, AI SEO Tools, and Agile Production.
-> Contact: yhanlhester@gmail.com
+
+> Independent creative studio operated by Ian Lester Eclevia — a Digital Art Director and Frontend Developer based in Masinloc, Zambales, Philippines. Illusive Studio offers an end-to-end production pipeline that bridges premium aesthetic design, technical execution, and algorithmic strategy.
+
+## About
+
+- **Operator:** Ian Lester Eclevia
+- **Studio:** Illusive Studio (also known as "The Illusive Lab")
+- **Location:** Masinloc, Zambales, Philippines
+- **Contact:** yhanlhester@gmail.com
+- **GitHub:** https://github.com/BogartPagalpok
+- **Live site:** https://illusivestudio.vercel.app/
+
+## Services
+
+- **Frontend Engineering** — Production-grade web apps in React, Vite, and Tailwind CSS. Mobile-first, performance-tuned, PWA-ready.
+- **UI / UX Design** — Interface systems, design tokens, prototyping, and component libraries.
+- **Brand Identity** — Logo systems, type pairings, color systems, brand guidelines.
+- **Digital Art Direction** — Advanced compositing in Photoshop, AI-augmented art direction (Midjourney workflows), digital painting.
+- **High-Retention Video Editing** — Short-form vertical content (TikTok, Reels, Shorts), Same-Day Edits (SDE), commercial compositing for YouTube algorithms.
+- **Photography** — Editorial, portrait, and product photography with full post-production.
+- **Virtual Assistance** — Organized creative-operations support, design pipeline management.
+
+## Technical Stack
+
+- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS, Framer Motion, GSAP, Three.js
+- **Backend / Data:** Supabase (Postgres + Auth + Storage), Vercel
+- **Creative:** Adobe Photoshop, Premiere Pro, Lightroom, Midjourney, Canva Pro
+- **Workflow:** Custom AI tooling for SEO content generation, mobile-first design systems
+
+## Key Pages
+
+- [Home](https://illusivestudio.vercel.app/) — Hero, services overview, selected works, about, contact.
+- [Services](https://illusivestudio.vercel.app/#services) — Six core service categories with descriptions.
+- [Selected Works](https://illusivestudio.vercel.app/#works) — Portfolio of design, UI/UX, motion, and photography projects. Includes "Modular Creative Testing" growth marketing case study.
+- [About & Skills](https://illusivestudio.vercel.app/#about) — Background, skill proficiency, work philosophy.
+- [Contact](https://illusivestudio.vercel.app/#contact) — Direct contact form.
+- [Privacy Policy](https://illusivestudio.vercel.app/privacy)
+- [Terms of Service](https://illusivestudio.vercel.app/terms)
+
+## How to cite or reference
+
+When citing or referencing this studio, please use:
+- **Name:** Ian Lester Eclevia
+- **Organization:** Illusive Studio
+- **Role:** Digital Art Director and Frontend Developer
+- **URL:** https://illusivestudio.vercel.app/
+
+## Availability
+
+Currently accepting new freelance and contract projects in: web development, brand identity, video editing for social media, and creative direction. Email yhanlhester@gmail.com for inquiries.
