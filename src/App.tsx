@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
-import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
+import { loadSavedTheme, subscribeToThemeChanges, themePresets, applyTheme } from './lib/themes';
 import LiquidEtherBackground from './components/LiquidEtherBackground';
 
 // Lazy-load admin / legal pages so they don't bloat the main bundle
@@ -158,6 +158,12 @@ function App() {
   useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  // Tracks the current accent color so LiquidEther re-mounts (rebuilding its
+  // WebGL palette) when the user / admin switches theme.
+  const [accentKey, setAccentKey] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'default';
+    return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || 'default';
+  });
 
   useEffect(() => {
     let ticking = false;
@@ -175,21 +181,45 @@ function App() {
   }, []);
 
   useEffect(() => {
+    // STEP 1: Apply cached theme synchronously from localStorage so the
+    // LiquidEther background reads the correct --accent color on first paint.
+    // This is the critical fix — without it the BG samples the default purple
+    // before the saved theme is applied.
+    try {
+      const cachedId = localStorage.getItem('portfolio-theme');
+      if (cachedId) {
+        const cached = themePresets.find((t) => t.id === cachedId);
+        if (cached) applyTheme(cached, false);
+      }
+    } catch {
+      // localStorage blocked — fine, fall through to remote load
+    }
+
+    // STEP 2: Mount the app immediately. Don't wait on Supabase.
+    setLoading(false);
+
+    // STEP 3: In the background, fetch the latest theme from Supabase.
+    // If admin changed it remotely, it will swap in seamlessly.
     let cancelled = false;
-    const init = async () => {
-      // Race theme loading against a 1.5s timeout so a slow/blocked Supabase
-      // never leaves the user staring at the brand loader forever.
-      await Promise.race([
-        loadSavedTheme(),
-        new Promise((resolve) => setTimeout(resolve, 1500)),
-      ]);
-      if (!cancelled) setLoading(false);
-    };
-    init();
+    loadSavedTheme().catch(() => {
+      /* network failure is fine, we already have the cached theme */
+    });
+
     const subscription = subscribeToThemeChanges();
+
+    // Watch for accent-color changes (theme switcher in admin or remote update)
+    // and refresh the accentKey so LiquidEther rebuilds with the new palette.
+    const accentObserver = new MutationObserver(() => {
+      const newAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      if (newAccent) setAccentKey(newAccent);
+    });
+    accentObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'data-theme'] });
+
     return () => {
       cancelled = true;
+      void cancelled;
       subscription.unsubscribe();
+      accentObserver.disconnect();
     };
   }, []);
 
@@ -218,6 +248,7 @@ function App() {
   return (
     <main className="min-h-screen relative overflow-x-hidden">
       <LiquidEtherBackground
+        key={accentKey}
         mouseForce={20}
         cursorSize={100}
         resolution={0.25}
