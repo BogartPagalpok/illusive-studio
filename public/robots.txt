@@ -1,2 +1,85 @@
+# Illusive Studio - https://illusivestudio.vercel.app/
+# Ian Lester Eclevia — Digital Art Director & Frontend Developer
+
+# ── Default: allow all crawlers ────────────────────────
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
+
+# ── Search engines (explicit allow) ────────────────────
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# ── AI / LLM crawlers (explicit allow — opt-in for training & retrieval) ──
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+# ── Sitemaps & metadata ────────────────────────────────
+Sitemap: https://illusivestudio.vercel.app/sitemap.xml
+Host: https://illusivestudio.vercel.app
