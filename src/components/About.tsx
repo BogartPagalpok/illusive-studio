@@ -152,7 +152,14 @@ export default function About() {
                       {skill.level}%
                     </span>
                   </div>
-                  <div className="h-[3px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)]">
+                  <div
+                    className="h-[3px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)]"
+                    role="progressbar"
+                    aria-label={`${skill.name} proficiency`}
+                    aria-valuenow={skill.level}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
                     <motion.div
                       initial={{ width: 0 }}
                       animate={isVisible ? { width: `${skill.level}%` } : {}}
