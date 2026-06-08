@@ -154,21 +154,10 @@ function BrandLoader() {
   );
 }
 
-// Decide once at module load whether to render the WebGL fluid background.
-// Skips it on small screens (battery/GPU drain) and when the user prefers
-// reduced motion. SSR-safe.
-function shouldRenderLiquidBackground(): boolean {
-  if (typeof window === 'undefined') return false;
-  const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  return !isSmallScreen && !prefersReducedMotion;
-}
-
 function App() {
   useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [enableLiquidBg] = useState<boolean>(shouldRenderLiquidBackground);
 
   useEffect(() => {
     let ticking = false;
@@ -228,15 +217,13 @@ function App() {
 
   return (
     <main className="min-h-screen relative overflow-x-hidden">
-      {enableLiquidBg && (
-        <LiquidEtherBackground
-          mouseForce={20}
-          cursorSize={100}
-          resolution={0.25}
-          autoDemo={true}
-          autoSpeed={0.5}
-        />
-      )}
+      <LiquidEtherBackground
+        mouseForce={20}
+        cursorSize={100}
+        resolution={0.25}
+        autoDemo={true}
+        autoSpeed={0.5}
+      />
       <Suspense fallback={null}>
         <Routes>
           <Route path="/terms" element={<Terms />} />
