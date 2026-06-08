@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges, themePresets, applyTheme } from './lib/themes';
 import LiquidEtherBackground from './components/LiquidEtherBackground';
+import ThemeModeToggle from './components/ThemeModeToggle';
 
 // Lazy-load admin / legal pages so they don't bloat the main bundle
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -291,6 +292,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
+      <ThemeModeToggle />
     </main>
   );
 }
