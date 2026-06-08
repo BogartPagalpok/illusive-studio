@@ -165,6 +165,13 @@ function App() {
     if (typeof window === 'undefined') return 'default';
     return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || 'default';
   });
+  // Tracks the current color mode (light/dark). In light mode we hide the
+  // WebGL fluid background because its dark accent swirls smudge text contrast.
+  // This is the same pattern Linear / Vercel / Stripe use for their hero bgs.
+  const [colorMode, setColorMode] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'dark';
+    return (document.documentElement.getAttribute('data-mode') as 'light' | 'dark') || 'dark';
+  });
 
   useEffect(() => {
     let ticking = false;
@@ -210,11 +217,16 @@ function App() {
 
     // Watch for accent-color changes (theme switcher in admin or remote update)
     // and refresh the accentKey so LiquidEther rebuilds with the new palette.
+    // Also watch data-mode (set by ThemeModeToggle) so we can hide the fluid
+    // background in light mode.
     const accentObserver = new MutationObserver(() => {
-      const newAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      const root = document.documentElement;
+      const newAccent = getComputedStyle(root).getPropertyValue('--accent').trim();
       if (newAccent) setAccentKey(newAccent);
+      const newMode = (root.getAttribute('data-mode') as 'light' | 'dark') || 'dark';
+      setColorMode((prev) => (prev !== newMode ? newMode : prev));
     });
-    accentObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'data-theme'] });
+    accentObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'data-theme', 'data-mode'] });
 
     return () => {
       cancelled = true;
@@ -276,14 +288,32 @@ function App() {
 
   return (
     <main className="min-h-screen relative overflow-x-hidden">
-      <LiquidEtherBackground
-        key={accentKey}
-        mouseForce={20}
-        cursorSize={100}
-        resolution={0.25}
-        autoDemo={true}
-        autoSpeed={0.5}
-      />
+      {colorMode === 'dark' ? (
+        <LiquidEtherBackground
+          key={accentKey}
+          mouseForce={20}
+          cursorSize={100}
+          resolution={0.25}
+          autoDemo={true}
+          autoSpeed={0.5}
+        />
+      ) : (
+        // Light-mode fallback: soft static atmospheric gradient using the
+        // DECORATIVE (unaltered) accent. No animation, no GPU cost, and the
+        // very low opacity guarantees text contrast stays compliant.
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            zIndex: 0,
+            background: `
+              radial-gradient(60vw 60vh at 15% 20%, color-mix(in srgb, var(--accent-decorative, var(--accent)) 18%, transparent) 0%, transparent 60%),
+              radial-gradient(50vw 50vh at 85% 75%, color-mix(in srgb, var(--accent-decorative, var(--accent)) 14%, transparent) 0%, transparent 60%),
+              var(--bg-primary)
+            `,
+          }}
+        />
+      )}
       <Suspense fallback={null}>
         <Routes>
           <Route path="/terms" element={<Terms />} />
