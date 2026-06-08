@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import AdminDashboard from './pages/AdminDashboard';
-import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
 import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges } from './lib/themes';
 import LiquidEtherBackground from './components/LiquidEtherBackground';
+
+// Lazy-load admin / legal pages so they don't bloat the main bundle
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Privacy = lazy(() => import('./pages/Privacy'));
 
 function AtmosphereGradient() {
   return (
@@ -152,15 +154,31 @@ function BrandLoader() {
   );
 }
 
+// Decide once at module load whether to render the WebGL fluid background.
+// Skips it on small screens (battery/GPU drain) and when the user prefers
+// reduced motion. SSR-safe.
+function shouldRenderLiquidBackground(): boolean {
+  if (typeof window === 'undefined') return false;
+  const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return !isSmallScreen && !prefersReducedMotion;
+}
+
 function App() {
   useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [enableLiquidBg] = useState<boolean>(shouldRenderLiquidBackground);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const offset = window.scrollY;
-      document.documentElement.style.setProperty('--scroll-offset', `${offset}px`);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        document.documentElement.style.setProperty('--scroll-offset', `${window.scrollY}px`);
+        ticking = false;
+      });
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
@@ -168,37 +186,21 @@ function App() {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
     const init = async () => {
-      await loadSavedTheme();
-      setLoading(false);
+      // Race theme loading against a 1.5s timeout so a slow/blocked Supabase
+      // never leaves the user staring at the brand loader forever.
+      await Promise.race([
+        loadSavedTheme(),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+      if (!cancelled) setLoading(false);
     };
     init();
     const subscription = subscribeToThemeChanges();
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Prevent accidental back-gesture exit on mobile
-  useEffect(() => {
-    let backCount = 0;
-    let resetTimer: ReturnType<typeof setTimeout>;
-
-    window.history.pushState(null, '', window.location.href);
-
-    const handlePopState = () => {
-      backCount++;
-      if (backCount >= 2) {
-        window.history.back();
-        return;
-      }
-      window.history.pushState(null, '', window.location.href);
-      clearTimeout(resetTimer);
-      resetTimer = setTimeout(() => { backCount = 0; }, 1000);
-    };
-
-    window.addEventListener('popstate', handlePopState);
     return () => {
-      window.removeEventListener('popstate', handlePopState);
-      clearTimeout(resetTimer);
+      cancelled = true;
+      subscription.unsubscribe();
     };
   }, []);
 
@@ -217,26 +219,32 @@ function App() {
     return (
       <main className="min-h-screen relative">
         <AtmosphereGradient />
-        <AdminDashboard onLogout={() => setIsAdmin(false)} />
+        <Suspense fallback={<BrandLoader />}>
+          <AdminDashboard onLogout={() => setIsAdmin(false)} />
+        </Suspense>
       </main>
     );
   }
 
   return (
     <main className="min-h-screen relative overflow-x-hidden">
-      <LiquidEtherBackground
-        mouseForce={20}
-        cursorSize={100}
-        resolution={0.25}
-        autoDemo={true}
-        autoSpeed={0.5}
-      />
-      <Routes>
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/" element={<HomePage onAdminAuth={() => setIsAdmin(true)} />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      {enableLiquidBg && (
+        <LiquidEtherBackground
+          mouseForce={20}
+          cursorSize={100}
+          resolution={0.25}
+          autoDemo={true}
+          autoSpeed={0.5}
+        />
+      )}
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/" element={<HomePage onAdminAuth={() => setIsAdmin(true)} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </main>
   );
 }
