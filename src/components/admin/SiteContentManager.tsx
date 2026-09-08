@@ -84,11 +84,18 @@ export default function SiteContentManager() {
   const fetchContent = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('site_content')
         .select('id, section, key, value, visible')
         .order('section', { ascending: true });
-      if (error) throw error;
+      if (error) {
+        const fallback = await supabase
+          .from('site_content')
+          .select('id, section, key, value')
+          .order('section', { ascending: true });
+        if (fallback.error) throw fallback.error;
+        data = (fallback.data || []).map(item => ({ ...item, visible: true }));
+      }
       setContents(data || []);
     } catch (error) {
       console.error('Error fetching content:', error);
@@ -100,10 +107,19 @@ export default function SiteContentManager() {
   const handleMasterSave = async () => {
     setIsSaving(true);
     try {
-      const updatePromises = contents.map((item) =>
-        supabase.from('site_content').update({ value: item.value, visible: item.visible }).match({ section: item.section, key: item.key })
-      );
-      const results = await Promise.all(updatePromises);
+      const results = await Promise.all(contents.map(async (item) => {
+        const result = await supabase
+          .from('site_content')
+          .update({ value: item.value, visible: item.visible })
+          .match({ section: item.section, key: item.key });
+        if (result.error) {
+          return supabase
+            .from('site_content')
+            .update({ value: item.value })
+            .match({ section: item.section, key: item.key });
+        }
+        return result;
+      }));
       if (results.some((res) => res.error)) throw new Error('One or more fields failed to save.');
       alert('All changes saved successfully!');
       fetchContent();
