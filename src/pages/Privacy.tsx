@@ -51,7 +51,7 @@ export default function Privacy() {
               <ul className="list-disc list-inside space-y-2 ml-2 text-white/60">
                 <li>Respond to your inquiries and provide customer support.</li>
                 <li>Discuss project details, send proposals, and issue invoices.</li>
-                <li>Deliver the requested Graphic Design, Photography, or Virtual Assistant services.</li>
+                <li>Deliver the requested video editing, graphic design, motion, or illustration services.</li>
               </ul>
             </div>
 

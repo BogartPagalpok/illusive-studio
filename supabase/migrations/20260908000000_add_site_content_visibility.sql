@@ -5,7 +5,8 @@ INSERT INTO site_content (section, key, value)
 SELECT seed.section, seed.key, seed.value
 FROM (VALUES
   ('about', 'skills_heading', 'Skills & Proficiency'),
-  ('about', 'skill_1_name', 'Frontend Dev (React / Tailwind)'),
+  ('works', 'shoes_showroom_visible', 'true'),
+  ('about', 'skill_1_name', 'Video Editing & Post-Production'),
   ('about', 'skill_1_level', '90'),
   ('about', 'skill_2_name', 'Advanced Compositing (Ps)'),
   ('about', 'skill_2_level', '95'),

@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
 gsap.registerPlugin(ScrollTrigger);
 
 const defaultSkills = [
-  { name: 'Frontend Dev (React / Tailwind)', level: 90 },
+  { name: 'Video Editing & Post-Production', level: 90 },
   { name: 'Advanced Compositing (Ps)', level: 95 },
   { name: 'Motion Graphics & VFX', level: 85 },
   { name: 'Editorial Photography', level: 92 },
@@ -33,9 +33,9 @@ const defaultContent: AboutContent = {
   subtitle: 'Who I Am',
   heading: 'About & Skills',
   subheading: 'Creative mind. Reliable hands.',
-  description_line1: "I'm Ian Lester Eclevia — a graphic designer, photographer, and virtual assistant who believes that great design is where timeless elegance meets modern trends.",
-  description_line2: "With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories that don't just look beautiful — they communicate, connect, and convert.",
-  description_line3: "Beyond design, I bring the same dedication to virtual assistance — organized, proactive, and committed to making your operations run seamlessly.",
+  description_line1: "I'm Ian Lester Eclevia — a video editor and graphics artist who turns ideas into clear, polished, and expressive visual stories.",
+  description_line2: "From editing and motion graphics to digital illustration and brand visuals, I shape every frame with purpose, rhythm, and detail.",
+  description_line3: "My work combines strong visual direction with careful post-production to create content that feels distinctive and ready to share.",
   skills_heading: 'Skills & Proficiency',
 };
 

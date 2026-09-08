@@ -14,6 +14,7 @@ const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
 
 interface Project {
   id: string;
+    project_group_id?: string;
   title: string;
   category: string;
   description?: string;
@@ -69,8 +70,10 @@ export default function SelectedWorks() {
     const seenTitles = new Set<string>();
     categoryFiltered.forEach(p => {
       const cleanTitle = p.title.trim();
-      if (!seenTitles.has(cleanTitle)) {
-        seenTitles.add(cleanTitle);
+      const projectKey = p.project_group_id || p.title.trim().toLowerCase();
+      if (!seenTitles.has(projectKey)) {
+        seenTitles.add(projectKey);
+          ? projects.filter(p => (p.project_group_id || p.title.trim().toLowerCase()) === (selectedProject.project_group_id || selectedProject.title.trim().toLowerCase()))
         uniqueProjects.push(p);
       }
     });

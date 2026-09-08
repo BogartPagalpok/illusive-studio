@@ -35,20 +35,20 @@ export default function Terms() {
 
           <div className="space-y-10 font-body text-sm md:text-base leading-relaxed text-white/70">
             <p>
-              Welcome to the portfolio of Ian Lester Eclevia. By engaging my services as a Graphic Designer, Photographer, or Virtual Assistant, you agree to the following terms.
+              Welcome to the portfolio of Ian Lester Eclevia. By engaging my services as a Video Editor or Graphics Artist, you agree to the following terms.
             </p>
 
             <div>
               <h2 className="text-xl font-heading font-bold tracking-widest uppercase mb-4 text-white">1. Services Provided</h2>
               <p>
-                I provide digital graphic design, brand identity creation, photography, and virtual administrative support. The specific scope, deliverables, and timeline for each project will be outlined in a separate project agreement or invoice prior to commencement.
+                I provide video editing, motion graphics, digital illustration, graphic design, and brand identity services. The specific scope, deliverables, and timeline for each project will be outlined in a separate project agreement or invoice prior to commencement.
               </p>
             </div>
 
             <div>
               <h2 className="text-xl font-heading font-bold tracking-widest uppercase mb-4 text-white">2. Payment Terms</h2>
               <p>
-                Unless otherwise agreed upon, a 50% non-refundable deposit is required before any design or photography work begins. The remaining 50% balance is due upon project completion, prior to the delivery of final high-resolution files or source files.
+                Unless otherwise agreed upon, a 50% non-refundable deposit is required before any design or video editing work begins. The remaining 50% balance is due upon project completion, prior to the delivery of final high-resolution files or source files.
               </p>
             </div>
 
@@ -62,7 +62,7 @@ export default function Terms() {
             <div>
               <h2 className="text-xl font-heading font-bold tracking-widest uppercase mb-4 text-white">4. Copyright &amp; Intellectual Property</h2>
               <p>
-                Upon full payment, the client is granted the rights to use the final design deliverables for their intended purpose. However, I (Ian Lester Eclevia) retain the right to display all completed work, including preliminary drafts, in my personal portfolio, website, and social media for promotional purposes, unless a Non-Disclosure Agreement (NDA) is signed.
+                Upon full payment, the client is granted the rights to use the final design and video deliverables for their intended purpose. However, I (Ian Lester Eclevia) retain the right to display completed work in my personal portfolio and website for promotional purposes, unless a Non-Disclosure Agreement (NDA) is signed.
               </p>
             </div>
 

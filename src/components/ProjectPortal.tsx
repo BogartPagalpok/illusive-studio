@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../lib/supabase';
 
 interface ShoeVariant {
   id: string;
@@ -20,6 +21,7 @@ interface ShoeVariant {
 
 export default function ProjectPortal() {
   const [activeShoe, setActiveShoe] = useState<ShoeVariant | null>(null);
+  const [isShowroomVisible, setIsShowroomVisible] = useState(true);
   
   // NEW: State to control when the iframe is actually clickable
   const [interactiveMode, setInteractiveMode] = useState(false);
@@ -28,6 +30,19 @@ export default function ProjectPortal() {
   useEffect(() => {
     setInteractiveMode(false);
   }, [activeShoe]);
+
+  useEffect(() => {
+    const fetchVisibility = async () => {
+      const { data } = await supabase
+        .from('site_content')
+        .select('visible')
+        .eq('section', 'works')
+        .eq('key', 'shoes_showroom_visible')
+        .maybeSingle();
+      if (data) setIsShowroomVisible(data.visible);
+    };
+    fetchVisibility();
+  }, []);
 
   const dynamicShoes: ShoeVariant[] = [
     {
@@ -113,6 +128,8 @@ export default function ProjectPortal() {
   ];
 
   const marqueeShoes = [...dynamicShoes, ...dynamicShoes, ...dynamicShoes];
+
+  if (!isShowroomVisible) return null;
 
   // NEW: The Activation Overlay Component
   const ActivateOverlay = () => (

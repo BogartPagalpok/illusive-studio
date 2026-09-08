@@ -18,11 +18,11 @@ interface HeroContent {
 }
 
 const defaultContent: HeroContent = {
-  subtitle: 'Digital Art Director • Frontend Developer',
+  subtitle: 'Video Editor • Graphics Artist',
   heading_line1: 'Crafting Visual',
   heading_line2: 'Stories',
   heading_line3: 'Resonate',
-  description: "I'm Ian Lester Eclevia — operating a hybrid, end-to-end creative production pipeline. I bridge the gap between premium aesthetic design, technical execution, and algorithmic strategy to engineer visual experiences that command attention.",
+  description: "I'm Ian Lester Eclevia — a video editor and graphics artist creating polished visual stories, expressive motion, and memorable brand content.",
 };
 
 // Removed the standard HTML smooth scroll fallback from here
