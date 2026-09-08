@@ -27,5 +27,6 @@ VALUES
   ('about', 'About & Skills'),
   ('services', 'Services'),
   ('works', 'Portfolio Works'),
+  ('growth-marketing-study', 'Growth Marketing Study'),
   ('contact', 'Contact')
 ON CONFLICT (key) DO NOTHING;

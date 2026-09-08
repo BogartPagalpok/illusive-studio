@@ -22,6 +22,7 @@ const DEFAULT_SECTIONS: PortfolioSection[] = [
   { key: 'about', label: 'About & Skills', visible: true },
   { key: 'services', label: 'Services', visible: true },
   { key: 'works', label: 'Portfolio Works', visible: true },
+  { key: 'growth-marketing-study', label: 'Growth Marketing Study', visible: true },
   { key: 'contact', label: 'Contact', visible: true },
 ];
 
