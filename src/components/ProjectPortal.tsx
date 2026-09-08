@@ -43,13 +43,22 @@ export default function ProjectPortal() {
         return;
       }
 
-      const { data } = await supabase
+      let { data, error } = await supabase
         .from('site_content')
-        .select('visible')
+        .select('visible, value')
         .eq('section', 'works')
         .eq('key', 'shoes_showroom_visible')
         .maybeSingle();
-      if (data) setIsShowroomVisible(data.visible);
+      if (error) {
+        const legacy = await supabase
+          .from('site_content')
+          .select('value')
+          .eq('section', 'works')
+          .eq('key', 'shoes_showroom_visible')
+          .maybeSingle();
+        data = legacy.data;
+      }
+      if (data) setIsShowroomVisible(data.visible ?? data.value !== 'false');
     };
     fetchVisibility();
   }, []);

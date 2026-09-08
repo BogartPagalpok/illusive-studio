@@ -173,6 +173,26 @@ export default function SiteContentManager() {
       .update({ visible: nextVisible, updated_at: new Date().toISOString() })
       .eq('key', section.key);
     if (error) {
+      if (section.key === 'growth-marketing-study') {
+        const fallback = await supabase
+          .from('site_content')
+          .update({ visible: nextVisible })
+          .eq('section', 'works')
+          .eq('key', 'shoes_showroom_visible');
+        if (!fallback.error) {
+          setSections(sections.map(item => item.key === section.key ? { ...item, visible: nextVisible } : item));
+          return;
+        }
+        const legacyFallback = await supabase
+          .from('site_content')
+          .update({ value: String(nextVisible) })
+          .eq('section', 'works')
+          .eq('key', 'shoes_showroom_visible');
+        if (!legacyFallback.error) {
+          setSections(sections.map(item => item.key === section.key ? { ...item, visible: nextVisible } : item));
+          return;
+        }
+      }
       alert(`Section visibility update failed. Apply the portfolio visibility migration first.`);
       return;
     }
