@@ -26,10 +26,10 @@ export const themePresets: ThemePreset[] = [
   {
     id: 'GUNDAM', name: 'GUNDAM', tagline: 'RX-78-2 PROTOTYPE',
     colors: ['#FFFFFF', '#C1292E', '#235789', '#F1D302', '#0A0A0A'],
-    bgPrimary: '#FFFFFF', bgSecondary: '#F0F0F0',
-    textPrimary: '#0A0A0A', textSecondary: '#235789',
+    bgPrimary: '#235789', bgSecondary: '#173D62',
+    textPrimary: '#FFFFFF', textSecondary: '#E8F1FA',
     accent: '#C1292E',
-    bgGradient: 'linear-gradient(135deg, #FFFFFF 0%, #E8ECF0 100%)',
+    bgGradient: 'linear-gradient(135deg, #235789 0%, #173D62 55%, #0F2944 100%)',
     fontDisplay: "'Satoshi', sans-serif", fontSans: "'General Sans', sans-serif",
     backgroundStyle: 'grid',
   },
