@@ -73,9 +73,9 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
 
           {/* 2. Then they scroll down into your standard categories */}
           <div style={{ minHeight: '50vh' }}>
+            <CategorySection category="Motion" />
             <CategorySection category="Graphic Design" />
             <CategorySection category="UI/UX" />
-            <CategorySection category="Motion" />
             <CategorySection category="Photography" />
           </div>
           

@@ -33,6 +33,16 @@ export default function ProjectPortal() {
 
   useEffect(() => {
     const fetchVisibility = async () => {
+      const sectionResult = await supabase
+        .from('portfolio_sections')
+        .select('visible')
+        .eq('key', 'growth-marketing-study')
+        .maybeSingle();
+      if (!sectionResult.error && sectionResult.data) {
+        setIsShowroomVisible(sectionResult.data.visible);
+        return;
+      }
+
       const { data } = await supabase
         .from('site_content')
         .select('visible')

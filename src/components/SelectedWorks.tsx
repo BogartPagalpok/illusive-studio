@@ -10,7 +10,7 @@ import GlowCard from './GlowCard';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 
-const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
+const CATEGORIES = ['All', 'Motion', 'Graphic Design', 'Photography', 'UI/UX'];
 
 interface Project {
   id: string;

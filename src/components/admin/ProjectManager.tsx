@@ -50,7 +50,7 @@ const EMPTY_PROJECT: Project = {
   visible: true,
 };
 
-const CATEGORIES = ['Graphic Design', 'Photography', 'UI/UX', 'Motion'];
+const CATEGORIES = ['Motion', 'Graphic Design', 'Photography', 'UI/UX'];
 const LAYOUT_OPTIONS = [
   { value: 'auto', label: 'Auto (Count-based)' },
   { value: 'single', label: 'Single Image' },
