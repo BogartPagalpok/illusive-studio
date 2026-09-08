@@ -276,14 +276,22 @@ export default function ProjectManager() {
   };
 
   const toggleProjectVisibility = async (projectRows: Project[]) => {
-    const nextVisible = !projectRows.every(project => project.visible !== false);
+    const isVisible = (project: Project) => project.visible ?? project.featured;
+    const nextVisible = !projectRows.every(isVisible);
     const groupId = projectRows[0]?.project_group_id;
     const query = supabase.from('portfolio_projects').update({ visible: nextVisible });
-    const { error } = groupId
+    let { error } = groupId
       ? await query.eq('project_group_id', groupId)
       : await query.in('id', projectRows.map(project => project.id).filter(Boolean));
     if (error) {
-      alert(`Visibility update failed. Apply the project visibility migration first. ${error.message}`);
+      const fallbackQuery = supabase.from('portfolio_projects').update({ featured: nextVisible });
+      const fallback = groupId
+        ? await fallbackQuery.eq('project_group_id', groupId)
+        : await fallbackQuery.in('id', projectRows.map(project => project.id).filter(Boolean));
+      error = fallback.error;
+    }
+    if (error) {
+      alert(`Visibility update failed: ${error.message}`);
       return;
     }
     fetchProjects();
@@ -632,11 +640,11 @@ export default function ProjectManager() {
                         <div className="flex items-center gap-2">
                         <button
                           onClick={() => toggleProjectVisibility(projectRows)}
-                          className={`flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider ${projectRows.every(project => project.visible !== false) ? 'text-accent' : 'text-white/30'} hover:text-accent transition`}
-                          title={projectRows.every(project => project.visible !== false) ? 'Hide project' : 'Display project'}
+                          className={`flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider ${projectRows.every(project => (project.visible ?? project.featured)) ? 'text-accent' : 'text-white/30'} hover:text-accent transition`}
+                          title={projectRows.every(project => (project.visible ?? project.featured)) ? 'Hide project' : 'Display project'}
                         >
-                          {projectRows.every(project => project.visible !== false) ? <Eye size={13} /> : <EyeOff size={13} />}
-                          {projectRows.every(project => project.visible !== false) ? 'Hide' : 'Show'}
+                          {projectRows.every(project => (project.visible ?? project.featured)) ? <Eye size={13} /> : <EyeOff size={13} />}
+                          {projectRows.every(project => (project.visible ?? project.featured)) ? 'Hide' : 'Show'}
                         </button>
                         <button
                           onClick={() => {
