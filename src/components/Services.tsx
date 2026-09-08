@@ -31,7 +31,8 @@ export default function Services() {
         const { data, error } = await supabase
           .from('site_content')
           .select('key, value')
-          .eq('section', 'services');
+          .eq('section', 'services')
+          .eq('visible', true);
         if (!error && data && data.length > 0) {
           const mapped = { subtitle: 'What I Do', heading: 'Services & Expertise' };
           const mappedServices = [...defaultServices];

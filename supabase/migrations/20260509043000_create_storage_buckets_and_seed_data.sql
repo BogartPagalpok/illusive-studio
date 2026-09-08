@@ -73,7 +73,24 @@ INSERT INTO site_content (section, key, value) VALUES
   ('contact', 'description', 'Have a project in mind or need a creative partner? I''d love to hear from you.'),
   ('works', 'subtitle', 'Portfolio'),
   ('works', 'heading', 'Selected Works'),
-  ('works', 'description', 'Quality over quantity — each project represents a deep commitment to craft, strategy, and visual storytelling.')
+  ('works', 'description', 'Quality over quantity — each project represents a deep commitment to craft, strategy, and visual storytelling'),
+  ('about', 'skills_heading', 'Skills & Proficiency'),
+  ('about', 'skill_1_name', 'Frontend Dev (React / Tailwind)'),
+  ('about', 'skill_1_level', '90'),
+  ('about', 'skill_2_name', 'Advanced Compositing (Ps)'),
+  ('about', 'skill_2_level', '95'),
+  ('about', 'skill_3_name', 'Motion Graphics & VFX'),
+  ('about', 'skill_3_level', '85'),
+  ('about', 'skill_4_name', 'Editorial Photography'),
+  ('about', 'skill_4_level', '92'),
+  ('about', 'skill_5_name', 'UI/UX Prototyping'),
+  ('about', 'skill_5_level', '88'),
+  ('about', 'skill_6_name', 'Agile Pipelines (Canva Pro)'),
+  ('about', 'skill_6_level', '95'),
+  ('about', 'skill_7_name', 'Digital Illustration'),
+  ('about', 'skill_7_level', '90'),
+  ('about', 'skill_8_name', 'Typography & Grid Systems'),
+  ('about', 'skill_8_level', '87')
 ON CONFLICT DO NOTHING;
 
 -- Seed portfolio_projects

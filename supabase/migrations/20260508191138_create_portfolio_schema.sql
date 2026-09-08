@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS site_content (
   section text NOT NULL,
   key text NOT NULL,
   value text NOT NULL DEFAULT '',
+  visible boolean NOT NULL DEFAULT true,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );

@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const skills = [
+const defaultSkills = [
   { name: 'Frontend Dev (React / Tailwind)', level: 90 },
   { name: 'Advanced Compositing (Ps)', level: 95 },
   { name: 'Motion Graphics & VFX', level: 85 },
@@ -26,6 +26,7 @@ interface AboutContent {
   description_line2: string;
   description_line3: string;
   skills_heading: string;
+  [key: `skill_${number}_${'name' | 'level'}`]: string;
 }
 
 const defaultContent: AboutContent = {
@@ -41,6 +42,7 @@ const defaultContent: AboutContent = {
 export default function About() {
   const { ref, isVisible } = useScrollReveal();
   const [content, setContent] = useState<AboutContent>(defaultContent);
+  const [skills, setSkills] = useState(defaultSkills);
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
@@ -50,7 +52,8 @@ export default function About() {
         const { data, error } = await supabase
           .from('site_content')
           .select('key, value')
-          .eq('section', 'about');
+          .eq('section', 'about')
+          .eq('visible', true);
         if (!error && data && data.length > 0) {
           const mapped = { ...defaultContent };
           for (const row of data) {
@@ -58,6 +61,15 @@ export default function About() {
             if (key in mapped) mapped[key] = row.value;
           }
           setContent(mapped);
+          const skillValues = new Map(data.map((row) => [row.key.toLowerCase(), row.value]));
+          const hasConfiguredSkills = data.some((row) => /^skill_\d+_(name|level)$/.test(row.key.toLowerCase()));
+          if (hasConfiguredSkills) {
+            setSkills(defaultSkills.flatMap((skill, index) => {
+              const name = skillValues.get(`skill_${index + 1}_name`);
+              const level = skillValues.get(`skill_${index + 1}_level`);
+              return name && level ? [{ name, level: Number(level) || skill.level }] : [];
+            }));
+          }
         }
       } catch {}
     };
@@ -138,7 +150,7 @@ export default function About() {
             className="space-y-5"
           >
             <h3 className="font-black uppercase tracking-tighter text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 2vw, 24px)' }}>
-              Skills <span className="text-accent">&</span> Proficiency
+              {content.skills_heading}
             </h3>
 
             <div className="grid grid-cols-2 gap-x-6 gap-y-4">

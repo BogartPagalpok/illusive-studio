@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Database, CheckCircle } from 'lucide-react';
+import { RefreshCw, Database, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface SiteContent {
@@ -9,6 +9,7 @@ interface SiteContent {
   section: string;
   key: string;
   value: string;
+  visible: boolean;
 }
 
 const SEED_DATA = [
@@ -41,6 +42,22 @@ const SEED_DATA = [
   { section: 'about', key: 'description_line2', value: "With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories." },
   { section: 'about', key: 'description_line3', value: "Beyond design, I bring the same dedication to virtual assistance — organized and proactive." },
   { section: 'about', key: 'skills_heading', value: 'Skills & Proficiency' },
+  { section: 'about', key: 'skill_1_name', value: 'Frontend Dev (React / Tailwind)' },
+  { section: 'about', key: 'skill_1_level', value: '90' },
+  { section: 'about', key: 'skill_2_name', value: 'Advanced Compositing (Ps)' },
+  { section: 'about', key: 'skill_2_level', value: '95' },
+  { section: 'about', key: 'skill_3_name', value: 'Motion Graphics & VFX' },
+  { section: 'about', key: 'skill_3_level', value: '85' },
+  { section: 'about', key: 'skill_4_name', value: 'Editorial Photography' },
+  { section: 'about', key: 'skill_4_level', value: '92' },
+  { section: 'about', key: 'skill_5_name', value: 'UI/UX Prototyping' },
+  { section: 'about', key: 'skill_5_level', value: '88' },
+  { section: 'about', key: 'skill_6_name', value: 'Agile Pipelines (Canva Pro)' },
+  { section: 'about', key: 'skill_6_level', value: '95' },
+  { section: 'about', key: 'skill_7_name', value: 'Digital Illustration' },
+  { section: 'about', key: 'skill_7_level', value: '90' },
+  { section: 'about', key: 'skill_8_name', value: 'Typography & Grid Systems' },
+  { section: 'about', key: 'skill_8_level', value: '87' },
   { section: 'contact', key: 'subtitle', value: "Let's Connect" },
   { section: 'contact', key: 'heading', value: 'Get in Touch' },
   { section: 'contact', key: 'description', value: "Have a project in mind or need a creative partner? I'd love to hear from you." },
@@ -68,7 +85,7 @@ export default function SiteContentManager() {
     try {
       const { data, error } = await supabase
         .from('site_content')
-        .select('id, section, key, value')
+        .select('id, section, key, value, visible')
         .order('section', { ascending: true });
       if (error) throw error;
       setContents(data || []);
@@ -83,7 +100,7 @@ export default function SiteContentManager() {
     setIsSaving(true);
     try {
       const updatePromises = contents.map((item) =>
-        supabase.from('site_content').update({ value: item.value }).match({ section: item.section, key: item.key })
+        supabase.from('site_content').update({ value: item.value, visible: item.visible }).match({ section: item.section, key: item.key })
       );
       const results = await Promise.all(updatePromises);
       if (results.some((res) => res.error)) throw new Error('One or more fields failed to save.');
@@ -169,9 +186,20 @@ export default function SiteContentManager() {
                   key={item.id}
                   className="group p-4 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl hover:border-accent/30 hover:bg-white/[0.04] transition-all"
                 >
-                  <label className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-white/40 block mb-2 group-hover:text-accent transition-colors">
-                    {item.key.replace(/_/g, ' ')}
-                  </label>
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <label className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-white/40 group-hover:text-accent transition-colors">
+                      {item.key.replace(/_/g, ' ')}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setContents(contents.map(c => c.id === item.id ? { ...c, visible: !c.visible } : c))}
+                      aria-label={item.visible ? `Hide ${item.key}` : `Display ${item.key}`}
+                      title={item.visible ? 'Displayed on site' : 'Hidden from site'}
+                      className={`p-1.5 rounded-md transition-colors ${item.visible ? 'text-accent hover:bg-accent/10' : 'text-white/30 hover:bg-white/10'}`}
+                    >
+                      {item.visible ? <Eye size={15} /> : <EyeOff size={15} />}
+                    </button>
+                  </div>
 
                   {item.value.length > 80 || item.key.includes('description') || item.key.includes('desc') || item.key.includes('line') ? (
                     <textarea

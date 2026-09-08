@@ -64,7 +64,8 @@ export default function Hero() {
         const { data: contentData, error: contentError } = await supabase
           .from('site_content')
           .select('key, value')
-          .eq('section', 'hero');
+          .eq('section', 'hero')
+          .eq('visible', true);
 
         if (!contentError && contentData && contentData.length > 0) {
           const mapped = { ...defaultContent };

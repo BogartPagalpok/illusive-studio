@@ -39,7 +39,8 @@ export default function Navbar() {
         const { data } = await supabase
           .from('site_content')
           .select('key, value')
-          .eq('section', 'navbar');
+          .eq('section', 'navbar')
+          .eq('visible', true);
         if (data) {
           const mapped = { logo_text: 'IAN.LESTER', cta_text: 'Hire Me' };
           data.forEach(row => {
