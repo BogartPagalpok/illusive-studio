@@ -333,42 +333,69 @@ export default function ProjectManager() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Permanently delete this item?')) return;
+    setSaveStatus('saving');
     try {
       const { error } = await supabase.from('portfolio_projects').delete().eq('id', id);
       if (error) throw error;
-      fetchProjects();
+      await fetchProjects();
+      setSaveStatus('saved');
     } catch (error: any) {
-      console.error('Delete error:', error);
+      setSaveStatus('error');
+      alert(`Delete failed: ${error.message}`);
+    }
+  };
+
+  const handleDeleteProjectGroup = async (projectRows: Project[]) => {
+    const groupId = projectRows[0]?.project_group_id;
+    if (!confirm(`Permanently delete all ${projectRows.length} item${projectRows.length === 1 ? '' : 's'} in this project?`)) return;
+    setSaveStatus('saving');
+    try {
+      const query = supabase.from('portfolio_projects').delete();
+      const { error } = groupId
+        ? await query.eq('project_group_id', groupId)
+        : await query.in('id', projectRows.map(project => project.id).filter(Boolean));
+      if (error) throw error;
+      await fetchProjects();
+      setSaveStatus('saved');
+    } catch (error: any) {
+      setSaveStatus('error');
+      alert(`Delete failed: ${error.message}`);
     }
   };
 
   const toggleProjectVisibility = async (projectRows: Project[]) => {
     const nextVisible = !projectRows.every(project => project.visible);
     const groupId = projectRows[0]?.project_group_id;
+    setSaveStatus('saving');
     const query = supabase.from('portfolio_projects').update({ visible: nextVisible });
     const { error } = groupId
       ? await query.eq('project_group_id', groupId)
       : await query.in('id', projectRows.map(project => project.id).filter(Boolean));
     if (error) {
+      setSaveStatus('error');
       alert(`Visibility update failed: ${error.message}`);
       return;
     }
-    fetchProjects();
+    await fetchProjects();
+    setSaveStatus('saved');
   };
 
   const toggleProjectImages = async (projectRows: Project[]) => {
     const imageRows = projectRows.filter(project => project.image_url);
     if (imageRows.length === 0) return;
     const nextVisible = !imageRows.every(project => project.visible);
+    setSaveStatus('saving');
     const { error } = await supabase
       .from('portfolio_projects')
       .update({ visible: nextVisible })
       .in('id', imageRows.map(project => project.id).filter(Boolean));
     if (error) {
+      setSaveStatus('error');
       alert(`Image visibility update failed: ${error.message}`);
       return;
     }
-    fetchProjects();
+    await fetchProjects();
+    setSaveStatus('saved');
   };
 
   const toggleFolder = (category: string) => {
@@ -788,6 +815,14 @@ export default function ProjectManager() {
                             Images
                           </button>
                         )}
+                        <button
+                          onClick={() => handleDeleteProjectGroup(projectRows)}
+                          className="flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider text-white/40 hover:text-red-400 transition"
+                          title="Delete entire project"
+                        >
+                          <Trash2 size={13} />
+                          Delete
+                        </button>
                         <button
                           onClick={() => {
                             const first = projectRows[0];
