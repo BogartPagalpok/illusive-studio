@@ -63,6 +63,7 @@ export default function ProjectManager() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editingProjectGroup, setEditingProjectGroup] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
 
@@ -118,6 +119,7 @@ export default function ProjectManager() {
 
   const clearForm = () => {
     setEditingProject(null);
+    setEditingProjectGroup(false);
     setSelectedFiles([]);
     setCardFile(null);
     setDesktopFile(null);
@@ -224,7 +226,7 @@ export default function ProjectManager() {
         }
         const { error } = await supabase.from('portfolio_projects').insert(batchProjects);
         if (error) throw error;
-      } else if (editingProject.id && selectedFiles.length === 0) {
+      } else if (editingProject.id && selectedFiles.length === 0 && editingProjectGroup) {
         const originalProject = projects.find(p => p.id === editingProject.id);
         const { error } = await supabase
           .from('portfolio_projects')
@@ -241,6 +243,23 @@ export default function ProjectManager() {
             visible: editingProject.visible,
           })
           .eq('project_group_id', originalProject?.project_group_id || editingProject.project_group_id);
+        if (error) throw error;
+      } else if (editingProject.id && selectedFiles.length === 0) {
+        const { error } = await supabase
+          .from('portfolio_projects')
+          .update({
+            title: editingProject.title,
+            description: editingProject.description,
+            tools: toolArray,
+            process: editingProject.process,
+            results: editingProject.results,
+            category: editingProject.category,
+            project_url: editingProject.project_url || '',
+            facebook_urls: editingProject.facebook_urls || [],
+            video_urls: editingProject.video_urls || [],
+            visible: editingProject.visible,
+          })
+          .eq('id', editingProject.id);
         if (error) throw error;
       } else {
         let finalUrl = editingProject.image_url;
@@ -650,6 +669,7 @@ export default function ProjectManager() {
                           onClick={() => {
                             const first = projectRows[0];
                             clearForm();
+                            setEditingProjectGroup(true);
                             setEditingProject({ 
                               ...first, 
                               video_urls: first.video_urls || [],
@@ -702,6 +722,7 @@ export default function ProjectManager() {
                             <button
                               onClick={() => {
                                 clearForm();
+                                setEditingProjectGroup(false);
                                 setEditingProject({ ...project, video_urls: project.video_urls || [], facebook_urls: project.facebook_urls || [] });
                               }}
                               className="p-1.5 sm:p-2 text-white/20 hover:text-white transition bg-white/5 rounded-lg"
