@@ -2,9 +2,12 @@ ALTER TABLE portfolio_projects
   ADD COLUMN IF NOT EXISTS project_group_id uuid;
 
 WITH project_groups AS (
-  SELECT category, title, min(id) AS project_group_id
+  SELECT DISTINCT ON (category, title)
+    category,
+    title,
+    id AS project_group_id
   FROM portfolio_projects
-  GROUP BY category, title
+  ORDER BY category, title, created_at, id
 )
 UPDATE portfolio_projects AS project
 SET project_group_id = groups.project_group_id

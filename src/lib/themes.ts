@@ -256,6 +256,8 @@ function applyLiquidBackground() {
 export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   const root = document.documentElement;
   const isLight = getContrastYIQ(theme.bgPrimary) === 'black';
+  root.setAttribute('data-contrast', isLight ? 'light' : 'dark');
+  document.body.setAttribute('data-contrast', isLight ? 'light' : 'dark');
   root.style.setProperty('--bg-primary', theme.bgPrimary);
   root.style.setProperty('--bg-secondary', theme.bgSecondary);
   root.style.setProperty('--bg-gradient', theme.bgGradient);
