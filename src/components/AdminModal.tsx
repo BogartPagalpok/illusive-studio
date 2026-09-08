@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, X } from 'lucide-react';
-
-const ADMIN_PASSWORD = '@Satanas666';
+import { supabase } from '../lib/supabase';
 
 interface AdminModalProps {
   isOpen: boolean;
@@ -12,20 +11,26 @@ interface AdminModalProps {
 
 export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalProps) {
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
       setPassword('');
+      setEmail('');
       setError(false);
       setShake(false);
     }
   }, [isOpen]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
+    setIsSubmitting(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setIsSubmitting(false);
+    if (!error) {
       setError(false);
       onSuccess();
     } else {
@@ -92,6 +97,18 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="relative">
                 <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError(false);
+                  }}
+                  className={`input-dark mb-3 ${error ? '!border-red-500/50 !bg-red-500/5' : ''}`}
+                  style={{ color: 'var(--text-primary)' }}
+                  placeholder="Admin email"
+                  autoFocus
+                />
+                <input
                   type="password"
                   value={password}
                   onChange={(e) => {
@@ -101,7 +118,6 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
                   className={`input-dark ${error ? '!border-red-500/50 !bg-red-500/5' : ''}`}
                   style={{ color: 'var(--text-primary)' }}
                   placeholder="••••••••"
-                  autoFocus
                 />
                 <AnimatePresence>
                   {error && (
@@ -117,8 +133,8 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
                 </AnimatePresence>
               </div>
 
-              <button type="submit" className="btn-primary-sm w-full justify-center">
-                Authenticate System
+              <button type="submit" disabled={isSubmitting} className="btn-primary-sm w-full justify-center disabled:opacity-50">
+                {isSubmitting ? 'Authenticating...' : 'Authenticate System'}
               </button>
             </form>
           </motion.div>

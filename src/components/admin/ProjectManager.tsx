@@ -335,8 +335,9 @@ export default function ProjectManager() {
     if (!confirm('Permanently delete this item?')) return;
     setSaveStatus('saving');
     try {
-      const { error } = await supabase.from('portfolio_projects').delete().eq('id', id);
+      const { data, error } = await supabase.from('portfolio_projects').delete().eq('id', id).select('id');
       if (error) throw error;
+      if (!data?.length) throw new Error('No row was deleted. Please sign in with a Supabase admin account.');
       await fetchProjects();
       setSaveStatus('saved');
     } catch (error: any) {
@@ -351,10 +352,11 @@ export default function ProjectManager() {
     setSaveStatus('saving');
     try {
       const query = supabase.from('portfolio_projects').delete();
-      const { error } = groupId
-        ? await query.eq('project_group_id', groupId)
-        : await query.in('id', projectRows.map(project => project.id).filter(Boolean));
+      const { data, error } = groupId
+        ? await query.eq('project_group_id', groupId).select('id')
+        : await query.in('id', projectRows.map(project => project.id).filter(Boolean)).select('id');
       if (error) throw error;
+      if (!data?.length) throw new Error('No rows were deleted. Please sign in with a Supabase admin account.');
       await fetchProjects();
       setSaveStatus('saved');
     } catch (error: any) {
@@ -368,12 +370,17 @@ export default function ProjectManager() {
     const groupId = projectRows[0]?.project_group_id;
     setSaveStatus('saving');
     const query = supabase.from('portfolio_projects').update({ visible: nextVisible });
-    const { error } = groupId
-      ? await query.eq('project_group_id', groupId)
-      : await query.in('id', projectRows.map(project => project.id).filter(Boolean));
+    const { data, error } = groupId
+      ? await query.eq('project_group_id', groupId).select('id')
+      : await query.in('id', projectRows.map(project => project.id).filter(Boolean)).select('id');
     if (error) {
       setSaveStatus('error');
       alert(`Visibility update failed: ${error.message}`);
+      return;
+    }
+    if (!data?.length) {
+      setSaveStatus('error');
+      alert('Visibility update changed no rows. Please sign in with a Supabase admin account.');
       return;
     }
     await fetchProjects();
@@ -385,13 +392,19 @@ export default function ProjectManager() {
     if (imageRows.length === 0) return;
     const nextVisible = !imageRows.every(project => project.visible);
     setSaveStatus('saving');
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('portfolio_projects')
       .update({ visible: nextVisible })
-      .in('id', imageRows.map(project => project.id).filter(Boolean));
+      .in('id', imageRows.map(project => project.id).filter(Boolean))
+      .select('id');
     if (error) {
       setSaveStatus('error');
       alert(`Image visibility update failed: ${error.message}`);
+      return;
+    }
+    if (!data?.length) {
+      setSaveStatus('error');
+      alert('Image visibility changed no rows. Please sign in with a Supabase admin account.');
       return;
     }
     await fetchProjects();
