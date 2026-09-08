@@ -57,6 +57,7 @@ export default function SelectedWorks() {
         const fallback = await supabase
           .from('portfolio_projects')
           .select('*')
+          .eq('featured', true)
           .order('created_at', { ascending: false });
         data = fallback.data;
         dbError = fallback.error;
