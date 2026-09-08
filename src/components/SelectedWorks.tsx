@@ -14,7 +14,8 @@ const CATEGORIES = ['All', 'Graphic Design', 'Photography', 'UI/UX', 'Motion'];
 
 interface Project {
   id: string;
-    project_group_id?: string;
+  project_group_id?: string;
+  visible?: boolean;
   title: string;
   category: string;
   description?: string;
@@ -47,10 +48,19 @@ export default function SelectedWorks() {
   const fetchWorks = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error: dbError } = await supabase
+      let { data, error: dbError } = await supabase
         .from('portfolio_projects')
         .select('*')
+        .eq('visible', true)
         .order('created_at', { ascending: false });
+      if (dbError) {
+        const fallback = await supabase
+          .from('portfolio_projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+        data = fallback.data;
+        dbError = fallback.error;
+      }
       if (dbError) throw dbError;
       setProjects(data || []);
     } catch (err: unknown) {

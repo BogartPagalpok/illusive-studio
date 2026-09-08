@@ -11,7 +11,8 @@ interface VideoEntry {
 
 interface Project {
   id: string;
-    project_group_id?: string;
+  project_group_id?: string;
+  visible?: boolean;
   title: string;
   category: string;
   description?: string;
@@ -459,11 +460,21 @@ export default function CategorySection({ category }: CategorySectionProps) {
   const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('portfolio_projects')
         .select('*')
         .ilike('category', category.trim())
+        .eq('visible', true)
         .order('created_at', { ascending: true });
+      if (error) {
+        const fallback = await supabase
+          .from('portfolio_projects')
+          .select('*')
+          .ilike('category', category.trim())
+          .order('created_at', { ascending: true });
+        data = fallback.data;
+        error = fallback.error;
+      }
       if (error) throw error;
       setProjects(data || []);
     } catch (err) {

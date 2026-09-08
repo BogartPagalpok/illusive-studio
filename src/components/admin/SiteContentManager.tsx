@@ -12,6 +12,19 @@ interface SiteContent {
   visible: boolean;
 }
 
+interface PortfolioSection {
+  key: string;
+  label: string;
+  visible: boolean;
+}
+
+const DEFAULT_SECTIONS: PortfolioSection[] = [
+  { key: 'about', label: 'About & Skills', visible: true },
+  { key: 'services', label: 'Services', visible: true },
+  { key: 'works', label: 'Portfolio Works', visible: true },
+  { key: 'contact', label: 'Contact', visible: true },
+];
+
 const SEED_DATA = [
   { section: 'hero', key: 'subtitle', value: 'Video Editor • Graphics Artist' },
   { section: 'hero', key: 'heading_line1', value: 'Crafting Visual' },
@@ -78,6 +91,7 @@ export default function SiteContentManager() {
   const [contents, setContents] = useState<SiteContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [sections, setSections] = useState<PortfolioSection[]>(DEFAULT_SECTIONS);
 
   useEffect(() => { fetchContent(); }, []);
 
@@ -97,6 +111,11 @@ export default function SiteContentManager() {
         data = (fallback.data || []).map(item => ({ ...item, visible: true }));
       }
       setContents(data || []);
+      const sectionResult = await supabase
+        .from('portfolio_sections')
+        .select('key, label, visible')
+        .order('key');
+      if (!sectionResult.error && sectionResult.data?.length) setSections(sectionResult.data);
     } catch (error) {
       console.error('Error fetching content:', error);
     } finally {
@@ -145,6 +164,19 @@ export default function SiteContentManager() {
     }
   };
 
+  const toggleSection = async (section: PortfolioSection) => {
+    const nextVisible = !section.visible;
+    const { error } = await supabase
+      .from('portfolio_sections')
+      .update({ visible: nextVisible, updated_at: new Date().toISOString() })
+      .eq('key', section.key);
+    if (error) {
+      alert(`Section visibility update failed. Apply the portfolio visibility migration first.`);
+      return;
+    }
+    setSections(sections.map(item => item.key === section.key ? { ...item, visible: nextVisible } : item));
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -154,7 +186,7 @@ export default function SiteContentManager() {
   }
 
   const SECTION_ORDER = ['NAVBAR', 'HERO', 'SERVICES', 'WORKS', 'ABOUT', 'CONTACT', 'FOOTER'];
-  const sections = Array.from(new Set(contents.map(c => c.section.toUpperCase())))
+  const contentSections = Array.from(new Set(contents.map(c => c.section.toUpperCase())))
     .sort((a, b) => {
       const idxA = SECTION_ORDER.indexOf(a);
       const idxB = SECTION_ORDER.indexOf(b);
@@ -188,7 +220,27 @@ export default function SiteContentManager() {
         </div>
       </div>
 
-      {sections.map((sectionName) => (
+      <div className="space-y-3">
+        <div className="flex items-center gap-4">
+          <h3 className="text-[11px] font-heading font-black tracking-[0.5em] uppercase text-accent/60">PORTFOLIO SECTIONS</h3>
+          <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {sections.map(section => (
+            <button
+              key={section.key}
+              type="button"
+              onClick={() => toggleSection(section)}
+              className="flex items-center justify-between gap-3 p-3 rounded-xl border border-white/10 bg-white/[0.02] text-left hover:border-accent/30 transition"
+            >
+              <span className="text-[10px] font-heading font-bold uppercase tracking-wider text-white/60">{section.label}</span>
+              {section.visible ? <Eye size={15} className="text-accent" /> : <EyeOff size={15} className="text-white/30" />}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {contentSections.map((sectionName) => (
         <div key={sectionName} className="space-y-4">
           <div className="flex items-center gap-4">
             <h3 className="text-[11px] font-heading font-black tracking-[0.5em] uppercase text-accent/60">{sectionName}</h3>

@@ -8,14 +8,39 @@ import Footer from '../components/Footer';
 import AdminModal from '../components/AdminModal';
 import CategorySection from '../components/CategorySection';
 import ProjectPortal from '../components/ProjectPortal';
+import { supabase } from '../lib/supabase';
+
+const defaultSectionVisibility = {
+  about: true,
+  services: true,
+  works: true,
+  contact: true,
+};
 
 export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
   const [adminModalOpen, setAdminModalOpen] = useState(false);
+  const [sectionVisibility, setSectionVisibility] = useState(defaultSectionVisibility);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('portfolio-theme') || 'void';
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.body.setAttribute('data-theme', savedTheme);
+  }, []);
+
+  useEffect(() => {
+    const fetchSectionVisibility = async () => {
+      const { data } = await supabase
+        .from('portfolio_sections')
+        .select('key, visible')
+        .in('key', Object.keys(defaultSectionVisibility));
+      if (data) {
+        setSectionVisibility({
+          ...defaultSectionVisibility,
+          ...Object.fromEntries(data.map(section => [section.key, section.visible])),
+        });
+      }
+    };
+    fetchSectionVisibility();
   }, []);
 
   const handleAdminTrigger = () => {
@@ -35,17 +60,13 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       <main className="relative z-10">
         <Hero />
         
-        <div id="about">
-          <About />
-        </div>
+        {sectionVisibility.about && <div id="about"><About /></div>}
         
-        <div id="services">
-          <Services />
-        </div>
+        {sectionVisibility.services && <div id="services"><Services /></div>}
         
         {/* --- FIXED WORKS SECTION --- */}
         {/* The id="works" is now wrapping the entire portfolio block */}
-        <div id="works" className="w-full">
+        {sectionVisibility.works && <div id="works" className="w-full">
           
           {/* 1. Portal is the absolute first thing they see when clicking 'Works' */}
           <ProjectPortal />
@@ -58,11 +79,9 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
             <CategorySection category="Photography" />
           </div>
           
-        </div>
+        </div>}
 
-        <div id="contact">
-          <Contact />
-        </div>
+        {sectionVisibility.contact && <div id="contact"><Contact /></div>}
       </main>
 
       <Footer onAdminTrigger={handleAdminTrigger} />

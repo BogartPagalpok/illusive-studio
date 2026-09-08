@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, Link } from 'lucide-react';
+import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, Link, Eye, EyeOff } from 'lucide-react';
 import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
 
 interface VideoEntry {
@@ -13,6 +13,7 @@ interface VideoEntry {
 interface Project {
   id?: string;
   project_group_id?: string;
+  visible: boolean;
   title: string;
   category: string;
   description: string;
@@ -46,6 +47,7 @@ const EMPTY_PROJECT: Project = {
   hero_bg_desktop: '',
   hero_bg_mobile: '',
   featured: true,
+  visible: true,
 };
 
 const CATEGORIES = ['Graphic Design', 'Photography', 'UI/UX', 'Motion'];
@@ -192,6 +194,7 @@ export default function ProjectManager() {
         tools: toolArray,
         results: editingProject.results,
         featured: editingProject.featured,
+        visible: editingProject.visible,
         video_urls: editingProject.video_urls || [],
         facebook_urls: editingProject.facebook_urls || [],
         image_layout: editingProject.image_layout || 'auto',
@@ -235,6 +238,7 @@ export default function ProjectManager() {
             project_url: editingProject.project_url || '',
             facebook_urls: editingProject.facebook_urls || [],
             video_urls: editingProject.video_urls || [],
+            visible: editingProject.visible,
           })
           .eq('project_group_id', originalProject?.project_group_id || editingProject.project_group_id);
         if (error) throw error;
@@ -269,6 +273,20 @@ export default function ProjectManager() {
     } catch (error: any) {
       console.error('Delete error:', error);
     }
+  };
+
+  const toggleProjectVisibility = async (projectRows: Project[]) => {
+    const nextVisible = !projectRows.every(project => project.visible !== false);
+    const groupId = projectRows[0]?.project_group_id;
+    const query = supabase.from('portfolio_projects').update({ visible: nextVisible });
+    const { error } = groupId
+      ? await query.eq('project_group_id', groupId)
+      : await query.in('id', projectRows.map(project => project.id).filter(Boolean));
+    if (error) {
+      alert(`Visibility update failed: ${error.message}`);
+      return;
+    }
+    fetchProjects();
   };
 
   const toggleFolder = (category: string) => {
@@ -611,6 +629,14 @@ export default function ProjectManager() {
                           <span className="text-[10px] sm:text-xs font-heading font-bold uppercase tracking-wider text-white/50">{projectTitle}</span>
                           <span className="text-[9px] sm:text-[10px] text-white/20 ml-2">({projectRows.length})</span>
                         </div>
+                        <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => toggleProjectVisibility(projectRows)}
+                          className={`p-1 ${projectRows.every(project => project.visible !== false) ? 'text-accent' : 'text-white/30'} hover:text-accent transition`}
+                          title={projectRows.every(project => project.visible !== false) ? 'Hide project' : 'Display project'}
+                        >
+                          {projectRows.every(project => project.visible !== false) ? <Eye size={13} /> : <EyeOff size={13} />}
+                        </button>
                         <button
                           onClick={() => {
                             const first = projectRows[0];
@@ -628,6 +654,7 @@ export default function ProjectManager() {
                         >
                           <Pencil size={12} />
                         </button>
+                        </div>
                       </div>
                       {projectRows.map(project => (
                         <div
