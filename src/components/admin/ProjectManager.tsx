@@ -283,7 +283,7 @@ export default function ProjectManager() {
       ? await query.eq('project_group_id', groupId)
       : await query.in('id', projectRows.map(project => project.id).filter(Boolean));
     if (error) {
-      alert(`Visibility update failed: ${error.message}`);
+      alert(`Visibility update failed. Apply the project visibility migration first. ${error.message}`);
       return;
     }
     fetchProjects();
@@ -632,10 +632,11 @@ export default function ProjectManager() {
                         <div className="flex items-center gap-2">
                         <button
                           onClick={() => toggleProjectVisibility(projectRows)}
-                          className={`p-1 ${projectRows.every(project => project.visible !== false) ? 'text-accent' : 'text-white/30'} hover:text-accent transition`}
+                          className={`flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider ${projectRows.every(project => project.visible !== false) ? 'text-accent' : 'text-white/30'} hover:text-accent transition`}
                           title={projectRows.every(project => project.visible !== false) ? 'Hide project' : 'Display project'}
                         >
                           {projectRows.every(project => project.visible !== false) ? <Eye size={13} /> : <EyeOff size={13} />}
+                          {projectRows.every(project => project.visible !== false) ? 'Hide' : 'Show'}
                         </button>
                         <button
                           onClick={() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Database, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { RefreshCw, Database, CheckCircle, Eye, EyeOff, Pencil } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface SiteContent {
@@ -92,6 +92,7 @@ export default function SiteContentManager() {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [sections, setSections] = useState<PortfolioSection[]>(DEFAULT_SECTIONS);
+  const [editingContentId, setEditingContentId] = useState<string | null>(null);
 
   useEffect(() => { fetchContent(); }, []);
 
@@ -234,7 +235,10 @@ export default function SiteContentManager() {
               className="flex items-center justify-between gap-3 p-3 rounded-xl border border-white/10 bg-white/[0.02] text-left hover:border-accent/30 transition"
             >
               <span className="text-[10px] font-heading font-bold uppercase tracking-wider text-white/60">{section.label}</span>
-              {section.visible ? <Eye size={15} className="text-accent" /> : <EyeOff size={15} className="text-white/30" />}
+              <span className={`flex items-center gap-1 text-[9px] font-heading font-bold uppercase tracking-wider ${section.visible ? 'text-accent' : 'text-white/30'}`}>
+                {section.visible ? <Eye size={15} /> : <EyeOff size={15} />}
+                {section.visible ? 'Hide' : 'Show'}
+              </span>
             </button>
           ))}
         </div>
@@ -261,12 +265,22 @@ export default function SiteContentManager() {
                     </label>
                     <button
                       type="button"
+                      onClick={() => setEditingContentId(editingContentId === item.id ? null : item.id)}
+                      aria-label={editingContentId === item.id ? `Finish editing ${item.key}` : `Edit ${item.key}`}
+                      className="flex items-center gap-1 p-1.5 rounded-md text-[9px] font-heading font-bold uppercase tracking-wider text-white/50 hover:text-accent hover:bg-accent/10 transition-colors"
+                    >
+                      <Pencil size={13} />
+                      {editingContentId === item.id ? 'Done' : 'Edit'}
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => setContents(contents.map(c => c.id === item.id ? { ...c, visible: !c.visible } : c))}
                       aria-label={item.visible ? `Hide ${item.key}` : `Display ${item.key}`}
                       title={item.visible ? 'Displayed on site' : 'Hidden from site'}
-                      className={`p-1.5 rounded-md transition-colors ${item.visible ? 'text-accent hover:bg-accent/10' : 'text-white/30 hover:bg-white/10'}`}
+                      className={`flex items-center gap-1 p-1.5 rounded-md text-[9px] font-heading font-bold uppercase tracking-wider transition-colors ${item.visible ? 'text-accent hover:bg-accent/10' : 'text-white/30 hover:bg-white/10'}`}
                     >
                       {item.visible ? <Eye size={15} /> : <EyeOff size={15} />}
+                      {item.visible ? 'Hide' : 'Show'}
                     </button>
                   </div>
 
