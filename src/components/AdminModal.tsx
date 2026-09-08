@@ -10,30 +10,28 @@ interface AdminModalProps {
 }
 
 export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalProps) {
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
-      setPassword('');
-      setEmail('');
       setError(false);
       setShake(false);
     }
   }, [isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGoogleLogin = async () => {
     setIsSubmitting(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setIsSubmitting(false);
-    if (!error) {
-      setError(false);
-      onSuccess();
-    } else {
+    setError(false);
+    localStorage.setItem('admin-auth-pending', 'true');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) {
+      localStorage.removeItem('admin-auth-pending');
+      setIsSubmitting(false);
       setError(true);
       setShake(true);
       setTimeout(() => setShake(false), 500);
@@ -89,36 +87,11 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
               </div>
               <h3 className="text-xl font-heading font-black text-white tracking-tighter uppercase">Admin Access</h3>
               <p className="text-[10px] mt-2 font-heading tracking-widest uppercase opacity-60 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                Enter master credentials
+                Restricted studio access
               </p>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="relative">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setError(false);
-                  }}
-                  className={`input-dark mb-3 ${error ? '!border-red-500/50 !bg-red-500/5' : ''}`}
-                  style={{ color: 'var(--text-primary)' }}
-                  placeholder="Admin email"
-                  autoFocus
-                />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setError(false);
-                  }}
-                  className={`input-dark ${error ? '!border-red-500/50 !bg-red-500/5' : ''}`}
-                  style={{ color: 'var(--text-primary)' }}
-                  placeholder="••••••••"
-                />
+            <div className="space-y-5">
                 <AnimatePresence>
                   {error && (
                     <motion.p 
@@ -131,12 +104,16 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
                     </motion.p>
                   )}
                 </AnimatePresence>
-              </div>
 
-              <button type="submit" disabled={isSubmitting} className="btn-primary-sm w-full justify-center disabled:opacity-50">
-                {isSubmitting ? 'Authenticating...' : 'Authenticate System'}
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={isSubmitting}
+                className="w-full rounded-lg border border-white/15 px-4 py-2.5 text-[10px] font-heading font-bold uppercase tracking-widest text-white hover:bg-white/10 transition disabled:opacity-50"
+              >
+                Continue with Google
               </button>
-            </form>
+            </div>
           </motion.div>
         </motion.div>
       )}

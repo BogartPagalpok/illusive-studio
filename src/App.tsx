@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { useHoveringPenFavicon } from './hooks/useHoveringPenFavicon';
 import { loadSavedTheme, subscribeToThemeChanges, themePresets, applyTheme } from './lib/themes';
 import LiquidEtherBackground from './components/LiquidEtherBackground';
+import { supabase } from './lib/supabase';
+import { isAdminEmail } from './lib/admin';
 
 // Lazy-load admin / legal pages so they don't bloat the main bundle
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -166,6 +168,24 @@ function App() {
   });
 
   useEffect(() => {
+    const restoreAdminAfterOAuth = async () => {
+      const pending = localStorage.getItem('admin-auth-pending') === 'true';
+      if (!pending) return;
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        localStorage.removeItem('admin-auth-pending');
+        if (isAdminEmail(data.session.user.email)) {
+          setIsAdmin(true);
+        } else {
+          await supabase.auth.signOut();
+          window.alert('This Google account is not authorized for admin access.');
+        }
+      }
+    };
+    restoreAdminAfterOAuth();
+  }, []);
+
+  useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
       if (ticking) return;
@@ -267,7 +287,10 @@ function App() {
       <main className="min-h-screen relative">
         <AtmosphereGradient />
         <Suspense fallback={<BrandLoader />}>
-          <AdminDashboard onLogout={() => setIsAdmin(false)} />
+          <AdminDashboard onLogout={() => {
+            void supabase.auth.signOut();
+            setIsAdmin(false);
+          }} />
         </Suspense>
       </main>
     );
