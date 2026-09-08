@@ -29,7 +29,8 @@ export default function Contact() {
         const { data, error } = await supabase
           .from('site_content')
           .select('key, value')
-          .eq('section', 'contact');
+          .eq('section', 'contact')
+          .eq('visible', true);
         if (!error && data && data.length > 0) {
           const mapped = { ...defaultContent };
           for (const row of data) {

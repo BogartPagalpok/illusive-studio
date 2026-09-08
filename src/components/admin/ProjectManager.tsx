@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, Link } from 'lucide-react';
+import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, Link, Eye, EyeOff } from 'lucide-react';
 import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
 
 interface VideoEntry {
@@ -12,6 +12,8 @@ interface VideoEntry {
 
 interface Project {
   id?: string;
+  project_group_id?: string;
+  visible: boolean;
   title: string;
   category: string;
   description: string;
@@ -45,6 +47,7 @@ const EMPTY_PROJECT: Project = {
   hero_bg_desktop: '',
   hero_bg_mobile: '',
   featured: true,
+  visible: true,
 };
 
 const CATEGORIES = ['Graphic Design', 'Photography', 'UI/UX', 'Motion'];
@@ -183,6 +186,7 @@ export default function ProjectManager() {
       if (mobileFile) mUrl = await uploadToStorage(mobileFile);
 
       const baseProjectData = {
+        project_group_id: editingProject.project_group_id || crypto.randomUUID(),
         title: editingProject.title,
         category: editingProject.category,
         description: editingProject.description,
@@ -190,6 +194,7 @@ export default function ProjectManager() {
         tools: toolArray,
         results: editingProject.results,
         featured: editingProject.featured,
+        visible: editingProject.visible,
         video_urls: editingProject.video_urls || [],
         facebook_urls: editingProject.facebook_urls || [],
         image_layout: editingProject.image_layout || 'auto',
@@ -220,7 +225,7 @@ export default function ProjectManager() {
         const { error } = await supabase.from('portfolio_projects').insert(batchProjects);
         if (error) throw error;
       } else if (editingProject.id && selectedFiles.length === 0) {
-        const originalTitle = projects.find(p => p.id === editingProject.id)?.title || editingProject.title;
+        const originalProject = projects.find(p => p.id === editingProject.id);
         const { error } = await supabase
           .from('portfolio_projects')
           .update({ 
@@ -233,8 +238,9 @@ export default function ProjectManager() {
             project_url: editingProject.project_url || '',
             facebook_urls: editingProject.facebook_urls || [],
             video_urls: editingProject.video_urls || [],
+            visible: editingProject.visible,
           })
-          .eq('title', originalTitle);
+          .eq('project_group_id', originalProject?.project_group_id || editingProject.project_group_id);
         if (error) throw error;
       } else {
         let finalUrl = editingProject.image_url;
@@ -269,6 +275,20 @@ export default function ProjectManager() {
     }
   };
 
+  const toggleProjectVisibility = async (projectRows: Project[]) => {
+    const nextVisible = !projectRows.every(project => project.visible !== false);
+    const groupId = projectRows[0]?.project_group_id;
+    const query = supabase.from('portfolio_projects').update({ visible: nextVisible });
+    const { error } = groupId
+      ? await query.eq('project_group_id', groupId)
+      : await query.in('id', projectRows.map(project => project.id).filter(Boolean));
+    if (error) {
+      alert(`Visibility update failed: ${error.message}`);
+      return;
+    }
+    fetchProjects();
+  };
+
   const toggleFolder = (category: string) => {
     setCollapsedFolders(prev => ({
       ...prev,
@@ -284,12 +304,13 @@ export default function ProjectManager() {
     return acc;
   }, {} as Record<string, Project[]>);
 
-  const getGroupedByTitle = (categoryProjects: Project[]) => {
+  const getGroupedByProject = (categoryProjects: Project[]) => {
     const grouped: Record<string, Project[]> = {};
     categoryProjects.forEach(project => {
-      const title = project.title || 'Untitled';
-      if (!grouped[title]) grouped[title] = [];
-      grouped[title].push(project);
+      const fallbackKey = `${project.category}:${project.title.trim().toLowerCase()}`;
+      const projectKey = project.project_group_id || fallbackKey;
+      if (!grouped[projectKey]) grouped[projectKey] = [];
+      grouped[projectKey].push(project);
     });
     return grouped;
   };
@@ -575,7 +596,7 @@ export default function ProjectManager() {
         {Object.entries(groupedProjects).map(([category, categoryProjects]) => {
           const isCollapsed = collapsedFolders[category] ?? true;
           const projectCount = categoryProjects.length;
-          const byTitle = getGroupedByTitle(categoryProjects);
+          const byProject = getGroupedByProject(categoryProjects);
 
           return (
             <div key={category} className="rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-xl overflow-hidden">
@@ -599,16 +620,26 @@ export default function ProjectManager() {
 
               {!isCollapsed && (
                 <div className="border-t border-white/5">
-                  {Object.entries(byTitle).map(([title, titleProjects]) => (
-                    <div key={title}>
+                  {Object.entries(byProject).map(([projectKey, projectRows]) => {
+                    const projectTitle = projectRows[0]?.title || 'Untitled';
+                    return (
+                    <div key={projectKey}>
                       <div className="px-3 sm:px-4 py-2 bg-white/[0.01] border-b border-white/5 flex items-center justify-between">
                         <div>
-                          <span className="text-[10px] sm:text-xs font-heading font-bold uppercase tracking-wider text-white/50">{title}</span>
-                          <span className="text-[9px] sm:text-[10px] text-white/20 ml-2">({titleProjects.length})</span>
+                          <span className="text-[10px] sm:text-xs font-heading font-bold uppercase tracking-wider text-white/50">{projectTitle}</span>
+                          <span className="text-[9px] sm:text-[10px] text-white/20 ml-2">({projectRows.length})</span>
                         </div>
+                        <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => toggleProjectVisibility(projectRows)}
+                          className={`p-1 ${projectRows.every(project => project.visible !== false) ? 'text-accent' : 'text-white/30'} hover:text-accent transition`}
+                          title={projectRows.every(project => project.visible !== false) ? 'Hide project' : 'Display project'}
+                        >
+                          {projectRows.every(project => project.visible !== false) ? <Eye size={13} /> : <EyeOff size={13} />}
+                        </button>
                         <button
                           onClick={() => {
-                            const first = titleProjects[0];
+                            const first = projectRows[0];
                             clearForm();
                             setEditingProject({ 
                               ...first, 
@@ -623,8 +654,9 @@ export default function ProjectManager() {
                         >
                           <Pencil size={12} />
                         </button>
+                        </div>
                       </div>
-                      {titleProjects.map(project => (
+                      {projectRows.map(project => (
                         <div
                           key={project.id}
                           className="flex items-center justify-between pl-6 sm:pl-8 pr-3 sm:pr-4 py-2.5 sm:py-3 hover:bg-white/[0.02] transition border-b border-white/5 last:border-b-0"
@@ -677,7 +709,8 @@ export default function ProjectManager() {
                         </div>
                       ))}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

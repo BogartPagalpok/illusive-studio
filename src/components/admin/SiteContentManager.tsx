@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Database, CheckCircle } from 'lucide-react';
+import { RefreshCw, Database, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface SiteContent {
@@ -9,38 +9,69 @@ interface SiteContent {
   section: string;
   key: string;
   value: string;
+  visible: boolean;
 }
 
+interface PortfolioSection {
+  key: string;
+  label: string;
+  visible: boolean;
+}
+
+const DEFAULT_SECTIONS: PortfolioSection[] = [
+  { key: 'about', label: 'About & Skills', visible: true },
+  { key: 'services', label: 'Services', visible: true },
+  { key: 'works', label: 'Portfolio Works', visible: true },
+  { key: 'contact', label: 'Contact', visible: true },
+];
+
 const SEED_DATA = [
-  { section: 'hero', key: 'subtitle', value: 'Graphic Designer • Photographer • Virtual Assistant' },
+  { section: 'hero', key: 'subtitle', value: 'Video Editor • Graphics Artist' },
   { section: 'hero', key: 'heading_line1', value: 'Crafting Visual' },
   { section: 'hero', key: 'heading_line2', value: 'Stories That' },
   { section: 'hero', key: 'heading_line3', value: 'Resonate' },
   { section: 'hero', key: 'description', value: "I'm Ian Lester Eclevia — where timeless design meets modern execution. From brand identity to digital painting, I bring ideas to life with precision and passion." },
   { section: 'services', key: 'subtitle', value: 'What I Do' },
   { section: 'services', key: 'heading', value: 'Services & Expertise' },
-  { section: 'services', key: 'service1_title', value: 'Brand Identity' },
-  { section: 'services', key: 'service1_desc', value: 'Complete visual identity systems — logos, color palettes, typography, and brand guidelines.' },
-  { section: 'services', key: 'service2_title', value: 'Photography' },
-  { section: 'services', key: 'service2_desc', value: 'Professional photo sessions from portraits to product photography, with expert post-processing.' },
-  { section: 'services', key: 'service3_title', value: 'Digital Painting' },
-  { section: 'services', key: 'service3_desc', value: 'Custom digital illustrations and concept art that bring imagination to canvas.' },
-  { section: 'services', key: 'service4_title', value: 'Admin Support' },
-  { section: 'services', key: 'service4_desc', value: 'Reliable virtual assistance — email management, scheduling, and operational support.' },
-  { section: 'services', key: 'service5_title', value: 'Graphic Design' },
-  { section: 'services', key: 'service5_desc', value: 'Stunning layouts for social media, print materials, and marketing collateral.' },
-  { section: 'services', key: 'service6_title', value: 'Videography' },
-  { section: 'services', key: 'service6_desc', value: 'Creative video production and editing that tells your story with cinematic quality.' },
+  { section: 'services', key: 'service1_title', value: 'Graphic Design' },
+  { section: 'services', key: 'service1_desc', value: 'Bold visual systems, layouts, and artwork built with clarity and a distinct point of view.' },
+  { section: 'services', key: 'service2_title', value: 'Video Editing' },
+  { section: 'services', key: 'service2_desc', value: 'Cinematic edits, pacing, sound, and finishing that turn raw footage into a compelling story.' },
+  { section: 'services', key: 'service3_title', value: 'Motion Graphics' },
+  { section: 'services', key: 'service3_desc', value: 'Animated titles, transitions, visual effects, and kinetic graphics that give content energy.' },
+  { section: 'services', key: 'service4_title', value: 'Digital Illustration' },
+  { section: 'services', key: 'service4_desc', value: 'Custom digital artwork and illustrated assets that bring concepts to life.' },
+  { section: 'services', key: 'service5_title', value: 'Brand Identity' },
+  { section: 'services', key: 'service5_desc', value: 'Distinctive logos, typography, color, and visual direction for a coherent brand presence.' },
+  { section: 'services', key: 'service6_title', value: 'Visual Content Production' },
+  { section: 'services', key: 'service6_desc', value: 'End-to-end visual content shaped from concept through design, edit, and final delivery.' },
   { section: 'works', key: 'subtitle', value: 'Portfolio' },
   { section: 'works', key: 'heading', value: 'Selected Works' },
   { section: 'works', key: 'description', value: 'Quality over quantity — each project represents a deep commitment to craft, strategy, and visual storytelling.' },
+  { section: 'works', key: 'shoes_showroom_visible', value: 'true' },
   { section: 'about', key: 'subtitle', value: 'Who I Am' },
   { section: 'about', key: 'heading', value: 'About & Skills' },
   { section: 'about', key: 'subheading', value: 'Creative mind. Reliable hands.' },
-  { section: 'about', key: 'description_line1', value: "I'm Ian Lester Eclevia — a graphic designer, photographer, and virtual assistant." },
-  { section: 'about', key: 'description_line2', value: "With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories." },
-  { section: 'about', key: 'description_line3', value: "Beyond design, I bring the same dedication to virtual assistance — organized and proactive." },
+  { section: 'about', key: 'description_line1', value: "I'm Ian Lester Eclevia — a video editor and graphics artist who turns ideas into clear, polished, and expressive visual stories." },
+  { section: 'about', key: 'description_line2', value: "From editing and motion graphics to digital illustration and brand visuals, I shape every frame with purpose, rhythm, and detail." },
+  { section: 'about', key: 'description_line3', value: "My work combines strong visual direction with careful post-production to create content that feels distinctive and ready to share." },
   { section: 'about', key: 'skills_heading', value: 'Skills & Proficiency' },
+  { section: 'about', key: 'skill_1_name', value: 'Video Editing & Post-Production' },
+  { section: 'about', key: 'skill_1_level', value: '90' },
+  { section: 'about', key: 'skill_2_name', value: 'Advanced Compositing (Ps)' },
+  { section: 'about', key: 'skill_2_level', value: '95' },
+  { section: 'about', key: 'skill_3_name', value: 'Motion Graphics & VFX' },
+  { section: 'about', key: 'skill_3_level', value: '85' },
+  { section: 'about', key: 'skill_4_name', value: 'Editorial Photography' },
+  { section: 'about', key: 'skill_4_level', value: '92' },
+  { section: 'about', key: 'skill_5_name', value: 'UI/UX Prototyping' },
+  { section: 'about', key: 'skill_5_level', value: '88' },
+  { section: 'about', key: 'skill_6_name', value: 'Agile Pipelines (Canva Pro)' },
+  { section: 'about', key: 'skill_6_level', value: '95' },
+  { section: 'about', key: 'skill_7_name', value: 'Digital Illustration' },
+  { section: 'about', key: 'skill_7_level', value: '90' },
+  { section: 'about', key: 'skill_8_name', value: 'Typography & Grid Systems' },
+  { section: 'about', key: 'skill_8_level', value: '87' },
   { section: 'contact', key: 'subtitle', value: "Let's Connect" },
   { section: 'contact', key: 'heading', value: 'Get in Touch' },
   { section: 'contact', key: 'description', value: "Have a project in mind or need a creative partner? I'd love to hear from you." },
@@ -60,18 +91,31 @@ export default function SiteContentManager() {
   const [contents, setContents] = useState<SiteContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [sections, setSections] = useState<PortfolioSection[]>(DEFAULT_SECTIONS);
 
   useEffect(() => { fetchContent(); }, []);
 
   const fetchContent = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('site_content')
-        .select('id, section, key, value')
+        .select('id, section, key, value, visible')
         .order('section', { ascending: true });
-      if (error) throw error;
+      if (error) {
+        const fallback = await supabase
+          .from('site_content')
+          .select('id, section, key, value')
+          .order('section', { ascending: true });
+        if (fallback.error) throw fallback.error;
+        data = (fallback.data || []).map(item => ({ ...item, visible: true }));
+      }
       setContents(data || []);
+      const sectionResult = await supabase
+        .from('portfolio_sections')
+        .select('key, label, visible')
+        .order('key');
+      if (!sectionResult.error && sectionResult.data?.length) setSections(sectionResult.data);
     } catch (error) {
       console.error('Error fetching content:', error);
     } finally {
@@ -82,10 +126,19 @@ export default function SiteContentManager() {
   const handleMasterSave = async () => {
     setIsSaving(true);
     try {
-      const updatePromises = contents.map((item) =>
-        supabase.from('site_content').update({ value: item.value }).match({ section: item.section, key: item.key })
-      );
-      const results = await Promise.all(updatePromises);
+      const results = await Promise.all(contents.map(async (item) => {
+        const result = await supabase
+          .from('site_content')
+          .update({ value: item.value, visible: item.visible })
+          .match({ section: item.section, key: item.key });
+        if (result.error) {
+          return supabase
+            .from('site_content')
+            .update({ value: item.value })
+            .match({ section: item.section, key: item.key });
+        }
+        return result;
+      }));
       if (results.some((res) => res.error)) throw new Error('One or more fields failed to save.');
       alert('All changes saved successfully!');
       fetchContent();
@@ -111,6 +164,19 @@ export default function SiteContentManager() {
     }
   };
 
+  const toggleSection = async (section: PortfolioSection) => {
+    const nextVisible = !section.visible;
+    const { error } = await supabase
+      .from('portfolio_sections')
+      .update({ visible: nextVisible, updated_at: new Date().toISOString() })
+      .eq('key', section.key);
+    if (error) {
+      alert(`Section visibility update failed. Apply the portfolio visibility migration first.`);
+      return;
+    }
+    setSections(sections.map(item => item.key === section.key ? { ...item, visible: nextVisible } : item));
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -120,7 +186,7 @@ export default function SiteContentManager() {
   }
 
   const SECTION_ORDER = ['NAVBAR', 'HERO', 'SERVICES', 'WORKS', 'ABOUT', 'CONTACT', 'FOOTER'];
-  const sections = Array.from(new Set(contents.map(c => c.section.toUpperCase())))
+  const contentSections = Array.from(new Set(contents.map(c => c.section.toUpperCase())))
     .sort((a, b) => {
       const idxA = SECTION_ORDER.indexOf(a);
       const idxB = SECTION_ORDER.indexOf(b);
@@ -154,7 +220,27 @@ export default function SiteContentManager() {
         </div>
       </div>
 
-      {sections.map((sectionName) => (
+      <div className="space-y-3">
+        <div className="flex items-center gap-4">
+          <h3 className="text-[11px] font-heading font-black tracking-[0.5em] uppercase text-accent/60">PORTFOLIO SECTIONS</h3>
+          <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {sections.map(section => (
+            <button
+              key={section.key}
+              type="button"
+              onClick={() => toggleSection(section)}
+              className="flex items-center justify-between gap-3 p-3 rounded-xl border border-white/10 bg-white/[0.02] text-left hover:border-accent/30 transition"
+            >
+              <span className="text-[10px] font-heading font-bold uppercase tracking-wider text-white/60">{section.label}</span>
+              {section.visible ? <Eye size={15} className="text-accent" /> : <EyeOff size={15} className="text-white/30" />}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {contentSections.map((sectionName) => (
         <div key={sectionName} className="space-y-4">
           <div className="flex items-center gap-4">
             <h3 className="text-[11px] font-heading font-black tracking-[0.5em] uppercase text-accent/60">{sectionName}</h3>
@@ -169,9 +255,20 @@ export default function SiteContentManager() {
                   key={item.id}
                   className="group p-4 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl hover:border-accent/30 hover:bg-white/[0.04] transition-all"
                 >
-                  <label className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-white/40 block mb-2 group-hover:text-accent transition-colors">
-                    {item.key.replace(/_/g, ' ')}
-                  </label>
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <label className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-white/40 group-hover:text-accent transition-colors">
+                      {item.key.replace(/_/g, ' ')}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setContents(contents.map(c => c.id === item.id ? { ...c, visible: !c.visible } : c))}
+                      aria-label={item.visible ? `Hide ${item.key}` : `Display ${item.key}`}
+                      title={item.visible ? 'Displayed on site' : 'Hidden from site'}
+                      className={`p-1.5 rounded-md transition-colors ${item.visible ? 'text-accent hover:bg-accent/10' : 'text-white/30 hover:bg-white/10'}`}
+                    >
+                      {item.visible ? <Eye size={15} /> : <EyeOff size={15} />}
+                    </button>
+                  </div>
 
                   {item.value.length > 80 || item.key.includes('description') || item.key.includes('desc') || item.key.includes('line') ? (
                     <textarea

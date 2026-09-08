@@ -3,12 +3,12 @@ import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
 const defaultServices = [
-  { title: 'Brand Identity', description: 'Complete visual identity systems...', color: 'transparent' },
-  { title: 'Photography', description: 'Professional photo sessions...', color: 'transparent' },
-  { title: 'Digital Painting', description: 'Custom digital illustrations...', color: 'transparent' },
-  { title: 'Admin Support', description: 'Reliable virtual assistance...', color: 'transparent' },
-  { title: 'Graphic Design', description: 'Stunning layouts...', color: 'transparent' },
-  { title: 'Videography', description: 'Creative video production...', color: 'transparent' },
+  { title: 'Graphic Design', description: 'Bold visual systems, layouts, and artwork...', color: 'transparent' },
+  { title: 'Video Editing', description: 'Cinematic edits, pacing, sound, and finishing...', color: 'transparent' },
+  { title: 'Motion Graphics', description: 'Animated titles, transitions, and visual effects...', color: 'transparent' },
+  { title: 'Digital Illustration', description: 'Custom digital artwork and illustrated assets...', color: 'transparent' },
+  { title: 'Brand Identity', description: 'Distinctive logos, typography, color, and direction...', color: 'transparent' },
+  { title: 'Visual Content Production', description: 'End-to-end visual content from concept to delivery...', color: 'transparent' },
 ];
 
 // Different parallax speeds per card
@@ -31,7 +31,8 @@ export default function Services() {
         const { data, error } = await supabase
           .from('site_content')
           .select('key, value')
-          .eq('section', 'services');
+          .eq('section', 'services')
+          .eq('visible', true);
         if (!error && data && data.length > 0) {
           const mapped = { subtitle: 'What I Do', heading: 'Services & Expertise' };
           const mappedServices = [...defaultServices];

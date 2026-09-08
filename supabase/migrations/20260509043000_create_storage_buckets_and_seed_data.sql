@@ -55,7 +55,7 @@ CREATE POLICY "Authenticated can delete portfolio media"
 
 -- Seed site_content
 INSERT INTO site_content (section, key, value) VALUES
-  ('hero', 'subtitle', 'Graphic Designer • Photographer • Virtual Assistant'),
+  ('hero', 'subtitle', 'Video Editor • Graphics Artist'),
   ('hero', 'heading_line1', 'Crafting Visual'),
   ('hero', 'heading_line2', 'Stories'),
   ('hero', 'heading_line3', 'Resonate'),
@@ -65,15 +65,33 @@ INSERT INTO site_content (section, key, value) VALUES
   ('about', 'subtitle', 'Who I Am'),
   ('about', 'heading', 'About & Skills'),
   ('about', 'subheading', 'Creative mind. Reliable hands.'),
-  ('about', 'description_line1', 'I''m Ian Lester Eclevia — a graphic designer, photographer, and virtual assistant who believes that great design is where timeless elegance meets modern trends.'),
-  ('about', 'description_line2', 'With deep proficiency in Photoshop, digital painting, and photography, I craft visual stories that don''t just look beautiful — they communicate, connect, and convert.'),
-  ('about', 'description_line3', 'Beyond design, I bring the same dedication to virtual assistance — organized, proactive, and committed to making your operations run seamlessly.'),
+  ('about', 'description_line1', 'I''m Ian Lester Eclevia — a video editor and graphics artist who turns ideas into clear, polished, and expressive visual stories.'),
+  ('about', 'description_line2', 'From editing and motion graphics to digital illustration and brand visuals, I shape every frame with purpose, rhythm, and detail.'),
+  ('about', 'description_line3', 'My work combines strong visual direction with careful post-production to create content that feels distinctive and ready to share.'),
   ('contact', 'subtitle', 'Let''s Connect'),
   ('contact', 'heading', 'Get in Touch'),
   ('contact', 'description', 'Have a project in mind or need a creative partner? I''d love to hear from you.'),
   ('works', 'subtitle', 'Portfolio'),
   ('works', 'heading', 'Selected Works'),
-  ('works', 'description', 'Quality over quantity — each project represents a deep commitment to craft, strategy, and visual storytelling.')
+  ('works', 'description', 'Quality over quantity — each project represents a deep commitment to craft, strategy, and visual storytelling'),
+  ('works', 'shoes_showroom_visible', 'true'),
+  ('about', 'skills_heading', 'Skills & Proficiency'),
+  ('about', 'skill_1_name', 'Video Editing & Post-Production'),
+  ('about', 'skill_1_level', '90'),
+  ('about', 'skill_2_name', 'Advanced Compositing (Ps)'),
+  ('about', 'skill_2_level', '95'),
+  ('about', 'skill_3_name', 'Motion Graphics & VFX'),
+  ('about', 'skill_3_level', '85'),
+  ('about', 'skill_4_name', 'Editorial Photography'),
+  ('about', 'skill_4_level', '92'),
+  ('about', 'skill_5_name', 'UI/UX Prototyping'),
+  ('about', 'skill_5_level', '88'),
+  ('about', 'skill_6_name', 'Agile Pipelines (Canva Pro)'),
+  ('about', 'skill_6_level', '95'),
+  ('about', 'skill_7_name', 'Digital Illustration'),
+  ('about', 'skill_7_level', '90'),
+  ('about', 'skill_8_name', 'Typography & Grid Systems'),
+  ('about', 'skill_8_level', '87')
 ON CONFLICT DO NOTHING;
 
 -- Seed portfolio_projects

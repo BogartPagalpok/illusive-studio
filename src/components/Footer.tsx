@@ -8,7 +8,7 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
 
   useEffect(() => {
     const fetchContent = async () => {
-      const { data } = await supabase.from('site_content').select('key, value').eq('section', 'footer');
+      const { data } = await supabase.from('site_content').select('key, value').eq('section', 'footer').eq('visible', true);
       if (data) {
         const mapped = data.reduce((acc, row) => ({ ...acc, [row.key]: row.value }), {});
         setContent(mapped);

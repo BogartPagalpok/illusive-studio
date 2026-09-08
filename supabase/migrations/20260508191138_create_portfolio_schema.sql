@@ -36,9 +36,11 @@
 
 CREATE TABLE IF NOT EXISTS site_content (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_group_id uuid NOT NULL DEFAULT gen_random_uuid(),
   section text NOT NULL,
   key text NOT NULL,
   value text NOT NULL DEFAULT '',
+  visible boolean NOT NULL DEFAULT true,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );

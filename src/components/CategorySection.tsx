@@ -11,6 +11,8 @@ interface VideoEntry {
 
 interface Project {
   id: string;
+  project_group_id?: string;
+  visible?: boolean;
   title: string;
   category: string;
   description?: string;
@@ -458,11 +460,21 @@ export default function CategorySection({ category }: CategorySectionProps) {
   const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('portfolio_projects')
         .select('*')
         .ilike('category', category.trim())
+        .eq('visible', true)
         .order('created_at', { ascending: true });
+      if (error) {
+        const fallback = await supabase
+          .from('portfolio_projects')
+          .select('*')
+          .ilike('category', category.trim())
+          .order('created_at', { ascending: true });
+        data = fallback.data;
+        error = fallback.error;
+      }
       if (error) throw error;
       setProjects(data || []);
     } catch (err) {
@@ -489,15 +501,16 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
   if (!loading && projects.length === 0) return null;
 
-  const groupedByTitle = projects.reduce((acc, project) => {
-    const title = project.title || 'Untitled';
-    if (!acc[title]) acc[title] = [];
-    acc[title].push(project);
+  const groupedByProject = projects.reduce((acc, project) => {
+    const fallbackKey = `${project.category}:${project.title.trim().toLowerCase()}`;
+    const projectKey = project.project_group_id || fallbackKey;
+    if (!acc[projectKey]) acc[projectKey] = [];
+    acc[projectKey].push(project);
     return acc;
   }, {} as Record<string, Project[]>);
 
-  const visibleGroups = Object.entries(groupedByTitle).filter(([_, titleProjects]) => {
-    return titleProjects.some(p => 
+  const visibleGroups = Object.entries(groupedByProject).filter(([_, projectRows]) => {
+    return projectRows.some(p =>
       p.image_url || 
       (p.video_urls && p.video_urls.length > 0 && p.video_urls.some((entry: any) => {
         const url = getUrl(entry);
@@ -523,14 +536,15 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
   return (
     <>
-      {visibleGroups.map(([title, titleProjects]) => {
+      {visibleGroups.map(([projectKey, projectRows]) => {
+        const title = projectRows[0]?.title || 'Untitled';
         // ── Graphics: Singles + Tiles + FB ───────────────
         if (isGraphics) {
-          const singles = titleProjects.filter(p => p.image_url && p.image_layout === 'single');
-          const fbPosts = titleProjects.filter(p => p.facebook_urls && p.facebook_urls.length > 0);
+          const singles = projectRows.filter(p => p.image_url && p.image_layout === 'single');
+          const fbPosts = projectRows.filter(p => p.facebook_urls && p.facebook_urls.length > 0);
           const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
           
-          titleProjects.forEach(project => {
+          projectRows.forEach(project => {
             if (!project.image_url) return;
             if (project.image_layout === 'single') return;
             const layout = project.image_layout || 'auto';
@@ -542,15 +556,15 @@ export default function CategorySection({ category }: CategorySectionProps) {
               tiles.push({
                 images: [project.image_url],
                 layout,
-                description: project.description || titleProjects.find(p => p.description)?.description || '',
-                tools: project.tools || titleProjects.find(p => p.tools && p.tools.length > 0)?.tools || []
+                description: project.description || projectRows.find(p => p.description)?.description || '',
+                tools: project.tools || projectRows.find(p => p.tools && p.tools.length > 0)?.tools || []
               });
             }
           });
           if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0) return null;
 
           return (
-            <section key={title} className="section-padding relative overflow-visible bg-transparent">
+            <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                   <span className="section-subtitle">{category}</span>
@@ -612,7 +626,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
           let titleDescription = '';
           let titleTools: string[] = [];
 
-          titleProjects.forEach(project => {
+          projectRows.forEach(project => {
             if (project.description && !titleDescription) titleDescription = project.description;
             if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
             const urls = project.video_urls || [];
@@ -627,7 +641,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
           });
 
           return (
-           <section key={title} className="section-padding relative overflow-visible bg-transparent">
+           <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center" style={{ zIndex: -1 }}>
                   <span className="section-subtitle">{category}</span>
@@ -651,7 +665,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
         if (isPhotography || isUIUX) {
           return (
-            <section key={title} className="section-padding relative overflow-visible bg-transparent">
+            <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                   <span className="section-subtitle">{category}</span>
@@ -665,18 +679,17 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   </div>
                 )}
 
-                <ScrollingMasonry projects={titleProjects} height={600} speed={100} />
+                <ScrollingMasonry projects={projectRows} height={600} speed={100} />
               </div>
             </section>
           );
         }
 
         // ── Fallback masonry ─────────────────────────────
-        const hasGap = titleProjects.length % columnCount !== 0;
-        const lastIndex = titleProjects.length - 1;
-
+        const hasGap = projectRows.length % columnCount !== 0;
+        const lastIndex = projectRows.length - 1;
         return (
-          <section key={title} className="section-padding relative overflow-visible bg-transparent">
+          <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
             <div className="section-container relative">
               <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                 <span className="section-subtitle">{category}</span>
@@ -691,7 +704,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
               )}
 
               <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
-                {titleProjects.map((project, index) => {
+                {projectRows.map((project, index) => {
                   const videoUrl = getVideoUrl(project);
                   const platform = videoUrl ? detectVideoPlatform(videoUrl) : null;
                   const isVideo = !!platform;
