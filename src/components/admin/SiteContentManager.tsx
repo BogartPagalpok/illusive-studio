@@ -100,24 +100,18 @@ export default function SiteContentManager() {
   const fetchContent = async () => {
     setLoading(true);
     try {
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from('site_content')
         .select('id, section, key, value, visible')
         .order('section', { ascending: true });
-      if (error) {
-        const fallback = await supabase
-          .from('site_content')
-          .select('id, section, key, value')
-          .order('section', { ascending: true });
-        if (fallback.error) throw fallback.error;
-        data = (fallback.data || []).map(item => ({ ...item, visible: true }));
-      }
+      if (error) throw error;
       setContents(data || []);
       const sectionResult = await supabase
         .from('portfolio_sections')
         .select('key, label, visible')
         .order('key');
-      if (!sectionResult.error && sectionResult.data?.length) setSections(sectionResult.data);
+      if (sectionResult.error) throw sectionResult.error;
+      if (sectionResult.data?.length) setSections(sectionResult.data);
     } catch (error) {
       console.error('Error fetching content:', error);
     } finally {
@@ -129,17 +123,10 @@ export default function SiteContentManager() {
     setIsSaving(true);
     try {
       const results = await Promise.all(contents.map(async (item) => {
-        const result = await supabase
+        return supabase
           .from('site_content')
           .update({ value: item.value, visible: item.visible })
           .match({ section: item.section, key: item.key });
-        if (result.error) {
-          return supabase
-            .from('site_content')
-            .update({ value: item.value })
-            .match({ section: item.section, key: item.key });
-        }
-        return result;
       }));
       if (results.some((res) => res.error)) throw new Error('One or more fields failed to save.');
       alert('All changes saved successfully!');
@@ -173,26 +160,6 @@ export default function SiteContentManager() {
       .update({ visible: nextVisible, updated_at: new Date().toISOString() })
       .eq('key', section.key);
     if (error) {
-      if (section.key === 'growth-marketing-study') {
-        const fallback = await supabase
-          .from('site_content')
-          .update({ visible: nextVisible })
-          .eq('section', 'works')
-          .eq('key', 'shoes_showroom_visible');
-        if (!fallback.error) {
-          setSections(sections.map(item => item.key === section.key ? { ...item, visible: nextVisible } : item));
-          return;
-        }
-        const legacyFallback = await supabase
-          .from('site_content')
-          .update({ value: String(nextVisible) })
-          .eq('section', 'works')
-          .eq('key', 'shoes_showroom_visible');
-        if (!legacyFallback.error) {
-          setSections(sections.map(item => item.key === section.key ? { ...item, visible: nextVisible } : item));
-          return;
-        }
-      }
       alert(`Section visibility update failed. Apply the portfolio visibility migration first.`);
       return;
     }

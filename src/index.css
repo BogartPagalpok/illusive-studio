@@ -162,6 +162,20 @@
   .font-body { font-family: var(--font-sans) !important; }
   .border-accent { border-color: var(--accent) !important; }
 
+  /* Keep shared admin controls readable when a light theme is active. */
+  [data-contrast='light'] .page-container .text-white { color: var(--text-primary) !important; }
+  [data-contrast='light'] .page-container .text-white\/20 { color: color-mix(in srgb, var(--text-primary) 35%, transparent) !important; }
+  [data-contrast='light'] .page-container .text-white\/30 { color: color-mix(in srgb, var(--text-primary) 50%, transparent) !important; }
+  [data-contrast='light'] .page-container .text-white\/40 { color: color-mix(in srgb, var(--text-primary) 65%, transparent) !important; }
+  [data-contrast='light'] .page-container .text-white\/50 { color: color-mix(in srgb, var(--text-primary) 75%, transparent) !important; }
+  [data-contrast='light'] .page-container .text-white\/60 { color: color-mix(in srgb, var(--text-primary) 82%, transparent) !important; }
+  [data-contrast='light'] .page-container .text-white\/70 { color: color-mix(in srgb, var(--text-primary) 88%, transparent) !important; }
+  [data-contrast='light'] .page-container .bg-white\/5 { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent) !important; }
+  [data-contrast='light'] .page-container .bg-white\/\[0\.02\] { background-color: color-mix(in srgb, var(--text-primary) 4%, transparent) !important; }
+  [data-contrast='light'] .page-container .border-white\/5 { border-color: color-mix(in srgb, var(--text-primary) 12%, transparent) !important; }
+  [data-contrast='light'] .page-container .border-white\/10 { border-color: color-mix(in srgb, var(--text-primary) 18%, transparent) !important; }
+  [data-contrast='light'] .page-container .border-white\/20 { border-color: color-mix(in srgb, var(--text-primary) 28%, transparent) !important; }
+
   .parallax-slow { will-change: transform; transform: translateY(calc(var(--scroll-offset, 0px) * 0.2)); transition: transform 0.1s linear; }
   .parallax-medium { will-change: transform; transform: translateY(calc(var(--scroll-offset, 0px) * 0.4)); transition: transform 0.1s linear; }
   .parallax-fast { will-change: transform; transform: translateY(calc(var(--scroll-offset, 0px) * 0.6)); transition: transform 0.1s linear; }

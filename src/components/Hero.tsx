@@ -136,7 +136,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-[9px] md:text-sm font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-white/50 text-center w-full"
+              className="text-[9px] md:text-sm font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-[var(--text-primary)]/70 text-center w-full"
             >
               {content.subtitle}
             </motion.p>
@@ -145,7 +145,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white font-bold tracking-tighter leading-[0.9] uppercase text-center w-full"
+              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-[var(--text-primary)] font-bold tracking-tighter leading-[0.9] uppercase text-center w-full"
               style={{ fontFamily: "'Clash Display', sans-serif" }}
             >
               {content.heading_line1}
@@ -161,7 +161,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="mt-6 md:mt-8 text-xs md:text-lg max-w-2xl mx-auto text-center leading-relaxed text-white/70 w-full"
+              className="mt-6 md:mt-8 text-xs md:text-lg max-w-2xl mx-auto text-center leading-relaxed text-[var(--text-primary)]/85 w-full"
             >
               {content.description}
             </motion.p>
@@ -198,7 +198,7 @@ export default function Hero() {
             <button
               // Updated to use the more robust scroll function
               onClick={(e) => scrollToId(e as any, 'services')} 
-              className="flex flex-col items-center justify-center gap-2 text-white/40 hover:text-accent transition-colors duration-300 w-full"
+              className="flex flex-col items-center justify-center gap-2 text-[var(--text-primary)]/65 hover:text-accent transition-colors duration-300 w-full"
             >
               <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase text-center block">Scroll</span>
               <ArrowDown size={16} className="animate-bounce mx-auto" />

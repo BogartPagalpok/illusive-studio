@@ -40,25 +40,7 @@ export default function ProjectPortal() {
         .maybeSingle();
       if (!sectionResult.error && sectionResult.data) {
         setIsShowroomVisible(sectionResult.data.visible);
-        return;
       }
-
-      let { data, error } = await supabase
-        .from('site_content')
-        .select('visible, value')
-        .eq('section', 'works')
-        .eq('key', 'shoes_showroom_visible')
-        .maybeSingle();
-      if (error) {
-        const legacy = await supabase
-          .from('site_content')
-          .select('value')
-          .eq('section', 'works')
-          .eq('key', 'shoes_showroom_visible')
-          .maybeSingle();
-        data = legacy.data;
-      }
-      if (data) setIsShowroomVisible(data.visible ?? data.value !== 'false');
     };
     fetchVisibility();
   }, []);

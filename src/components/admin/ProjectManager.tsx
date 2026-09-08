@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, Link, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, Link, Eye, EyeOff, Search, MonitorPlay, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
 
 interface VideoEntry {
@@ -59,13 +58,19 @@ const LAYOUT_OPTIONS = [
   { value: 'preview-grid', label: 'Preview Grid (+more)' },
 ];
 
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 export default function ProjectManager() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingProjectGroup, setEditingProjectGroup] = useState(false);
+  const [previewProject, setPreviewProject] = useState<Project | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
+  const [projectSearch, setProjectSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
 
   const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
   const [cardFile, setCardFile] = useState<any>(null);
@@ -74,6 +79,7 @@ export default function ProjectManager() {
   const [newVideoUrl, setNewVideoUrl] = useState('');
   const [newVideoVertical, setNewVideoVertical] = useState(false);
   const [newFacebookUrl, setNewFacebookUrl] = useState('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
@@ -127,16 +133,42 @@ export default function ProjectManager() {
     setNewVideoUrl('');
     setNewVideoVertical(false);
     setNewFacebookUrl('');
+    setValidationErrors([]);
+  };
+
+  const isValidUrl = (value: string) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+  const validateProject = (project: Project) => {
+    const errors: string[] = [];
+    if (project.project_url && !isValidUrl(project.project_url)) errors.push('Project URL must be a valid http or https URL.');
+    if ((project.video_urls || []).some(video => !video.url.trim() || !isValidUrl(video.url))) errors.push('Every video entry must contain a valid http or https URL.');
+    if ((project.facebook_urls || []).some(url => !url.trim() || !isValidUrl(url))) errors.push('Every link entry must contain a valid http or https URL.');
+    if ((project.video_urls || []).length > 0 || (project.facebook_urls || []).length > 0) {
+      if (!project.description.trim()) errors.push('A description is required for video or link projects.');
+    }
+    return errors;
   };
 
   const addVideoUrl = () => {
-    if (!newVideoUrl.trim() || !editingProject) return;
+    if (!editingProject) return;
+    if (!isValidUrl(newVideoUrl.trim())) {
+      setValidationErrors(['Enter a valid http or https video URL before adding it.']);
+      return;
+    }
     setEditingProject({
       ...editingProject,
       video_urls: [...(editingProject.video_urls || []), { url: newVideoUrl.trim(), vertical: newVideoVertical }]
     });
     setNewVideoUrl('');
     setNewVideoVertical(false);
+    setValidationErrors([]);
   };
 
   const removeVideoUrl = (index: number) => {
@@ -154,12 +186,17 @@ export default function ProjectManager() {
   };
 
   const addFacebookUrl = () => {
-    if (!newFacebookUrl.trim() || !editingProject) return;
+    if (!editingProject) return;
+    if (!isValidUrl(newFacebookUrl.trim())) {
+      setValidationErrors(['Enter a valid http or https link before adding it.']);
+      return;
+    }
     setEditingProject({
       ...editingProject,
       facebook_urls: [...(editingProject.facebook_urls || []), newFacebookUrl.trim()]
     });
     setNewFacebookUrl('');
+    setValidationErrors([]);
   };
 
   const removeFacebookUrl = (index: number) => {
@@ -172,7 +209,16 @@ export default function ProjectManager() {
   const handleSave = async () => {
     if (!editingProject || !editingProject.title.trim()) return;
 
+    const errors = validateProject(editingProject);
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setSaveStatus('error');
+      return;
+    }
+    setValidationErrors([]);
+
     setIsSaving(true);
+    setSaveStatus('saving');
     try {
       const toolArray = Array.isArray(editingProject.tools)
         ? editingProject.tools
@@ -275,7 +321,9 @@ export default function ProjectManager() {
 
       clearForm();
       fetchProjects();
+      setSaveStatus('saved');
     } catch (error: any) {
+      setSaveStatus('error');
       alert(`Operation failed: ${error.message}`);
     } finally {
       setIsSaving(false);
@@ -295,22 +343,29 @@ export default function ProjectManager() {
   };
 
   const toggleProjectVisibility = async (projectRows: Project[]) => {
-    const isVisible = (project: Project) => project.visible ?? project.featured;
-    const nextVisible = !projectRows.every(isVisible);
+    const nextVisible = !projectRows.every(project => project.visible);
     const groupId = projectRows[0]?.project_group_id;
     const query = supabase.from('portfolio_projects').update({ visible: nextVisible });
-    let { error } = groupId
+    const { error } = groupId
       ? await query.eq('project_group_id', groupId)
       : await query.in('id', projectRows.map(project => project.id).filter(Boolean));
     if (error) {
-      const fallbackQuery = supabase.from('portfolio_projects').update({ featured: nextVisible });
-      const fallback = groupId
-        ? await fallbackQuery.eq('project_group_id', groupId)
-        : await fallbackQuery.in('id', projectRows.map(project => project.id).filter(Boolean));
-      error = fallback.error;
-    }
-    if (error) {
       alert(`Visibility update failed: ${error.message}`);
+      return;
+    }
+    fetchProjects();
+  };
+
+  const toggleProjectImages = async (projectRows: Project[]) => {
+    const imageRows = projectRows.filter(project => project.image_url);
+    if (imageRows.length === 0) return;
+    const nextVisible = !imageRows.every(project => project.visible);
+    const { error } = await supabase
+      .from('portfolio_projects')
+      .update({ visible: nextVisible })
+      .in('id', imageRows.map(project => project.id).filter(Boolean));
+    if (error) {
+      alert(`Image visibility update failed: ${error.message}`);
       return;
     }
     fetchProjects();
@@ -323,8 +378,27 @@ export default function ProjectManager() {
     }));
   };
 
+  const normalizedSearch = projectSearch.trim().toLowerCase();
+  const filteredProjects = projects.filter(project => {
+    const matchesCategory = categoryFilter === 'All' || project.category === categoryFilter;
+    if (!matchesCategory) return false;
+    if (!normalizedSearch) return true;
+    const searchableText = [
+      project.title,
+      project.category,
+      project.description,
+      project.process,
+      project.results,
+      project.project_url,
+      ...(project.tools || []),
+      ...(project.video_urls || []).map(video => video.url),
+      ...(project.facebook_urls || []),
+    ].filter(Boolean).join(' ').toLowerCase();
+    return searchableText.includes(normalizedSearch);
+  });
+
   const groupedProjects = CATEGORIES.reduce((acc, category) => {
-    const categoryProjects = projects.filter(p => p.category === category);
+    const categoryProjects = filteredProjects.filter(p => p.category === category);
     if (categoryProjects.length > 0) {
       acc[category] = categoryProjects;
     }
@@ -362,7 +436,17 @@ export default function ProjectManager() {
       />
 
       <div className="flex justify-between items-center relative z-10">
-        <h2 className="text-sm sm:text-base font-heading font-bold tracking-widest uppercase text-white">Portfolio Manager</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-sm sm:text-base font-heading font-bold tracking-widest uppercase text-white">Portfolio Manager</h2>
+          {saveStatus !== 'idle' && (
+            <span className={`flex items-center gap-1 text-[9px] font-heading font-bold uppercase tracking-wider ${saveStatus === 'saved' ? 'text-emerald-400' : saveStatus === 'error' ? 'text-red-400' : 'text-accent'}`}>
+              {saveStatus === 'saving' && <RefreshCw size={12} className="animate-spin" />}
+              {saveStatus === 'saved' && <CheckCircle size={12} />}
+              {saveStatus === 'error' && <AlertCircle size={12} />}
+              {saveStatus === 'saving' ? 'Saving' : saveStatus === 'saved' ? 'Saved' : 'Save failed'}
+            </span>
+          )}
+        </div>
         <button
           onClick={() => {
             clearForm();
@@ -373,6 +457,29 @@ export default function ProjectManager() {
         >
           <Plus size={14} /> New
         </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3 relative z-10">
+        <div className="relative flex-1">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+          <input
+            type="search"
+            value={projectSearch}
+            onChange={e => setProjectSearch(e.target.value)}
+            placeholder="Search projects, descriptions, links..."
+            className="w-full pl-9 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 transition"
+          />
+        </div>
+        <select
+          value={categoryFilter}
+          onChange={e => setCategoryFilter(e.target.value)}
+          className="px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 transition"
+        >
+          <option value="All" className="bg-zinc-900 text-white">All categories</option>
+          {CATEGORIES.map(category => (
+            <option key={category} value={category} className="bg-zinc-900 text-white">{category}</option>
+          ))}
+        </select>
       </div>
 
       {editingProject && (
@@ -558,6 +665,12 @@ export default function ProjectManager() {
             </div>
           </div>
 
+          {validationErrors.length > 0 && (
+            <div className="rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2 text-[10px] font-body text-red-200 space-y-1">
+              {validationErrors.map(error => <p key={error}>{error}</p>)}
+            </div>
+          )}
+
           <div className="border-t border-white/5 pt-4 mt-2 space-y-3">
             <h4 className="text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-accent">Layout Assets (Optional)</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -659,12 +772,22 @@ export default function ProjectManager() {
                         <div className="flex items-center gap-2">
                         <button
                           onClick={() => toggleProjectVisibility(projectRows)}
-                          className={`flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider ${projectRows.every(project => (project.visible ?? project.featured)) ? 'text-accent' : 'text-white/30'} hover:text-accent transition`}
-                          title={projectRows.every(project => (project.visible ?? project.featured)) ? 'Hide project' : 'Display project'}
+                          className={`flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider ${projectRows.every(project => project.visible) ? 'text-accent' : 'text-white/30'} hover:text-accent transition`}
+                          title={projectRows.every(project => project.visible) ? 'Hide project' : 'Display project'}
                         >
-                          {projectRows.every(project => (project.visible ?? project.featured)) ? <Eye size={13} /> : <EyeOff size={13} />}
-                          {projectRows.every(project => (project.visible ?? project.featured)) ? 'Hide' : 'Show'}
+                          {projectRows.every(project => project.visible) ? <Eye size={13} /> : <EyeOff size={13} />}
+                          {projectRows.every(project => project.visible) ? 'Hide' : 'Show'}
                         </button>
+                        {projectRows.some(project => project.image_url) && (
+                          <button
+                            onClick={() => toggleProjectImages(projectRows)}
+                            className="flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider text-white/40 hover:text-accent transition"
+                            title={projectRows.filter(project => project.image_url).every(project => project.visible) ? 'Hide all project images' : 'Show all project images'}
+                          >
+                            {projectRows.filter(project => project.image_url).every(project => project.visible) ? <EyeOff size={13} /> : <Eye size={13} />}
+                            Images
+                          </button>
+                        )}
                         <button
                           onClick={() => {
                             const first = projectRows[0];
@@ -720,6 +843,13 @@ export default function ProjectManager() {
                           </div>
                           <div className="flex gap-1 sm:gap-2 flex-shrink-0">
                             <button
+                              onClick={() => setPreviewProject(project)}
+                              className="p-1.5 sm:p-2 text-white/20 hover:text-accent transition bg-white/5 rounded-lg"
+                              title="Preview project"
+                            >
+                              <MonitorPlay size={12} />
+                            </button>
+                            <button
                               onClick={() => {
                                 clearForm();
                                 setEditingProjectGroup(false);
@@ -747,6 +877,57 @@ export default function ProjectManager() {
           );
         })}
       </div>
+
+      {previewProject && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setPreviewProject(null)}>
+          <div
+            className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-zinc-950 p-5 sm:p-7 shadow-2xl"
+            onClick={event => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <p className="text-[10px] font-heading font-bold uppercase tracking-[0.25em] text-accent">Project Preview</p>
+                <h3 className="text-xl sm:text-2xl font-heading font-black uppercase tracking-tight text-white mt-1">{previewProject.title}</h3>
+                <p className="text-[10px] uppercase tracking-widest text-white/40 mt-1">{previewProject.category}</p>
+              </div>
+              <button onClick={() => setPreviewProject(null)} className="p-2 text-white/40 hover:text-white rounded-lg bg-white/5" title="Close preview">
+                <X size={16} />
+              </button>
+            </div>
+
+            {(previewProject.hero_bg_desktop || previewProject.card_thumbnail || previewProject.image_url) && (
+              <img
+                src={previewProject.hero_bg_desktop || previewProject.card_thumbnail || previewProject.image_url}
+                alt={previewProject.title}
+                className="w-full max-h-[420px] object-contain rounded-xl border border-white/10 bg-black/40 mb-5"
+              />
+            )}
+
+            <div className="space-y-4 text-sm text-white/70">
+              {previewProject.description && <p className="leading-relaxed">{previewProject.description}</p>}
+              {previewProject.process && <p><span className="text-white/40 uppercase text-[10px] tracking-widest">Process:</span> {previewProject.process}</p>}
+              {previewProject.tools.length > 0 && <p><span className="text-white/40 uppercase text-[10px] tracking-widest">Tools:</span> {previewProject.tools.join(', ')}</p>}
+              <div className="flex flex-wrap gap-2">
+                {previewProject.project_url && (
+                  <a href={previewProject.project_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--accent-contrast)' }}>
+                    Project Link <ExternalLink size={12} />
+                  </a>
+                )}
+                {(previewProject.video_urls || []).map((video, index) => (
+                  <a key={`${video.url}-${index}`} href={video.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/10 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-white/20">
+                    Video {index + 1} <ExternalLink size={12} />
+                  </a>
+                ))}
+                {(previewProject.facebook_urls || []).map((url, index) => (
+                  <a key={`${url}-${index}`} href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/10 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-white/20">
+                    Link {index + 1} <ExternalLink size={12} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

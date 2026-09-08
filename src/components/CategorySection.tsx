@@ -13,6 +13,7 @@ interface Project {
   id: string;
   project_group_id?: string;
   visible?: boolean;
+  image_layout?: string;
   title: string;
   category: string;
   description?: string;
@@ -471,7 +472,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
           .from('portfolio_projects')
           .select('*')
           .ilike('category', category.trim())
-          .eq('featured', true)
           .order('created_at', { ascending: true });
         data = fallback.data;
         error = fallback.error;
