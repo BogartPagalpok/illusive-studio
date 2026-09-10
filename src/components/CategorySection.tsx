@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, X, Play, ExternalLink, ChevronDown } from 'lucide-react';
-import { supabase, getOptimizedImageUrl } from '../lib/supabase';
+import { Loader2, X, Play, ExternalLink } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import ScrollingMasonry from '../components/ScrollingMasonry';
 
 interface VideoEntry {
@@ -104,75 +104,6 @@ function BrowserFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-function extractYouTubeId(url: string): string | null {
-  const match = url.match(/(?:v=|\/|shorts\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : null;
-}
-
-function LiteVideoEmbed({
-  url,
-  platform,
-  title,
-}: {
-  url: string;
-  platform: VideoPlatform;
-  title: string;
-}) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const youtubeId = platform === 'youtube' ? extractYouTubeId(url) : null;
-  const thumbnailUrl = youtubeId
-    ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
-    : null;
-
-  if (isPlaying || !thumbnailUrl) {
-    const embedUrl = getVideoEmbedUrl(url, platform);
-    const autoplayUrl = embedUrl.includes('autoplay=0')
-      ? embedUrl.replace('autoplay=0', 'autoplay=1')
-      : `${embedUrl}${embedUrl.includes('?') ? '&' : '?'}autoplay=1`;
-
-    return (
-      <iframe
-        src={autoplayUrl}
-        className="w-full h-full"
-        allowFullScreen
-        allow="autoplay; encrypted-media; picture-in-picture"
-        title={title}
-      />
-    );
-  }
-
-  return (
-    <div
-      className="relative w-full h-full group cursor-pointer overflow-hidden bg-black flex items-center justify-center"
-      onClick={() => setIsPlaying(true)}
-      role="button"
-      tabIndex={0}
-      aria-label={`Play ${title}`}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          setIsPlaying(true);
-        }
-      }}
-    >
-      <img
-        src={thumbnailUrl}
-        alt={title}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-85 group-hover:opacity-100"
-        loading="lazy"
-        decoding="async"
-      />
-      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[var(--accent)] text-[var(--accent-contrast)] flex items-center justify-center shadow-2xl transition-all duration-300 group-hover:scale-115 group-active:scale-95">
-          <Play size={22} className="fill-current translate-x-0.5" />
-        </div>
-      </div>
-      <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded text-[10px] text-white/90 font-medium truncate pointer-events-none">
-        {title}
-      </div>
-    </div>
-  );
-}
-
 function FlipCard({ project, isHero = false }: { project: Project; isHero?: boolean }) {
   const [flipped, setFlipped] = useState(false);
   const [selected, setSelected] = useState(false);
@@ -219,18 +150,11 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
             }}
           >
             <img
-              src={getOptimizedImageUrl(project.card_thumbnail || project.hero_bg_desktop || project.image_url, { width: 500, quality: 75, format: 'webp' })}
+              src={project.hero_bg_desktop || project.image_url}
               alt={project.title}
               className={`w-full block ${isHero ? 'h-full object-cover' : 'h-auto'}`}
               loading="lazy"
-              decoding="async"
               style={isHero ? { minHeight: '300px' } : undefined}
-              onError={(e) => {
-                const rawUrl = project.hero_bg_desktop || project.image_url;
-                if (rawUrl && e.currentTarget.src !== rawUrl) {
-                  e.currentTarget.src = rawUrl;
-                }
-              }}
             />
             <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
               <p className="text-white text-xs font-bold uppercase tracking-wider">{project.title}</p>
@@ -343,64 +267,20 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
             {count === 3 ? (
               <div className="grid grid-cols-2 gap-1 p-1">
                 <div className="row-span-2 cursor-pointer overflow-hidden" onClick={(e) => handleImageClick(e, 0)}>
-                  <img
-                    src={getOptimizedImageUrl(displayImages[0], { width: 500, quality: 75, format: 'webp' })}
-                    alt={`${title} 1`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      if (displayImages[0] && e.currentTarget.src !== displayImages[0]) {
-                        e.currentTarget.src = displayImages[0];
-                      }
-                    }}
-                  />
+                  <img src={displayImages[0]} alt={`${title} 1`} className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, 1)}>
-                  <img
-                    src={getOptimizedImageUrl(displayImages[1], { width: 500, quality: 75, format: 'webp' })}
-                    alt={`${title} 2`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      if (displayImages[1] && e.currentTarget.src !== displayImages[1]) {
-                        e.currentTarget.src = displayImages[1];
-                      }
-                    }}
-                  />
+                  <img src={displayImages[1]} alt={`${title} 2`} className="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, 2)}>
-                  <img
-                    src={getOptimizedImageUrl(displayImages[2], { width: 500, quality: 75, format: 'webp' })}
-                    alt={`${title} 3`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      if (displayImages[2] && e.currentTarget.src !== displayImages[2]) {
-                        e.currentTarget.src = displayImages[2];
-                      }
-                    }}
-                  />
+                  <img src={displayImages[2]} alt={`${title} 3`} className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
             ) : count === 4 ? (
               <div className="grid grid-cols-2 gap-1 p-1">
                 {displayImages.map((img, i) => (
                   <div key={i} className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, i)}>
-                    <img
-                      src={getOptimizedImageUrl(img, { width: 500, quality: 75, format: 'webp' })}
-                      alt={`${title} ${i + 1}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        if (img && e.currentTarget.src !== img) {
-                          e.currentTarget.src = img;
-                        }
-                      }}
-                    />
+                    <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                 ))}
               </div>
@@ -412,18 +292,7 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
                     className="cursor-pointer overflow-hidden aspect-square relative"
                     onClick={(e) => handleImageClick(e, i)}
                   >
-                    <img
-                      src={getOptimizedImageUrl(img, { width: 500, quality: 75, format: 'webp' })}
-                      alt={`${title} ${i + 1}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        if (img && e.currentTarget.src !== img) {
-                          e.currentTarget.src = img;
-                        }
-                      }}
-                    />
+                    <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                     {i === 5 && remaining > 0 && (
                       <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                         <span className="text-white text-lg font-bold">+{remaining}</span>
@@ -554,18 +423,22 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                         </a>
                       </div>
                     ) : (
-                      <LiteVideoEmbed
-                        url={item.url}
-                        platform={item.platform!}
+                      <iframe
+                        src={getVideoEmbedUrl(item.url, item.platform!)}
+                        className="w-full h-full"
+                        allowFullScreen
+                        allow="autoplay; encrypted-media"
                         title={item.projectTitle}
                       />
                     )}
                   </PhoneFrame>
                 ) : (
                   <BrowserFrame>
-                    <LiteVideoEmbed
-                      url={item.url}
-                      platform={item.platform!}
+                    <iframe
+                      src={getVideoEmbedUrl(item.url, item.platform!)}
+                      className="w-full h-full"
+                      allowFullScreen
+                      allow="autoplay; encrypted-media"
                       title={item.projectTitle}
                     />
                   </BrowserFrame>
@@ -580,132 +453,40 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
   );
 }
 
-const PAGE_SIZE = 24;
-
 export default function CategorySection({ category }: CategorySectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [totalCount, setTotalCount] = useState<number | null>(null);
   const [columnCount, setColumnCount] = useState(3);
-  const observerTargetRef = useRef<HTMLDivElement | null>(null);
 
   const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
-      setPage(0);
-
-      const from = 0;
-      const to = PAGE_SIZE - 1; // Pull 24 items initially: .range(0, 23)
-
-      let { data, error, count } = await supabase
+      let { data, error } = await supabase
         .from('portfolio_projects')
-        .select('*', { count: 'exact' })
+        .select('*')
         .ilike('category', category.trim())
         .eq('visible', true)
-        .order('created_at', { ascending: true })
-        .range(from, to);
-
+        .order('created_at', { ascending: true });
       if (error) {
         const fallback = await supabase
           .from('portfolio_projects')
-          .select('*', { count: 'exact' })
+          .select('*')
           .ilike('category', category.trim())
-          .order('created_at', { ascending: true })
-          .range(from, to);
+          .order('created_at', { ascending: true });
         data = fallback.data;
         error = fallback.error;
-        count = fallback.count;
       }
       if (error) throw error;
-
-      const items = data || [];
-      setProjects(items);
-
-      if (typeof count === 'number') {
-        setTotalCount(count);
-        setHasMore(items.length < count && items.length === PAGE_SIZE);
-      } else {
-        setHasMore(items.length === PAGE_SIZE);
-      }
+      setProjects(data || []);
     } catch (err) {
       console.error(`Failed to fetch ${category} projects:`, err);
       setProjects([]);
-      setHasMore(false);
     } finally {
       setLoading(false);
     }
   }, [category]);
 
-  const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore) return;
-    try {
-      setLoadingMore(true);
-      const nextPage = page + 1;
-      const from = nextPage * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
-      let { data, error, count } = await supabase
-        .from('portfolio_projects')
-        .select('*', { count: 'exact' })
-        .ilike('category', category.trim())
-        .eq('visible', true)
-        .order('created_at', { ascending: true })
-        .range(from, to);
-
-      if (error) {
-        const fallback = await supabase
-          .from('portfolio_projects')
-          .select('*', { count: 'exact' })
-          .ilike('category', category.trim())
-          .order('created_at', { ascending: true })
-          .range(from, to);
-        data = fallback.data;
-        error = fallback.error;
-        count = fallback.count;
-      }
-      if (error) throw error;
-
-      const newItems = data || [];
-      setProjects((prev) => [...prev, ...newItems]);
-      setPage(nextPage);
-
-      if (typeof count === 'number') {
-        setTotalCount(count);
-        setHasMore(projects.length + newItems.length < count && newItems.length === PAGE_SIZE);
-      } else {
-        setHasMore(newItems.length === PAGE_SIZE);
-      }
-    } catch (err) {
-      console.error(`Failed to load more ${category} projects:`, err);
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [category, hasMore, loadingMore, page, projects.length]);
-
-  useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
-
-  // Infinite scroll listener to fetch next batch when requested
-  useEffect(() => {
-    const target = observerTargetRef.current;
-    if (!target || !hasMore || loadingMore || loading) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          loadMore();
-        }
-      },
-      { rootMargin: '300px' }
-    );
-
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [hasMore, loadingMore, loading, loadMore]);
+  useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
   useEffect(() => {
     const updateColumns = () => {
@@ -946,9 +727,11 @@ export default function CategorySection({ category }: CategorySectionProps) {
                                   </a>
                                 </div>
                               ) : (
-                                <LiteVideoEmbed
-                                  url={videoUrl!}
-                                  platform={platform}
+                                <iframe
+                                  src={getVideoEmbedUrl(videoUrl!, platform)}
+                                  className="w-full h-full"
+                                  allowFullScreen
+                                  allow="autoplay; encrypted-media"
                                   title={project.title}
                                 />
                               )}
@@ -970,43 +753,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
           </section>
         );
       })}
-
-      {/* Pagination / Infinite Scroll Listener & Load More Controls */}
-      {hasMore && (
-        <div className="w-full flex flex-col items-center justify-center pt-4 pb-16 relative z-20">
-          <div ref={observerTargetRef} className="h-4 w-full pointer-events-none" />
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={loadMore}
-            disabled={loadingMore}
-            className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-full border text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all duration-300 backdrop-blur-xl shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{
-              backgroundColor: 'var(--glass-bg)',
-              borderColor: 'var(--glass-border)',
-              color: 'var(--text-primary)',
-            }}
-          >
-            {loadingMore ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-accent" />
-                <span>Loading more {category}...</span>
-              </>
-            ) : (
-              <>
-                <span>Load More {category}</span>
-                <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
-                {totalCount !== null && (
-                  <span className="text-[10px] opacity-60 font-mono tracking-normal lowercase">
-                    ({projects.length} of {totalCount})
-                  </span>
-                )}
-              </>
-            )}
-          </motion.button>
-        </div>
-      )}
     </>
   );
 }

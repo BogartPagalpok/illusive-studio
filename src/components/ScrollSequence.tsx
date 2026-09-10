@@ -45,80 +45,46 @@ export default function ScrollSequence({
     return true;
   }, []);
 
-  const requestedFramesRef = useRef<Set<number>>(new Set());
-
-  const loadFrame = useCallback((i: number) => {
-    if (i < 0 || i >= frameCount) return Promise.resolve();
-    if (requestedFramesRef.current.has(i)) return Promise.resolve();
-    requestedFramesRef.current.add(i);
-
-    return new Promise<void>((resolve) => {
-      const frameIndex = String(i).padStart(3, '0');
-      const { data: urlData } = supabase.storage
-        .from(SCROLL_SEQUENCE_BUCKET)
-        .getPublicUrl(`${filePrefix}${frameIndex}.${fileExtension}`);
-
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.src = urlData.publicUrl;
-      img.onload = () => {
-        if (!firstFrameDrawnRef.current) {
-          drawFrame(i);
-          firstFrameDrawnRef.current = true;
-        }
-        resolve();
-      };
-      img.onerror = () => resolve();
-      imagesRef.current[i] = img;
-    });
-  }, [frameCount, filePrefix, fileExtension, drawFrame]);
-
-  const preloadWindow = useCallback((currentFrame: number, lookahead: number = 10) => {
-    const start = Math.max(0, currentFrame - 2);
-    const end = Math.min(frameCount - 1, currentFrame + lookahead);
-    for (let i = start; i <= end; i++) {
-      if (!imagesRef.current[i] && !requestedFramesRef.current.has(i)) {
-        loadFrame(i);
-      }
-    }
-  }, [frameCount, loadFrame]);
-
   useEffect(() => {
     let cancelled = false;
 
-    const init = async () => {
+    const loadFrame = (i: number) => {
+      return new Promise<void>((resolve) => {
+        const frameIndex = String(i).padStart(3, '0');
+        const { data: urlData } = supabase.storage
+          .from(SCROLL_SEQUENCE_BUCKET)
+          .getPublicUrl(`${filePrefix}${frameIndex}.${fileExtension}`);
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = urlData.publicUrl;
+        img.onload = () => {
+          if (cancelled) return resolve();
+          if (!firstFrameDrawnRef.current) {
+            drawFrame(i);
+            firstFrameDrawnRef.current = true;
+          }
+          resolve();
+        };
+        img.onerror = () => resolve();
+        imagesRef.current[i] = img;
+      });
+    };
+
+    const loadAll = async () => {
       // 1. Await the first frame so the initial canvas paints instantly
       await loadFrame(0);
-      if (cancelled) return;
-
-      // 2. Preload only an initial lookahead buffer of 5 frames (not all 288!)
-      for (let i = 1; i <= 5 && i < frameCount; i++) {
+      
+      // 2. Fire off all other frames concurrently without blocking the queue
+      for (let i = 1; i < frameCount; i++) {
         if (cancelled) break;
         loadFrame(i);
       }
-
-      // 3. Low-priority background idle loader for subsequent frames
-      let nextIdleFrame = 6;
-      const loadIdleChunk = () => {
-        if (cancelled || nextIdleFrame >= frameCount) return;
-        const chunkEnd = Math.min(nextIdleFrame + 4, frameCount);
-        for (let i = nextIdleFrame; i < chunkEnd; i++) {
-          if (!requestedFramesRef.current.has(i)) {
-            loadFrame(i);
-          }
-        }
-        nextIdleFrame = chunkEnd;
-        if (nextIdleFrame < frameCount) {
-          setTimeout(loadIdleChunk, 300);
-        }
-      };
-
-      setTimeout(loadIdleChunk, 1500);
     };
 
-    init();
+    loadAll();
     return () => { cancelled = true; };
-  }, [frameCount, loadFrame]);
+  }, [frameCount, filePrefix, fileExtension, drawFrame]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -139,7 +105,6 @@ export default function ScrollSequence({
         onUpdate: (self) => {
           const target = Math.round(self.progress * (frameCount - 1));
           frameObj.frame = target;
-          preloadWindow(target, 12);
           if (!drawFrame(target)) {
             drawFrame(lastDrawnFrameRef.current);
           }
