@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, X, Play, ExternalLink } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { Loader2, X, Play, ExternalLink, ChevronDown } from 'lucide-react';
+import { supabase, getOptimizedImageUrl } from '../lib/supabase';
 import ScrollingMasonry from '../components/ScrollingMasonry';
 
 interface VideoEntry {
@@ -150,10 +150,11 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
             }}
           >
             <img
-              src={project.hero_bg_desktop || project.image_url}
+              src={getOptimizedImageUrl(project.card_thumbnail || project.hero_bg_desktop || project.image_url, { width: 500, quality: 75, format: 'webp' })}
               alt={project.title}
               className={`w-full block ${isHero ? 'h-full object-cover' : 'h-auto'}`}
               loading="lazy"
+              decoding="async"
               style={isHero ? { minHeight: '300px' } : undefined}
             />
             <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
@@ -267,20 +268,20 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
             {count === 3 ? (
               <div className="grid grid-cols-2 gap-1 p-1">
                 <div className="row-span-2 cursor-pointer overflow-hidden" onClick={(e) => handleImageClick(e, 0)}>
-                  <img src={displayImages[0]} alt={`${title} 1`} className="w-full h-full object-cover" loading="lazy" />
+                  <img src={getOptimizedImageUrl(displayImages[0], { width: 500, quality: 75, format: 'webp' })} alt={`${title} 1`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
                 <div className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, 1)}>
-                  <img src={displayImages[1]} alt={`${title} 2`} className="w-full h-full object-cover" loading="lazy" />
+                  <img src={getOptimizedImageUrl(displayImages[1], { width: 500, quality: 75, format: 'webp' })} alt={`${title} 2`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
                 <div className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, 2)}>
-                  <img src={displayImages[2]} alt={`${title} 3`} className="w-full h-full object-cover" loading="lazy" />
+                  <img src={getOptimizedImageUrl(displayImages[2], { width: 500, quality: 75, format: 'webp' })} alt={`${title} 3`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
               </div>
             ) : count === 4 ? (
               <div className="grid grid-cols-2 gap-1 p-1">
                 {displayImages.map((img, i) => (
                   <div key={i} className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, i)}>
-                    <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={getOptimizedImageUrl(img, { width: 500, quality: 75, format: 'webp' })} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                   </div>
                 ))}
               </div>
@@ -292,7 +293,7 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
                     className="cursor-pointer overflow-hidden aspect-square relative"
                     onClick={(e) => handleImageClick(e, i)}
                   >
-                    <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={getOptimizedImageUrl(img, { width: 500, quality: 75, format: 'webp' })} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     {i === 5 && remaining > 0 && (
                       <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                         <span className="text-white text-lg font-bold">+{remaining}</span>
@@ -453,40 +454,132 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
   );
 }
 
+const PAGE_SIZE = 24;
+
 export default function CategorySection({ category }: CategorySectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
   const [columnCount, setColumnCount] = useState(3);
+  const observerTargetRef = useRef<HTMLDivElement | null>(null);
 
   const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
-      let { data, error } = await supabase
+      setPage(0);
+
+      const from = 0;
+      const to = PAGE_SIZE - 1; // Pull 24 items initially: .range(0, 23)
+
+      let { data, error, count } = await supabase
         .from('portfolio_projects')
-        .select('*')
+        .select('*', { count: 'exact' })
         .ilike('category', category.trim())
         .eq('visible', true)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true })
+        .range(from, to);
+
       if (error) {
         const fallback = await supabase
           .from('portfolio_projects')
-          .select('*')
+          .select('*', { count: 'exact' })
           .ilike('category', category.trim())
-          .order('created_at', { ascending: true });
+          .order('created_at', { ascending: true })
+          .range(from, to);
         data = fallback.data;
         error = fallback.error;
+        count = fallback.count;
       }
       if (error) throw error;
-      setProjects(data || []);
+
+      const items = data || [];
+      setProjects(items);
+
+      if (typeof count === 'number') {
+        setTotalCount(count);
+        setHasMore(items.length < count && items.length === PAGE_SIZE);
+      } else {
+        setHasMore(items.length === PAGE_SIZE);
+      }
     } catch (err) {
       console.error(`Failed to fetch ${category} projects:`, err);
       setProjects([]);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
   }, [category]);
 
-  useEffect(() => { fetchProjects(); }, [fetchProjects]);
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    try {
+      setLoadingMore(true);
+      const nextPage = page + 1;
+      const from = nextPage * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      let { data, error, count } = await supabase
+        .from('portfolio_projects')
+        .select('*', { count: 'exact' })
+        .ilike('category', category.trim())
+        .eq('visible', true)
+        .order('created_at', { ascending: true })
+        .range(from, to);
+
+      if (error) {
+        const fallback = await supabase
+          .from('portfolio_projects')
+          .select('*', { count: 'exact' })
+          .ilike('category', category.trim())
+          .order('created_at', { ascending: true })
+          .range(from, to);
+        data = fallback.data;
+        error = fallback.error;
+        count = fallback.count;
+      }
+      if (error) throw error;
+
+      const newItems = data || [];
+      setProjects((prev) => [...prev, ...newItems]);
+      setPage(nextPage);
+
+      if (typeof count === 'number') {
+        setTotalCount(count);
+        setHasMore(projects.length + newItems.length < count && newItems.length === PAGE_SIZE);
+      } else {
+        setHasMore(newItems.length === PAGE_SIZE);
+      }
+    } catch (err) {
+      console.error(`Failed to load more ${category} projects:`, err);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [category, hasMore, loadingMore, page, projects.length]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  // Infinite scroll listener to fetch next batch when requested
+  useEffect(() => {
+    const target = observerTargetRef.current;
+    if (!target || !hasMore || loadingMore || loading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMore();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loading, loadMore]);
 
   useEffect(() => {
     const updateColumns = () => {
@@ -753,6 +846,43 @@ export default function CategorySection({ category }: CategorySectionProps) {
           </section>
         );
       })}
+
+      {/* Pagination / Infinite Scroll Listener & Load More Controls */}
+      {hasMore && (
+        <div className="w-full flex flex-col items-center justify-center pt-4 pb-16 relative z-20">
+          <div ref={observerTargetRef} className="h-4 w-full pointer-events-none" />
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-full border text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all duration-300 backdrop-blur-xl shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--glass-bg)',
+              borderColor: 'var(--glass-border)',
+              color: 'var(--text-primary)',
+            }}
+          >
+            {loadingMore ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                <span>Loading more {category}...</span>
+              </>
+            ) : (
+              <>
+                <span>Load More {category}</span>
+                <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
+                {totalCount !== null && (
+                  <span className="text-[10px] opacity-60 font-mono tracking-normal lowercase">
+                    ({projects.length} of {totalCount})
+                  </span>
+                )}
+              </>
+            )}
+          </motion.button>
+        </div>
+      )}
     </>
   );
 }
