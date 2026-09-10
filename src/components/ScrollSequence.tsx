@@ -74,11 +74,27 @@ export default function ScrollSequence({
     const loadAll = async () => {
       // 1. Await the first frame so the initial canvas paints instantly
       await loadFrame(0);
-      
-      // 2. Fire off all other frames concurrently without blocking the queue
-      for (let i = 1; i < frameCount; i++) {
+      if (cancelled) return;
+
+      // 2. Preload initial 15 frames eagerly for smooth initial scroll
+      const initialBatch = Math.min(15, frameCount);
+      const initialPromises: Promise<void>[] = [];
+      for (let i = 1; i < initialBatch; i++) {
+        initialPromises.push(loadFrame(i));
+      }
+      await Promise.all(initialPromises);
+      if (cancelled) return;
+
+      // 3. Stream remaining frames in small batches of 4 so we don't saturate network
+      const BATCH_SIZE = 4;
+      for (let i = initialBatch; i < frameCount; i += BATCH_SIZE) {
         if (cancelled) break;
-        loadFrame(i);
+        const batch: Promise<void>[] = [];
+        for (let j = i; j < Math.min(i + BATCH_SIZE, frameCount); j++) {
+          batch.push(loadFrame(j));
+        }
+        await Promise.all(batch);
+        await new Promise((r) => setTimeout(r, 60));
       }
     };
 
@@ -118,15 +134,11 @@ export default function ScrollSequence({
             canvas.style.opacity = `${1 - fadeProgress}`;
           }
         },
-        onLeave: (self) => {
+        onLeave: () => {
           inner.style.opacity = '0';
-          self.scrollTrigger?.pin(false);
-          self.scrollTrigger?.refresh();
         },
-        onEnterBack: (self) => {
+        onEnterBack: () => {
           inner.style.opacity = '1';
-          self.scrollTrigger?.pin(true);
-          self.scrollTrigger?.refresh();
         },
       });
     });

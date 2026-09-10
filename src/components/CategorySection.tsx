@@ -104,6 +104,82 @@ function BrowserFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
+function VideoFacade({
+  url,
+  platform,
+  title,
+  posterUrl,
+}: {
+  url: string;
+  platform: VideoPlatform;
+  title: string;
+  posterUrl?: string;
+}) {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  if (isPlaying) {
+    let embedUrl = getVideoEmbedUrl(url, platform);
+    if (platform === 'youtube') {
+      embedUrl = embedUrl.replace('autoplay=0', 'autoplay=1');
+    } else if (platform === 'vimeo') {
+      embedUrl = embedUrl.replace('autoplay=0', 'autoplay=1');
+    }
+
+    return (
+      <iframe
+        src={embedUrl}
+        className="w-full h-full"
+        allowFullScreen
+        allow="autoplay; encrypted-media; picture-in-picture"
+        title={title}
+      />
+    );
+  }
+
+  let displayPoster = posterUrl;
+  if (!displayPoster && platform === 'youtube') {
+    const match = url.match(/(?:v=|\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+    if (match) {
+      displayPoster = `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+    }
+  }
+
+  return (
+    <div
+      className="relative w-full h-full group cursor-pointer overflow-hidden bg-black flex items-center justify-center select-none"
+      onClick={() => setIsPlaying(true)}
+      role="button"
+      tabIndex={0}
+      aria-label={`Play ${title}`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsPlaying(true);
+        }
+      }}
+    >
+      {displayPoster ? (
+        <img
+          src={displayPoster}
+          alt={title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-85 group-hover:opacity-100"
+          loading="lazy"
+        />
+      ) : (
+        <div className="w-full h-full bg-gradient-to-br from-zinc-900 via-black to-zinc-900 flex items-center justify-center p-4">
+          <span className="text-zinc-400 text-xs text-center font-medium line-clamp-2">{title}</span>
+        </div>
+      )}
+
+      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+        <div className="w-12 h-12 rounded-full bg-accent/90 text-white flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-110">
+          <Play size={22} className="fill-current translate-x-0.5" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FlipCard({ project, isHero = false }: { project: Project; isHero?: boolean }) {
   const [flipped, setFlipped] = useState(false);
   const [selected, setSelected] = useState(false);
@@ -385,6 +461,7 @@ function FacebookEmbed({ url }: { url: string }) {
         frameBorder="0"
         allowFullScreen={true}
         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        loading="lazy"
       />
     </div>
   );
@@ -423,22 +500,18 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                         </a>
                       </div>
                     ) : (
-                      <iframe
-                        src={getVideoEmbedUrl(item.url, item.platform!)}
-                        className="w-full h-full"
-                        allowFullScreen
-                        allow="autoplay; encrypted-media"
+                      <VideoFacade
+                        url={item.url}
+                        platform={item.platform!}
                         title={item.projectTitle}
                       />
                     )}
                   </PhoneFrame>
                 ) : (
                   <BrowserFrame>
-                    <iframe
-                      src={getVideoEmbedUrl(item.url, item.platform!)}
-                      className="w-full h-full"
-                      allowFullScreen
-                      allow="autoplay; encrypted-media"
+                    <VideoFacade
+                      url={item.url}
+                      platform={item.platform!}
                       title={item.projectTitle}
                     />
                   </BrowserFrame>
@@ -727,12 +800,11 @@ export default function CategorySection({ category }: CategorySectionProps) {
                                   </a>
                                 </div>
                               ) : (
-                                <iframe
-                                  src={getVideoEmbedUrl(videoUrl!, platform)}
-                                  className="w-full h-full"
-                                  allowFullScreen
-                                  allow="autoplay; encrypted-media"
+                                <VideoFacade
+                                  url={videoUrl!}
+                                  platform={platform}
                                   title={project.title}
+                                  posterUrl={project.card_thumbnail || project.image_url}
                                 />
                               )}
                             </PhoneFrame>

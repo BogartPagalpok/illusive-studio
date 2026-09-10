@@ -215,10 +215,7 @@ function App() {
       // localStorage blocked — fine, fall through to remote load
     }
 
-    // STEP 2: Mount the app immediately. Don't wait on Supabase.
-    setLoading(false);
-
-    // STEP 3: In the background, fetch the latest theme from Supabase.
+    // STEP 2: In the background, fetch the latest theme from Supabase.
     // If admin changed it remotely, it will swap in seamlessly.
     let cancelled = false;
     loadSavedTheme().catch(() => {
@@ -243,38 +240,49 @@ function App() {
     };
   }, []);
 
-  // Force scroll to top on every full page load / hard refresh.
-  // Runs in three phases because different browsers (esp. Chrome on Android
-  // and Safari) restore scroll at different points:
-  //   1. Immediately on mount (catches most cases)
-  //   2. After first paint (catches layout-shift-induced jumps)
-  //   3. After image/font loads settle (catches the stragglers)
+  // Display the custom BrandLoader during initial load
+  // so the laser letter animation plays and initial assets settle.
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const finishLoading = () => {
+      setLoading(false);
+      window.scrollTo(0, 0);
+    };
+
+    if (document.readyState === 'complete') {
+      timer = setTimeout(finishLoading, 1600);
+    } else {
+      const handleLoad = () => {
+        timer = setTimeout(finishLoading, 600);
+      };
+      window.addEventListener('load', handleLoad, { once: true });
+      const fallbackTimer = setTimeout(finishLoading, 2200);
+
+      return () => {
+        window.removeEventListener('load', handleLoad);
+        clearTimeout(timer);
+        clearTimeout(fallbackTimer);
+      };
+    }
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Ensure scroll is at top on mount
   useEffect(() => {
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
 
     const forceTop = () => window.scrollTo(0, 0);
+    forceTop();
 
-    forceTop(); // phase 1: immediate
-
-    // phase 2: after the next two animation frames (layout has settled)
     const raf1 = requestAnimationFrame(() => {
-      const raf2 = requestAnimationFrame(forceTop);
-      (forceTop as any)._raf2 = raf2;
+      requestAnimationFrame(forceTop);
     });
-
-    // phase 3: once the window has fully loaded (fonts/images done)
-    const onLoad = () => forceTop();
-    if (document.readyState === 'complete') {
-      forceTop();
-    } else {
-      window.addEventListener('load', onLoad, { once: true });
-    }
 
     return () => {
       cancelAnimationFrame(raf1);
-      window.removeEventListener('load', onLoad);
     };
   }, []);
 
