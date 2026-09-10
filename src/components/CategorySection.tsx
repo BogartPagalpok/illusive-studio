@@ -104,6 +104,59 @@ function BrowserFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
+const vimeoThumbnailCache = new Map<string, string>();
+
+function extractVimeoId(url: string): string | null {
+  const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  return match ? match[1] : null;
+}
+
+function useVideoThumbnail(url: string, platform: VideoPlatform, posterUrl?: string) {
+  const [thumb, setThumb] = useState<string | null>(() => {
+    if (posterUrl && posterUrl.trim() !== '') return posterUrl;
+    if (platform === 'youtube') {
+      const match = url.match(/(?:v=|\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+      return match ? `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg` : null;
+    }
+    if (platform === 'vimeo') {
+      const vimeoId = extractVimeoId(url);
+      return vimeoId ? vimeoThumbnailCache.get(vimeoId) || null : null;
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    if (thumb) return;
+    if (platform === 'vimeo') {
+      const vimeoId = extractVimeoId(url);
+      if (!vimeoId) return;
+
+      const cached = vimeoThumbnailCache.get(vimeoId);
+      if (cached) {
+        setThumb(cached);
+        return;
+      }
+
+      let active = true;
+      fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(`https://vimeo.com/${vimeoId}`)}&width=640`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (active && data && data.thumbnail_url) {
+            vimeoThumbnailCache.set(vimeoId, data.thumbnail_url);
+            setThumb(data.thumbnail_url);
+          }
+        })
+        .catch(() => {});
+
+      return () => {
+        active = false;
+      };
+    }
+  }, [url, platform, thumb]);
+
+  return thumb;
+}
+
 function VideoFacade({
   url,
   platform,
@@ -116,6 +169,7 @@ function VideoFacade({
   posterUrl?: string;
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const displayPoster = useVideoThumbnail(url, platform, posterUrl);
 
   if (isPlaying) {
     let embedUrl = getVideoEmbedUrl(url, platform);
@@ -134,14 +188,6 @@ function VideoFacade({
         title={title}
       />
     );
-  }
-
-  let displayPoster = posterUrl;
-  if (!displayPoster && platform === 'youtube') {
-    const match = url.match(/(?:v=|\/|shorts\/)([a-zA-Z0-9_-]{11})/);
-    if (match) {
-      displayPoster = `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
-    }
   }
 
   return (
@@ -467,7 +513,7 @@ function FacebookEmbed({ url }: { url: string }) {
   );
 }
 
-function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> }) {
+function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string }> }) {
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-xl overflow-y-auto no-scrollbar" style={{ maxHeight: '80vh', touchAction: 'pan-y', backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
@@ -504,6 +550,7 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                         url={item.url}
                         platform={item.platform!}
                         title={item.projectTitle}
+                        posterUrl={item.posterUrl}
                       />
                     )}
                   </PhoneFrame>
@@ -513,6 +560,7 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                       url={item.url}
                       platform={item.platform!}
                       title={item.projectTitle}
+                      posterUrl={item.posterUrl}
                     />
                   </BrowserFrame>
                 )}
@@ -696,7 +744,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
         }
         // ── Motion: Panel Layout ─────────────────────────
         if (isMotion) {
-          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean }> = [];
+          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string }> = [];
           let titleDescription = '';
           let titleTools: string[] = [];
 
@@ -709,7 +757,14 @@ export default function CategorySection({ category }: CategorySectionProps) {
               const vertical = getVertical(entry);
               const platform = detectVideoPlatform(url);
               if (platform) {
-                allVideos.push({ url, platform, projectId: project.id, projectTitle: project.title, vertical });
+                allVideos.push({
+                  url,
+                  platform,
+                  projectId: project.id,
+                  projectTitle: project.title,
+                  vertical,
+                  posterUrl: project.card_thumbnail || project.image_url || undefined,
+                });
               }
             });
           });

@@ -43,9 +43,9 @@ function AtmosphereGradient() {
   );
 }
 
-function BrandLoader() {
+function BrandLoader({ isFading = false }: { isFading?: boolean }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-black gap-8">
+    <div className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black transition-opacity duration-700 ${isFading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <style dangerouslySetInnerHTML={{ __html: `
         .loader-wrapper {
           position: relative;
@@ -159,7 +159,8 @@ function BrandLoader() {
 function App() {
   useHoveringPenFavicon();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [showLoader, setShowLoader] = useState(true);
+  const [loaderFading, setLoaderFading] = useState(false);
   // Tracks the current accent color so LiquidEther re-mounts (rebuilding its
   // WebGL palette) when the user / admin switches theme.
   const [accentKey, setAccentKey] = useState<string>(() => {
@@ -241,31 +242,18 @@ function App() {
   }, []);
 
   // Display the custom BrandLoader during initial load
-  // so the laser letter animation plays and initial assets settle.
+  // so the laser letter animation plays while initial assets load underneath.
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    const finishLoading = () => {
-      setLoading(false);
+    const fadeTimer = setTimeout(() => {
+      setLoaderFading(true);
       window.scrollTo(0, 0);
-    };
+      const removeTimer = setTimeout(() => {
+        setShowLoader(false);
+      }, 700);
+      return () => clearTimeout(removeTimer);
+    }, 2400);
 
-    if (document.readyState === 'complete') {
-      timer = setTimeout(finishLoading, 1600);
-    } else {
-      const handleLoad = () => {
-        timer = setTimeout(finishLoading, 600);
-      };
-      window.addEventListener('load', handleLoad, { once: true });
-      const fallbackTimer = setTimeout(finishLoading, 2200);
-
-      return () => {
-        window.removeEventListener('load', handleLoad);
-        clearTimeout(timer);
-        clearTimeout(fallbackTimer);
-      };
-    }
-
-    return () => clearTimeout(timer);
+    return () => clearTimeout(fadeTimer);
   }, []);
 
   // Ensure scroll is at top on mount
@@ -286,15 +274,12 @@ function App() {
     };
   }, []);
 
-  if (loading) {
-    return <BrandLoader />;
-  }
-
   if (isAdmin) {
     return (
       <main className="min-h-screen relative">
+        {showLoader && <BrandLoader isFading={loaderFading} />}
         <AtmosphereGradient />
-        <Suspense fallback={<BrandLoader />}>
+        <Suspense fallback={<BrandLoader isFading={false} />}>
           <AdminDashboard onLogout={() => {
             void supabase.auth.signOut();
             setIsAdmin(false);
@@ -306,6 +291,7 @@ function App() {
 
   return (
     <main className="min-h-screen relative overflow-x-hidden">
+      {showLoader && <BrandLoader isFading={loaderFading} />}
       <LiquidEtherBackground
         key={accentKey}
         mouseForce={20}
