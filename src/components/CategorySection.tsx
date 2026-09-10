@@ -104,6 +104,75 @@ function BrowserFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
+function extractYouTubeId(url: string): string | null {
+  const match = url.match(/(?:v=|\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
+function LiteVideoEmbed({
+  url,
+  platform,
+  title,
+}: {
+  url: string;
+  platform: VideoPlatform;
+  title: string;
+}) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const youtubeId = platform === 'youtube' ? extractYouTubeId(url) : null;
+  const thumbnailUrl = youtubeId
+    ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
+    : null;
+
+  if (isPlaying || !thumbnailUrl) {
+    const embedUrl = getVideoEmbedUrl(url, platform);
+    const autoplayUrl = embedUrl.includes('autoplay=0')
+      ? embedUrl.replace('autoplay=0', 'autoplay=1')
+      : `${embedUrl}${embedUrl.includes('?') ? '&' : '?'}autoplay=1`;
+
+    return (
+      <iframe
+        src={autoplayUrl}
+        className="w-full h-full"
+        allowFullScreen
+        allow="autoplay; encrypted-media; picture-in-picture"
+        title={title}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="relative w-full h-full group cursor-pointer overflow-hidden bg-black flex items-center justify-center"
+      onClick={() => setIsPlaying(true)}
+      role="button"
+      tabIndex={0}
+      aria-label={`Play ${title}`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          setIsPlaying(true);
+        }
+      }}
+    >
+      <img
+        src={thumbnailUrl}
+        alt={title}
+        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-85 group-hover:opacity-100"
+        loading="lazy"
+        decoding="async"
+      />
+      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[var(--accent)] text-[var(--accent-contrast)] flex items-center justify-center shadow-2xl transition-all duration-300 group-hover:scale-115 group-active:scale-95">
+          <Play size={22} className="fill-current translate-x-0.5" />
+        </div>
+      </div>
+      <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded text-[10px] text-white/90 font-medium truncate pointer-events-none">
+        {title}
+      </div>
+    </div>
+  );
+}
+
 function FlipCard({ project, isHero = false }: { project: Project; isHero?: boolean }) {
   const [flipped, setFlipped] = useState(false);
   const [selected, setSelected] = useState(false);
@@ -485,22 +554,18 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                         </a>
                       </div>
                     ) : (
-                      <iframe
-                        src={getVideoEmbedUrl(item.url, item.platform!)}
-                        className="w-full h-full"
-                        allowFullScreen
-                        allow="autoplay; encrypted-media"
+                      <LiteVideoEmbed
+                        url={item.url}
+                        platform={item.platform!}
                         title={item.projectTitle}
                       />
                     )}
                   </PhoneFrame>
                 ) : (
                   <BrowserFrame>
-                    <iframe
-                      src={getVideoEmbedUrl(item.url, item.platform!)}
-                      className="w-full h-full"
-                      allowFullScreen
-                      allow="autoplay; encrypted-media"
+                    <LiteVideoEmbed
+                      url={item.url}
+                      platform={item.platform!}
                       title={item.projectTitle}
                     />
                   </BrowserFrame>
@@ -881,11 +946,9 @@ export default function CategorySection({ category }: CategorySectionProps) {
                                   </a>
                                 </div>
                               ) : (
-                                <iframe
-                                  src={getVideoEmbedUrl(videoUrl!, platform)}
-                                  className="w-full h-full"
-                                  allowFullScreen
-                                  allow="autoplay; encrypted-media"
+                                <LiteVideoEmbed
+                                  url={videoUrl!}
+                                  platform={platform}
                                   title={project.title}
                                 />
                               )}

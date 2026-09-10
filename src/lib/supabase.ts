@@ -48,60 +48,23 @@ export function getOptimizedImageUrl(
 ): string {
   if (!url || typeof url !== 'string') return '';
 
-  // If Supabase Transformation is not enabled on this tenant, return original URL
-  // to avoid HTTP 403 (FeatureNotEnabled) errors breaking images.
-  if (!isSupabaseTransformEnabled) {
-    return url;
-  }
-
   const {
     width = 500,
     quality = 75,
     format = 'webp',
-    height,
-    resize,
   } = options;
 
-  try {
-    const parsed = new URL(url);
-
-    // Transform Supabase storage object URLs to render URLs
-    if (parsed.pathname.includes('/storage/v1/object/public/')) {
-      parsed.pathname = parsed.pathname.replace(
-        '/storage/v1/object/public/',
-        '/storage/v1/render/image/public/'
-      );
-    } else if (parsed.pathname.includes('/storage/v1/object/sign/')) {
-      parsed.pathname = parsed.pathname.replace(
-        '/storage/v1/object/sign/',
-        '/storage/v1/render/image/sign/'
-      );
-    }
-
-    // If it's a Supabase render URL (or was just converted above)
-    if (parsed.pathname.includes('/storage/v1/render/image/')) {
-      if (width) parsed.searchParams.set('width', width.toString());
-      if (height) parsed.searchParams.set('height', height.toString());
-      if (quality) parsed.searchParams.set('quality', quality.toString());
-      if (format) parsed.searchParams.set('format', format);
-      if (resize) parsed.searchParams.set('resize', resize);
-      return parsed.toString();
-    }
-
-    return url;
-  } catch {
-    // String-based fallback for relative paths or edge-case strings
-    if (url.includes('/storage/v1/object/public/')) {
-      const replaced = url.replace(
-        '/storage/v1/object/public/',
-        '/storage/v1/render/image/public/'
-      );
-      const separator = replaced.includes('?') ? '&' : '?';
-      let params = `width=${width}&quality=${quality}&format=${format}`;
-      if (height) params += `&height=${height}`;
-      if (resize) params += `&resize=${resize}`;
-      return `${replaced}${separator}${params}`;
-    }
-    return url;
+  // 1. If Supabase Pro Image Transformation is explicitly enabled:
+  if (isSupabaseTransformEnabled && url.includes('/storage/v1/object/public/')) {
+    return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + `?width=${width}&quality=${quality}&format=${format}`;
   }
+
+  // 2. For Supabase storage URLs on Free tier:
+  // Convert massive raw JPEGs (1-3MB) into tiny WebP thumbnails (20-30KB) via Cloudflare-backed wsrv.nl CDN.
+  // If wsrv.nl ever fails, all our <img> components have onError handlers that immediately fall back to the original URL.
+  if (url.includes('.supabase.co/storage/v1/object/public/')) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&q=${quality}&output=${format}`;
+  }
+
+  return url;
 }
