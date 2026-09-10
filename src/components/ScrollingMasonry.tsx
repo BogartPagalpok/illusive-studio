@@ -103,6 +103,11 @@ export default function ScrollingMasonry({
                       className="w-full h-auto block transition-transform duration-700 group-hover:scale-110"
                       loading="lazy"
                       decoding="async"
+                      onError={(e) => {
+                        if (img.url && e.currentTarget.src !== img.url) {
+                          e.currentTarget.src = img.url;
+                        }
+                      }}
                     />
                     <div className="absolute inset-0 flex flex-col justify-end p-4 overlay-bg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-300">

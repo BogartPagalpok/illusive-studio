@@ -35,12 +35,24 @@ export interface ImageTransformOptions {
  * Transforms a Supabase Storage URL using the Supabase Image Transformation API.
  * Converts raw storage object URLs (/storage/v1/object/public/) to optimized render URLs
  * (/storage/v1/render/image/public/) with WebP format, constrained dimensions, and quality settings.
+ *
+ * NOTE: Supabase Image Transformation requires a Supabase Pro plan ($25/mo).
+ * On the Free plan, Supabase returns HTTP 403 ("feature not enabled for this tenant").
+ * Set VITE_SUPABASE_TRANSFORM=true in your .env when on a Pro plan to enable it.
  */
+const isSupabaseTransformEnabled = import.meta.env.VITE_SUPABASE_TRANSFORM === 'true';
+
 export function getOptimizedImageUrl(
   url: string | undefined | null,
   options: ImageTransformOptions = { width: 500, quality: 75, format: 'webp' }
 ): string {
   if (!url || typeof url !== 'string') return '';
+
+  // If Supabase Transformation is not enabled on this tenant, return original URL
+  // to avoid HTTP 403 (FeatureNotEnabled) errors breaking images.
+  if (!isSupabaseTransformEnabled) {
+    return url;
+  }
 
   const {
     width = 500,

@@ -156,6 +156,12 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
               loading="lazy"
               decoding="async"
               style={isHero ? { minHeight: '300px' } : undefined}
+              onError={(e) => {
+                const rawUrl = project.hero_bg_desktop || project.image_url;
+                if (rawUrl && e.currentTarget.src !== rawUrl) {
+                  e.currentTarget.src = rawUrl;
+                }
+              }}
             />
             <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
               <p className="text-white text-xs font-bold uppercase tracking-wider">{project.title}</p>
@@ -268,20 +274,64 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
             {count === 3 ? (
               <div className="grid grid-cols-2 gap-1 p-1">
                 <div className="row-span-2 cursor-pointer overflow-hidden" onClick={(e) => handleImageClick(e, 0)}>
-                  <img src={getOptimizedImageUrl(displayImages[0], { width: 500, quality: 75, format: 'webp' })} alt={`${title} 1`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                  <img
+                    src={getOptimizedImageUrl(displayImages[0], { width: 500, quality: 75, format: 'webp' })}
+                    alt={`${title} 1`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      if (displayImages[0] && e.currentTarget.src !== displayImages[0]) {
+                        e.currentTarget.src = displayImages[0];
+                      }
+                    }}
+                  />
                 </div>
                 <div className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, 1)}>
-                  <img src={getOptimizedImageUrl(displayImages[1], { width: 500, quality: 75, format: 'webp' })} alt={`${title} 2`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                  <img
+                    src={getOptimizedImageUrl(displayImages[1], { width: 500, quality: 75, format: 'webp' })}
+                    alt={`${title} 2`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      if (displayImages[1] && e.currentTarget.src !== displayImages[1]) {
+                        e.currentTarget.src = displayImages[1];
+                      }
+                    }}
+                  />
                 </div>
                 <div className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, 2)}>
-                  <img src={getOptimizedImageUrl(displayImages[2], { width: 500, quality: 75, format: 'webp' })} alt={`${title} 3`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                  <img
+                    src={getOptimizedImageUrl(displayImages[2], { width: 500, quality: 75, format: 'webp' })}
+                    alt={`${title} 3`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      if (displayImages[2] && e.currentTarget.src !== displayImages[2]) {
+                        e.currentTarget.src = displayImages[2];
+                      }
+                    }}
+                  />
                 </div>
               </div>
             ) : count === 4 ? (
               <div className="grid grid-cols-2 gap-1 p-1">
                 {displayImages.map((img, i) => (
                   <div key={i} className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, i)}>
-                    <img src={getOptimizedImageUrl(img, { width: 500, quality: 75, format: 'webp' })} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                    <img
+                      src={getOptimizedImageUrl(img, { width: 500, quality: 75, format: 'webp' })}
+                      alt={`${title} ${i + 1}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        if (img && e.currentTarget.src !== img) {
+                          e.currentTarget.src = img;
+                        }
+                      }}
+                    />
                   </div>
                 ))}
               </div>
@@ -293,7 +343,18 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
                     className="cursor-pointer overflow-hidden aspect-square relative"
                     onClick={(e) => handleImageClick(e, i)}
                   >
-                    <img src={getOptimizedImageUrl(img, { width: 500, quality: 75, format: 'webp' })} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                    <img
+                      src={getOptimizedImageUrl(img, { width: 500, quality: 75, format: 'webp' })}
+                      alt={`${title} ${i + 1}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        if (img && e.currentTarget.src !== img) {
+                          e.currentTarget.src = img;
+                        }
+                      }}
+                    />
                     {i === 5 && remaining > 0 && (
                       <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                         <span className="text-white text-lg font-bold">+{remaining}</span>
