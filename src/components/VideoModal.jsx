@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
+import { CloseDuotone } from './icons/StreamlineIcons';
 
 export default function VideoModal({ isOpen, onClose, youtubeId }) {
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function VideoModal({ isOpen, onClose, youtubeId }) {
         className="absolute top-4 right-4 md:top-6 md:right-6 text-white/80 hover:text-white transition-colors duration-200 p-2 rounded-full hover:bg-white/10 z-50"
         aria-label="Close modal"
       >
-        <X className="w-8 h-8 md:w-10 md:h-10" />
+        <CloseDuotone size={32} primaryColor="#ffffff" secondaryColor="rgba(255,255,255,0.3)" />
       </button>
 
       <div

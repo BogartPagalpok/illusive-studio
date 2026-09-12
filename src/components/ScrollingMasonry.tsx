@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { CloseDuotone } from './icons/StreamlineIcons';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ScrollingMasonryProps {
@@ -131,7 +131,7 @@ export default function ScrollingMasonry({
               className="absolute top-4 right-4 p-2.5 rounded-full border transition-all z-[10000]"
               style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}
             >
-              <X size={18} />
+              <CloseDuotone size={18} />
             </button>
             <img
               src={selectedImage}

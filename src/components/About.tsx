@@ -2,36 +2,45 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Clapperboard, Brain, Palette, Layers, AudioWaveform, Image, Film, Zap } from 'lucide-react';
+import {
+  ClapperboardDuotone,
+  BrainDuotone,
+  PaletteDuotone,
+  LayersDuotone,
+  AudioWaveformDuotone,
+  ImageDuotone,
+  FilmDuotone,
+  ZapDuotone,
+} from './icons/StreamlineIcons';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const defaultSkills = [
-  { name: 'ADVANCED EDITING (DAVINCI RESOLVE)', level: 95, tag: 'NLE // POST', icon: Clapperboard },
-  { name: 'AUDIENCE PSYCHOLOGY & PACING', level: 90, tag: 'PSYCH // RETENTION', icon: Brain },
-  { name: 'COLOR GRADING & LOOK DEV', level: 88, tag: 'COLOR // LOOK', icon: Palette },
-  { name: 'MOTION GRAPHICS & COMPOSITING', level: 85, tag: 'VFX // MOTION', icon: Layers },
-  { name: 'SOUND DESIGN & AUDIO MIXING', level: 88, tag: 'AUDIO // SFX', icon: AudioWaveform },
-  { name: 'THUMBNAIL DESIGN (PHOTOSHOP)', level: 92, tag: 'DESIGN // CTR', icon: Image },
-  { name: 'NARRATIVE STORYTELLING', level: 90, tag: 'STORY // FLOW', icon: Film },
-  { name: 'AGILE WORKFLOWS & BATCHING', level: 95, tag: 'PIPELINE // SPEED', icon: Zap },
+  { name: 'ADVANCED EDITING (DAVINCI RESOLVE)', level: 95, tag: 'NLE // POST', icon: ClapperboardDuotone },
+  { name: 'AUDIENCE PSYCHOLOGY & PACING', level: 90, tag: 'PSYCH // RETENTION', icon: BrainDuotone },
+  { name: 'COLOR GRADING & LOOK DEV', level: 88, tag: 'COLOR // LOOK', icon: PaletteDuotone },
+  { name: 'MOTION GRAPHICS & COMPOSITING', level: 85, tag: 'VFX // MOTION', icon: LayersDuotone },
+  { name: 'SOUND DESIGN & AUDIO MIXING', level: 88, tag: 'AUDIO // SFX', icon: AudioWaveformDuotone },
+  { name: 'THUMBNAIL DESIGN (PHOTOSHOP)', level: 92, tag: 'DESIGN // CTR', icon: ImageDuotone },
+  { name: 'NARRATIVE STORYTELLING', level: 90, tag: 'STORY // FLOW', icon: FilmDuotone },
+  { name: 'AGILE WORKFLOWS & BATCHING', level: 95, tag: 'PIPELINE // SPEED', icon: ZapDuotone },
 ];
 
 const getSkillMeta = (name: string, index: number) => {
   const match = defaultSkills.find((s) => s.name.toLowerCase() === name.toLowerCase());
   if (match) return { icon: match.icon, tag: match.tag };
   const lower = name.toLowerCase();
-  if (lower.includes('davinci') || lower.includes('edit')) return { icon: Clapperboard, tag: 'NLE // POST' };
-  if (lower.includes('psych') || lower.includes('pacing')) return { icon: Brain, tag: 'PSYCH // RETENTION' };
-  if (lower.includes('color') || lower.includes('look')) return { icon: Palette, tag: 'COLOR // LOOK' };
-  if (lower.includes('motion') || lower.includes('compositing')) return { icon: Layers, tag: 'VFX // MOTION' };
-  if (lower.includes('sound') || lower.includes('audio')) return { icon: AudioWaveform, tag: 'AUDIO // SFX' };
-  if (lower.includes('thumbnail') || lower.includes('image')) return { icon: Image, tag: 'DESIGN // CTR' };
-  if (lower.includes('story') || lower.includes('narrative')) return { icon: Film, tag: 'STORY // FLOW' };
-  if (lower.includes('agile') || lower.includes('workflow')) return { icon: Zap, tag: 'PIPELINE // SPEED' };
-  return { icon: Clapperboard, tag: `SPEC // 0${index + 1}` };
+  if (lower.includes('davinci') || lower.includes('edit')) return { icon: ClapperboardDuotone, tag: 'NLE // POST' };
+  if (lower.includes('psych') || lower.includes('pacing')) return { icon: BrainDuotone, tag: 'PSYCH // RETENTION' };
+  if (lower.includes('color') || lower.includes('look')) return { icon: PaletteDuotone, tag: 'COLOR // LOOK' };
+  if (lower.includes('motion') || lower.includes('compositing')) return { icon: LayersDuotone, tag: 'VFX // MOTION' };
+  if (lower.includes('sound') || lower.includes('audio')) return { icon: AudioWaveformDuotone, tag: 'AUDIO // SFX' };
+  if (lower.includes('thumbnail') || lower.includes('image')) return { icon: ImageDuotone, tag: 'DESIGN // CTR' };
+  if (lower.includes('story') || lower.includes('narrative')) return { icon: FilmDuotone, tag: 'STORY // FLOW' };
+  if (lower.includes('agile') || lower.includes('workflow')) return { icon: ZapDuotone, tag: 'PIPELINE // SPEED' };
+  return { icon: ClapperboardDuotone, tag: `SPEC // 0${index + 1}` };
 };
 
 interface AboutContent {
@@ -285,7 +294,11 @@ export default function About() {
                             color: colorConfig.accent,
                           }}
                         >
-                          <IconComponent size={12} />
+                          <IconComponent
+                            size={14}
+                            primaryColor={colorConfig.accent}
+                            secondaryColor={colorConfig.secondary}
+                          />
                         </div>
                         <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-[var(--text-primary)]/50">
                           {meta.tag}

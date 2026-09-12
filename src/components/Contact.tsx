@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Send } from 'lucide-react';
+import { SendDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
@@ -155,7 +155,12 @@ export default function Contact() {
                   <span className="font-black italic">TRANSMISSION COMPLETE</span>
                 ) : (
                   <>
-                    <Send size={12} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    <SendDuotone
+                      size={14}
+                      primaryColor="var(--accent-contrast, #000000)"
+                      secondaryColor="rgba(0, 0, 0, 0.25)"
+                      className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                    />
                     <span className="font-black italic tracking-widest">SEND MESSAGE</span>
                   </>
                 )}

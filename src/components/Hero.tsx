@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDownDuotone } from './icons/StreamlineIcons';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ScrollSequence from './ScrollSequence';
@@ -213,7 +213,7 @@ export default function Hero() {
               className="flex flex-col items-center justify-center gap-2 !text-white/80 hover:!text-white transition-colors duration-300 w-full drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
             >
               <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase text-center block">Scroll</span>
-              <ArrowDown size={16} className="animate-bounce mx-auto" />
+              <ArrowDownDuotone size={16} className="animate-bounce mx-auto" />
             </button>
           </motion.div>
         </div>

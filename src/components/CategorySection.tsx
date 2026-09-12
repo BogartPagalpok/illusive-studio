@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, X, Play, ExternalLink } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { CloseDuotone, PlayDuotone, ExternalLinkDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 import ScrollingMasonry from '../components/ScrollingMasonry';
 
@@ -290,7 +291,7 @@ function VideoFacade({
 
       <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
         <div className="w-12 h-12 rounded-full bg-accent/90 text-white flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-110">
-          <Play size={22} className="fill-current translate-x-0.5" />
+          <PlayDuotone size={22} className="translate-x-0.5" primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" />
         </div>
       </div>
     </div>
@@ -390,7 +391,7 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
             onTouchMove={(e) => e.stopPropagation()}
           >
             <button onClick={() => setSelected(false)} className="absolute top-4 right-4 p-2.5 rounded-full border transition-all z-[10000]" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
-              <X size={18} />
+              <CloseDuotone size={18} />
             </button>
             <img src={project.hero_bg_desktop || project.image_url} alt={project.title} className="max-w-full max-h-[90vh] object-contain rounded-2xl" onClick={(e) => e.stopPropagation()} />
           </motion.div>
@@ -536,7 +537,7 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
             onTouchMove={(e) => e.stopPropagation()}
           >
             <button onClick={() => setSelectedImage(null)} className="absolute top-4 right-4 p-2.5 rounded-full border transition-all z-[10000]" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}>
-              <X size={18} />
+              <CloseDuotone size={18} />
             </button>
             <img src={selectedImage} alt={title} className="max-w-full max-h-[90vh] object-contain rounded-2xl" onClick={(e) => e.stopPropagation()} />
             {images.length > 1 && (
@@ -610,10 +611,10 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                   <PhoneFrame>
                     {item.platform === 'tiktok' ? (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
-                        <Play size={32} className="text-white/50 mb-2" />
+                        <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
                         <p className="text-white/70 text-xs text-center mb-3">{item.projectTitle}</p>
-                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
-                          <ExternalLink size={12} /> Watch on TikTok
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                          <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
                         </a>
                       </div>
                     ) : (
@@ -919,10 +920,10 @@ export default function CategorySection({ category }: CategorySectionProps) {
                             <PhoneFrame>
                               {platform === 'tiktok' ? (
                                 <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
-                                  <Play size={32} className="text-white/50 mb-2" />
+                                  <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
                                   <p className="text-white/70 text-xs text-center mb-3">{project.title}</p>
-                                  <a href={videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
-                                    <ExternalLink size={12} /> Watch on TikTok
+                                  <a href={videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                                    <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
                                   </a>
                                 </div>
                               ) : (

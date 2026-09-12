@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PlayDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 
 interface ShoeVariant {
@@ -145,9 +146,7 @@ export default function ProjectPortal() {
         >
           <div className="flex flex-col items-center justify-center p-6 bg-black/80 border border-white/20 rounded-2xl transition-transform duration-300 group-hover:scale-105 shadow-2xl">
             <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: activeShoe?.colorHex || 'white' }}>
-              <svg className="w-5 h-5 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
+              <PlayDuotone size={22} className="ml-0.5" primaryColor="#000000" secondaryColor="rgba(0,0,0,0.25)" />
             </div>
             <span className="text-white font-black tracking-widest uppercase text-sm mb-2">Live Prototype</span>
             <span className="text-white/70 text-xs text-center font-medium max-w-[220px]">

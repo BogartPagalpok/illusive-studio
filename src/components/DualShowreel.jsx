@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, MonitorPlay } from 'lucide-react';
+import { PlayDuotone, MonitorPlayDuotone } from './icons/StreamlineIcons';
 import VideoModal from './VideoModal';
 import { usePortfolioStore } from '../lib/store';
 
@@ -61,14 +61,19 @@ function ShowreelCard({
             boxShadow: '0 0 30px rgba(var(--accent-rgb), 0.5)',
           }}
         >
-          <Play size={22} className="ml-1 fill-current" />
+          <PlayDuotone
+            size={24}
+            className="ml-0.5"
+            primaryColor="var(--accent-contrast, #000000)"
+            secondaryColor="rgba(0, 0, 0, 0.25)"
+          />
         </div>
       </div>
 
       {/* Bottom Info Bar */}
       <div className="absolute bottom-0 inset-x-0 p-4 sm:p-6 z-20 flex flex-col gap-1 pointer-events-none">
         <div className="flex items-center gap-2">
-          <MonitorPlay size={14} className="text-accent" />
+          <MonitorPlayDuotone size={16} primaryColor="var(--accent)" />
           <h3 className="text-base sm:text-lg font-heading font-black tracking-wider uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
             {title}
           </h3>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { X, Film, Upload, Video, CheckCircle, AlertCircle } from 'lucide-react';
 import { usePortfolioStore } from '../../lib/store';
 

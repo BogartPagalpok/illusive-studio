@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { MenuDuotone, CloseDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 
 const navLinks = [
@@ -143,7 +143,7 @@ export default function Navbar() {
             aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+            {mobileOpen ? <CloseDuotone size={28} /> : <MenuDuotone size={28} />}
           </button>
         </div>
 

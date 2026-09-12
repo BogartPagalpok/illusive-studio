@@ -1,5 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { Mail, Phone, Instagram, Github, Facebook, Sparkles } from 'lucide-react';
+import {
+  MailDuotone,
+  PhoneDuotone,
+  InstagramDuotone,
+  GithubDuotone,
+  FacebookDuotone,
+  SparklesDuotone,
+} from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 
 export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void }) {
@@ -31,7 +38,7 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
             <div className="flex flex-col justify-between h-full min-h-[120px] lg:w-2/5 w-full">
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <Sparkles size={14} className="text-accent" />
+                  <SparklesDuotone size={16} />
                   <span className="uppercase tracking-[0.2em] font-bold text-xs" style={{ color: 'var(--accent)' }}>Let's Talk</span>
                 </div>
                 <h3 className="font-black uppercase mb-3 leading-tight break-words w-full" style={{ color: 'var(--text-primary)', fontSize: 'clamp(18px, 2.2vw, 28px)' }}>
@@ -69,12 +76,12 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
                  <ul className="space-y-2.5 font-medium" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
                    <li>
                      <a href={`mailto:${content?.email || 'yhanlhester@gmail.com'}`} className="flex items-center gap-2.5 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
-                       <Mail size={15} className="text-accent shrink-0" /> <span className="break-all">{content?.email || 'yhanlhester@gmail.com'}</span>
+                       <MailDuotone size={16} className="shrink-0" /> <span className="break-all">{content?.email || 'yhanlhester@gmail.com'}</span>
                      </a>
                    </li>
                    <li>
                      <a href={`tel:${content?.phone || '+639524437988'}`} className="flex items-center gap-2.5 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
-                       <Phone size={15} className="text-accent shrink-0" /> <span>{content?.phone || '+639524437988'}</span>
+                       <PhoneDuotone size={16} className="shrink-0" /> <span>{content?.phone || '+639524437988'}</span>
                      </a>
                    </li>
                  </ul>
@@ -83,9 +90,9 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               <div className="flex flex-col">
                  <h4 className="uppercase tracking-[0.25em] mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Connect</h4>
                  <ul className="space-y-2.5 font-semibold" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
-                   <li><a href={content?.instagram} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><Instagram size={15} className="text-accent shrink-0" /> Instagram</a></li>
-                   <li><a href={content?.github} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><Github size={15} className="text-accent shrink-0" /> GitHub</a></li>
-                   <li><a href={content?.facebook} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><Facebook size={15} className="text-accent shrink-0" /> Facebook</a></li>
+                   <li><a href={content?.instagram} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><InstagramDuotone size={16} className="shrink-0" /> Instagram</a></li>
+                   <li><a href={content?.github} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><GithubDuotone size={16} className="shrink-0" /> GitHub</a></li>
+                   <li><a href={content?.facebook} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><FacebookDuotone size={16} className="shrink-0" /> Facebook</a></li>
                  </ul>
               </div>
 
