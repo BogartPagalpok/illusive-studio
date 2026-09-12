@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Sparkles, MonitorPlay } from 'lucide-react';
+import { Play, MonitorPlay } from 'lucide-react';
 import VideoModal from './VideoModal';
 import { usePortfolioStore } from '../lib/store';
 
@@ -134,7 +134,6 @@ export default function DualShowreel(props) {
       {/* Section Header */}
       <div className="flex flex-col items-center text-center mb-10 sm:mb-14">
         <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-md mb-3">
-          <Sparkles size={12} className="text-accent animate-pulse" />
           <span className="text-[10px] font-heading font-bold tracking-[0.25em] uppercase text-accent">
             FEATURED REELS //
           </span>
@@ -143,7 +142,7 @@ export default function DualShowreel(props) {
           DUAL <span className="text-accent">SHOWREEL</span>
         </h2>
         <p className="mt-3 text-xs sm:text-sm text-white/60 max-w-xl font-body leading-relaxed">
-          High-retention storytelling, rhythmic documentary pacing, and gaming retention loops engineered in DaVinci Resolve.
+          High-retention storytelling, rhythmic documentary pacing, and gaming retention loops.
         </p>
       </div>
 
