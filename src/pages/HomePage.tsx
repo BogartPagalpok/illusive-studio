@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import DualShowreel from '../components/DualShowreel';
@@ -15,7 +15,8 @@ import { usePortfolioStore } from '../lib/store';
 
 export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
   const [adminModalOpen, setAdminModalOpen] = useState(false);
-  const { sections, fetchSettings } = usePortfolioStore();
+  const sections = usePortfolioStore((s) => s.sections);
+  const fetchSettings = usePortfolioStore((s) => s.fetchSettings);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('portfolio-theme') || 'void';
@@ -29,7 +30,7 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
     return sec !== undefined ? sec.visible : defaultValue;
   };
 
-  const handleAdminTrigger = async () => {
+  const handleAdminTrigger = useCallback(async () => {
     try {
       const { data } = await supabase.auth.getSession();
       if (data?.session?.user?.email && isAdminEmail(data.session.user.email)) {
@@ -40,12 +41,12 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       // Fall through to modal
     }
     setAdminModalOpen(true);
-  };
+  }, [onAdminAuth]);
 
-  const handleAdminSuccess = () => {
+  const handleAdminSuccess = useCallback(() => {
     setAdminModalOpen(false);
     onAdminAuth();
-  };
+  }, [onAdminAuth]);
 
   return (
     <div className="relative min-h-screen w-full selection:bg-[var(--accent)] selection:text-[var(--accent-contrast)]">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -15,10 +15,15 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
 
+  const onSuccessRef = useRef(onSuccess);
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+  }, [onSuccess]);
+
   useEffect(() => {
     if (!isOpen) {
-      setError(false);
-      setShake(false);
+      setError((prev) => (prev ? false : prev));
+      setShake((prev) => (prev ? false : prev));
       return;
     }
 
@@ -26,7 +31,7 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
       try {
         const { data } = await supabase.auth.getSession();
         if (data?.session?.user?.email && isAdminEmail(data.session.user.email)) {
-          onSuccess?.();
+          onSuccessRef.current?.();
         }
       } catch {
         // Continue to show modal
@@ -34,7 +39,7 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
     };
 
     checkActiveSession();
-  }, [isOpen, onSuccess]);
+  }, [isOpen]);
 
   const handleGoogleLogin = async () => {
     setIsSubmitting(true);
