@@ -71,7 +71,7 @@ export default function Navbar() {
     const el = document.getElementById(id.replace('#', ''));
     if (el) {
       if (window.__lenis) {
-        window.__lenis.scrollTo(el, { offset: -80, duration: 1.2 });
+        window.__lenis.scrollTo(el, { offset: 0, duration: 1.2 });
       } else {
         el.scrollIntoView({ behavior: 'smooth' });
       }

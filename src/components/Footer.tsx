@@ -8,6 +8,7 @@ import {
   SparklesDuotone,
 } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
+import { formatSectionTitle } from '../lib/formatTitle';
 
 export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void }) {
   const [content, setContent] = useState<any>(null);
@@ -27,8 +28,8 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
   const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
   return (
-    <footer className="relative bg-transparent overflow-hidden mt-6 font-heading">
-      <div className="section-container relative pb-8">
+    <footer className="relative bg-transparent overflow-hidden mt-12 sm:mt-16 md:mt-24 font-heading">
+      <div className="section-container relative pb-10">
         <div 
           className="relative z-10 p-6 sm:p-8 md:p-10 rounded-[28px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col"
           style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
@@ -42,7 +43,7 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
                   <span className="uppercase tracking-[0.2em] font-bold text-xs" style={{ color: 'var(--accent)' }}>Let's Talk</span>
                 </div>
                 <h3 className="font-black uppercase mb-3 leading-tight break-words w-full" style={{ color: 'var(--text-primary)', fontSize: 'clamp(18px, 2.2vw, 28px)' }}>
-                  {content?.hook_heading || "Want to elevate your visual identity? Let's collaborate."}
+                  {formatSectionTitle(content?.hook_heading || "Want to elevate your visual identity? Let's collaborate.")}
                 </h3>
                 <p className="max-w-md leading-relaxed font-light" style={{ color: 'var(--text-secondary)', fontSize: 'clamp(13px, 1vw, 15px)' }}>
                   {content?.hook_desc || "From brand systems to digital art — I bring ideas to life with precision and passion."}
@@ -56,11 +57,12 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-6 sm:gap-8 w-full lg:w-3/5 lg:justify-items-end">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 w-full lg:w-3/5 lg:justify-items-end">
               
+              {/* Navigation */}
               <div className="flex flex-col">
-                 <h4 className="uppercase tracking-[0.25em] mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Navigation</h4>
-                 <ul className="space-y-2.5 font-semibold uppercase" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
+                 <h4 className="uppercase tracking-[0.25em] mb-3 sm:mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Navigation</h4>
+                 <ul className="space-y-2 sm:space-y-2.5 font-semibold uppercase" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
                    {['Home', 'Services', 'Works', 'About'].map(item => (
                      <li key={item}>
                        <button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors text-left" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
@@ -71,28 +73,30 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
                  </ul>
               </div>
 
+              {/* Connect */}
               <div className="flex flex-col">
-                 <h4 className="uppercase tracking-[0.25em] mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Contact</h4>
+                 <h4 className="uppercase tracking-[0.25em] mb-3 sm:mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Connect</h4>
+                 <ul className="space-y-2 sm:space-y-2.5 font-semibold" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
+                   <li><a href={content?.instagram || 'https://instagram.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><InstagramDuotone size={16} className="shrink-0" /> Instagram</a></li>
+                   <li><a href={content?.github || 'https://github.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><GithubDuotone size={16} className="shrink-0" /> GitHub</a></li>
+                   <li><a href={content?.facebook || 'https://facebook.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><FacebookDuotone size={16} className="shrink-0" /> Facebook</a></li>
+                 </ul>
+              </div>
+
+              {/* Contact: Spans full width on mobile so email never breaks */}
+              <div className="flex flex-col col-span-2 sm:col-span-1 pt-2 sm:pt-0 border-t border-white/5 sm:border-t-0">
+                 <h4 className="uppercase tracking-[0.25em] mb-3 sm:mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Contact</h4>
                  <ul className="space-y-2.5 font-medium" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
                    <li>
                      <a href={`mailto:${content?.email || 'yhanlhester@gmail.com'}`} className="flex items-center gap-2.5 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
-                       <MailDuotone size={16} className="shrink-0" /> <span className="break-all">{content?.email || 'yhanlhester@gmail.com'}</span>
+                       <MailDuotone size={16} className="shrink-0 text-accent" /> <span className="font-mono text-xs sm:text-[13px] break-all sm:break-normal">{content?.email || 'yhanlhester@gmail.com'}</span>
                      </a>
                    </li>
                    <li>
                      <a href={`tel:${content?.phone || '+639524437988'}`} className="flex items-center gap-2.5 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
-                       <PhoneDuotone size={16} className="shrink-0" /> <span>{content?.phone || '+639524437988'}</span>
+                       <PhoneDuotone size={16} className="shrink-0 text-accent" /> <span className="font-mono text-xs sm:text-[13px]">{content?.phone || '+639524437988'}</span>
                      </a>
                    </li>
-                 </ul>
-              </div>
-
-              <div className="flex flex-col">
-                 <h4 className="uppercase tracking-[0.25em] mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Connect</h4>
-                 <ul className="space-y-2.5 font-semibold" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
-                   <li><a href={content?.instagram} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><InstagramDuotone size={16} className="shrink-0" /> Instagram</a></li>
-                   <li><a href={content?.github} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><GithubDuotone size={16} className="shrink-0" /> GitHub</a></li>
-                   <li><a href={content?.facebook} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><FacebookDuotone size={16} className="shrink-0" /> Facebook</a></li>
                  </ul>
               </div>
 
