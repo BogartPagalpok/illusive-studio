@@ -107,24 +107,14 @@ export default function DualShowreel(props) {
   const dualShowreel = usePortfolioStore((s) => s.dualShowreel);
 
   const [activeYoutubeId, setActiveYoutubeId] = useState('');
+  const [activeTitle, setActiveTitle] = useState('Featured Showreel');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const essayConfig = {
-    is_coming_soon: props?.essay?.is_coming_soon ?? props?.card1?.is_coming_soon ?? dualShowreel?.essay?.is_coming_soon ?? false,
-    webm_url: props?.essay?.webm_url ?? props?.card1?.webm_url ?? dualShowreel?.essay?.webm_url ?? '',
-    youtube_url: props?.essay?.youtube_url ?? props?.card1?.youtube_url ?? dualShowreel?.essay?.youtube_url ?? '',
-  };
-
-  const gamingConfig = {
-    is_coming_soon: props?.gaming?.is_coming_soon ?? props?.card2?.is_coming_soon ?? dualShowreel?.gaming?.is_coming_soon ?? false,
-    webm_url: props?.gaming?.webm_url ?? props?.card2?.webm_url ?? dualShowreel?.gaming?.webm_url ?? '',
-    youtube_url: props?.gaming?.youtube_url ?? props?.card2?.youtube_url ?? dualShowreel?.gaming?.youtube_url ?? '',
-  };
-
-  const handleOpenModal = (youtubeUrl) => {
+  const handleOpenModal = (youtubeUrl, cardTitle) => {
     const target = youtubeUrl ? youtubeUrl : 'LXb3EKWsInQ';
     const parsedId = extractYoutubeId(target);
     setActiveYoutubeId(parsedId || target);
+    if (cardTitle) setActiveTitle(cardTitle);
     setIsModalOpen(true);
   };
 
@@ -152,7 +142,7 @@ export default function DualShowreel(props) {
           is_coming_soon={essayConfig.is_coming_soon}
           webm_url={essayConfig.webm_url}
           youtube_url={essayConfig.youtube_url}
-          onOpenModal={handleOpenModal}
+          onOpenModal={(url) => handleOpenModal(url, 'Video Essays & Docu')}
         />
 
         {/* Card 2: Gaming & Retention */}
@@ -163,7 +153,7 @@ export default function DualShowreel(props) {
           is_coming_soon={gamingConfig.is_coming_soon}
           webm_url={gamingConfig.webm_url}
           youtube_url={gamingConfig.youtube_url}
-          onOpenModal={handleOpenModal}
+          onOpenModal={(url) => handleOpenModal(url, 'Gaming & Retention')}
         />
       </div>
 
@@ -172,6 +162,7 @@ export default function DualShowreel(props) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         youtubeId={activeYoutubeId}
+        title={activeTitle}
       />
     </section>
   );
