@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Film, Sparkles, MonitorPlay } from 'lucide-react';
+import { Play, Sparkles, MonitorPlay } from 'lucide-react';
 import VideoModal from './VideoModal';
 import { usePortfolioStore } from '../lib/store';
 
@@ -9,48 +9,33 @@ function extractYoutubeId(url) {
   return match ? match[1] : url.trim();
 }
 
-function ShowreelCard({ title, category, description, config, onOpenModal }) {
+function ShowreelCard({
+  title,
+  category,
+  description,
+  is_coming_soon = false,
+  webm_url = '',
+  youtube_url = '',
+  onOpenModal,
+}) {
   const videoRef = useRef(null);
-  const isComingSoon = Boolean(config?.is_coming_soon);
-  const webmUrl = config?.webm_url || '';
-  const youtubeUrl = config?.youtube_url || '';
-
-  const handleMouseEnter = () => {
-    if (isComingSoon || !videoRef.current) return;
-    try {
-      videoRef.current.play().catch(() => {});
-    } catch {}
-  };
-
-  const handleMouseLeave = () => {
-    if (isComingSoon || !videoRef.current) return;
-    try {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    } catch {}
-  };
-
-  const handleClick = () => {
-    if (isComingSoon) return;
-    onOpenModal(youtubeUrl);
-  };
 
   return (
     <div
       className={`group relative aspect-video w-full rounded-2xl overflow-hidden border transition-all duration-500 select-none ${
-        isComingSoon
+        is_coming_soon
           ? 'border-white/10 bg-black/60 shadow-xl cursor-default'
           : 'border-white/15 bg-black/40 shadow-2xl cursor-pointer hover:border-accent/60 hover:shadow-[0_0_35px_rgba(var(--accent-rgb),0.25)]'
       }`}
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onClick={!is_coming_soon ? () => onOpenModal(youtube_url) : undefined}
+      onMouseEnter={!is_coming_soon ? () => videoRef.current?.play() : undefined}
+      onMouseLeave={!is_coming_soon ? () => videoRef.current?.pause() : undefined}
     >
-      {/* Video Hover Layer (disabled if coming soon) */}
-      {!isComingSoon && webmUrl ? (
+      {/* Dynamic WebM Video Source */}
+      {!is_coming_soon && webm_url ? (
         <video
           ref={videoRef}
-          src={webmUrl}
+          src={webm_url}
           loop
           muted
           playsInline
@@ -58,33 +43,27 @@ function ShowreelCard({ title, category, description, config, onOpenModal }) {
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
       ) : (
-        /* Cinematic Dark Ambient Placeholder Backdrop */
+        /* Ambient Cinematic Dark Backdrop */
         <div className="absolute inset-0 bg-gradient-to-br from-[#12131A] via-[#090A0E] to-[#040406] flex items-center justify-center">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,var(--accent)_0%,transparent_70%)]" />
         </div>
       )}
 
-      {/* Dark Vignette Overlay for Crisp Contrast */}
+      {/* Dark Vignette Overlay for Readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none z-10" />
 
-      {/* COMING SOON STATIC OVERLAY */}
-      {isComingSoon ? (
+      {/* Conditional Rendering: COMING SOON State */}
+      {is_coming_soon ? (
         <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center z-20 text-center px-4">
-          <div className="w-12 h-12 rounded-full border border-white/20 bg-white/5 flex items-center justify-center mb-3">
-            <Film size={20} className="text-white/60" />
-          </div>
-          <span className="text-xl sm:text-2xl md:text-3xl font-heading font-black tracking-[0.35em] uppercase text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
+          <span className="text-2xl sm:text-3xl md:text-4xl font-heading font-black tracking-[0.35em] uppercase text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
             COMING SOON
           </span>
           <span className="mt-2 text-[10px] sm:text-xs font-heading font-bold tracking-[0.25em] uppercase text-accent">
             {title}
           </span>
-          <p className="mt-1 text-[11px] text-white/50 max-w-xs font-body">
-            Reel currently in active grading & sound finishing pipeline.
-          </p>
         </div>
       ) : (
-        /* ACTIVE CARD OVERLAYS */
+        /* ACTIVE CARD STATE (Play Button & Metadata) */
         <>
           {/* Top Category Badge */}
           <div className="absolute top-4 left-4 z-20">
@@ -93,7 +72,7 @@ function ShowreelCard({ title, category, description, config, onOpenModal }) {
             </span>
           </div>
 
-          {/* Centered Play Button on Hover */}
+          {/* Centered Play Button (Hidden when is_coming_soon is true) */}
           <div className="absolute inset-0 flex items-center justify-center z-20 opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 pointer-events-none">
             <div
               className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-2xl transition-transform duration-300"
@@ -130,17 +109,30 @@ function ShowreelCard({ title, category, description, config, onOpenModal }) {
   );
 }
 
-export default function DualShowreel() {
-  const { dualShowreel, fetchSettings, hasInitialized } = usePortfolioStore();
+export default function DualShowreel(props) {
+  const store = usePortfolioStore();
 
   const [activeYoutubeId, setActiveYoutubeId] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (!hasInitialized) {
-      fetchSettings();
+    if (!store.hasInitialized && store.fetchSettings) {
+      store.fetchSettings();
     }
-  }, [hasInitialized, fetchSettings]);
+  }, [store]);
+
+  // Prop wiring: Prioritize direct props, then nested props, then Zustand store values
+  const essayConfig = {
+    is_coming_soon: props?.essay?.is_coming_soon ?? props?.card1?.is_coming_soon ?? store?.dualShowreel?.essay?.is_coming_soon ?? false,
+    webm_url: props?.essay?.webm_url ?? props?.card1?.webm_url ?? store?.dualShowreel?.essay?.webm_url ?? '',
+    youtube_url: props?.essay?.youtube_url ?? props?.card1?.youtube_url ?? store?.dualShowreel?.essay?.youtube_url ?? '',
+  };
+
+  const gamingConfig = {
+    is_coming_soon: props?.gaming?.is_coming_soon ?? props?.card2?.is_coming_soon ?? store?.dualShowreel?.gaming?.is_coming_soon ?? false,
+    webm_url: props?.gaming?.webm_url ?? props?.card2?.webm_url ?? store?.dualShowreel?.gaming?.webm_url ?? '',
+    youtube_url: props?.gaming?.youtube_url ?? props?.card2?.youtube_url ?? store?.dualShowreel?.gaming?.youtube_url ?? '',
+  };
 
   const handleOpenModal = (youtubeUrl) => {
     const parsedId = extractYoutubeId(youtubeUrl);
@@ -174,7 +166,9 @@ export default function DualShowreel() {
           title="Video Essays & Docu"
           category="Long-Form Narratives"
           description="Pacing, narrative arc, dynamic archival cutaways, and sound design."
-          config={dualShowreel.essay}
+          is_coming_soon={essayConfig.is_coming_soon}
+          webm_url={essayConfig.webm_url}
+          youtube_url={essayConfig.youtube_url}
           onOpenModal={handleOpenModal}
         />
 
@@ -183,7 +177,9 @@ export default function DualShowreel() {
           title="Gaming & Retention"
           category="Retention & Pacing"
           description="Instant hook momentum, visual gags, zooms, and algorithmic engagement."
-          config={dualShowreel.gaming}
+          is_coming_soon={gamingConfig.is_coming_soon}
+          webm_url={gamingConfig.webm_url}
+          youtube_url={gamingConfig.youtube_url}
           onOpenModal={handleOpenModal}
         />
       </div>
