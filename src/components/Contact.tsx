@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { SendDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { formatSectionTitle } from '../lib/formatTitle';
 
 interface ContactContent {
   subtitle: string;
@@ -87,20 +88,13 @@ export default function Contact() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <span className="section-subtitle !mb-3 font-black">{content.subtitle}</span>
-            <h2 className="italic font-black uppercase tracking-tighter text-[var(--text-primary)]" style={{ fontSize: 'clamp(1.8rem, 4vw, 4rem)' }}>
-              {content.heading.split(' ').length > 1 ? (
-                <>
-                  {content.heading.split(' ').slice(0, -1).join(' ')}{' '}
-                  <span className="text-accent">{content.heading.split(' ').slice(-1)}</span>
-                </>
-              ) : (
-                content.heading
-              )}
+            <h2 className="section-title !text-left">
+              {formatSectionTitle(content.heading)}
             </h2>
+            <div className="w-12 h-0.5 bg-[var(--accent)] mt-4 mb-4" />
             <p className="mt-4 mb-5 leading-relaxed text-[var(--text-secondary)]" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
               {content.description}
             </p>
-            <div className="w-12 h-0.5 bg-[var(--accent)]" />
           </motion.div>
 
           <motion.div

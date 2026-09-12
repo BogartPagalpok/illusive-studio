@@ -186,14 +186,14 @@ export default function ProjectPortal() {
             className="w-full flex flex-col items-center justify-center min-h-[700px]"
           >
             {/* Context Header */}
-            <div className="text-center mb-16 lg:mb-24 flex flex-col items-center px-4">
-              <span className="text-[clamp(0.75rem,1vw,0.875rem)] font-bold tracking-[0.3em] uppercase mb-4" style={{ color: 'var(--accent)' }}>
+            <div className="text-center mb-12 lg:mb-16 flex flex-col items-center px-4">
+              <span className="section-subtitle">
                 Growth Marketing Case Study
               </span>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-[var(--text-primary)] uppercase mb-6">
-                Modular Creative Testing
+              <h2 className="section-title">
+                MODULAR CREATIVE <span className="text-accent">TESTING</span>
               </h2>
-              <div className="w-12 h-[2px] bg-[var(--accent)] mb-6" />
+              <div className="section-divider mb-6" />
               <p className="max-w-2xl text-center text-[clamp(0.875rem,1vw,1rem)] text-[var(--text-secondary)] leading-relaxed">
                 This interactive portal demonstrates a modern Meta Ads testing strategy. Select a variant below to explore how we use visual hooks as targeting filters, aligning each colorway with specific audience segments, post-click landing pages, and campaign performance metrics.
               </p>

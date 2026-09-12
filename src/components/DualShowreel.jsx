@@ -132,15 +132,12 @@ export default function DualShowreel(props) {
     <section id="dual-showreel" className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto z-20">
       {/* Section Header */}
       <div className="flex flex-col items-center text-center mb-10 sm:mb-14">
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-md mb-3">
-          <span className="text-[10px] font-heading font-bold tracking-[0.25em] uppercase text-accent">
-            FEATURED REELS //
-          </span>
-        </div>
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-black tracking-tighter uppercase text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
+        <span className="section-subtitle">FEATURED REELS //</span>
+        <h2 className="section-title">
           DUAL <span className="text-accent">SHOWREEL</span>
         </h2>
-        <p className="mt-3 text-xs sm:text-sm text-white/60 max-w-xl font-body leading-relaxed">
+        <div className="section-divider" />
+        <p className="mt-4 text-xs sm:text-sm text-white/60 max-w-xl font-body leading-relaxed">
           High-retention storytelling, rhythmic documentary pacing, and gaming retention loops.
         </p>
       </div>

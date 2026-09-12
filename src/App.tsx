@@ -52,25 +52,14 @@ function BrandLoader({ isFading = false }: { isFading?: boolean }) {
   return (
     <div className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black transition-opacity duration-700 ${isFading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <style dangerouslySetInnerHTML={{ __html: `
-        .loader-wrapper {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 80px;
-          width: auto;
-          margin: 1.5rem;
-          font-family: var(--font-heading), 'Satoshi', sans-serif;
-          font-size: clamp(1.2rem, 3.5vw, 2.2rem);
-          font-weight: 900;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-          user-select: none;
-          color: #ffffff;
-        }
-        .loader {
+        .loader-scanner {
           position: absolute;
-          inset: -10px -20px;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: min(92vw, 680px);
+          height: 320px;
+          pointer-events: none;
           z-index: 1;
           background-color: transparent;
           -webkit-mask: repeating-linear-gradient(
@@ -87,9 +76,8 @@ function BrandLoader({ isFading = false }: { isFading?: boolean }) {
             black 7px,
             black 8px
           );
-          pointer-events: none;
         }
-        .loader::after {
+        .loader-scanner::after {
           content: "";
           position: absolute;
           inset: 0;
@@ -99,55 +87,74 @@ function BrandLoader({ isFading = false }: { isFading?: boolean }) {
             radial-gradient(circle at 55% 55%, #00ffff 0%, transparent 50%);
           -webkit-mask: radial-gradient(
             circle at 50% 50%,
-            transparent 0%,
-            transparent 15%,
-            black 40%
+            black 0%,
+            black 25%,
+            transparent 55%
           );
           mask: radial-gradient(
             circle at 50% 50%,
-            transparent 0%,
-            transparent 15%,
-            black 40%
+            black 0%,
+            black 25%,
+            transparent 55%
           );
           animation:
-            loader-sweep 2s infinite alternate,
-            loader-glow 3s infinite;
-          animation-timing-function: cubic-bezier(0.6, 0.8, 0.5, 1);
+            loader-sweep 2.5s infinite alternate ease-in-out,
+            loader-glow 3s infinite ease-in-out;
         }
         @keyframes loader-sweep {
-          0% { transform: translate(-40%); }
-          100% { transform: translate(40%); }
+          0% { transform: translateX(-35%) scale(0.9); }
+          100% { transform: translateX(35%) scale(1.1); }
         }
         @keyframes loader-glow {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.85; }
+          0%, 100% { opacity: 0.35; }
+          50% { opacity: 0.95; }
+        }
+        .loader-wrapper {
+          position: relative;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 1.5rem;
+          font-family: var(--font-heading), 'Satoshi', sans-serif;
+          font-size: clamp(1.3rem, 3.8vw, 2.4rem);
+          font-weight: 900;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          user-select: none;
+          color: #ffffff;
         }
         .loader-letter {
           position: relative;
           z-index: 2;
           display: inline-block;
-          opacity: 0.35;
+          opacity: 0.4;
           animation: loader-letter-anim 2.5s infinite ease-in-out;
           color: #ffffff;
         }
         @keyframes loader-letter-anim {
-          0%, 100% { opacity: 0.35; transform: translateY(0); }
-          25% { opacity: 1; text-shadow: 0 0 16px var(--accent, #FC931F), 0 0 32px #ffffff; transform: translateY(-2px) scale(1.05); }
+          0%, 100% { opacity: 0.4; transform: translateY(0); }
+          25% { opacity: 1; text-shadow: 0 0 18px var(--accent, #FC931F), 0 0 36px #ffffff; transform: translateY(-2px) scale(1.05); }
           50% { opacity: 0.75; transform: translateY(0); }
         }
       `}} />
 
-      <div className="loader-wrapper">
-        <span className="loader"></span>
-        {'ILLUSIVE STUDIO'.split('').map((letter, i) => (
-          <span 
-            key={i} 
-            className="loader-letter"
-            style={{ animationDelay: `${i * 0.08}s` }}
-          >
-            {letter === ' ' ? '\u00A0' : letter}
-          </span>
-        ))}
+      <div className="relative flex items-center justify-center w-full max-w-2xl px-4 min-h-[300px]">
+        {/* Full unmasked scanning circular radar beam */}
+        <div className="loader-scanner" />
+
+        {/* Brand Text */}
+        <div className="loader-wrapper">
+          {'ILLUSIVE STUDIO'.split('').map((letter, i) => (
+            <span 
+              key={i} 
+              className="loader-letter"
+              style={{ animationDelay: `${i * 0.08}s` }}
+            >
+              {letter === ' ' ? '\u00A0' : letter}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );

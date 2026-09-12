@@ -14,6 +14,7 @@ import {
 } from './icons/StreamlineIcons';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
+import { formatSectionTitle } from '../lib/formatTitle';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -141,12 +142,7 @@ export default function About() {
         >
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
-            {content.heading.split(' ').map((word, i, arr) => (
-              <span key={i}>
-                {word === '&' ? <span className="text-accent">&</span> : word}
-                {i < arr.length - 1 ? ' ' : ''}
-              </span>
-            ))}
+            {formatSectionTitle(content.heading)}
           </h2>
           <div className="section-divider" />
         </motion.div>

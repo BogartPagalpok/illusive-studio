@@ -35,6 +35,8 @@ const defaultServices = [
   },
 ];
 
+import { formatSectionTitle } from '../lib/formatTitle';
+
 export default function Services() {
   const [content, setContent] = useState({ subtitle: 'What I Do', heading: 'Services & Expertise' });
   const [servicesData, setServicesData] = useState(defaultServices);
@@ -88,12 +90,7 @@ export default function Services() {
         >
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
-            {content.heading.split(' ').map((word, i, arr) => (
-              <span key={i}>
-                {word === '&' ? <span className="text-accent">&</span> : word}
-                {i < arr.length - 1 ? ' ' : ''}
-              </span>
-            ))}
+            {formatSectionTitle(content.heading)}
           </h2>
           <div className="section-divider" />
         </motion.div>

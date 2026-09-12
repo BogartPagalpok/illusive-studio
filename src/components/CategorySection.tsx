@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { CloseDuotone, PlayDuotone, ExternalLinkDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 import ScrollingMasonry from '../components/ScrollingMasonry';
+import { formatSectionTitle } from '../lib/formatTitle';
 
 interface VideoEntry {
   url: string;
@@ -762,7 +763,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                   <span className="section-subtitle">{category}</span>
-                  <h2 className="section-title">{title}</h2>
+                  <h2 className="section-title">{formatSectionTitle(title)}</h2>
                   <div className="section-divider" />
                 </motion.div>
                 {singles.length > 0 && (
@@ -844,9 +845,9 @@ export default function CategorySection({ category }: CategorySectionProps) {
           return (
            <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
               <div className="section-container relative">
-                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center" style={{ zIndex: -1 }}>
+                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                   <span className="section-subtitle">{category}</span>
-                  <h2 className="section-title">{title}</h2>
+                  <h2 className="section-title">{formatSectionTitle(title)}</h2>
                   <div className="section-divider" />
                 </motion.div>
                 <MotionPanel
@@ -870,7 +871,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
               <div className="section-container relative">
                 <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                   <span className="section-subtitle">{category}</span>
-                  <h2 className="section-title">{title}</h2>
+                  <h2 className="section-title">{formatSectionTitle(title)}</h2>
                   <div className="section-divider" />
                 </motion.div>
 
@@ -894,7 +895,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
             <div className="section-container relative">
               <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
                 <span className="section-subtitle">{category}</span>
-                <h2 className="section-title">{title}</h2>
+                <h2 className="section-title">{formatSectionTitle(title)}</h2>
                 <div className="section-divider" />
               </motion.div>
 
