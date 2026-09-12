@@ -30,6 +30,77 @@ interface CategorySectionProps {
   category: string;
 }
 
+interface CopyMapping {
+  matcher: (title: string) => boolean;
+  title: string;
+  description: string;
+}
+
+const PORTFOLIO_COPY_MAPPINGS: CopyMapping[] = [
+  // 1. Motion & Video Sections
+  {
+    matcher: (t: string) => /DYNAMIC\s*MICRO[- ]NARRATIVE/i.test(t) || /YOUTUBE\s*SHORTS\s*(&|AND)\s*TIKTOK/i.test(t),
+    title: 'YOUTUBE SHORTS & TIKTOK EDITS',
+    description: 'High-retention short-form content. Built with fast pacing, clean typography, and solid sound design to hook viewers instantly without feeling over-edited.',
+  },
+  {
+    matcher: (t: string) => /END-TO-END\s*EVENT\s*PRODUCTION/i.test(t) || /LIVE\s*EVENTS\s*(&|AND)\s*SAME-DAY\s*EDITS/i.test(t),
+    title: 'LIVE EVENTS & SAME-DAY EDITS (SDE)',
+    description: 'On-site shooting, directing, and editing. I handle the full pipeline under tight deadlines to deliver polished recap videos before the event even ends.',
+  },
+  {
+    matcher: (t: string) => /LARGE[- ]FORMAT\s*EVENT\s*VISUALS/i.test(t) || /LED\s*WALLS\s*(&|AND)\s*STAGE\s*VISUALS/i.test(t),
+    title: 'LED WALLS & STAGE VISUALS',
+    description: 'Custom motion graphics built for massive event screens. Clean, seamless loops designed to elevate the stage without distracting from the live speakers.',
+  },
+  // 2. Graphic Design Sections
+  {
+    matcher: (t: string) => /HIGH[- ]IMPACT\s*KEY\s*VISUALS/i.test(t) || /PROMOTIONAL\s*POSTERS\s*(&|AND)\s*KEY\s*VISUALS/i.test(t),
+    title: 'PROMOTIONAL POSTERS & KEY VISUALS',
+    description: 'Commercial poster design and digital marketing assets. Combining typography, image compositing, and brand identity to make events and products stand out.',
+  },
+  {
+    matcher: (t: string) => /HIGH[- ]IMPACT\s*INFORMATION\s*DESIGN/i.test(t) || /SOCIAL\s*MEDIA\s*CAMPAIGNS\s*(&|AND)\s*INFOGRAPHICS/i.test(t),
+    title: 'SOCIAL MEDIA CAMPAIGNS & INFOGRAPHICS',
+    description: 'Turning dense information into clean, readable graphics for social media feeds, local government campaigns, and public safety announcements.',
+  },
+  // 3. UI/UX Section
+  {
+    matcher: (t: string) => /END-TO-END\s*MOBILE[- ]FIRST/i.test(t) || /UI\/UX\s*(&|AND)\s*WEB\s*APP\s*DESIGN/i.test(t),
+    title: 'UI/UX & WEB APP DESIGN',
+    description: 'Designing intuitive, mobile-optimized interfaces for web apps. From wireframing the user journey to building out the final frontend layout.',
+  },
+  // 4. Photography Sections
+  {
+    matcher: (t: string) => /FRAMES\s*OF\s*THE\s*STREETS/i.test(t) || /^STREET\s*PHOTOGRAPHY$/i.test(t.trim()),
+    title: 'STREET PHOTOGRAPHY',
+    description: 'Candid street photography focused on natural lighting, urban architecture, and capturing everyday moments across different communities.',
+  },
+  {
+    matcher: (t: string) => /LIVE\s*MUSIC\s*(&|AND)\s*STAGE\s*PERFORMANCE/i.test(t) || /CONCERT\s*(&|AND)\s*EVENT\s*PHOTOGRAPHY/i.test(t),
+    title: 'CONCERT & EVENT PHOTOGRAPHY',
+    description: 'Shooting live music and stage performances. I focus on capturing the energy of the crowd and the artists under challenging, fast-changing stage lights.',
+  },
+  {
+    matcher: (t: string) => /FACES\s*OF\s*PRIDE/i.test(t) || /EDITORIAL\s*(&|AND)\s*STREET\s*PORTRAITS/i.test(t),
+    title: 'EDITORIAL & STREET PORTRAITS',
+    description: 'Photojournalistic coverage of local events and parades. Focused on raw emotion, vibrant color grading, and authentic community storytelling.',
+  },
+];
+
+function normalizeProjectCopy(project: Project): Project {
+  for (const mapping of PORTFOLIO_COPY_MAPPINGS) {
+    if (mapping.matcher(project.title)) {
+      return {
+        ...project,
+        title: mapping.title,
+        description: mapping.description,
+      };
+    }
+  }
+  return project;
+}
+
 type VideoPlatform = 'youtube' | 'vimeo' | 'tiktok' | null;
 
 function detectVideoPlatform(url: string): VideoPlatform {
@@ -598,7 +669,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
         error = fallback.error;
       }
       if (error) throw error;
-      setProjects(data || []);
+      setProjects((data || []).map(normalizeProjectCopy));
     } catch (err) {
       console.error(`Failed to fetch ${category} projects:`, err);
       setProjects([]);
