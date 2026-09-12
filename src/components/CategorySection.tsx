@@ -156,24 +156,19 @@ function PhoneFrame({ children }: { children: React.ReactNode }) {
 
 function BrowserFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
-      <style>{`
-        .browser-card { width: 100%; height: 100%; background: #1a1a1a; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.486); border: 1px solid rgb(40, 40, 40); }
-        .browser-top { height: 32px; display: flex; align-items: center; padding: 0 12px; gap: 8px; background: #1a1a1a; flex-shrink: 0; }
-        .browser-dots { display: flex; gap: 6px; }
-        .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
-        .browser-dot.red { background: #ff5f56; } .browser-dot.yellow { background: #ffbd2e; } .browser-dot.green { background: #27c93f; }
-        .browser-search { flex: 1; height: 22px; border-radius: 4px; background: #111; display: flex; align-items: center; padding: 0 10px; font-size: 10px; color: #555; margin-left: 8px; }
-        .browser-content { flex: 1; background: black; overflow: hidden; }
-      `}</style>
-      <div className="browser-card">
-        <div className="browser-top">
-          <div className="browser-dots">
-            <div className="browser-dot red" /><div className="browser-dot yellow" /><div className="browser-dot green" />
-          </div>
-          <div className="browser-search">iframe</div>
+    <div className="relative w-full" style={{ borderRadius: 12, overflow: 'hidden', background: '#1a1a1a', boxShadow: '2px 5px 15px rgba(0,0,0,0.486)', border: '1px solid rgb(40,40,40)' }}>
+      {/* Chrome bar */}
+      <div style={{ height: 32, display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8, background: '#1a1a1a', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f56' }} />
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ffbd2e' }} />
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#27c93f' }} />
         </div>
-        <div className="browser-content">{children}</div>
+        <div style={{ flex: 1, height: 22, borderRadius: 4, background: '#111', display: 'flex', alignItems: 'center', padding: '0 10px', fontSize: 10, color: '#555', marginLeft: 8 }}>iframe</div>
+      </div>
+      {/* Content — 16:9 ratio applied HERE so the chrome doesn't steal height */}
+      <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: 'black', overflow: 'hidden' }}>
+        {children}
       </div>
     </div>
   );
