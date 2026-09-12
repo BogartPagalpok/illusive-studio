@@ -9,6 +9,8 @@ import { formatSectionTitle } from '../lib/formatTitle';
 interface VideoEntry {
   url: string;
   vertical: boolean;
+  title?: string;
+  subtitle?: string;
 }
 
 interface Project {
@@ -586,7 +588,7 @@ function FacebookEmbed({ url }: { url: string }) {
   );
 }
 
-function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string }> }) {
+function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> }) {
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-xl overflow-y-auto no-scrollbar" style={{ maxHeight: '80vh', touchAction: 'pan-y', backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
@@ -606,6 +608,8 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {videoItems.map((item, i) => {
             const usePhone = item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url));
+            const cardTitle = item.title || item.projectTitle;
+            const cardSubtitle = item.subtitle;
             return (
               <div key={`${item.projectId}-${i}`}>
                 {usePhone ? (
@@ -613,7 +617,7 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                     {item.platform === 'tiktok' ? (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
                         <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
-                        <p className="text-white/70 text-xs text-center mb-3">{item.projectTitle}</p>
+                        <p className="text-white/70 text-xs text-center mb-3">{cardTitle}</p>
                         <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
                           <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
                         </a>
@@ -622,7 +626,7 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                       <VideoFacade
                         url={item.url}
                         platform={item.platform!}
-                        title={item.projectTitle}
+                        title={cardTitle}
                         posterUrl={item.posterUrl}
                       />
                     )}
@@ -632,12 +636,15 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                     <VideoFacade
                       url={item.url}
                       platform={item.platform!}
-                      title={item.projectTitle}
+                      title={cardTitle}
                       posterUrl={item.posterUrl}
                     />
                   </BrowserFrame>
                 )}
-                <p className="text-center text-[10px] font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{item.projectTitle}</p>
+                <p className="text-center text-[10px] font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{cardTitle}</p>
+                {cardSubtitle && (
+                  <p className="text-center text-[9px] mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>{cardSubtitle}</p>
+                )}
               </div>
             );
           })}
@@ -839,6 +846,8 @@ export default function CategorySection({ category }: CategorySectionProps) {
                   projectTitle: project.title,
                   vertical,
                   posterUrl: project.card_thumbnail || project.image_url || undefined,
+                  title: (entry as VideoEntry).title || undefined,
+                  subtitle: (entry as VideoEntry).subtitle || undefined,
                 });
               }
             });
