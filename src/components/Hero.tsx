@@ -132,99 +132,144 @@ export default function Hero() {
       className="w-full overflow-hidden relative bg-transparent"
     >
       <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 2}>
-        <div className="hidden md:block">
-          <FloatingCube type="Ps" size={100} top="20%" left="10%" blur="2px" delay={0} duration={6} />
-          <FloatingCube type="Ai" size={80} bottom="15%" right="12%" blur="1px" delay={1} duration={5} />
+        <div className="hidden lg:block pointer-events-none">
+          <FloatingCube type="Ps" size={90} top="16%" left="3%" blur="1px" delay={0} duration={6} />
+          <FloatingCube type="Ai" size={75} bottom="20%" right="3%" blur="1px" delay={1} duration={5} />
         </div>
 
-        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none z-0" />
+        <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[72px] sm:pt-[84px]">
+          {/* Subtle radial vignette that keeps the center clear for the face while boosting readability on edges */}
+          <div 
+            className="absolute inset-0 pointer-events-none z-0" 
+            style={{
+              background: 'radial-gradient(circle at 50% 45%, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%)',
+            }}
+          />
 
           <motion.div
             style={{ opacity: heroOpacity, y: heroY }}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 sm:px-6 pointer-events-auto"
+            className="relative z-10 flex flex-col justify-between w-full h-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6 sm:py-8 lg:py-10 pointer-events-auto"
           >
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-[9px] md:text-sm font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-center w-full font-bold text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
-              style={{ textShadow: '0 0 20px rgba(var(--accent-rgb), 0.6), 0 2px 10px rgba(0, 0, 0, 0.9)' }}
-            >
-              {content.subtitle}
-            </motion.p>
+            {/* Main Left & Right Split Container */}
+            <div className="flex-1 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 lg:gap-12 w-full my-auto">
+              
+              {/* LEFT COLUMN: Subtitle + Giant Headline */}
+              <div className="w-full lg:w-3/5 text-left max-w-2xl">
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="text-[10px] sm:text-xs md:text-sm font-heading tracking-[0.25em] md:tracking-[0.35em] uppercase mb-3 sm:mb-4 md:mb-6 font-bold text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] flex items-center gap-2"
+                  style={{ textShadow: '0 0 20px rgba(var(--accent-rgb), 0.6), 0 2px 10px rgba(0, 0, 0, 0.9)' }}
+                >
+                  <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
+                  {content.subtitle}
+                </motion.p>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] uppercase text-center w-full"
-              style={{ fontFamily: "'Clash Display', sans-serif" }}
-            >
-              <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)]">
-                {content.heading_line1}
-              </span>
-              <br />
-              <span
-                className="italic text-accent"
-                style={{
-                  textShadow: '0 0 25px var(--accent), 0 0 50px rgba(var(--accent-rgb), 0.5)',
-                }}
-              >
-                {content.heading_line2}
-              </span>
-              <br />
-              <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)]">
-                {content.heading_line3}
-              </span>
-            </motion.h1>
+                <motion.h1
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tighter leading-[0.92] uppercase text-left w-full"
+                  style={{ fontFamily: "'Clash Display', sans-serif" }}
+                >
+                  <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)] block">
+                    {content.heading_line1}
+                  </span>
+                  <span
+                    className="italic text-accent block my-1 sm:my-2"
+                    style={{
+                      textShadow: '0 0 25px var(--accent), 0 0 50px rgba(var(--accent-rgb), 0.5)',
+                    }}
+                  >
+                    {content.heading_line2}
+                  </span>
+                  <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)] block">
+                    {content.heading_line3}
+                  </span>
+                </motion.h1>
+              </div>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-              className="mt-6 md:mt-8 text-xs md:text-lg max-w-2xl mx-auto text-center leading-relaxed w-full font-medium text-white/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.95)]"
-            >
-              {content.description}
-            </motion.p>
+              {/* RIGHT COLUMN: Catchphrase + Description + CTAs */}
+              <div className="w-full lg:w-2/5 flex flex-col items-start lg:items-end text-left lg:text-right max-w-md lg:ml-auto">
+                <motion.h3
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                  className="text-sm sm:text-base lg:text-xl font-bold uppercase tracking-tight text-white/95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] mb-2 sm:mb-3"
+                >
+                  We Turn Attention Into Action.
+                </motion.h3>
 
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.7 }}
+                  className="text-xs sm:text-sm md:text-base leading-relaxed font-medium text-white/85 drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)] mb-5 sm:mb-7"
+                >
+                  {content.description}
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.9 }}
+                  className="flex flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto"
+                >
+                  <a
+                    href="#works"
+                    onClick={(e) => scrollToId(e, 'works')}
+                    className="btn-primary py-3 px-6 sm:px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center shadow-xl flex-1 sm:flex-initial"
+                  >
+                    View Works
+                  </a>
+                  <a
+                    href="#contact"
+                    onClick={(e) => scrollToId(e, 'contact')}
+                    className="btn-outline !border-white/80 !text-white hover:!bg-white hover:!text-black py-3 px-6 sm:px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] flex-1 sm:flex-initial"
+                  >
+                    Get in Touch
+                  </a>
+                </motion.div>
+              </div>
+
+            </div>
+
+            {/* BOTTOM BAR: #01, #02, #03, #04 specialty pills + Scroll button */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 1 }}
-              className="mt-8 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 w-full"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.1 }}
+              className="w-full flex flex-col md:flex-row items-center justify-between gap-4 pt-4 sm:pt-6 border-t border-white/10 mt-auto"
             >
-              <a
-                href="#works"
-                onClick={(e) => scrollToId(e, 'works')}
-                className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto shadow-xl"
-              >
-                View Works
-              </a>
-              <a
-                href="#contact"
-                onClick={(e) => scrollToId(e, 'contact')}
-                className="btn-outline !border-white !text-white hover:!bg-white hover:!text-black py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
-              >
-                Get in Touch
-              </a>
-            </motion.div>
-          </motion.div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 w-full md:w-auto">
+                <div className="flex flex-col text-left">
+                  <span className="text-[10px] font-mono font-bold text-accent"># 01</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">Video Editing</span>
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-[10px] font-mono font-bold text-accent"># 02</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">Motion Graphics</span>
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-[10px] font-mono font-bold text-accent"># 03</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">Graphic Design</span>
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-[10px] font-mono font-bold text-accent"># 04</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">Visual Direction</span>
+                </div>
+              </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.3 }}
-            className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-auto z-20"
-          >
-            <button
-              // Updated to use the more robust scroll function
-              onClick={(e) => scrollToId(e as any, 'services')} 
-              className="flex flex-col items-center justify-center gap-2 !text-white/80 hover:!text-white transition-colors duration-300 w-full drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
-            >
-              <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase text-center block">Scroll</span>
-              <ArrowDownDuotone size={16} className="animate-bounce mx-auto" />
-            </button>
+              {/* Scroll down trigger */}
+              <button
+                onClick={(e) => scrollToId(e as any, 'services')} 
+                className="hidden md:flex items-center gap-2 !text-white/70 hover:!text-white transition-colors duration-300 ml-auto shrink-0 group cursor-pointer"
+              >
+                <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase">Scroll</span>
+                <ArrowDownDuotone size={14} className="group-hover:translate-y-1 transition-transform text-accent" />
+              </button>
+            </motion.div>
           </motion.div>
         </div>
       </ScrollSequence>
