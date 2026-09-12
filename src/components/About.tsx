@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Film, Layers, Sparkles, Compass, Cpu, Award, Palette, Type, Zap } from 'lucide-react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
 
@@ -17,6 +18,19 @@ const defaultSkills = [
   { name: 'Digital Illustration', level: 90 },
   { name: 'Typography & Grid Systems', level: 87 },
 ];
+
+const getSkillMeta = (name: string, index: number) => {
+  const lower = name.toLowerCase();
+  if (lower.includes('video') || lower.includes('edit')) return { icon: Film, tag: 'NLE // POST' };
+  if (lower.includes('compositing') || lower.includes('ps') || lower.includes('photo')) return { icon: Layers, tag: 'VFX // RETOUCH' };
+  if (lower.includes('motion') || lower.includes('vfx') || lower.includes('fx')) return { icon: Sparkles, tag: '3D // KINETIC' };
+  if (lower.includes('editorial') || lower.includes('camera')) return { icon: Compass, tag: 'STILL // FRAME' };
+  if (lower.includes('ui') || lower.includes('ux') || lower.includes('proto')) return { icon: Cpu, tag: 'FLOW // SYSTEM' };
+  if (lower.includes('pipeline') || lower.includes('canva') || lower.includes('agile')) return { icon: Award, tag: 'PIPELINE // SPEED' };
+  if (lower.includes('illustrat') || lower.includes('draw') || lower.includes('art')) return { icon: Palette, tag: 'DIGITAL // ART' };
+  if (lower.includes('typograph') || lower.includes('grid') || lower.includes('font')) return { icon: Type, tag: 'LAYOUT // TYPE' };
+  return { icon: Zap, tag: `SPEC // 0${index + 1}` };
+};
 
 interface AboutContent {
   subtitle: string;
@@ -92,6 +106,8 @@ export default function About() {
     return () => ctx.revert();
   }, []);
 
+  const coreTools = ['Premiere Pro', 'After Effects', 'Photoshop', 'Illustrator', 'Canva Pro', 'Figma'];
+
   return (
     <section ref={sectionRef} className="relative section-padding overflow-visible z-40 bg-transparent">
       <div id="about" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
@@ -105,7 +121,7 @@ export default function About() {
           initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="text-center mb-8 flex flex-col items-center"
+          className="text-center mb-10 md:mb-12 flex flex-col items-center"
         >
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
@@ -119,87 +135,199 @@ export default function About() {
           <div className="section-divider" />
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-10 items-start">
+        <div className="grid lg:grid-cols-12 gap-6 md:gap-8 items-stretch">
+          
+          {/* ── Left Bento Spotlight Card (5 Cols) ── */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -25 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
+            className="lg:col-span-5 flex"
           >
-            <div className="card-dark">
-              <h3 className="font-bold tracking-tighter mb-4 leading-tight text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 2vw, 24px)' }}>
-                {content.subheading.includes('.') ? (
-                  <>
-                    {content.subheading.split('.')[0]}. <span className="text-accent">{content.subheading.split('.')[1].trim()}</span>
-                  </>
-                ) : (
-                  content.subheading
-                )}
-              </h3>
-              <div className="space-y-3 font-light text-[var(--text-secondary)]" style={{ fontSize: 'clamp(12px, 1.1vw, 16px)' }}>
-                <p className="first-letter:text-3xl first-letter:font-bold first-letter:text-accent first-letter:mr-2 first-letter:float-left">
-                  {content.description_line1}
-                </p>
-                <p>{content.description_line2}</p>
-                <p className="italic opacity-90">{content.description_line3}</p>
+            <div className="card-dark !p-6 sm:!p-8 relative overflow-hidden flex flex-col justify-between w-full h-full border group hover:border-[var(--accent)]/50 transition-all duration-500">
+              
+              {/* Background Ambient Glow Orbs */}
+              <div className="absolute -top-20 -right-20 w-44 h-44 rounded-full bg-[var(--accent)]/10 blur-[60px] pointer-events-none group-hover:bg-[var(--accent)]/20 transition-all duration-700" />
+              <div className="absolute -bottom-20 -left-20 w-44 h-44 rounded-full bg-[var(--accent-secondary)]/10 blur-[60px] pointer-events-none group-hover:bg-[var(--accent-secondary)]/20 transition-all duration-700" />
+
+              <div className="relative z-10">
+                {/* Status Badge */}
+                <div className="flex items-center justify-between gap-2 mb-6">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider border border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]">
+                    <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
+                    Creative Profile // Spec
+                  </div>
+                  <span className="text-[10px] sm:text-[11px] font-mono text-[var(--text-primary)]/40 tracking-widest uppercase">
+                    EST. 2026
+                  </span>
+                </div>
+
+                {/* Subheading */}
+                <h3 className="font-heading font-black tracking-tight mb-5 text-[var(--text-primary)] leading-[1.15]" style={{ fontSize: 'clamp(20px, 2.2vw, 30px)' }}>
+                  {content.subheading.includes('.') ? (
+                    <>
+                      <span>{content.subheading.split('.')[0]}.</span>{' '}
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent-secondary)]">
+                        {content.subheading.split('.')[1].trim()}
+                      </span>
+                    </>
+                  ) : (
+                    content.subheading
+                  )}
+                </h3>
+
+                {/* Description Line 1 — Editorial Lead Feature */}
+                <div className="border-l-2 border-[var(--accent)] pl-4 py-1.5 mb-5 bg-white/[0.02] rounded-r-xl">
+                  <p className="text-sm sm:text-base leading-relaxed text-[var(--text-primary)] font-medium">
+                    {content.description_line1}
+                  </p>
+                </div>
+
+                {/* Description Line 2 & 3 */}
+                <div className="space-y-3.5 text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-light">
+                  <p>{content.description_line2}</p>
+                  <p className="italic text-[var(--text-primary)]/80 pl-3 border-l border-white/10">
+                    "{content.description_line3}"
+                  </p>
+                </div>
+
+                {/* Creative Software Stack Pills */}
+                <div className="pt-6 mt-6 border-t border-[var(--glass-border)]">
+                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--text-primary)]/50 mb-3 font-bold">
+                    Primary Production Stack
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {coreTools.map((tool) => (
+                      <span
+                        key={tool}
+                        className="px-2.5 py-1 text-[10px] font-mono font-medium rounded-md border border-[var(--glass-border)] bg-white/[0.03] text-[var(--text-primary)]/75 hover:border-[var(--accent)]/50 hover:text-[var(--text-primary)] transition-all"
+                      >
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
+
+              {/* Metrics / Key highlights bar */}
+              <div className="pt-6 mt-6 border-t border-[var(--glass-border)] grid grid-cols-3 gap-2 relative z-10">
+                <div className="flex flex-col">
+                  <span className="text-lg sm:text-2xl font-black font-heading text-[var(--text-primary)]">8+</span>
+                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-[var(--text-secondary)]">Disciplines</span>
+                </div>
+                <div className="flex flex-col border-x border-[var(--glass-border)] px-2 text-center">
+                  <span className="text-lg sm:text-2xl font-black font-heading text-accent">100%</span>
+                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-[var(--text-secondary)]">Precision</span>
+                </div>
+                <div className="flex flex-col text-right">
+                  <span className="text-lg sm:text-2xl font-black font-heading text-[var(--accent-secondary)]">4K+</span>
+                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-[var(--text-secondary)]">Post-Ready</span>
+                </div>
+              </div>
+
             </div>
           </motion.div>
 
+          {/* ── Right Bento Skills Grid (7 Cols) ── */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 25 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="space-y-5"
+            className="lg:col-span-7 flex flex-col justify-between space-y-4"
           >
-            <h3 className="font-black uppercase tracking-tighter text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 2vw, 24px)' }}>
-              {content.skills_heading}
-            </h3>
+            <div className="flex items-center justify-between px-1">
+              <h3 className="font-heading font-black uppercase tracking-tight text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 1.8vw, 22px)' }}>
+                {content.skills_heading}
+              </h3>
+              <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-[var(--text-secondary)] font-bold">
+                {skills.length} Core Capabilities
+              </span>
+            </div>
 
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5 flex-1">
               {skills.map((skill, i) => {
-                const palette = [
-                  { bar: 'var(--accent)', text: 'var(--accent)' },
-                  { bar: 'var(--accent-secondary)', text: 'var(--accent-secondary)' },
-                  { bar: 'var(--accent-tertiary, var(--accent))', text: 'var(--accent-tertiary, var(--accent))' },
+                const paletteConfigs = [
+                  { accent: 'var(--accent)', secondary: 'var(--accent-secondary)' },
+                  { accent: 'var(--accent-secondary)', secondary: 'var(--accent-tertiary, var(--accent))' },
+                  { accent: 'var(--accent-tertiary, var(--accent))', secondary: 'var(--accent)' },
                 ];
-                const colorConfig = palette[i % palette.length];
+                const colorConfig = paletteConfigs[i % paletteConfigs.length];
+                const meta = getSkillMeta(skill.name, i);
+                const IconComponent = meta.icon;
 
                 return (
-                  <div key={skill.name} className="group">
-                    <div className="flex justify-between items-end mb-1">
-                      <span className="font-bold uppercase text-[var(--text-primary)]/60 group-hover:text-[var(--text-primary)] transition-colors" style={{ fontSize: 'clamp(8px, 0.9vw, 12px)', letterSpacing: '0.2em' }}>
-                        {skill.name}
-                      </span>
-                      <span className="font-black transition-colors" style={{ fontSize: 'clamp(9px, 0.9vw, 13px)', color: colorConfig.text }}>
+                  <motion.div
+                    key={skill.name}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.45, delay: 0.25 + i * 0.04 }}
+                    className="card-dark !p-4 rounded-xl relative overflow-hidden group hover:border-[var(--accent-secondary)] transition-all duration-300 flex flex-col justify-between"
+                  >
+                    {/* Top Row: Icon, Tag & Percentage Pill */}
+                    <div className="flex items-center justify-between mb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-6 h-6 rounded-md flex items-center justify-center border"
+                          style={{
+                            backgroundColor: `${colorConfig.accent}15`,
+                            borderColor: `${colorConfig.accent}30`,
+                            color: colorConfig.accent,
+                          }}
+                        >
+                          <IconComponent size={12} />
+                        </div>
+                        <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-[var(--text-primary)]/50">
+                          {meta.tag}
+                        </span>
+                      </div>
+
+                      <span
+                        className="text-xs font-mono font-black px-2 py-0.5 rounded-md border"
+                        style={{
+                          color: colorConfig.accent,
+                          borderColor: `${colorConfig.accent}40`,
+                          backgroundColor: `${colorConfig.accent}12`,
+                        }}
+                      >
                         {skill.level}%
                       </span>
                     </div>
-                    <div
-                      className="h-[3px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)]"
-                      role="progressbar"
-                      aria-label={`${skill.name} proficiency`}
-                      aria-valuenow={skill.level}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                    >
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={isVisible ? { width: `${skill.level}%` } : {}}
-                        transition={{ duration: 1, delay: 0.3 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                        style={{ backgroundColor: colorConfig.bar }}
-                        className="h-full relative rounded-full"
+
+                    {/* Skill Name */}
+                    <h4 className="font-heading font-bold uppercase text-xs sm:text-sm text-[var(--text-primary)] group-hover:text-white transition-colors mb-3 tracking-tight">
+                      {skill.name}
+                    </h4>
+
+                    {/* Modern High-Tech HUD Progress Track */}
+                    <div>
+                      <div
+                        className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden p-[1px] border border-white/10"
+                        role="progressbar"
+                        aria-label={`${skill.name} proficiency`}
+                        aria-valuenow={skill.level}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
                       >
-                        <div
-                          className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                          style={{ boxShadow: `0 0 8px ${colorConfig.bar}` }}
-                        />
-                      </motion.div>
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={isVisible ? { width: `${skill.level}%` } : {}}
+                          transition={{ duration: 1.2, delay: 0.3 + i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                          style={{
+                            background: `linear-gradient(90deg, ${colorConfig.accent} 0%, ${colorConfig.secondary} 100%)`,
+                            boxShadow: `0 0 10px ${colorConfig.accent}66`,
+                          }}
+                          className="h-full rounded-full relative"
+                        >
+                          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white rounded-full shadow-[0_0_6px_#fff]" />
+                        </motion.div>
+                      </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
           </motion.div>
+
         </div>
       </div>
     </section>

@@ -23,40 +23,40 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
     <footer className="relative bg-transparent overflow-hidden mt-6 font-heading">
       <div className="section-container relative pb-8">
         <div 
-          className="relative z-10 p-4 sm:p-5 md:p-6 rounded-[28px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col"
+          className="relative z-10 p-6 sm:p-8 md:p-10 rounded-[28px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col"
           style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
         >
-          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start mb-8 gap-6">
+          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start mb-8 gap-8">
             
-            <div className="flex flex-col justify-between h-full min-h-[100px] lg:w-1/3 w-full">
+            <div className="flex flex-col justify-between h-full min-h-[120px] lg:w-2/5 w-full">
               <div>
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Sparkles size={12} className="text-accent" />
-                  <span className="uppercase tracking-widest font-bold" style={{ color: 'var(--accent)', fontSize: 'clamp(8px, 0.8vw, 10px)' }}>Let's Talk</span>
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles size={14} className="text-accent" />
+                  <span className="uppercase tracking-[0.2em] font-bold text-xs" style={{ color: 'var(--accent)' }}>Let's Talk</span>
                 </div>
-                <h3 className="font-black uppercase mb-2 leading-tight break-words w-full" style={{ color: 'var(--text-primary)', fontSize: 'clamp(15px, 1.6vw, 22px)' }}>
+                <h3 className="font-black uppercase mb-3 leading-tight break-words w-full" style={{ color: 'var(--text-primary)', fontSize: 'clamp(18px, 2.2vw, 28px)' }}>
                   {content?.hook_heading || "Want to elevate your visual identity? Let's collaborate."}
                 </h3>
-                <p className="max-w-sm leading-relaxed" style={{ color: 'var(--text-secondary)', fontSize: 'clamp(9px, 0.85vw, 12px)' }}>
+                <p className="max-w-md leading-relaxed font-light" style={{ color: 'var(--text-secondary)', fontSize: 'clamp(13px, 1vw, 15px)' }}>
                   {content?.hook_desc || "From brand systems to digital art — I bring ideas to life with precision and passion."}
                 </p>
               </div>
               
-              <div className="pt-4">
+              <div className="pt-6">
                 <button onClick={() => scrollToSection('contact')} className="btn-primary uppercase tracking-widest font-bold">
                   Book a Call
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-6 w-full lg:w-2/3 lg:justify-items-end">
+            <div className="grid grid-cols-3 gap-6 sm:gap-8 w-full lg:w-3/5 lg:justify-items-end">
               
               <div className="flex flex-col">
-                 <h4 className="uppercase tracking-widest mb-3 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(7px, 0.7vw, 9px)' }}>Navigation</h4>
-                 <ul className="space-y-2 font-bold uppercase" style={{ fontSize: 'clamp(9px, 0.85vw, 11px)' }}>
+                 <h4 className="uppercase tracking-[0.25em] mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Navigation</h4>
+                 <ul className="space-y-2.5 font-semibold uppercase" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
                    {['Home', 'Services', 'Works', 'About'].map(item => (
                      <li key={item}>
-                       <button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors text-left" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
+                       <button onClick={() => scrollToSection(item.toLowerCase())} className="hover:text-accent transition-colors text-left" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
                          {item}
                        </button>
                      </li>
@@ -65,27 +65,27 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               </div>
 
               <div className="flex flex-col">
-                 <h4 className="uppercase tracking-widest mb-3 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(7px, 0.7vw, 9px)' }}>Contact</h4>
-                 <ul className="space-y-2 font-bold" style={{ fontSize: 'clamp(9px, 0.85vw, 11px)' }}>
+                 <h4 className="uppercase tracking-[0.25em] mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Contact</h4>
+                 <ul className="space-y-2.5 font-medium" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
                    <li>
-                     <a href={`mailto:${content?.email || 'yhanlhester@gmail.com'}`} className="flex items-center gap-2 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
-                       <Mail size={10} className="text-accent shrink-0" /> <span className="break-all">{content?.email || 'yhanlhester@gmail.com'}</span>
+                     <a href={`mailto:${content?.email || 'yhanlhester@gmail.com'}`} className="flex items-center gap-2.5 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                       <Mail size={15} className="text-accent shrink-0" /> <span className="break-all">{content?.email || 'yhanlhester@gmail.com'}</span>
                      </a>
                    </li>
                    <li>
-                     <a href={`tel:${content?.phone || '+639524437988'}`} className="flex items-center gap-2 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.7 }}>
-                       <Phone size={10} className="text-accent shrink-0" /> <span>{content?.phone || '+639524437988'}</span>
+                     <a href={`tel:${content?.phone || '+639524437988'}`} className="flex items-center gap-2.5 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                       <Phone size={15} className="text-accent shrink-0" /> <span>{content?.phone || '+639524437988'}</span>
                      </a>
                    </li>
                  </ul>
               </div>
 
               <div className="flex flex-col">
-                 <h4 className="uppercase tracking-widest mb-3 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.4, fontSize: 'clamp(7px, 0.7vw, 9px)' }}>Connect</h4>
-                 <ul className="space-y-2 font-bold" style={{ fontSize: 'clamp(9px, 0.85vw, 11px)' }}>
-                   <li><a href={content?.instagram} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Instagram size={10} className="text-accent" /> Instagram</a></li>
-                   <li><a href={content?.github} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Github size={10} className="text-accent" /> GitHub</a></li>
-                   <li><a href={content?.facebook} target="_blank" className="hover:text-accent flex items-center gap-2 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.7 }}><Facebook size={10} className="text-accent" /> Facebook</a></li>
+                 <h4 className="uppercase tracking-[0.25em] mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Connect</h4>
+                 <ul className="space-y-2.5 font-semibold" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
+                   <li><a href={content?.instagram} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><Instagram size={15} className="text-accent shrink-0" /> Instagram</a></li>
+                   <li><a href={content?.github} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><Github size={15} className="text-accent shrink-0" /> GitHub</a></li>
+                   <li><a href={content?.facebook} target="_blank" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><Facebook size={15} className="text-accent shrink-0" /> Facebook</a></li>
                  </ul>
               </div>
 
@@ -99,28 +99,28 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
           </div>
 
           <div 
-            className="relative z-10 pt-4 border-t flex flex-col md:flex-row justify-between items-center gap-4 md:gap-3 uppercase tracking-widest font-bold text-center md:text-left"
-            style={{ borderColor: 'var(--glass-border)', fontSize: 'clamp(7px, 0.7vw, 9px)' }}
+            className="relative z-10 pt-5 border-t flex flex-col md:flex-row justify-between items-center gap-4 md:gap-3 uppercase tracking-wider font-semibold text-center md:text-left"
+            style={{ borderColor: 'var(--glass-border)', fontSize: 'clamp(11px, 0.85vw, 13px)' }}
           >
-            <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>
+            <div className="flex flex-col md:flex-row items-center gap-3 md:gap-5" style={{ color: 'var(--text-primary)', opacity: 0.65 }}>
               <button 
                 onClick={() => { 
                   clickCountRef.current++; 
                   if(clickCountRef.current >= 5) onAdminTrigger(); 
                 }} 
-                className="hover:text-accent transition-colors"
+                className="hover:text-accent transition-colors cursor-default"
               >
                 {`© ${new Date().getFullYear()} Ian Lester Eclevia. All rights reserved.`}
               </button>
               
               <div className="flex items-center justify-center gap-3">
                 <a href="/privacy" className="hover:text-accent transition-colors">Privacy</a>
-                <span style={{ color: 'var(--text-primary)', opacity: 0.2 }}>|</span>
+                <span style={{ color: 'var(--text-primary)', opacity: 0.3 }}>|</span>
                 <a href="/terms" className="hover:text-accent transition-colors">Terms</a>
               </div>
             </div>
 
-            <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors mt-1 md:mt-0" style={{ color: 'var(--text-primary)', opacity: 0.5 }} aria-label="Scroll back to top of page">
+            <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors mt-1 md:mt-0 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.65 }} aria-label="Scroll back to top of page">
               Back to Top ↑
             </button>
           </div>
