@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, ReactNode } from 'react';
-import { supabase, SCROLL_SEQUENCE_BUCKET } from '../lib/supabase';
+import { supabase, isSupabaseConfigured, SCROLL_SEQUENCE_BUCKET } from '../lib/supabase';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -72,6 +72,8 @@ export default function ScrollSequence({
     };
 
     const loadAll = async () => {
+      if (!isSupabaseConfigured) return;
+
       // 1. Await the first frame so the initial canvas paints instantly
       const firstFrameOk = await loadFrame(0);
       if (cancelled || !firstFrameOk) return;

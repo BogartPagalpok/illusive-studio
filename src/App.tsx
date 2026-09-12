@@ -10,6 +10,7 @@ import { isAdminEmail } from './lib/admin';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import ErrorBoundary from './components/ErrorBoundary';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -223,6 +224,14 @@ function App() {
   }, []);
 
   useEffect(() => {
+    // Keep native 120Hz/60Hz touch scrolling on mobile and tablets.
+    // Lenis is only enabled for desktop mouse-wheel interactions.
+    const isTouch = 'ontouchstart' in window || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
+    const isSmallViewport = window.innerWidth < 1024;
+    if (isTouch || isSmallViewport) {
+      return;
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -230,7 +239,6 @@ function App() {
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1.0,
-      touchMultiplier: 1.5,
     });
 
     window.__lenis = lenis;
@@ -254,8 +262,6 @@ function App() {
   useEffect(() => {
     // STEP 1: Apply cached theme synchronously from localStorage so the
     // LiquidEther background reads the correct --accent color on first paint.
-    // This is the critical fix — without it the BG samples the default purple
-    // before the saved theme is applied.
     try {
       const cachedId = localStorage.getItem('portfolio-theme');
       if (cachedId) {
@@ -267,7 +273,6 @@ function App() {
     }
 
     // STEP 2: In the background, fetch the latest theme from Supabase.
-    // If admin changed it remotely, it will swap in seamlessly.
     let cancelled = false;
     loadSavedTheme().catch(() => {
       /* network failure is fine, we already have the cached theme */
@@ -292,7 +297,7 @@ function App() {
   }, []);
 
   // Display the custom BrandLoader during initial load
-  // so the laser letter animation plays while initial assets load underneath.
+  // with a guaranteed unmount timer so it can NEVER get stuck on any device.
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
       setLoaderFading(true);
@@ -301,9 +306,17 @@ function App() {
         setShowLoader(false);
       }, 700);
       return () => clearTimeout(removeTimer);
-    }, 2400);
+    }, 1900);
 
-    return () => clearTimeout(fadeTimer);
+    const safetyTimer = setTimeout(() => {
+      setLoaderFading(true);
+      setShowLoader(false);
+    }, 3200);
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(safetyTimer);
+    };
   }, []);
 
   // Ensure scroll is at top on mount
@@ -347,22 +360,26 @@ function App() {
   return (
     <main className="min-h-screen relative overflow-x-hidden">
       {showLoader && <BrandLoader isFading={loaderFading} />}
-      <LiquidEtherBackground
-        key={accentKey}
-        mouseForce={20}
-        cursorSize={100}
-        resolution={0.25}
-        autoDemo={true}
-        autoSpeed={0.5}
-      />
-      <Suspense fallback={null}>
-        <Routes>
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/" element={<HomePage onAdminAuth={() => setIsAdmin(true)} />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+      <ErrorBoundary componentName="LiquidEtherBackground" fallback={<AtmosphereGradient />}>
+        <LiquidEtherBackground
+          key={accentKey}
+          mouseForce={20}
+          cursorSize={100}
+          resolution={0.25}
+          autoDemo={true}
+          autoSpeed={0.5}
+        />
+      </ErrorBoundary>
+      <ErrorBoundary componentName="AppContent">
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/" element={<HomePage onAdminAuth={() => setIsAdmin(true)} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
     </main>
   );
 }

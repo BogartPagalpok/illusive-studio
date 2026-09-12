@@ -51,7 +51,12 @@ class FluidSimulation {
     this.width = Math.max(1, Math.floor(rect.width));
     this.height = Math.max(1, Math.floor(rect.height));
     this.pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    try {
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    } catch (err) {
+      console.warn('WebGLRenderer creation failed:', err);
+      throw err;
+    }
     this.renderer.autoClear = false;
     this.renderer.setPixelRatio(this.pixelRatio);
     this.renderer.setSize(this.width, this.height);
@@ -62,7 +67,10 @@ class FluidSimulation {
   }
 
   getFloatType(): THREE.TextureDataType {
-    return /(iPad|iPhone|iPod)/i.test(navigator.userAgent) ? THREE.HalfFloatType : THREE.FloatType;
+    if (typeof navigator === 'undefined') return THREE.HalfFloatType;
+    const isIOS = /(iPad|iPhone|iPod)/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isMobile = isIOS || /Android|Mobile/i.test(navigator.userAgent);
+    return isMobile ? THREE.HalfFloatType : THREE.FloatType;
   }
 
   createFBOs() {
@@ -304,14 +312,20 @@ function MobileWaveBg({ isLight = false }: { isLight?: boolean }) {
 
 // ── Main component ─────────────────────────────────────
 export default function LiquidEtherBackground(props: LiquidEtherProps) {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768 || window.matchMedia?.('(max-width: 767px)').matches;
+  });
   const [isLight, setIsLight] = useState(() => {
     if (typeof document === 'undefined') return false;
     return document.documentElement.getAttribute('data-contrast') === 'light';
   });
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => {
+      const mobile = window.innerWidth < 768 || window.matchMedia?.('(max-width: 767px)').matches;
+      setIsMobile(mobile);
+    };
     check();
     window.addEventListener('resize', check);
 
@@ -339,73 +353,101 @@ function DesktopFluidSim({
   isLight = false,
 }: LiquidEtherProps & { palette: string[]; isLight?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [webglFailed, setWebglFailed] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const sim = new FluidSimulation({ colors: palette, mouseForce, cursorSize, resolution });
-    const mouse = new MouseTracker();
-    const driver = new AutoDriver(mouse, autoDemo, autoSpeed, 1000);
-    const arr = palette.length > 1 ? palette : [palette[0], palette[0]];
-    const data = new Uint8Array(arr.length * 4);
-    arr.forEach((c, i) => {
-      const col = new THREE.Color(c);
-      data[i * 4] = Math.round(col.r * 255);
-      data[i * 4 + 1] = Math.round(col.g * 255);
-      data[i * 4 + 2] = Math.round(col.b * 255);
-      data[i * 4 + 3] = 255;
-    });
-    const paletteTex = new THREE.DataTexture(data, arr.length, 1, THREE.RGBAFormat);
-    paletteTex.magFilter = THREE.LinearFilter;
-    paletteTex.minFilter = THREE.LinearFilter;
-    paletteTex.wrapS = THREE.ClampToEdgeWrapping;
-    paletteTex.wrapT = THREE.ClampToEdgeWrapping;
-    paletteTex.generateMipmaps = false;
-    paletteTex.needsUpdate = true;
-    sim.init(container, paletteTex);
 
-    const onMouseMove = (e: MouseEvent) => {
-      mouse.update(e.clientX, e.clientY);
-    };
-    window.addEventListener('mousemove', onMouseMove);
+    let sim: FluidSimulation | null = null;
+    let raf: number = 0;
+    let canvas: HTMLCanvasElement | null = null;
 
-    const canvas = container.querySelector('canvas');
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        mouse.update(e.touches[0].clientX, e.touches[0].clientY);
+    try {
+      // Check if WebGL context can be created at all
+      const testCanvas = document.createElement('canvas');
+      const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
+      if (!gl) {
+        console.warn('WebGL is not supported on this device/browser. Falling back to ambient glow.');
+        setWebglFailed(true);
+        return;
       }
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        mouse.update(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    };
-    if (canvas) {
-      canvas.addEventListener('touchstart', onTouchStart, { passive: true });
-      canvas.addEventListener('touchmove', onTouchMove, { passive: true });
-    }
 
-    let raf: number;
-    const animate = () => {
-      driver.update(mouse.lastInteraction);
-      sim.update(mouse.coords, mouse.diff);
-      raf = requestAnimationFrame(animate);
-    };
-    animate();
-    const onResize = () => sim.resize(container);
-    window.addEventListener('resize', onResize);
+      sim = new FluidSimulation({ colors: palette, mouseForce, cursorSize, resolution });
+      const mouse = new MouseTracker();
+      const driver = new AutoDriver(mouse, autoDemo, autoSpeed, 1000);
+      const arr = palette.length > 1 ? palette : [palette[0], palette[0]];
+      const data = new Uint8Array(arr.length * 4);
+      arr.forEach((c, i) => {
+        const col = new THREE.Color(c);
+        data[i * 4] = Math.round(col.r * 255);
+        data[i * 4 + 1] = Math.round(col.g * 255);
+        data[i * 4 + 2] = Math.round(col.b * 255);
+        data[i * 4 + 3] = 255;
+      });
+      const paletteTex = new THREE.DataTexture(data, arr.length, 1, THREE.RGBAFormat);
+      paletteTex.magFilter = THREE.LinearFilter;
+      paletteTex.minFilter = THREE.LinearFilter;
+      paletteTex.wrapS = THREE.ClampToEdgeWrapping;
+      paletteTex.wrapT = THREE.ClampToEdgeWrapping;
+      paletteTex.generateMipmaps = false;
+      paletteTex.needsUpdate = true;
+      sim.init(container, paletteTex);
 
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('mousemove', onMouseMove);
+      const onMouseMove = (e: MouseEvent) => {
+        mouse.update(e.clientX, e.clientY);
+      };
+      window.addEventListener('mousemove', onMouseMove);
+
+      canvas = container.querySelector('canvas');
+      const onTouchStart = (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+          mouse.update(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      };
+      const onTouchMove = (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+          mouse.update(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      };
       if (canvas) {
-        canvas.removeEventListener('touchstart', onTouchStart);
-        canvas.removeEventListener('touchmove', onTouchMove);
+        canvas.addEventListener('touchstart', onTouchStart, { passive: true });
+        canvas.addEventListener('touchmove', onTouchMove, { passive: true });
       }
-      window.removeEventListener('resize', onResize);
-      sim.dispose();
-    };
+
+      const animate = () => {
+        if (!sim) return;
+        driver.update(mouse.lastInteraction);
+        sim.update(mouse.coords, mouse.diff);
+        raf = requestAnimationFrame(animate);
+      };
+      animate();
+      const onResize = () => sim?.resize(container);
+      window.addEventListener('resize', onResize);
+
+      return () => {
+        if (raf) cancelAnimationFrame(raf);
+        window.removeEventListener('mousemove', onMouseMove);
+        if (canvas) {
+          canvas.removeEventListener('touchstart', onTouchStart);
+          canvas.removeEventListener('touchmove', onTouchMove);
+        }
+        window.removeEventListener('resize', onResize);
+        if (sim) sim.dispose();
+      };
+    } catch (err) {
+      console.warn('WebGL FluidSimulation could not run. Falling back to ambient glow:', err);
+      setWebglFailed(true);
+      if (sim) {
+        try { sim.dispose(); } catch {}
+      }
+    }
   }, [palette, mouseForce, cursorSize, resolution, autoDemo, autoSpeed]);
+
+  if (webglFailed) {
+    return <MobileWaveBg isLight={isLight} />;
+  }
 
   return <div ref={containerRef} className={`fixed inset-0 pointer-events-none ${className}`} style={{ zIndex: 0, opacity: isLight ? 0.4 : 0.85, ...style }} />;
 }
+

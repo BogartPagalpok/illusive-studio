@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -347,6 +347,9 @@ export async function loadSavedTheme() {
 }
 
 export function subscribeToThemeChanges() {
+  if (!isSupabaseConfigured) {
+    return { unsubscribe: () => {} };
+  }
   return supabase.channel('global-theme-changes')
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'site_config', filter: 'id=eq.1' }, (payload) => {
       const theme = themePresets.find(t => t.id === payload.new.active_theme);

@@ -19,6 +19,13 @@ export const supabase = createClient(
   }
 );
 
+export const isSupabaseConfigured = Boolean(
+  supabaseUrl &&
+  supabaseAnonKey &&
+  !supabaseUrl.includes('placeholder')
+);
+
 // RESTORED: These must exist for ScrollSequence.tsx to compile
 export const SCROLL_SEQUENCE_BUCKET = 'hero-sequence';
 export const PORTFOLIO_BUCKET = 'media';
+
