@@ -2,34 +2,36 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Film, Layers, Sparkles, Compass, Cpu, Award, Palette, Type, Zap } from 'lucide-react';
+import { Clapperboard, Brain, Palette, Layers, AudioWaveform, Image, Film, Zap } from 'lucide-react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const defaultSkills = [
-  { name: 'Video Editing & Post-Production', level: 90 },
-  { name: 'Advanced Compositing (Ps)', level: 95 },
-  { name: 'Motion Graphics & VFX', level: 85 },
-  { name: 'Editorial Photography', level: 92 },
-  { name: 'UI/UX Prototyping', level: 88 },
-  { name: 'Agile Pipelines (Canva Pro)', level: 95 },
-  { name: 'Digital Illustration', level: 90 },
-  { name: 'Typography & Grid Systems', level: 87 },
+  { name: 'ADVANCED EDITING (DAVINCI RESOLVE)', level: 95, tag: 'NLE // POST', icon: Clapperboard },
+  { name: 'AUDIENCE PSYCHOLOGY & PACING', level: 90, tag: 'PSYCH // RETENTION', icon: Brain },
+  { name: 'COLOR GRADING & LOOK DEV', level: 88, tag: 'COLOR // LOOK', icon: Palette },
+  { name: 'MOTION GRAPHICS & COMPOSITING', level: 85, tag: 'VFX // MOTION', icon: Layers },
+  { name: 'SOUND DESIGN & AUDIO MIXING', level: 88, tag: 'AUDIO // SFX', icon: AudioWaveform },
+  { name: 'THUMBNAIL DESIGN (PHOTOSHOP)', level: 92, tag: 'DESIGN // CTR', icon: Image },
+  { name: 'NARRATIVE STORYTELLING', level: 90, tag: 'STORY // FLOW', icon: Film },
+  { name: 'AGILE WORKFLOWS & BATCHING', level: 95, tag: 'PIPELINE // SPEED', icon: Zap },
 ];
 
 const getSkillMeta = (name: string, index: number) => {
+  const match = defaultSkills.find((s) => s.name.toLowerCase() === name.toLowerCase());
+  if (match) return { icon: match.icon, tag: match.tag };
   const lower = name.toLowerCase();
-  if (lower.includes('video') || lower.includes('edit')) return { icon: Film, tag: 'NLE // POST' };
-  if (lower.includes('compositing') || lower.includes('ps') || lower.includes('photo')) return { icon: Layers, tag: 'VFX // RETOUCH' };
-  if (lower.includes('motion') || lower.includes('vfx') || lower.includes('fx')) return { icon: Sparkles, tag: '3D // KINETIC' };
-  if (lower.includes('editorial') || lower.includes('camera')) return { icon: Compass, tag: 'STILL // FRAME' };
-  if (lower.includes('ui') || lower.includes('ux') || lower.includes('proto')) return { icon: Cpu, tag: 'FLOW // SYSTEM' };
-  if (lower.includes('pipeline') || lower.includes('canva') || lower.includes('agile')) return { icon: Award, tag: 'PIPELINE // SPEED' };
-  if (lower.includes('illustrat') || lower.includes('draw') || lower.includes('art')) return { icon: Palette, tag: 'DIGITAL // ART' };
-  if (lower.includes('typograph') || lower.includes('grid') || lower.includes('font')) return { icon: Type, tag: 'LAYOUT // TYPE' };
-  return { icon: Zap, tag: `SPEC // 0${index + 1}` };
+  if (lower.includes('davinci') || lower.includes('edit')) return { icon: Clapperboard, tag: 'NLE // POST' };
+  if (lower.includes('psych') || lower.includes('pacing')) return { icon: Brain, tag: 'PSYCH // RETENTION' };
+  if (lower.includes('color') || lower.includes('look')) return { icon: Palette, tag: 'COLOR // LOOK' };
+  if (lower.includes('motion') || lower.includes('compositing')) return { icon: Layers, tag: 'VFX // MOTION' };
+  if (lower.includes('sound') || lower.includes('audio')) return { icon: AudioWaveform, tag: 'AUDIO // SFX' };
+  if (lower.includes('thumbnail') || lower.includes('image')) return { icon: Image, tag: 'DESIGN // CTR' };
+  if (lower.includes('story') || lower.includes('narrative')) return { icon: Film, tag: 'STORY // FLOW' };
+  if (lower.includes('agile') || lower.includes('workflow')) return { icon: Zap, tag: 'PIPELINE // SPEED' };
+  return { icon: Clapperboard, tag: `SPEC // 0${index + 1}` };
 };
 
 interface AboutContent {
@@ -47,9 +49,9 @@ const defaultContent: AboutContent = {
   subtitle: 'Who I Am',
   heading: 'About & Skills',
   subheading: 'Creative mind. Reliable hands.',
-  description_line1: "I'm Ian Lester Eclevia — a video editor and graphics artist who turns ideas into clear, polished, and expressive visual stories.",
-  description_line2: "From editing and motion graphics to digital illustration and brand visuals, I shape every frame with purpose, rhythm, and detail.",
-  description_line3: "My work combines strong visual direction with careful post-production to create content that feels distinctive and ready to share.",
+  description_line1: "I'm Ian Lester Eclevia — a video editor and visual strategist who turns ideas into high-retention, expressive stories. I focus heavily on audience psychology, narrative pacing, and clean post-production to create content that doesn't just look good, but actually performs.",
+  description_line2: '',
+  description_line3: '',
   skills_heading: 'Skills & Proficiency',
 };
 
@@ -72,16 +74,21 @@ export default function About() {
           const mapped = { ...defaultContent };
           for (const row of data) {
             const key = row.key.toLowerCase() as keyof AboutContent;
+            if (key === 'description_line1' && row.value.includes('graphics artist who turns ideas into clear')) continue;
+            if (key === 'description_line2' && row.value.includes('From editing and motion graphics')) continue;
+            if (key === 'description_line3' && row.value.includes('My work combines strong visual direction')) continue;
             if (key in mapped) mapped[key] = row.value;
           }
           setContent(mapped);
-          const skillValues = new Map(data.map((row) => [row.key.toLowerCase(), row.value]));
+
           const hasConfiguredSkills = data.some((row) => /^skill_\d+_(name|level)$/.test(row.key.toLowerCase()));
-          if (hasConfiguredSkills) {
+          const isLegacySkills = data.some((row) => row.value === 'Advanced Compositing (Ps)' || row.value === 'Agile Pipelines (Canva Pro)');
+          if (hasConfiguredSkills && !isLegacySkills) {
+            const skillValues = new Map(data.map((row) => [row.key.toLowerCase(), row.value]));
             setSkills(defaultSkills.flatMap((skill, index) => {
               const name = skillValues.get(`skill_${index + 1}_name`);
               const level = skillValues.get(`skill_${index + 1}_level`);
-              return name && level ? [{ name, level: Number(level) || skill.level }] : [];
+              return name && level ? [{ name, level: Number(level) || skill.level, tag: skill.tag, icon: skill.icon }] : [];
             }));
           }
         }
@@ -106,7 +113,7 @@ export default function About() {
     return () => ctx.revert();
   }, []);
 
-  const coreTools = ['Premiere Pro', 'After Effects', 'Photoshop', 'Illustrator', 'Canva Pro', 'Figma'];
+  const coreTools = ['DaVinci Resolve', 'Photoshop', 'Illustrator', 'Figma'];
 
   return (
     <section ref={sectionRef} className="relative section-padding overflow-visible z-40 bg-transparent">
@@ -184,12 +191,16 @@ export default function About() {
                 </div>
 
                 {/* Description Line 2 & 3 */}
-                <div className="space-y-3.5 text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-light">
-                  <p>{content.description_line2}</p>
-                  <p className="italic text-[var(--text-primary)]/80 pl-3 border-l border-white/10">
-                    "{content.description_line3}"
-                  </p>
-                </div>
+                {(content.description_line2 || content.description_line3) ? (
+                  <div className="space-y-3.5 text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-light">
+                    {content.description_line2 && <p>{content.description_line2}</p>}
+                    {content.description_line3 && (
+                      <p className="italic text-[var(--text-primary)]/80 pl-3 border-l border-white/10">
+                        "{content.description_line3}"
+                      </p>
+                    )}
+                  </div>
+                ) : null}
 
                 {/* Creative Software Stack Pills */}
                 <div className="pt-6 mt-6 border-t border-[var(--glass-border)]">
