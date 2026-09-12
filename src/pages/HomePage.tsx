@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
+import DualShowreel from '../components/DualShowreel';
 import Services from '../components/Services';
 import About from '../components/About';
 import Contact from '../components/Contact';
@@ -10,39 +11,23 @@ import CategorySection from '../components/CategorySection';
 import ProjectPortal from '../components/ProjectPortal';
 import { supabase } from '../lib/supabase';
 import { isAdminEmail } from '../lib/admin';
-
-const defaultSectionVisibility = {
-  about: true,
-  services: true,
-  works: true,
-  contact: true,
-};
+import { usePortfolioStore } from '../lib/store';
 
 export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
   const [adminModalOpen, setAdminModalOpen] = useState(false);
-  const [sectionVisibility, setSectionVisibility] = useState(defaultSectionVisibility);
+  const { sections, fetchSettings } = usePortfolioStore();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('portfolio-theme') || 'void';
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.body.setAttribute('data-theme', savedTheme);
-  }, []);
+    fetchSettings();
+  }, [fetchSettings]);
 
-  useEffect(() => {
-    const fetchSectionVisibility = async () => {
-      const { data } = await supabase
-        .from('portfolio_sections')
-        .select('key, visible')
-        .in('key', Object.keys(defaultSectionVisibility));
-      if (data) {
-        setSectionVisibility({
-          ...defaultSectionVisibility,
-          ...Object.fromEntries(data.map(section => [section.key, section.visible])),
-        });
-      }
-    };
-    fetchSectionVisibility();
-  }, []);
+  const isSectionVisible = (key: string, defaultValue = true) => {
+    const sec = sections.find((s) => s.key === key);
+    return sec !== undefined ? sec.visible : defaultValue;
+  };
 
   const handleAdminTrigger = async () => {
     try {
@@ -70,13 +55,15 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       <main className="relative z-10">
         <Hero />
         
-        {sectionVisibility.about && <About />}
+        {isSectionVisible('dual-showreel', true) && <DualShowreel />}
+
+        {isSectionVisible('about', true) && <About />}
         
-        {sectionVisibility.services && <Services />}
+        {isSectionVisible('services', true) && <Services />}
         
         {/* --- FIXED WORKS SECTION --- */}
         {/* The id="works" is now wrapping the entire portfolio block */}
-        {sectionVisibility.works && <div id="works" className="w-full">
+        {isSectionVisible('works', true) && <div id="works" className="w-full">
           
           {/* 1. Portal is the absolute first thing they see when clicking 'Works' */}
           <ProjectPortal />
@@ -91,7 +78,7 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
           
         </div>}
 
-        {sectionVisibility.contact && <Contact />}
+        {isSectionVisible('contact', true) && <Contact />}
       </main>
 
       <Footer onAdminTrigger={handleAdminTrigger} />

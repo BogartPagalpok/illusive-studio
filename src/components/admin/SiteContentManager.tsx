@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Database, CheckCircle, Eye, EyeOff, Pencil } from 'lucide-react';
+import { RefreshCw, Database, CheckCircle, Eye, EyeOff, Pencil, Settings } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { usePortfolioStore } from '../../lib/store';
+import DualShowreelModal from './DualShowreelModal';
 
 interface SiteContent {
   id: string;
@@ -11,20 +13,6 @@ interface SiteContent {
   value: string;
   visible: boolean;
 }
-
-interface PortfolioSection {
-  key: string;
-  label: string;
-  visible: boolean;
-}
-
-const DEFAULT_SECTIONS: PortfolioSection[] = [
-  { key: 'about', label: 'About & Skills', visible: true },
-  { key: 'services', label: 'Services', visible: true },
-  { key: 'works', label: 'Portfolio Works', visible: true },
-  { key: 'growth-marketing-study', label: 'Growth Marketing Study', visible: true },
-  { key: 'contact', label: 'Contact', visible: true },
-];
 
 const SEED_DATA = [
   { section: 'hero', key: 'subtitle', value: 'Video Editor • Graphics Artist' },
@@ -92,10 +80,21 @@ export default function SiteContentManager() {
   const [contents, setContents] = useState<SiteContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [sections, setSections] = useState<PortfolioSection[]>(DEFAULT_SECTIONS);
   const [editingContentId, setEditingContentId] = useState<string | null>(null);
 
-  useEffect(() => { fetchContent(); }, []);
+  const {
+    sections,
+    toggleSectionVisibility,
+    deployChanges,
+    fetchSettings,
+    isDualShowreelModalOpen,
+    setDualShowreelModalOpen,
+  } = usePortfolioStore();
+
+  useEffect(() => {
+    fetchContent();
+    fetchSettings();
+  }, [fetchSettings]);
 
   const fetchContent = async () => {
     setLoading(true);
@@ -106,12 +105,6 @@ export default function SiteContentManager() {
         .order('section', { ascending: true });
       if (error) throw error;
       setContents(data || []);
-      const sectionResult = await supabase
-        .from('portfolio_sections')
-        .select('key, label, visible')
-        .order('key');
-      if (sectionResult.error) throw sectionResult.error;
-      if (sectionResult.data?.length) setSections(sectionResult.data);
     } catch (error) {
       console.error('Error fetching content:', error);
     } finally {
@@ -122,14 +115,26 @@ export default function SiteContentManager() {
   const handleMasterSave = async () => {
     setIsSaving(true);
     try {
-      const results = await Promise.all(contents.map(async (item) => {
-        return supabase
-          .from('site_content')
-          .update({ value: item.value, visible: item.visible })
-          .match({ section: item.section, key: item.key });
-      }));
-      if (results.some((res) => res.error)) throw new Error('One or more fields failed to save.');
-      alert('All changes saved successfully!');
+      // 1. Save site content text updates
+      const results = await Promise.all(
+        contents.map(async (item) => {
+          return supabase
+            .from('site_content')
+            .update({ value: item.value, visible: item.visible })
+            .match({ section: item.section, key: item.key });
+        })
+      );
+      if (results.some((res) => res.error)) {
+        throw new Error('One or more site content fields failed to save.');
+      }
+
+      // 2. Persist section visibility and DualShowreel config via Zustand store deployChanges
+      const deployRes = await deployChanges();
+      if (!deployRes.success) {
+        console.warn('Section deployment warning:', deployRes.error);
+      }
+
+      alert('All changes and section settings deployed successfully!');
       fetchContent();
     } catch (error: any) {
       alert(`Save failed: ${error.message}`);
@@ -153,19 +158,6 @@ export default function SiteContentManager() {
     }
   };
 
-  const toggleSection = async (section: PortfolioSection) => {
-    const nextVisible = !section.visible;
-    const { error } = await supabase
-      .from('portfolio_sections')
-      .update({ visible: nextVisible, updated_at: new Date().toISOString() })
-      .eq('key', section.key);
-    if (error) {
-      alert(`Section visibility update failed. Apply the portfolio visibility migration first.`);
-      return;
-    }
-    setSections(sections.map(item => item.key === section.key ? { ...item, visible: nextVisible } : item));
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -175,7 +167,7 @@ export default function SiteContentManager() {
   }
 
   const SECTION_ORDER = ['NAVBAR', 'HERO', 'SERVICES', 'WORKS', 'ABOUT', 'CONTACT', 'FOOTER'];
-  const contentSections = Array.from(new Set(contents.map(c => c.section.toUpperCase())))
+  const contentSections = Array.from(new Set(contents.map((c) => c.section.toUpperCase())))
     .sort((a, b) => {
       const idxA = SECTION_ORDER.indexOf(a);
       const idxB = SECTION_ORDER.indexOf(b);
@@ -184,6 +176,12 @@ export default function SiteContentManager() {
 
   return (
     <div className="space-y-6 pb-12">
+      {/* Dual Showreel Configuration Modal */}
+      <DualShowreelModal
+        isOpen={isDualShowreelModalOpen}
+        onClose={() => setDualShowreelModalOpen(false)}
+      />
+
       {/* Sticky header */}
       <div className="sticky top-0 z-[100] bg-black/40 backdrop-blur-2xl border-b border-white/10 py-4 -mx-4 px-6 flex flex-col md:flex-row justify-between items-center gap-4 rounded-b-2xl">
         <div>
@@ -204,30 +202,64 @@ export default function SiteContentManager() {
             style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)', boxShadow: '0 4px 15px rgba(157,0,255,0.3)' }}
           >
             {isSaving ? <RefreshCw className="animate-spin" size={14} /> : <CheckCircle size={14} />}
-            {isSaving ? 'Syncing...' : 'Deploy Changes'}
+            {isSaving ? 'Deploying...' : 'Deploy Changes'}
           </button>
         </div>
       </div>
 
+      {/* PORTFOLIO SECTIONS with Dual Showreel & Visibility Controls */}
       <div className="space-y-3">
         <div className="flex items-center gap-4">
           <h3 className="text-[11px] font-heading font-black tracking-[0.5em] uppercase text-accent/60">PORTFOLIO SECTIONS</h3>
           <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {sections.map(section => (
-            <button
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {sections.map((section) => (
+            <div
               key={section.key}
-              type="button"
-              onClick={() => toggleSection(section)}
-              className="flex items-center justify-between gap-3 p-3 rounded-xl border border-white/10 bg-white/[0.02] text-left hover:border-accent/30 transition"
+              className="flex items-center justify-between gap-3 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] hover:border-accent/30 transition group"
             >
-              <span className="text-[10px] font-heading font-bold uppercase tracking-wider text-white/60">{section.label}</span>
-              <span className={`flex items-center gap-1 text-[9px] font-heading font-bold uppercase tracking-wider ${section.visible ? 'text-accent' : 'text-white/30'}`}>
-                {section.visible ? <Eye size={15} /> : <EyeOff size={15} />}
-                {section.visible ? 'Hide' : 'Show'}
-              </span>
-            </button>
+              <div className="flex items-center gap-2 overflow-hidden">
+                <span className="text-[11px] font-heading font-bold uppercase tracking-wider text-white/80 group-hover:text-white transition-colors truncate">
+                  {section.label}
+                </span>
+                {section.key === 'dual-showreel' && (
+                  <button
+                    type="button"
+                    onClick={() => setDualShowreelModalOpen(true)}
+                    className="p-1 rounded bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
+                    title="Configure Dual Showreel Cards"
+                  >
+                    <Settings size={13} />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                {section.key === 'dual-showreel' && (
+                  <button
+                    type="button"
+                    onClick={() => setDualShowreelModalOpen(true)}
+                    className="px-2 py-1 rounded text-[9px] font-heading font-bold uppercase tracking-wider text-accent hover:bg-accent/10 border border-accent/30 transition"
+                  >
+                    Edit
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => toggleSectionVisibility(section.key)}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[9px] font-heading font-bold uppercase tracking-wider transition-colors ${
+                    section.visible
+                      ? 'bg-accent/15 text-accent hover:bg-accent/25 border border-accent/30'
+                      : 'bg-white/5 text-white/40 hover:bg-white/10 border border-white/10'
+                  }`}
+                  aria-label={`Toggle ${section.label} visibility`}
+                >
+                  {section.visible ? <Eye size={13} /> : <EyeOff size={13} />}
+                  {section.visible ? 'Show' : 'Hide'}
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       </div>
