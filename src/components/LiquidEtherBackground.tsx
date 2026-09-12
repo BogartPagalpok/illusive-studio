@@ -245,16 +245,26 @@ function getAccentHex(): string {
 }
 
 function getAccentPalette(): string[] {
-  const accent = getAccentHex();
+  if (typeof window === 'undefined') return ['#38BDF8', '#2563EB', '#60A5FA'];
+  const rootStyle = getComputedStyle(document.documentElement);
+  const isLight = document.documentElement.getAttribute('data-contrast') === 'light';
+  const accent = rootStyle.getPropertyValue('--accent').trim() || '#C1292E';
+
+  if (isLight) {
+    // Instead of using black, use an ethereal hint of blue (Federation blue, sky cyan, soft cobalt)
+    return ['#38BDF8', '#2563EB', '#60A5FA'];
+  }
+
   const c = new THREE.Color(accent);
-  // Create a darker, less bright variant instead of white
   const darker = c.clone().multiplyScalar(0.5);
-  return [accent, '#' + darker.getHexString(), '#000000']; // third color is black
+  return [accent, '#' + darker.getHexString(), '#000000'];
 }
 
 // ── Mobile wave background (REDUCED BRIGHTNESS) ──────────
-function MobileWaveBg() {
+function MobileWaveBg({ isLight = false }: { isLight?: boolean }) {
   const accent = getAccentHex();
+  const blueA = '#38BDF8';
+  const blueB = '#2563EB';
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       <style>{`
@@ -285,9 +295,9 @@ function MobileWaveBg() {
           50% { transform: translate(10px, -20px) scale(1.03); }
         }
       `}</style>
-      <div className="mobile-glow" style={{ top: '-10%', left: '-10%', width: '60%', height: '60%', background: `radial-gradient(circle, ${accent} 0%, transparent 70%)`, opacity: 0.5 }} />
-      <div className="mobile-glow" style={{ bottom: '-10%', right: '-10%', width: '50%', height: '50%', background: `radial-gradient(circle, ${accent} 0%, transparent 70%)`, opacity: 0.35 }} />
-      <div className="mobile-glow" style={{ top: '40%', left: '20%', width: '40%', height: '40%', background: `radial-gradient(circle, ${accent} 0%, transparent 70%)`, opacity: 0.25 }} />
+      <div className="mobile-glow" style={{ top: '-10%', left: '-10%', width: '60%', height: '60%', background: `radial-gradient(circle, ${isLight ? blueA : accent} 0%, transparent 70%)`, opacity: isLight ? 0.25 : 0.5 }} />
+      <div className="mobile-glow" style={{ bottom: '-10%', right: '-10%', width: '50%', height: '50%', background: `radial-gradient(circle, ${isLight ? blueB : accent} 0%, transparent 70%)`, opacity: isLight ? 0.2 : 0.35 }} />
+      <div className="mobile-glow" style={{ top: '40%', left: '20%', width: '40%', height: '40%', background: `radial-gradient(circle, ${isLight ? blueA : accent} 0%, transparent 70%)`, opacity: isLight ? 0.15 : 0.25 }} />
     </div>
   );
 }
@@ -317,10 +327,8 @@ export default function LiquidEtherBackground(props: LiquidEtherProps) {
     };
   }, []);
 
-  // When light mode is active, do not render black fluid simulation — keep clean white mecha grid
-  if (isLight) return null;
-  if (isMobile) return <MobileWaveBg />;
-  return <DesktopFluidSim {...props} palette={getAccentPalette()} />;
+  if (isMobile) return <MobileWaveBg isLight={isLight} />;
+  return <DesktopFluidSim {...props} palette={getAccentPalette()} isLight={isLight} />;
 }
 
 // ── Desktop fluid sim (uses the updated palette) ─────────
@@ -328,7 +336,8 @@ function DesktopFluidSim({
   palette,
   mouseForce = 20, cursorSize = 100, resolution = 0.25,
   autoDemo = true, autoSpeed = 0.5, className = '', style,
-}: LiquidEtherProps & { palette: string[] }) {
+  isLight = false,
+}: LiquidEtherProps & { palette: string[]; isLight?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -398,5 +407,5 @@ function DesktopFluidSim({
     };
   }, [palette, mouseForce, cursorSize, resolution, autoDemo, autoSpeed]);
 
-  return <div ref={containerRef} className={`fixed inset-0 pointer-events-none ${className}`} style={{ zIndex: 0, ...style }} />;
+  return <div ref={containerRef} className={`fixed inset-0 pointer-events-none ${className}`} style={{ zIndex: 0, opacity: isLight ? 0.4 : 0.85, ...style }} />;
 }

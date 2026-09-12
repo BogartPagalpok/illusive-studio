@@ -215,18 +215,20 @@
     background-color: rgba(255, 255, 255, 0.95) !important;
   }
 
-  [data-contrast='light'] .text-white:not(.btn-primary *):not([class*="bg-accent"] *):not(.badge-dark *) {
+  /* Exempt #hero and nav hero text so the dark 3D sequence always has brilliant white text */
+  [data-contrast='light'] :not(#hero):not(#hero *):not(.nav-hero-text):not(.nav-hero-text *) > .text-white:not(.btn-primary *):not([class*="bg-accent"] *):not(.badge-dark *),
+  [data-contrast='light'] :not(#hero):not(#hero *):not(.nav-hero-text):not(.nav-hero-text *) .text-white:not(.btn-primary *):not([class*="bg-accent"] *):not(.badge-dark *) {
     color: var(--text-primary) !important;
   }
-  [data-contrast='light'] .text-white\/10 { color: color-mix(in srgb, var(--text-primary) 20%, transparent) !important; }
-  [data-contrast='light'] .text-white\/20 { color: color-mix(in srgb, var(--text-primary) 35%, transparent) !important; }
-  [data-contrast='light'] .text-white\/30 { color: color-mix(in srgb, var(--text-primary) 50%, transparent) !important; }
-  [data-contrast='light'] .text-white\/40 { color: color-mix(in srgb, var(--text-primary) 65%, transparent) !important; }
-  [data-contrast='light'] .text-white\/50 { color: color-mix(in srgb, var(--text-primary) 75%, transparent) !important; }
-  [data-contrast='light'] .text-white\/60 { color: color-mix(in srgb, var(--text-primary) 82%, transparent) !important; }
-  [data-contrast='light'] .text-white\/70 { color: color-mix(in srgb, var(--text-primary) 88%, transparent) !important; }
-  [data-contrast='light'] .text-white\/80 { color: color-mix(in srgb, var(--text-primary) 92%, transparent) !important; }
-  [data-contrast='light'] .text-white\/90 { color: var(--text-primary) !important; }
+  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/10 { color: color-mix(in srgb, var(--text-primary) 20%, transparent) !important; }
+  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/20 { color: color-mix(in srgb, var(--text-primary) 35%, transparent) !important; }
+  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/30 { color: color-mix(in srgb, var(--text-primary) 50%, transparent) !important; }
+  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/40 { color: color-mix(in srgb, var(--text-primary) 65%, transparent) !important; }
+  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/50 { color: color-mix(in srgb, var(--text-primary) 75%, transparent) !important; }
+  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/60 { color: color-mix(in srgb, var(--text-primary) 82%, transparent) !important; }
+  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/70 { color: color-mix(in srgb, var(--text-primary) 88%, transparent) !important; }
+  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/80 { color: color-mix(in srgb, var(--text-primary) 92%, transparent) !important; }
+  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/90 { color: var(--text-primary) !important; }
 
   [data-contrast='light'] .bg-white\/5 { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent) !important; }
   [data-contrast='light'] .bg-white\/10 { background-color: color-mix(in srgb, var(--text-primary) 10%, transparent) !important; }
@@ -234,4 +236,24 @@
   [data-contrast='light'] .border-white\/5 { border-color: color-mix(in srgb, var(--text-primary) 12%, transparent) !important; }
   [data-contrast='light'] .border-white\/10 { border-color: color-mix(in srgb, var(--text-primary) 18%, transparent) !important; }
   [data-contrast='light'] .border-white\/20 { border-color: color-mix(in srgb, var(--text-primary) 28%, transparent) !important; }
+
+  /* Hero Section: Always dark cinematic 3D composition — sharp contrast, clean and non-muddy */
+  #hero h1,
+  #hero h1 span,
+  #hero p {
+    color: #FFFFFF !important;
+  }
+  #hero .hero-subtitle {
+    color: #F1D302 !important;
+    text-shadow: 0 0 20px rgba(241, 211, 2, 0.6), 0 2px 10px rgba(0, 0, 0, 0.9) !important;
+  }
+  #hero .hero-accent {
+    color: #FF2E38 !important;
+    text-shadow: 0 0 25px rgba(255, 46, 56, 0.9), 0 0 50px rgba(255, 46, 56, 0.5) !important;
+  }
+
+  .nav-hero-text {
+    color: #FFFFFF !important;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9) !important;
+  }
 }

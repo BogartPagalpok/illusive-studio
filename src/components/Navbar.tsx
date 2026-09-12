@@ -106,7 +106,7 @@ export default function Navbar() {
               }
             }}
             className={`group relative font-heading font-black text-xl tracking-wider uppercase transition-colors duration-300 ${
-              scrolled ? 'text-[var(--text-primary)]' : '!text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]'
+              scrolled ? 'text-[var(--text-primary)]' : 'nav-hero-text'
             }`}
           >
             {content.logo_text}
@@ -119,7 +119,7 @@ export default function Navbar() {
                 key={link.href}
                 onClick={() => handleNavClick(link.href)}
                 className={`group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase transition-colors duration-300 ${
-                  scrolled ? 'text-[var(--text-primary)]' : '!text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]'
+                  scrolled ? 'text-[var(--text-primary)]' : 'nav-hero-text'
                 }`}
               >
                 <span className={`${scrolled ? 'opacity-70' : 'opacity-90'} group-hover:opacity-100 group-hover:text-accent transition-all duration-300`}>
@@ -138,7 +138,7 @@ export default function Navbar() {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className={`md:hidden p-2 transition-colors duration-300 ${
-              mobileOpen ? 'text-[var(--text-primary)]' : scrolled ? 'text-[var(--text-primary)]' : '!text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]'
+              mobileOpen ? 'text-[var(--text-primary)]' : scrolled ? 'text-[var(--text-primary)]' : 'nav-hero-text'
             }`}
             aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileOpen}
