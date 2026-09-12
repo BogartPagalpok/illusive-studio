@@ -35,6 +35,8 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
       setError(true);
       setShake(true);
       setTimeout(() => setShake(false), 500);
+    } else {
+      onSuccess?.();
     }
   };
 

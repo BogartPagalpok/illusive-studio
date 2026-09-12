@@ -41,7 +41,7 @@ export default function MessageManager() {
       const { error } = await supabase.from('contact_messages').delete().eq('id', id);
       if (error) throw error;
       setMessages(messages.filter((m) => m.id !== id));
-    } catch (error) {
+    } catch {
       alert('Failed to delete message');
     }
   };

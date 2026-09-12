@@ -31,7 +31,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
     try {
       await applyTheme(theme, true);
       showMessage(`Global Sync Complete: ${theme.name}`);
-    } catch (err) {
+    } catch {
       console.warn('Sync failed, saved locally.');
       showMessage(`Saved locally: ${theme.name}`);
     }

@@ -631,7 +631,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
     return acc;
   }, {} as Record<string, Project[]>);
 
-  const visibleGroups = Object.entries(groupedByProject).filter(([_, projectRows]) => {
+  const visibleGroups = Object.entries(groupedByProject).filter(([, projectRows]) => {
     return projectRows.some(p =>
       p.image_url || 
       (p.video_urls && p.video_urls.length > 0 && p.video_urls.some((entry: any) => {

@@ -49,7 +49,7 @@ export default function ScrollSequence({
     let cancelled = false;
 
     const loadFrame = (i: number) => {
-      return new Promise<void>((resolve) => {
+      return new Promise<boolean>((resolve) => {
         const frameIndex = String(i).padStart(3, '0');
         const { data: urlData } = supabase.storage
           .from(SCROLL_SEQUENCE_BUCKET)
@@ -59,26 +59,26 @@ export default function ScrollSequence({
         img.crossOrigin = 'anonymous';
         img.src = urlData.publicUrl;
         img.onload = () => {
-          if (cancelled) return resolve();
+          if (cancelled) return resolve(false);
           if (!firstFrameDrawnRef.current) {
             drawFrame(i);
             firstFrameDrawnRef.current = true;
           }
-          resolve();
+          resolve(true);
         };
-        img.onerror = () => resolve();
+        img.onerror = () => resolve(false);
         imagesRef.current[i] = img;
       });
     };
 
     const loadAll = async () => {
       // 1. Await the first frame so the initial canvas paints instantly
-      await loadFrame(0);
-      if (cancelled) return;
+      const firstFrameOk = await loadFrame(0);
+      if (cancelled || !firstFrameOk) return;
 
       // 2. Preload initial 15 frames eagerly for smooth initial scroll
       const initialBatch = Math.min(15, frameCount);
-      const initialPromises: Promise<void>[] = [];
+      const initialPromises: Promise<boolean>[] = [];
       for (let i = 1; i < initialBatch; i++) {
         initialPromises.push(loadFrame(i));
       }
@@ -89,7 +89,7 @@ export default function ScrollSequence({
       const BATCH_SIZE = 4;
       for (let i = initialBatch; i < frameCount; i += BATCH_SIZE) {
         if (cancelled) break;
-        const batch: Promise<void>[] = [];
+        const batch: Promise<boolean>[] = [];
         for (let j = i; j < Math.min(i + BATCH_SIZE, frameCount); j++) {
           batch.push(loadFrame(j));
         }
@@ -111,7 +111,7 @@ export default function ScrollSequence({
     const frameObj = { frame: 0 };
 
     const ctx = gsap.context(() => {
-      const st = ScrollTrigger.create({
+      ScrollTrigger.create({
         trigger: container,
         start: "top top",
         end: `+=${scrollLength * 100}%`,

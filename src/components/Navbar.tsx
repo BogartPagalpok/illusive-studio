@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -49,7 +49,7 @@ export default function Navbar() {
           });
           setContent(mapped);
         }
-      } catch (err) {
+      } catch {
         // fallback
       }
     };

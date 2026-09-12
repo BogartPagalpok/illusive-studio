@@ -6,6 +6,16 @@ export default defineConfig({
   base: '/', 
   build: {
     outDir: 'dist',
-    // Let Vite handle the chunks and assets folder automatically
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-three': ['three'],
+          'vendor-animation': ['gsap', 'framer-motion'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 700,
   }
 });

@@ -71,7 +71,9 @@ export default function About() {
             }));
           }
         }
-      } catch {}
+      } catch {
+        // Fallback to default skills and content if network fails
+      }
     };
     fetchContent();
   }, []);

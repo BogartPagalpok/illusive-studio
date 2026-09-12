@@ -160,7 +160,7 @@ export default function ProjectPortal() {
   );
 
   return (
-    <section id="works" className="w-full min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
+    <section className="w-full min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
       
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes floatBounce {

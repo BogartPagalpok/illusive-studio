@@ -49,7 +49,7 @@ export default function Services() {
           setContent(mapped);
           setServicesData(mappedServices);
         }
-      } catch (err) { console.warn('Fallback active'); }
+      } catch { console.warn('Fallback active'); }
     }
     fetchContent();
   }, []);

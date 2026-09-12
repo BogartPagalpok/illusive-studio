@@ -60,9 +60,9 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       <main className="relative z-10">
         <Hero />
         
-        {sectionVisibility.about && <div id="about"><About /></div>}
+        {sectionVisibility.about && <About />}
         
-        {sectionVisibility.services && <div id="services"><Services /></div>}
+        {sectionVisibility.services && <Services />}
         
         {/* --- FIXED WORKS SECTION --- */}
         {/* The id="works" is now wrapping the entire portfolio block */}
@@ -81,7 +81,7 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
           
         </div>}
 
-        {sectionVisibility.contact && <div id="contact"><Contact /></div>}
+        {sectionVisibility.contact && <Contact />}
       </main>
 
       <Footer onAdminTrigger={handleAdminTrigger} />

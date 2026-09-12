@@ -16,70 +16,94 @@ export function useHoveringPenFavicon() {
     link.rel = 'icon';
 
     let animationId: number;
+    let lastRenderTime = 0;
+    const FRAME_INTERVAL = 66; // ~15 FPS is optimal for 16x16/32x32 favicons without CPU churn
 
-    const animate = () => {
-      if (!ctx) return;
+    const animate = (timestamp: number) => {
+      if (document.hidden) {
+        return;
+      }
 
-      const rootStyle = getComputedStyle(document.documentElement);
-      const accent = rootStyle.getPropertyValue('--accent').trim() || '#00ffcc';
-      const nodeColor = '#a855f7'; 
+      if (timestamp - lastRenderTime >= FRAME_INTERVAL) {
+        lastRenderTime = timestamp;
 
-      ctx.clearRect(0, 0, 64, 64);
+        if (ctx) {
+          const rootStyle = getComputedStyle(document.documentElement);
+          const accent = rootStyle.getPropertyValue('--accent').trim() || '#00ffcc';
+          const nodeColor = '#a855f7'; 
 
-      // 1. Draw Bezier Curve
-      ctx.beginPath();
-      ctx.moveTo(12, 44);
-      ctx.bezierCurveTo(12, 20, 52, 20, 52, 44);
-      ctx.strokeStyle = nodeColor;
-      ctx.lineWidth = 3;
-      ctx.stroke();
+          ctx.clearRect(0, 0, 64, 64);
 
-      // Square Nodes
-      ctx.fillStyle = nodeColor;
-      ctx.fillRect(8, 40, 8, 8); 
-      ctx.fillRect(48, 40, 8, 8);
-      ctx.fillRect(28, 16, 8, 8);
+          // 1. Draw Bezier Curve
+          ctx.beginPath();
+          ctx.moveTo(12, 44);
+          ctx.bezierCurveTo(12, 20, 52, 20, 52, 44);
+          ctx.strokeStyle = nodeColor;
+          ctx.lineWidth = 3;
+          ctx.stroke();
 
-      // 2. Hover Offset
-      const time = Date.now() / 250; 
-      const yOffset = Math.sin(time) * 4; 
+          // Square Nodes
+          ctx.fillStyle = nodeColor;
+          ctx.fillRect(8, 40, 8, 8); 
+          ctx.fillRect(48, 40, 8, 8);
+          ctx.fillRect(28, 16, 8, 8);
 
-      // 3. Draw Pen Tool
-      ctx.save();
-      ctx.translate(0, yOffset);
+          // 2. Hover Offset
+          const time = Date.now() / 250; 
+          const yOffset = Math.sin(time) * 4; 
 
-      ctx.beginPath();
-      ctx.moveTo(32, 24); 
-      ctx.lineTo(44, 46); 
-      ctx.lineTo(38, 46); 
-      ctx.lineTo(38, 56); 
-      ctx.lineTo(26, 56); 
-      ctx.lineTo(26, 46); 
-      ctx.lineTo(20, 46); 
-      ctx.closePath();
+          // 3. Draw Pen Tool
+          ctx.save();
+          ctx.translate(0, yOffset);
 
-      ctx.strokeStyle = accent;
-      ctx.lineWidth = 4;
-      ctx.lineJoin = 'round';
-      ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(32, 24); 
+          ctx.lineTo(44, 46); 
+          ctx.lineTo(38, 46); 
+          ctx.lineTo(38, 56); 
+          ctx.lineTo(26, 56); 
+          ctx.lineTo(26, 46); 
+          ctx.lineTo(20, 46); 
+          ctx.closePath();
 
-      ctx.beginPath();
-      ctx.moveTo(32, 24);
-      ctx.lineTo(32, 46);
-      ctx.stroke();
+          ctx.strokeStyle = accent;
+          ctx.lineWidth = 4;
+          ctx.lineJoin = 'round';
+          ctx.stroke();
 
-      ctx.beginPath();
-      ctx.moveTo(26, 51);
-      ctx.lineTo(38, 51);
-      ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(32, 24);
+          ctx.lineTo(32, 46);
+          ctx.stroke();
 
-      ctx.restore();
+          ctx.beginPath();
+          ctx.moveTo(26, 51);
+          ctx.lineTo(38, 51);
+          ctx.stroke();
 
-      link.href = canvas.toDataURL('image/png');
+          ctx.restore();
+
+          link.href = canvas.toDataURL('image/png');
+        }
+      }
+
       animationId = requestAnimationFrame(animate);
     };
 
-    animate();
-    return () => cancelAnimationFrame(animationId);
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        lastRenderTime = 0;
+        cancelAnimationFrame(animationId);
+        animationId = requestAnimationFrame(animate);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    animationId = requestAnimationFrame(animate);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      cancelAnimationFrame(animationId);
+    };
   }, []);
 }

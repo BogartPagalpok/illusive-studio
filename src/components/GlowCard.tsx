@@ -51,7 +51,7 @@ export default function GlowCard({
         style={{
           inset: -2,
           borderRadius,
-          opacity: isHovered ? 0.6 : 0,
+          opacity: isHovered ? glowIntensity * 7.5 : 0,
           transition: 'opacity 0.4s ease',
           background: `
             radial-gradient(
@@ -70,7 +70,7 @@ export default function GlowCard({
         style={{
           inset: 0,
           borderRadius,
-          opacity: isHovered ? 0.3 : 0,
+          opacity: isHovered ? glowIntensity * 3.75 : 0,
           transition: 'opacity 0.4s ease',
           background: `
             radial-gradient(

@@ -39,7 +39,9 @@ export default function Contact() {
           }
           setContent(mapped);
         }
-      } catch {}
+      } catch {
+        // Fallback to default contact content
+      }
     };
 
     fetchContent();

@@ -176,7 +176,7 @@ export const themePresets: ThemePreset[] = [
 ];
 
 // ── Helpers ──────────────────────────────────────────────
-function getLuminance(hex: string): number {
+export function getLuminance(hex: string): number {
   const c = hex.replace('#', '');
   const r = parseInt(c.substring(0, 2), 16) / 255;
   const g = parseInt(c.substring(2, 4), 16) / 255;
@@ -290,7 +290,9 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   if (syncToCloud) {
     try {
       await supabase.from('site_config').upsert({ id: 1, active_theme: theme.id, updated_at: new Date().toISOString() }, { onConflict: 'id' });
-    } catch {}
+    } catch {
+      // Cloud sync failure is non-fatal; theme is cached locally
+    }
   }
 }
 
@@ -310,7 +312,7 @@ export async function loadSavedTheme() {
         return; // Successfully loaded from Supabase
       }
     }
-  } catch (err) {
+  } catch {
     console.warn('Could not fetch theme from Supabase, trying localStorage next.');
   }
 
