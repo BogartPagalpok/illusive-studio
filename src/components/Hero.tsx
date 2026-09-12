@@ -138,8 +138,8 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-[9px] md:text-sm font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-center w-full font-bold hero-subtitle"
-              style={{ color: '#F1D302', textShadow: '0 0 20px rgba(241, 211, 2, 0.6), 0 2px 10px rgba(0, 0, 0, 0.9)' }}
+              className="text-[9px] md:text-sm font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-center w-full font-bold text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
+              style={{ textShadow: '0 0 20px rgba(var(--accent-rgb), 0.6), 0 2px 10px rgba(0, 0, 0, 0.9)' }}
             >
               {content.subtitle}
             </motion.p>
@@ -149,17 +149,22 @@ export default function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] uppercase text-center w-full"
-              style={{ fontFamily: "'Clash Display', sans-serif", color: '#FFFFFF' }}
+              style={{ fontFamily: "'Clash Display', sans-serif" }}
             >
-              <span style={{ color: '#FFFFFF', textShadow: '0 4px 28px rgba(0, 0, 0, 0.95), 0 2px 10px rgba(0, 0, 0, 0.9)' }}>
+              <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)]">
                 {content.heading_line1}
               </span>
               <br />
-              <span className="italic" style={{ color: '#FF2E38', textShadow: '0 0 25px rgba(255, 46, 56, 0.9), 0 0 50px rgba(255, 46, 56, 0.5)' }}>
+              <span
+                className="italic text-accent"
+                style={{
+                  textShadow: '0 0 25px var(--accent), 0 0 50px rgba(var(--accent-rgb), 0.5)',
+                }}
+              >
                 {content.heading_line2}
               </span>
               <br />
-              <span style={{ color: '#FFFFFF', textShadow: '0 4px 28px rgba(0, 0, 0, 0.95), 0 2px 10px rgba(0, 0, 0, 0.9)' }}>
+              <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)]">
                 {content.heading_line3}
               </span>
             </motion.h1>
@@ -168,8 +173,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="mt-6 md:mt-8 text-xs md:text-lg max-w-2xl mx-auto text-center leading-relaxed w-full font-medium"
-              style={{ color: '#FFFFFF', textShadow: '0 2px 16px rgba(0, 0, 0, 0.95)', opacity: 0.92 }}
+              className="mt-6 md:mt-8 text-xs md:text-lg max-w-2xl mx-auto text-center leading-relaxed w-full font-medium text-white/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.95)]"
             >
               {content.description}
             </motion.p>
