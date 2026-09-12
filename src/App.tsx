@@ -11,7 +11,6 @@ import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ErrorBoundary from './components/ErrorBoundary';
-import { Analytics } from '@vercel/analytics/react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -381,7 +380,6 @@ function App() {
           </Routes>
         </Suspense>
       </ErrorBoundary>
-      <Analytics />
     </main>
   );
 }
