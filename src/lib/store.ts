@@ -153,6 +153,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   setDualShowreelModalOpen: (open) => set({ isDualShowreelModalOpen: open }),
 
   fetchSettings: async () => {
+    if (get().isLoading || get().hasInitialized) return;
     set({ isLoading: true });
     try {
       // 1. Fetch sections visibility

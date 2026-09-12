@@ -123,38 +123,28 @@ function BrandLoader({ isFading = false }: { isFading?: boolean }) {
           50% { opacity: 0.85; }
         }
         .loader-letter {
-          display: inline-block;
-          opacity: 0.25;
-          animation: loader-letter-anim 2.5s infinite ease-in-out;
+          position: relative;
           z-index: 2;
+          display: inline-block;
+          opacity: 0.35;
+          animation: loader-letter-anim 2.5s infinite ease-in-out;
           color: #ffffff;
         }
-        .loader-letter:nth-child(1) { animation-delay: 0.08s; }
-        .loader-letter:nth-child(2) { animation-delay: 0.16s; }
-        .loader-letter:nth-child(3) { animation-delay: 0.24s; }
-        .loader-letter:nth-child(4) { animation-delay: 0.32s; }
-        .loader-letter:nth-child(5) { animation-delay: 0.40s; }
-        .loader-letter:nth-child(6) { animation-delay: 0.48s; }
-        .loader-letter:nth-child(7) { animation-delay: 0.56s; }
-        .loader-letter:nth-child(8) { animation-delay: 0.64s; }
-        .loader-letter:nth-child(9) { animation-delay: 0.72s; }
-        .loader-letter:nth-child(10) { animation-delay: 0.80s; }
-        .loader-letter:nth-child(11) { animation-delay: 0.88s; }
-        .loader-letter:nth-child(12) { animation-delay: 0.96s; }
-        .loader-letter:nth-child(13) { animation-delay: 1.04s; }
-        .loader-letter:nth-child(14) { animation-delay: 1.12s; }
-        .loader-letter:nth-child(15) { animation-delay: 1.20s; }
         @keyframes loader-letter-anim {
-          0%, 100% { opacity: 0.25; transform: translateY(0); }
-          25% { opacity: 1; text-shadow: 0 0 12px var(--accent, #FC931F), 0 0 24px #fff; transform: translateY(-2px) scale(1.04); }
-          50% { opacity: 0.7; transform: translateY(0); }
+          0%, 100% { opacity: 0.35; transform: translateY(0); }
+          25% { opacity: 1; text-shadow: 0 0 16px var(--accent, #FC931F), 0 0 32px #ffffff; transform: translateY(-2px) scale(1.05); }
+          50% { opacity: 0.75; transform: translateY(0); }
         }
       `}} />
 
       <div className="loader-wrapper">
         <span className="loader"></span>
         {'ILLUSIVE STUDIO'.split('').map((letter, i) => (
-          <span key={i} className="loader-letter">
+          <span 
+            key={i} 
+            className="loader-letter"
+            style={{ animationDelay: `${i * 0.08}s` }}
+          >
             {letter === ' ' ? '\u00A0' : letter}
           </span>
         ))}

@@ -23,7 +23,7 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.body.setAttribute('data-theme', savedTheme);
     fetchSettings();
-  }, [fetchSettings]);
+  }, []);
 
   const isSectionVisible = (key: string, defaultValue = true) => {
     const sec = sections.find((s) => s.key === key);

@@ -104,27 +104,21 @@ function ShowreelCard({
 }
 
 export default function DualShowreel(props) {
-  const store = usePortfolioStore();
+  const dualShowreel = usePortfolioStore((s) => s.dualShowreel);
 
   const [activeYoutubeId, setActiveYoutubeId] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (!store.hasInitialized && store.fetchSettings) {
-      store.fetchSettings();
-    }
-  }, [store]);
-
   const essayConfig = {
-    is_coming_soon: props?.essay?.is_coming_soon ?? props?.card1?.is_coming_soon ?? store?.dualShowreel?.essay?.is_coming_soon ?? false,
-    webm_url: props?.essay?.webm_url ?? props?.card1?.webm_url ?? store?.dualShowreel?.essay?.webm_url ?? '',
-    youtube_url: props?.essay?.youtube_url ?? props?.card1?.youtube_url ?? store?.dualShowreel?.essay?.youtube_url ?? '',
+    is_coming_soon: props?.essay?.is_coming_soon ?? props?.card1?.is_coming_soon ?? dualShowreel?.essay?.is_coming_soon ?? false,
+    webm_url: props?.essay?.webm_url ?? props?.card1?.webm_url ?? dualShowreel?.essay?.webm_url ?? '',
+    youtube_url: props?.essay?.youtube_url ?? props?.card1?.youtube_url ?? dualShowreel?.essay?.youtube_url ?? '',
   };
 
   const gamingConfig = {
-    is_coming_soon: props?.gaming?.is_coming_soon ?? props?.card2?.is_coming_soon ?? store?.dualShowreel?.gaming?.is_coming_soon ?? false,
-    webm_url: props?.gaming?.webm_url ?? props?.card2?.webm_url ?? store?.dualShowreel?.gaming?.webm_url ?? '',
-    youtube_url: props?.gaming?.youtube_url ?? props?.card2?.youtube_url ?? store?.dualShowreel?.gaming?.youtube_url ?? '',
+    is_coming_soon: props?.gaming?.is_coming_soon ?? props?.card2?.is_coming_soon ?? dualShowreel?.gaming?.is_coming_soon ?? false,
+    webm_url: props?.gaming?.webm_url ?? props?.card2?.webm_url ?? dualShowreel?.gaming?.webm_url ?? '',
+    youtube_url: props?.gaming?.youtube_url ?? props?.card2?.youtube_url ?? dualShowreel?.gaming?.youtube_url ?? '',
   };
 
   const handleOpenModal = (youtubeUrl) => {

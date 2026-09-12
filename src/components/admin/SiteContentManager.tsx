@@ -94,7 +94,7 @@ export default function SiteContentManager() {
   useEffect(() => {
     fetchContent();
     fetchSettings();
-  }, [fetchSettings]);
+  }, []);
 
   const fetchContent = async () => {
     setLoading(true);
