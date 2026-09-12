@@ -7,6 +7,11 @@ import { loadSavedTheme, subscribeToThemeChanges, themePresets, applyTheme } fro
 import LiquidEtherBackground from './components/LiquidEtherBackground';
 import { supabase } from './lib/supabase';
 import { isAdminEmail } from './lib/admin';
+import Lenis from 'lenis';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Lazy-load admin / legal pages so they don't bloat the main bundle
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -158,7 +163,10 @@ function BrandLoader({ isFading = false }: { isFading?: boolean }) {
 
 function App() {
   useHoveringPenFavicon();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('admin-authenticated') === 'true';
+  });
   const [showLoader, setShowLoader] = useState(true);
   const [loaderFading, setLoaderFading] = useState(false);
   // Tracks the current accent color so LiquidEther re-mounts (rebuilding its
@@ -169,36 +177,79 @@ function App() {
   });
 
   useEffect(() => {
-    const restoreAdminAfterOAuth = async () => {
-      const pending = localStorage.getItem('admin-auth-pending') === 'true';
-      if (!pending) return;
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        localStorage.removeItem('admin-auth-pending');
-        if (isAdminEmail(data.session.user.email)) {
-          setIsAdmin(true);
+    // Check and restore active Supabase auth session
+    const initAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          localStorage.removeItem('admin-auth-pending');
+          if (isAdminEmail(data.session.user.email)) {
+            localStorage.setItem('admin-authenticated', 'true');
+            // If returning to admin or on /admin route, activate admin
+            if (localStorage.getItem('admin-authenticated') === 'true' || window.location.pathname === '/admin') {
+              setIsAdmin(true);
+            }
+          } else {
+            localStorage.removeItem('admin-authenticated');
+            setIsAdmin(false);
+            await supabase.auth.signOut();
+            window.alert('This Google account is not authorized for admin access.');
+          }
         } else {
-          await supabase.auth.signOut();
-          window.alert('This Google account is not authorized for admin access.');
+          // No active session in Supabase
+          localStorage.removeItem('admin-authenticated');
+          setIsAdmin(false);
         }
+      } catch (err) {
+        console.warn('Session verification error:', err);
       }
     };
-    restoreAdminAfterOAuth();
+
+    initAuth();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.email && isAdminEmail(session.user.email)) {
+        localStorage.removeItem('admin-auth-pending');
+        localStorage.setItem('admin-authenticated', 'true');
+        setIsAdmin(true);
+      } else if (!session) {
+        localStorage.removeItem('admin-authenticated');
+        setIsAdmin(false);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        document.documentElement.style.setProperty('--scroll-offset', `${window.scrollY}px`);
-        ticking = false;
-      });
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.5,
+    });
+
+    window.__lenis = lenis;
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    const updateTicker = (time: number) => {
+      lenis.raf(time * 1000);
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    gsap.ticker.add(updateTicker);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      gsap.ticker.remove(updateTicker);
+      lenis.destroy();
+      delete window.__lenis;
+    };
   }, []);
 
   useEffect(() => {
@@ -280,10 +331,15 @@ function App() {
         {showLoader && <BrandLoader isFading={loaderFading} />}
         <AtmosphereGradient />
         <Suspense fallback={<BrandLoader isFading={false} />}>
-          <AdminDashboard onLogout={() => {
-            void supabase.auth.signOut();
-            setIsAdmin(false);
-          }} />
+          <AdminDashboard
+            onExit={() => setIsAdmin(false)}
+            onLogout={async () => {
+              localStorage.removeItem('admin-authenticated');
+              localStorage.removeItem('admin-auth-pending');
+              await supabase.auth.signOut();
+              setIsAdmin(false);
+            }}
+          />
         </Suspense>
       </main>
     );

@@ -17,21 +17,32 @@ export default function Navbar() {
   const [hasScrolledDown, setHasScrolledDown] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
+    let prevY = window.scrollY;
+
     const onScroll = () => {
-      const current = window.scrollY;
-      setScrolled(current > 50);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const current = window.scrollY;
+        setScrolled(current > 50);
 
-      if (current > 0 && !hasScrolledDown) {
-        setHasScrolledDown(true);
-      }
+        if (current > 0) {
+          setHasScrolledDown(true);
+        }
 
-      if (mobileOpen) setMobileOpen(false);
-      if (isHovered) setIsHovered(false);
+        if (Math.abs(current - prevY) > 10) {
+          setMobileOpen(false);
+          setIsHovered(false);
+          prevY = current;
+        }
+        ticking = false;
+      });
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [hasScrolledDown, mobileOpen, isHovered]);
+  }, []);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -58,7 +69,13 @@ export default function Navbar() {
 
   const handleNavClick = (id: string) => {
     const el = document.getElementById(id.replace('#', ''));
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) {
+      if (window.__lenis) {
+        window.__lenis.scrollTo(el, { offset: -80, duration: 1.2 });
+      } else {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
     setMobileOpen(false);
   };
 
@@ -81,7 +98,13 @@ export default function Navbar() {
       >
         <div className="section-container flex items-center justify-between h-20 px-6 md:px-16">
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => {
+              if (window.__lenis) {
+                window.__lenis.scrollTo(0, { duration: 1.2 });
+              } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
             className="group relative font-heading font-black text-xl tracking-wider uppercase text-[var(--text-primary)]"
           >
             {content.logo_text}

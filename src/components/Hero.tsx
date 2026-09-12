@@ -31,17 +31,20 @@ const defaultContent: HeroContent = {
 function scrollToId(e: React.MouseEvent, id: string) {
   e.preventDefault();
   
-  // Implemented robust smooth scrolling logic that plays nicely with React and avoids jumpiness
   const element = document.getElementById(id);
   if (element) {
-    const headerOffset = 80; // Adjust this if you have a sticky navbar covering the target
-    const elementPosition = element.getBoundingClientRect().top;
-    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-  
-    window.scrollTo({
-      top: offsetPosition,
-      behavior: 'smooth'
-    });
+    if (window.__lenis) {
+      window.__lenis.scrollTo(element, { offset: -80, duration: 1.2 });
+    } else {
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+    
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
   }
 }
 

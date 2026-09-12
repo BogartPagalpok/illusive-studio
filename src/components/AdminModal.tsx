@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { isAdminEmail } from '../lib/admin';
 
 interface AdminModalProps {
   isOpen: boolean;
@@ -18,8 +19,22 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
     if (!isOpen) {
       setError(false);
       setShake(false);
+      return;
     }
-  }, [isOpen]);
+
+    const checkActiveSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.user?.email && isAdminEmail(data.session.user.email)) {
+          onSuccess?.();
+        }
+      } catch {
+        // Continue to show modal
+      }
+    };
+
+    checkActiveSession();
+  }, [isOpen, onSuccess]);
 
   const handleGoogleLogin = async () => {
     setIsSubmitting(true);

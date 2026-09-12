@@ -9,6 +9,7 @@ import AdminModal from '../components/AdminModal';
 import CategorySection from '../components/CategorySection';
 import ProjectPortal from '../components/ProjectPortal';
 import { supabase } from '../lib/supabase';
+import { isAdminEmail } from '../lib/admin';
 
 const defaultSectionVisibility = {
   about: true,
@@ -43,7 +44,16 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
     fetchSectionVisibility();
   }, []);
 
-  const handleAdminTrigger = () => {
+  const handleAdminTrigger = async () => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.user?.email && isAdminEmail(data.session.user.email)) {
+        onAdminAuth();
+        return;
+      }
+    } catch {
+      // Fall through to modal
+    }
     setAdminModalOpen(true);
   };
 

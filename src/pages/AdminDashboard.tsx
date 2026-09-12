@@ -9,10 +9,11 @@ import ProjectManager from '../components/admin/ProjectManager';
 import { applyTheme, themePresets } from '../lib/themes';
 
 interface AdminDashboardProps {
+  onExit?: () => void;
   onLogout: () => void;
 }
 
-export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
+export default function AdminDashboard({ onExit, onLogout }: AdminDashboardProps) {
   const [tab, setTab] = useState<'content' | 'projects' | 'messages' | 'theme'>('content');
   const [message, setMessage] = useState('');
 
@@ -50,7 +51,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       <header className="border-b" style={{ borderColor: 'rgba(142, 142, 147, 0.15)' }}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
           <button
-            onClick={onLogout}
+            onClick={onExit || onLogout}
             className="flex items-center gap-2 text-[10px] font-heading tracking-widest uppercase transition-opacity opacity-60 hover:opacity-100"
             style={{ color: 'var(--text-primary)' }}
           >

@@ -345,20 +345,18 @@ function DesktopFluidSim({
 
     const canvas = container.querySelector('canvas');
     const onTouchStart = (e: TouchEvent) => {
-      e.preventDefault();
       if (e.touches.length === 1) {
         mouse.update(e.touches[0].clientX, e.touches[0].clientY);
       }
     };
     const onTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
       if (e.touches.length === 1) {
         mouse.update(e.touches[0].clientX, e.touches[0].clientY);
       }
     };
     if (canvas) {
-      canvas.addEventListener('touchstart', onTouchStart, { passive: false });
-      canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+      canvas.addEventListener('touchstart', onTouchStart, { passive: true });
+      canvas.addEventListener('touchmove', onTouchMove, { passive: true });
     }
 
     let raf: number;
