@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, Link, Eye, EyeOff, Search, MonitorPlay, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, ChevronUp, Link, Eye, EyeOff, Search, MonitorPlay, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
 
 interface VideoEntry {
@@ -28,6 +28,7 @@ interface Project {
   hero_bg_desktop?: string;
   hero_bg_mobile?: string;
   featured: boolean;
+  sort_order?: number;
 }
 
 const EMPTY_PROJECT: Project = {
@@ -47,6 +48,7 @@ const EMPTY_PROJECT: Project = {
   hero_bg_mobile: '',
   featured: true,
   visible: true,
+  sort_order: 0,
 };
 
 const CATEGORIES = ['Motion', 'Graphic Design', 'Photography', 'UI/UX'];
@@ -93,9 +95,20 @@ export default function ProjectManager() {
       const { data, error } = await supabase
         .from('portfolio_projects')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('sort_order', { ascending: true, nullsFirst: true })
+        .order('created_at', { ascending: true });
       if (error) throw error;
-      setProjects(data || []);
+      // Back-fill sort_order for rows that don't have it yet
+      const rows: Project[] = (data || []) as Project[];
+      const needsInit = rows.some(r => r.sort_order == null);
+      if (needsInit) {
+        const updates = rows
+          .filter(r => r.sort_order == null)
+          .map((r, i) => supabase.from('portfolio_projects').update({ sort_order: i }).eq('id', r.id!));
+        await Promise.all(updates);
+        rows.forEach((r, i) => { if (r.sort_order == null) r.sort_order = i; });
+      }
+      setProjects(rows);
     } catch (error) {
       console.error('Error fetching projects:', error);
     } finally {
@@ -250,6 +263,7 @@ export default function ProjectManager() {
         card_thumbnail: cUrl,
         hero_bg_desktop: dUrl,
         hero_bg_mobile: mUrl,
+        sort_order: editingProject.sort_order ?? projects.length * 10,
       };
 
       if (editingProject.id && selectedFiles.length > 0) {
@@ -385,6 +399,47 @@ export default function ProjectManager() {
     }
     await fetchProjects();
     setSaveStatus('saved');
+  };
+
+  // ── Move project group up or down within its category ──────────
+  const moveProjectGroup = async (
+    category: string,
+    projectKey: string,
+    direction: 'up' | 'down'
+  ) => {
+    // Get all groups in this category in current display order
+    const catProjects = projects.filter(p => p.category === category);
+    const grouped: Record<string, Project[]> = {};
+    catProjects.forEach(p => {
+      const key = p.project_group_id || `${p.category}:${p.title.trim().toLowerCase()}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(p);
+    });
+    const groupKeys = Object.keys(grouped);
+    const idx = groupKeys.indexOf(projectKey);
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= groupKeys.length) return;
+
+    const groupA = grouped[groupKeys[idx]];
+    const groupB = grouped[groupKeys[swapIdx]];
+
+    // Collect representative sort_order values
+    const orderA = groupA[0].sort_order ?? idx * 10;
+    const orderB = groupB[0].sort_order ?? swapIdx * 10;
+
+    setSaveStatus('saving');
+    try {
+      // Swap sort_order for all rows in each group
+      await Promise.all([
+        ...groupA.map(p => supabase.from('portfolio_projects').update({ sort_order: orderB }).eq('id', p.id!)),
+        ...groupB.map(p => supabase.from('portfolio_projects').update({ sort_order: orderA }).eq('id', p.id!)),
+      ]);
+      await fetchProjects();
+      setSaveStatus('saved');
+    } catch (err: any) {
+      setSaveStatus('error');
+      alert(`Reorder failed: ${err.message}`);
+    }
   };
 
   const toggleProjectImages = async (projectRows: Project[]) => {
@@ -800,12 +855,33 @@ export default function ProjectManager() {
 
               {!isCollapsed && (
                 <div className="border-t border-white/5">
-                  {Object.entries(byProject).map(([projectKey, projectRows]) => {
+                  {Object.entries(byProject).map(([projectKey, projectRows], groupIndex, allGroups) => {
                     const projectTitle = projectRows[0]?.title || 'Untitled';
+                    const isFirst = groupIndex === 0;
+                    const isLast = groupIndex === allGroups.length - 1;
                     return (
                     <div key={projectKey}>
                       <div className="px-3 sm:px-4 py-2 bg-white/[0.01] border-b border-white/5 flex items-center justify-between">
-                        <div>
+                        <div className="flex items-center gap-1">
+                          {/* Move up / down buttons */}
+                          <div className="flex flex-col mr-1">
+                            <button
+                              onClick={() => moveProjectGroup(category, projectKey, 'up')}
+                              disabled={isFirst}
+                              className="p-0.5 text-white/20 hover:text-accent disabled:opacity-20 disabled:cursor-not-allowed transition"
+                              title="Move project up"
+                            >
+                              <ChevronUp size={12} />
+                            </button>
+                            <button
+                              onClick={() => moveProjectGroup(category, projectKey, 'down')}
+                              disabled={isLast}
+                              className="p-0.5 text-white/20 hover:text-accent disabled:opacity-20 disabled:cursor-not-allowed transition"
+                              title="Move project down"
+                            >
+                              <ChevronDown size={12} />
+                            </button>
+                          </div>
                           <span className="text-[10px] sm:text-xs font-heading font-bold uppercase tracking-wider text-white/50">{projectTitle}</span>
                           <span className="text-[9px] sm:text-[10px] text-white/20 ml-2">({projectRows.length})</span>
                         </div>

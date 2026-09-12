@@ -660,12 +660,14 @@ export default function CategorySection({ category }: CategorySectionProps) {
         .select('*')
         .ilike('category', category.trim())
         .eq('visible', true)
+        .order('sort_order', { ascending: true, nullsFirst: true })
         .order('created_at', { ascending: true });
       if (error) {
         const fallback = await supabase
           .from('portfolio_projects')
           .select('*')
           .ilike('category', category.trim())
+          .order('sort_order', { ascending: true, nullsFirst: true })
           .order('created_at', { ascending: true });
         data = fallback.data;
         error = fallback.error;
