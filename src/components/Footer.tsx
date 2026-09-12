@@ -6,12 +6,17 @@ import {
   GithubDuotone,
   FacebookDuotone,
   SparklesDuotone,
+  XTwitterDuotone,
+  LinkedinDuotone,
+  RedditDuotone,
+  DiscordDuotone,
 } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 import { formatSectionTitle } from '../lib/formatTitle';
 
 export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void }) {
   const [content, setContent] = useState<any>(null);
+  const [discordCopied, setDiscordCopied] = useState(false);
   const clickCountRef = useRef(0);
 
   useEffect(() => {
@@ -26,6 +31,14 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
   }, []);
 
   const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+
+  const handleCopyDiscord = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const handle = content?.discord || 'illusivestudio';
+    navigator.clipboard.writeText(handle);
+    setDiscordCopied(true);
+    setTimeout(() => setDiscordCopied(false), 2500);
+  };
 
   return (
     <footer className="relative bg-transparent overflow-hidden mt-12 sm:mt-16 md:mt-24 font-heading">
@@ -76,10 +89,52 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               {/* Connect */}
               <div className="flex flex-col">
                  <h4 className="uppercase tracking-[0.25em] mb-3 sm:mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Connect</h4>
-                 <ul className="space-y-2 sm:space-y-2.5 font-semibold" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
-                   <li><a href={content?.instagram || 'https://instagram.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><InstagramDuotone size={16} className="shrink-0" /> Instagram</a></li>
-                   <li><a href={content?.github || 'https://github.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><GithubDuotone size={16} className="shrink-0" /> GitHub</a></li>
-                   <li><a href={content?.facebook || 'https://facebook.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}><FacebookDuotone size={16} className="shrink-0" /> Facebook</a></li>
+                 <ul className="space-y-2.5 font-semibold" style={{ fontSize: 'clamp(12px, 0.9vw, 14px)' }}>
+                   <li>
+                     <a href={content?.x || 'https://x.com/il_lusivestudio'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                       <XTwitterDuotone size={16} className="shrink-0" /> X / Twitter
+                     </a>
+                   </li>
+                   <li>
+                     <a href={content?.linkedin || 'https://www.linkedin.com/in/ian-lester-eclevia'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                       <LinkedinDuotone size={16} className="shrink-0" /> LinkedIn
+                     </a>
+                   </li>
+                   <li>
+                     <a href={content?.reddit || 'https://www.reddit.com/user/yhanlhester/'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                       <RedditDuotone size={16} className="shrink-0" /> Reddit
+                     </a>
+                   </li>
+                   <li>
+                     <button
+                       type="button"
+                       onClick={handleCopyDiscord}
+                       className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit text-left cursor-pointer group"
+                       style={{ color: 'var(--text-primary)', opacity: 0.85 }}
+                       title="Click to copy Discord handle"
+                     >
+                       <DiscordDuotone size={16} className="shrink-0" />
+                       <span>Discord</span>
+                       <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-accent group-hover:bg-accent group-hover:text-[var(--accent-contrast)] transition-colors">
+                         {discordCopied ? 'Copied!' : (content?.discord || 'illusivestudio')}
+                       </span>
+                     </button>
+                   </li>
+                   <li>
+                     <a href={content?.instagram || 'https://instagram.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                       <InstagramDuotone size={16} className="shrink-0" /> Instagram
+                     </a>
+                   </li>
+                   <li>
+                     <a href={content?.github || 'https://github.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                       <GithubDuotone size={16} className="shrink-0" /> GitHub
+                     </a>
+                   </li>
+                   <li>
+                     <a href={content?.facebook || 'https://facebook.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                       <FacebookDuotone size={16} className="shrink-0" /> Facebook
+                     </a>
+                   </li>
                  </ul>
               </div>
 

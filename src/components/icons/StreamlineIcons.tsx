@@ -678,3 +678,128 @@ export const ExternalLinkDuotone = React.forwardRef<SVGSVGElement, StreamlineIco
 );
 ExternalLinkDuotone.displayName = 'ExternalLinkDuotone';
 
+export const XTwitterDuotone = React.forwardRef<SVGSVGElement, StreamlineIconProps>(
+  ({ size = 24, primaryColor, secondaryColor, className = '', style, ...props }: StreamlineIconProps, ref: React.Ref<SVGSVGElement>) => {
+    const primary = primaryColor || 'var(--accent, #FC931F)';
+    const secondary = secondaryColor || 'rgba(var(--accent-rgb, 252, 147, 31), 0.28)';
+
+    return (
+      <svg
+        ref={ref}
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={`inline-block shrink-0 ${className}`}
+        style={style}
+        {...props}
+      >
+        <path
+          d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+          fill={secondary}
+        />
+        <path
+          d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+          stroke={primary}
+          strokeWidth="0.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+);
+XTwitterDuotone.displayName = 'XTwitterDuotone';
+
+export const LinkedinDuotone = React.forwardRef<SVGSVGElement, StreamlineIconProps>(
+  ({ size = 24, primaryColor, secondaryColor, className = '', style, ...props }: StreamlineIconProps, ref: React.Ref<SVGSVGElement>) => {
+    const primary = primaryColor || 'var(--accent, #FC931F)';
+    const secondary = secondaryColor || 'rgba(var(--accent-rgb, 252, 147, 31), 0.28)';
+
+    return (
+      <svg
+        ref={ref}
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={`inline-block shrink-0 ${className}`}
+        style={style}
+        {...props}
+      >
+        <rect x="2" y="2" width="20" height="20" rx="4" fill={secondary} stroke={primary} strokeWidth="1" />
+        <circle cx="7" cy="8" r="1.5" fill={primary} />
+        <path d="M5.5 11h3v7h-3z" fill={primary} />
+        <path d="M11.5 11h2.8v1.1c.5-.8 1.5-1.3 2.7-1.3 2.4 0 3.5 1.5 3.5 4v3.2h-3v-3c0-1.2-.4-1.8-1.4-1.8-1 0-1.6.7-1.6 1.8v3h-3V11z" fill={primary} />
+      </svg>
+    );
+  }
+);
+LinkedinDuotone.displayName = 'LinkedinDuotone';
+
+export const RedditDuotone = React.forwardRef<SVGSVGElement, StreamlineIconProps>(
+  ({ size = 24, primaryColor, secondaryColor, className = '', style, ...props }: StreamlineIconProps, ref: React.Ref<SVGSVGElement>) => {
+    const primary = primaryColor || 'var(--accent, #FC931F)';
+    const secondary = secondaryColor || 'rgba(var(--accent-rgb, 252, 147, 31), 0.28)';
+
+    return (
+      <svg
+        ref={ref}
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={`inline-block shrink-0 ${className}`}
+        style={style}
+        {...props}
+      >
+        <circle cx="12" cy="12" r="10" fill={secondary} stroke={primary} strokeWidth="1" />
+        <path d="M14.5 7.5L16 4.5h2" stroke={primary} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="18.5" cy="4.5" r="1" fill={primary} />
+        <circle cx="6" cy="12" r="2" fill={secondary} stroke={primary} strokeWidth="1" />
+        <circle cx="18" cy="12" r="2" fill={secondary} stroke={primary} strokeWidth="1" />
+        <ellipse cx="12" cy="13" rx="5.5" ry="4" fill="currentColor" fillOpacity="0.1" stroke={primary} strokeWidth="1" />
+        <circle cx="9.5" cy="12.5" r="1" fill={primary} />
+        <circle cx="14.5" cy="12.5" r="1" fill={primary} />
+        <path d="M10 15c.6.6 1.4.8 2 .8s1.4-.2 2-.8" stroke={primary} strokeWidth="1" strokeLinecap="round" />
+      </svg>
+    );
+  }
+);
+RedditDuotone.displayName = 'RedditDuotone';
+
+export const DiscordDuotone = React.forwardRef<SVGSVGElement, StreamlineIconProps>(
+  ({ size = 24, primaryColor, secondaryColor, className = '', style, ...props }: StreamlineIconProps, ref: React.Ref<SVGSVGElement>) => {
+    const primary = primaryColor || 'var(--accent, #FC931F)';
+    const secondary = secondaryColor || 'rgba(var(--accent-rgb, 252, 147, 31), 0.28)';
+
+    return (
+      <svg
+        ref={ref}
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={`inline-block shrink-0 ${className}`}
+        style={style}
+        {...props}
+      >
+        <path
+          d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.1.1 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09-.01-.02-.04-.03-.07-.03-1.5.26-2.93.71-4.27 1.33-.01 0-.02.01-.03.02-2.72 4.07-3.47 8.03-3.1 11.95 0 .02.01.04.03.05 1.8 1.32 3.53 2.12 5.24 2.65.03.01.06 0 .07-.02.4-.55.76-1.13 1.07-1.74.02-.04 0-.08-.04-.09-.57-.22-1.11-.48-1.64-.78-.04-.02-.04-.08-.01-.11.11-.08.22-.17.33-.25.02-.02.05-.02.07-.01 3.44 1.57 7.15 1.57 10.55 0 .02-.01.05-.01.07.01.11.09.22.17.33.26.04.03.04.08-.01.11-.52.31-1.07.56-1.64.78-.04.01-.05.06-.04.09.32.61.68 1.19 1.07 1.74.01.02.05.03.07.02 1.72-.53 3.45-1.33 5.25-2.65.02-.01.03-.03.03-.05.44-4.53-.73-8.46-3.1-11.95-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.83 2.12-1.89 2.12z"
+          fill={secondary}
+          stroke={primary}
+          strokeWidth="0.5"
+        />
+        <circle cx="8.52" cy="12.79" r="1.2" fill={primary} />
+        <circle cx="15.49" cy="12.79" r="1.2" fill={primary} />
+      </svg>
+    );
+  }
+);
+DiscordDuotone.displayName = 'DiscordDuotone';
+
+
