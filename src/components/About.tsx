@@ -156,36 +156,48 @@ export default function About() {
             </h3>
 
             <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-              {skills.map((skill, i) => (
-                <div key={skill.name} className="group">
-                  <div className="flex justify-between items-end mb-1">
-                    <span className="font-bold uppercase text-[var(--text-primary)]/50 group-hover:text-accent transition-colors" style={{ fontSize: 'clamp(8px, 0.9vw, 12px)', letterSpacing: '0.2em' }}>
-                      {skill.name}
-                    </span>
-                    <span className="font-black text-[var(--text-primary)]/90" style={{ fontSize: 'clamp(9px, 0.9vw, 13px)' }}>
-                      {skill.level}%
-                    </span>
-                  </div>
-                  <div
-                    className="h-[3px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)]"
-                    role="progressbar"
-                    aria-label={`${skill.name} proficiency`}
-                    aria-valuenow={skill.level}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  >
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={isVisible ? { width: `${skill.level}%` } : {}}
-                      transition={{ duration: 1, delay: 0.3 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                      style={{ backgroundColor: 'var(--accent)' }}
-                      className="h-full relative rounded-full"
+              {skills.map((skill, i) => {
+                const palette = [
+                  { bar: 'var(--accent)', text: 'var(--accent)' },
+                  { bar: 'var(--accent-secondary)', text: 'var(--accent-secondary)' },
+                  { bar: 'var(--accent-tertiary, var(--accent))', text: 'var(--accent-tertiary, var(--accent))' },
+                ];
+                const colorConfig = palette[i % palette.length];
+
+                return (
+                  <div key={skill.name} className="group">
+                    <div className="flex justify-between items-end mb-1">
+                      <span className="font-bold uppercase text-[var(--text-primary)]/60 group-hover:text-[var(--text-primary)] transition-colors" style={{ fontSize: 'clamp(8px, 0.9vw, 12px)', letterSpacing: '0.2em' }}>
+                        {skill.name}
+                      </span>
+                      <span className="font-black transition-colors" style={{ fontSize: 'clamp(9px, 0.9vw, 13px)', color: colorConfig.text }}>
+                        {skill.level}%
+                      </span>
+                    </div>
+                    <div
+                      className="h-[3px] w-full bg-[var(--text-primary)]/5 rounded-full overflow-hidden border border-[var(--glass-border)]"
+                      role="progressbar"
+                      aria-label={`${skill.name} proficiency`}
+                      aria-valuenow={skill.level}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
                     >
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_#fff] opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </motion.div>
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={isVisible ? { width: `${skill.level}%` } : {}}
+                        transition={{ duration: 1, delay: 0.3 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ backgroundColor: colorConfig.bar }}
+                        className="h-full relative rounded-full"
+                      >
+                        <div
+                          className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          style={{ boxShadow: `0 0 8px ${colorConfig.bar}` }}
+                        />
+                      </motion.div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
         </div>

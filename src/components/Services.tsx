@@ -68,25 +68,51 @@ export default function Services() {
         </motion.div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {servicesData.map((service, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.04 }}
-              className="card-dark h-full flex flex-col group relative cursor-pointer"
-              style={{ backgroundColor: service.color }}
-            >
-              <h3 className="font-bold tracking-tight uppercase text-[var(--text-primary)] group-hover:text-accent transition-colors mb-1.5" style={{ fontSize: 'clamp(12px, 1.2vw, 18px)' }}>
-                {service.title}
-              </h3>
-              <p className="font-light leading-relaxed text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors" style={{ fontSize: 'clamp(10px, 0.9vw, 14px)' }}>
-                {service.description}
-              </p>
-              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--accent)] transition-all duration-500 group-hover:w-full" />
-            </motion.div>
-          ))}
+          {servicesData.map((service, index) => {
+            const palette = [
+              'var(--accent)',
+              'var(--accent-secondary)',
+              'var(--accent-tertiary, var(--accent))',
+            ];
+            const cardAccent = palette[index % palette.length];
+
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.04 }}
+                className="card-dark h-full flex flex-col group relative cursor-pointer"
+                style={{ backgroundColor: service.color }}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span
+                    className="text-[9px] font-heading font-black tracking-widest uppercase opacity-75 group-hover:opacity-100 transition-opacity"
+                    style={{ color: cardAccent }}
+                  >
+                    0{index + 1} //
+                  </span>
+                </div>
+                <h3
+                  className="font-bold tracking-tight uppercase text-[var(--text-primary)] transition-colors mb-1.5"
+                  style={{ fontSize: 'clamp(12px, 1.2vw, 18px)' }}
+                >
+                  {service.title}
+                </h3>
+                <p
+                  className="font-light leading-relaxed text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors"
+                  style={{ fontSize: 'clamp(10px, 0.9vw, 14px)' }}
+                >
+                  {service.description}
+                </p>
+                <div
+                  className="absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-500 group-hover:w-full"
+                  style={{ backgroundColor: cardAccent }}
+                />
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

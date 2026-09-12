@@ -139,7 +139,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-[9px] md:text-sm font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-[var(--text-primary)]/70 text-center w-full"
+              className="text-[9px] md:text-sm font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-[var(--accent-secondary)] text-center w-full font-bold"
             >
               {content.subtitle}
             </motion.p>
@@ -164,7 +164,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="mt-6 md:mt-8 text-xs md:text-lg max-w-2xl mx-auto text-center leading-relaxed text-[var(--text-primary)]/85 w-full"
+              className="mt-6 md:mt-8 text-xs md:text-lg max-w-2xl mx-auto text-center leading-relaxed text-[var(--text-secondary)] w-full"
             >
               {content.description}
             </motion.p>

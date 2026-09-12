@@ -142,10 +142,10 @@ export default function AdminDashboard({ onExit, onLogout }: AdminDashboardProps
                     )}
                   </div>
 
-                  <h3 className="text-base font-heading font-black mb-1 uppercase italic" style={{ color: theme.id === 'GUNDAM' ? '#111' : 'var(--text-primary)' }}>
+                  <h3 className="text-base font-heading font-black mb-1 uppercase italic text-[var(--text-primary)]">
                     {theme.name}
                   </h3>
-                  <p className="text-[8px] font-heading font-bold tracking-[0.3em] uppercase opacity-60" style={{ color: 'var(--text-primary)' }}>
+                  <p className="text-[8px] font-heading font-bold tracking-[0.3em] uppercase opacity-60 text-[var(--text-primary)]">
                     {theme.tagline}
                   </p>
 
@@ -154,19 +154,36 @@ export default function AdminDashboard({ onExit, onLogout }: AdminDashboardProps
                     style={{ backgroundColor: theme.bgPrimary, backgroundImage: theme.bgGradient }}
                   >
                     <div
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] rounded-lg border flex items-center justify-center"
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[55%] rounded-lg border flex items-center justify-center gap-1.5 px-2"
                       style={{
-                        backgroundColor: 'rgba(128, 128, 128, 0.05)',
-                        borderColor: 'rgba(128, 128, 128, 0.1)',
+                        backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
                         backdropFilter: 'blur(10px)',
                       }}
                     >
                       <div
-                        className="w-1/3 h-1/2 rounded-md"
+                        className="flex-1 h-3/5 rounded-md"
                         style={{
                           background: theme.accent,
-                          boxShadow: `0 0 10px ${theme.accent}66`,
+                          boxShadow: `0 0 8px ${theme.accent}66`,
                         }}
+                        title="Primary Accent"
+                      />
+                      <div
+                        className="flex-1 h-3/5 rounded-md"
+                        style={{
+                          background: theme.accentSecondary,
+                          boxShadow: `0 0 8px ${theme.accentSecondary}66`,
+                        }}
+                        title="Secondary Accent"
+                      />
+                      <div
+                        className="flex-1 h-3/5 rounded-md"
+                        style={{
+                          background: theme.accentTertiary || theme.colors[2] || theme.accent,
+                          boxShadow: `0 0 8px ${(theme.accentTertiary || theme.colors[2] || theme.accent)}66`,
+                        }}
+                        title="Tertiary Accent"
                       />
                     </div>
                   </div>

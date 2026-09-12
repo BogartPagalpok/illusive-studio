@@ -12,14 +12,20 @@
     --bg-secondary: #0A0A0A;
     --bg-gradient: none;
     --text-primary: #FAFAFA;
-    --text-secondary: #8E8E93;
-    --accent: #9D00FF;
-    --accent-contrast: #FFFFFF;
+    --text-secondary: #CBD5E1;
+    --text-muted: #94A3B8;
+    --accent: #FC931F;
+    --accent-secondary: #2A9DA6;
+    --accent-tertiary: #F67608;
+    --accent-contrast: #000000;
+    --accent-secondary-contrast: #000000;
     --font-display: 'Satoshi', sans-serif;
     --font-sans: 'General Sans', sans-serif;
     --font-heading: 'Satoshi', sans-serif;
     --glass-border: rgba(255, 255, 255, 0.12);
-    --accent-rgb: 157, 0, 255;
+    --accent-rgb: 252, 147, 31;
+    --accent-secondary-rgb: 42, 157, 166;
+    --accent-tertiary-rgb: 246, 118, 8;
     --glass-bg: rgba(255, 255, 255, 0.03);
   }
 
@@ -127,6 +133,10 @@
 
   .heading-xl { font-size: clamp(2.5rem, 7vw, 5rem); @apply font-black uppercase leading-[0.9] tracking-tighter italic; }
   .text-accent { color: var(--accent); }
+  .text-accent-secondary { color: var(--accent-secondary); }
+  .text-accent-tertiary { color: var(--accent-tertiary); }
+  .border-accent-secondary { border-color: var(--accent-secondary); }
+  .bg-accent-secondary { background-color: var(--accent-secondary); }
 
   .btn-primary-sm {
     @apply relative overflow-hidden rounded-lg font-bold flex items-center justify-center gap-1.5 uppercase transition-all duration-300;
