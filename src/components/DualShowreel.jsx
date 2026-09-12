@@ -20,41 +20,72 @@ function ShowreelCard({
 }) {
   const videoRef = useRef(null);
 
+  const videoSource = webm_url ? webm_url : 'https://www.w3schools.com/html/mov_bbb.mp4';
+  const modalTarget = youtube_url ? youtube_url : 'LXb3EKWsInQ';
+
   return (
     <div
-      className={`group relative aspect-video w-full rounded-2xl overflow-hidden border transition-all duration-500 select-none ${
-        is_coming_soon
-          ? 'border-white/10 bg-black/60 shadow-xl cursor-default'
-          : 'border-white/15 bg-black/40 shadow-2xl cursor-pointer hover:border-accent/60 hover:shadow-[0_0_35px_rgba(var(--accent-rgb),0.25)]'
-      }`}
-      onClick={!is_coming_soon ? () => onOpenModal(youtube_url) : undefined}
-      onMouseEnter={!is_coming_soon ? () => videoRef.current?.play() : undefined}
-      onMouseLeave={!is_coming_soon ? () => videoRef.current?.pause() : undefined}
+      className="group relative aspect-video w-full rounded-2xl overflow-hidden border border-white/15 bg-black/40 shadow-2xl cursor-pointer hover:border-accent/60 hover:shadow-[0_0_35px_rgba(var(--accent-rgb),0.25)] transition-all duration-500 select-none"
+      onClick={() => onOpenModal(modalTarget)}
+      onMouseEnter={() => videoRef.current?.play()}
+      onMouseLeave={() => videoRef.current?.pause()}
     >
-      {/* Dynamic WebM Video Source */}
-      {!is_coming_soon && webm_url ? (
-        <video
-          ref={videoRef}
-          src={webm_url}
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        />
-      ) : (
-        /* Ambient Cinematic Dark Backdrop */
-        <div className="absolute inset-0 bg-gradient-to-br from-[#12131A] via-[#090A0E] to-[#040406] flex items-center justify-center">
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,var(--accent)_0%,transparent_70%)]" />
-        </div>
-      )}
+      {/* Video Loop (prioritizes real webm_url, falls back to test clip) */}
+      <video
+        ref={videoRef}
+        src={videoSource}
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+      />
 
-      {/* Dark Vignette Overlay for Readability */}
+      {/* Dark Vignette Overlay for Crisp Typography Contrast */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none z-10" />
 
-      {/* Conditional Rendering: COMING SOON State */}
-      {is_coming_soon ? (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center z-20 text-center px-4">
+      {/* Top Category Badge */}
+      <div className="absolute top-4 left-4 z-20 pointer-events-none">
+        <span className="px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-heading font-black tracking-[0.2em] uppercase bg-black/60 border border-white/15 text-white/90 backdrop-blur-md">
+          {category}
+        </span>
+      </div>
+
+      {/* Centered Play Button on Hover */}
+      <div className="absolute inset-0 flex items-center justify-center z-20 opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 pointer-events-none">
+        <div
+          className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-2xl transition-transform duration-300"
+          style={{
+            backgroundColor: 'var(--accent)',
+            color: 'var(--accent-contrast)',
+            boxShadow: '0 0 30px rgba(var(--accent-rgb), 0.5)',
+          }}
+        >
+          <Play size={22} className="ml-1 fill-current" />
+        </div>
+      </div>
+
+      {/* Bottom Info Bar */}
+      <div className="absolute bottom-0 inset-x-0 p-4 sm:p-6 z-20 flex flex-col gap-1 pointer-events-none">
+        <div className="flex items-center gap-2">
+          <MonitorPlay size={14} className="text-accent" />
+          <h3 className="text-base sm:text-lg font-heading font-black tracking-wider uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+            {title}
+          </h3>
+        </div>
+        <p className="text-xs text-white/70 line-clamp-1 font-body">
+          {description}
+        </p>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-[10px] font-heading font-bold uppercase tracking-[0.2em] text-accent group-hover:translate-x-1 transition-transform">
+            Watch Full Reel →
+          </span>
+        </div>
+      </div>
+
+      {/* Non-Blocking COMING SOON Visual Overlay */}
+      {is_coming_soon && (
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center z-30 text-center px-4 pointer-events-none">
           <span className="text-2xl sm:text-3xl md:text-4xl font-heading font-black tracking-[0.35em] uppercase text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
             COMING SOON
           </span>
@@ -62,48 +93,6 @@ function ShowreelCard({
             {title}
           </span>
         </div>
-      ) : (
-        /* ACTIVE CARD STATE (Play Button & Metadata) */
-        <>
-          {/* Top Category Badge */}
-          <div className="absolute top-4 left-4 z-20">
-            <span className="px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-heading font-black tracking-[0.2em] uppercase bg-black/60 border border-white/15 text-white/90 backdrop-blur-md">
-              {category}
-            </span>
-          </div>
-
-          {/* Centered Play Button (Hidden when is_coming_soon is true) */}
-          <div className="absolute inset-0 flex items-center justify-center z-20 opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 pointer-events-none">
-            <div
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-2xl transition-transform duration-300"
-              style={{
-                backgroundColor: 'var(--accent)',
-                color: 'var(--accent-contrast)',
-                boxShadow: '0 0 30px rgba(var(--accent-rgb), 0.5)',
-              }}
-            >
-              <Play size={22} className="ml-1 fill-current" />
-            </div>
-          </div>
-
-          {/* Bottom Info Bar */}
-          <div className="absolute bottom-0 inset-x-0 p-4 sm:p-6 z-20 flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <MonitorPlay size={14} className="text-accent" />
-              <h3 className="text-base sm:text-lg font-heading font-black tracking-wider uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-                {title}
-              </h3>
-            </div>
-            <p className="text-xs text-white/70 line-clamp-1 font-body">
-              {description}
-            </p>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-[10px] font-heading font-bold uppercase tracking-[0.2em] text-accent group-hover:translate-x-1 transition-transform">
-                Watch Full Reel →
-              </span>
-            </div>
-          </div>
-        </>
       )}
     </div>
   );
@@ -121,7 +110,6 @@ export default function DualShowreel(props) {
     }
   }, [store]);
 
-  // Prop wiring: Prioritize direct props, then nested props, then Zustand store values
   const essayConfig = {
     is_coming_soon: props?.essay?.is_coming_soon ?? props?.card1?.is_coming_soon ?? store?.dualShowreel?.essay?.is_coming_soon ?? false,
     webm_url: props?.essay?.webm_url ?? props?.card1?.webm_url ?? store?.dualShowreel?.essay?.webm_url ?? '',
@@ -135,9 +123,9 @@ export default function DualShowreel(props) {
   };
 
   const handleOpenModal = (youtubeUrl) => {
-    const parsedId = extractYoutubeId(youtubeUrl);
-    if (!parsedId) return;
-    setActiveYoutubeId(parsedId);
+    const target = youtubeUrl ? youtubeUrl : 'LXb3EKWsInQ';
+    const parsedId = extractYoutubeId(target);
+    setActiveYoutubeId(parsedId || target);
     setIsModalOpen(true);
   };
 
