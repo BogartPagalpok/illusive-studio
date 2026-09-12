@@ -105,7 +105,9 @@ export default function Navbar() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }
             }}
-            className="group relative font-heading font-black text-xl tracking-wider uppercase text-[var(--text-primary)]"
+            className={`group relative font-heading font-black text-xl tracking-wider uppercase transition-colors duration-300 ${
+              scrolled ? 'text-[var(--text-primary)]' : '!text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]'
+            }`}
           >
             {content.logo_text}
             <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-accent transition-all duration-300 group-hover:w-full" />
@@ -116,16 +118,18 @@ export default function Navbar() {
               <button
                 key={link.href}
                 onClick={() => handleNavClick(link.href)}
-                className="group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-[var(--text-primary)]"
+                className={`group relative px-1 py-2 text-[10px] font-heading font-bold tracking-[0.2em] uppercase transition-colors duration-300 ${
+                  scrolled ? 'text-[var(--text-primary)]' : '!text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]'
+                }`}
               >
-                <span className="opacity-60 group-hover:opacity-100 group-hover:text-accent transition-all duration-300">
+                <span className={`${scrolled ? 'opacity-70' : 'opacity-90'} group-hover:opacity-100 group-hover:text-accent transition-all duration-300`}>
                   {link.label}
                 </span>
               </button>
             ))}
             <button
               onClick={() => handleNavClick('#contact')}
-              className="btn-primary text-[10px] py-3 px-8 font-black uppercase tracking-widest hover:scale-105 transition-all"
+              className="btn-primary text-[10px] py-3 px-8 font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg"
             >
               {content.cta_text}
             </button>
@@ -133,7 +137,9 @@ export default function Navbar() {
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 text-[var(--text-primary)]"
+            className={`md:hidden p-2 transition-colors duration-300 ${
+              mobileOpen ? 'text-[var(--text-primary)]' : scrolled ? 'text-[var(--text-primary)]' : '!text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]'
+            }`}
             aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileOpen}
           >

@@ -295,13 +295,30 @@ function MobileWaveBg() {
 // ── Main component ─────────────────────────────────────
 export default function LiquidEtherBackground(props: LiquidEtherProps) {
   const [isMobile, setIsMobile] = useState(false);
+  const [isLight, setIsLight] = useState(() => {
+    if (typeof document === 'undefined') return false;
+    return document.documentElement.getAttribute('data-contrast') === 'light';
+  });
+
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
+
+    const observer = new MutationObserver(() => {
+      const light = document.documentElement.getAttribute('data-contrast') === 'light';
+      setIsLight(light);
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-contrast', 'data-theme'] });
+
+    return () => {
+      window.removeEventListener('resize', check);
+      observer.disconnect();
+    };
   }, []);
 
+  // When light mode is active, do not render black fluid simulation — keep clean white mecha grid
+  if (isLight) return null;
   if (isMobile) return <MobileWaveBg />;
   return <DesktopFluidSim {...props} palette={getAccentPalette()} />;
 }

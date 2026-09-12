@@ -128,8 +128,8 @@ export default function Hero() {
         </div>
 
         <div ref={overlayRef} className="absolute inset-0 pointer-events-none z-10 pt-[80px]">
-          <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70 pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-black/35 pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/80 pointer-events-none z-0" />
 
           <motion.div
             style={{ opacity: heroOpacity, y: heroY }}
@@ -139,7 +139,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-[9px] md:text-sm font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-[var(--accent-secondary)] text-center w-full font-bold"
+              className="text-[9px] md:text-sm font-heading tracking-[0.3em] md:tracking-[0.4em] uppercase mb-6 md:mb-8 text-accent font-bold drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] text-center w-full"
             >
               {content.subtitle}
             </motion.p>
@@ -148,23 +148,27 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-[var(--text-primary)] font-bold tracking-tighter leading-[0.9] uppercase text-center w-full"
+              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl !text-white font-bold tracking-tighter leading-[0.9] uppercase text-center w-full drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)]"
               style={{ fontFamily: "'Clash Display', sans-serif" }}
             >
-              {content.heading_line1}
+              <span className="!text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
+                {content.heading_line1}
+              </span>
               <br />
-              <span className="text-accent italic drop-shadow-[0_0_15px_var(--accent)]">
+              <span className="text-accent italic drop-shadow-[0_0_25px_var(--accent)]">
                 {content.heading_line2}
               </span>
               <br />
-              {content.heading_line3}
+              <span className="!text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
+                {content.heading_line3}
+              </span>
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="mt-6 md:mt-8 text-xs md:text-lg max-w-2xl mx-auto text-center leading-relaxed text-[var(--text-secondary)] w-full"
+              className="mt-6 md:mt-8 text-xs md:text-lg max-w-2xl mx-auto text-center leading-relaxed !text-white/90 drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)] w-full font-medium"
             >
               {content.description}
             </motion.p>
@@ -178,14 +182,14 @@ export default function Hero() {
               <a
                 href="#works"
                 onClick={(e) => scrollToId(e, 'works')}
-                className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto"
+                className="btn-primary py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto shadow-xl"
               >
                 View Works
               </a>
               <a
                 href="#contact"
                 onClick={(e) => scrollToId(e, 'contact')}
-                className="btn-outline py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto"
+                className="btn-outline !border-white !text-white hover:!bg-white hover:!text-black py-3 px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center w-full sm:w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
               >
                 Get in Touch
               </a>
@@ -201,7 +205,7 @@ export default function Hero() {
             <button
               // Updated to use the more robust scroll function
               onClick={(e) => scrollToId(e as any, 'services')} 
-              className="flex flex-col items-center justify-center gap-2 text-[var(--text-primary)]/65 hover:text-accent transition-colors duration-300 w-full"
+              className="flex flex-col items-center justify-center gap-2 !text-white/80 hover:!text-white transition-colors duration-300 w-full drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
             >
               <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase text-center block">Scroll</span>
               <ArrowDown size={16} className="animate-bounce mx-auto" />
