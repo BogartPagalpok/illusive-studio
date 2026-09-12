@@ -148,7 +148,7 @@ export default function Hero() {
 
           <motion.div
             style={{ opacity: heroOpacity, y: heroY }}
-            className="relative z-10 flex flex-col justify-between w-full h-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6 sm:py-8 lg:py-10 pointer-events-auto"
+            className="relative z-10 flex flex-col justify-between w-full h-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 pointer-events-auto"
           >
             {/* Main Left & Right Split Container */}
             <div className="flex-1 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 lg:gap-12 w-full my-auto">
