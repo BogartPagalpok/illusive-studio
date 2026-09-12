@@ -28,11 +28,11 @@ export interface ThemePreset {
 export const themePresets: ThemePreset[] = [
   {
     id: 'GUNDAM', name: 'GUNDAM', tagline: 'RX-78-2 PROTOTYPE',
-    colors: ['#FFFFFF', '#C1292E', '#235789', '#F1D302', '#38BDF8'],
-    bgPrimary: '#111E2E', bgSecondary: '#1B2E44',
-    textPrimary: '#FFFFFF', textSecondary: '#CBD5E1', textMuted: '#94A3B8',
-    accent: '#C1292E', accentSecondary: '#F1D302', accentTertiary: '#38BDF8',
-    bgGradient: 'linear-gradient(135deg, #1B2E44 0%, #111E2E 55%, #0A121C 100%)',
+    colors: ['#FFFFFF', '#C1292E', '#1E40AF', '#F1D302', '#0F172A'],
+    bgPrimary: '#F3F4F6', bgSecondary: '#FFFFFF',
+    textPrimary: '#0F172A', textSecondary: '#334155', textMuted: '#64748B',
+    accent: '#C1292E', accentSecondary: '#1E40AF', accentTertiary: '#F1D302',
+    bgGradient: 'linear-gradient(135deg, #FFFFFF 0%, #F3F4F6 50%, #E5E7EB 100%)',
     fontDisplay: "'Satoshi', sans-serif", fontSans: "'General Sans', sans-serif",
     backgroundStyle: 'grid',
   },
@@ -199,30 +199,36 @@ function getContrastYIQ(hexcolor: string) {
 }
 
 // ── Background renderers ─────────────────────────────────
-function applyNoiseBackground(root: HTMLElement) {
-  root.style.setProperty('--bg-noise', `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E")`);
+function applyNoiseBackground(root: HTMLElement, isLight = false) {
+  const opacity = isLight ? '0.04' : '0.15';
+  root.style.setProperty('--bg-noise', `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='${opacity}'/%3E%3C/svg%3E")`);
   root.style.setProperty('--bg-pattern', 'var(--bg-noise)');
 }
 
-function applyGridBackground(root: HTMLElement) {
-  root.style.setProperty('--bg-grid', `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M60 0H0v60' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='0.5'/%3E%3C/svg%3E")`);
+function applyGridBackground(root: HTMLElement, isLight = false) {
+  const stroke = isLight ? 'rgba(15,23,42,0.08)' : 'rgba(255,255,255,0.08)';
+  root.style.setProperty('--bg-grid', `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M60 0H0v60' fill='none' stroke='${encodeURIComponent(stroke)}' stroke-width='0.5'/%3E%3C/svg%3E")`);
   root.style.setProperty('--bg-pattern', 'var(--bg-grid)');
 }
 
-function applyDotsBackground(root: HTMLElement) {
-  root.style.setProperty('--bg-dots', `radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px)`);
+function applyDotsBackground(root: HTMLElement, isLight = false) {
+  const dotColor = isLight ? 'rgba(15,23,42,0.09)' : 'rgba(255,255,255,0.1)';
+  root.style.setProperty('--bg-dots', `radial-gradient(circle at center, ${dotColor} 1px, transparent 1px)`);
   root.style.setProperty('--bg-dots-size', '24px 24px');
   root.style.setProperty('--bg-pattern', 'var(--bg-dots)');
   root.style.setProperty('--bg-pattern-size', 'var(--bg-dots-size)');
 }
 
-function applyCinematicBackground(root: HTMLElement) {
-  root.style.setProperty('--bg-vignette', `radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.7) 100%)`);
+function applyCinematicBackground(root: HTMLElement, isLight = false) {
+  const edgeColor = isLight ? 'rgba(0,0,0,0.15)' : 'rgba(0,0,0,0.7)';
+  root.style.setProperty('--bg-vignette', `radial-gradient(ellipse at center, transparent 50%, ${edgeColor} 100%)`);
   root.style.setProperty('--bg-pattern', 'var(--bg-vignette)');
 }
 
-function applyGlassBackground(root: HTMLElement) {
-  root.style.setProperty('--bg-glass', `radial-gradient(circle at 30% 50%, rgba(255,255,255,0.05) 0%, transparent 50%), radial-gradient(circle at 70% 20%, rgba(255,255,255,0.06) 0%, transparent 40%)`);
+function applyGlassBackground(root: HTMLElement, isLight = false) {
+  const color1 = isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.05)';
+  const color2 = isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)';
+  root.style.setProperty('--bg-glass', `radial-gradient(circle at 30% 50%, ${color1} 0%, transparent 50%), radial-gradient(circle at 70% 20%, ${color2} 0%, transparent 40%)`);
   root.style.setProperty('--bg-pattern', 'var(--bg-glass)');
 }
 
@@ -266,7 +272,7 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   root.style.setProperty('--bg-gradient', theme.bgGradient);
   root.style.setProperty('--text-primary', theme.textPrimary);
   root.style.setProperty('--text-secondary', theme.textSecondary);
-  root.style.setProperty('--text-muted', theme.textMuted || 'rgba(255, 255, 255, 0.45)');
+  root.style.setProperty('--text-muted', theme.textMuted || (isLight ? '#64748B' : 'rgba(255, 255, 255, 0.45)'));
   root.style.setProperty('--accent', theme.accent);
   root.style.setProperty('--accent-secondary', theme.accentSecondary);
   root.style.setProperty('--accent-tertiary', theme.accentTertiary || theme.colors[2] || theme.accent);
@@ -280,15 +286,16 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   root.style.setProperty('--accent-rgb', hexToRgb(theme.accent));
   root.style.setProperty('--accent-secondary-rgb', hexToRgb(theme.accentSecondary));
   root.style.setProperty('--accent-tertiary-rgb', hexToRgb(theme.accentTertiary || theme.colors[2] || theme.accent));
-  root.style.setProperty('--glass-bg', isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.03)');
+  root.style.setProperty('--glass-bg', isLight ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.03)');
+  root.style.setProperty('--glass-border', isLight ? 'rgba(15, 23, 42, 0.12)' : 'rgba(255, 255, 255, 0.12)');
   root.style.setProperty('--accent-contrast', getContrastYIQ(theme.accent) === 'black' ? '#000000' : '#FFFFFF');
   root.style.setProperty('--accent-secondary-contrast', getContrastYIQ(theme.accentSecondary) === 'black' ? '#000000' : '#FFFFFF');
   switch (theme.backgroundStyle) {
-    case 'noise': applyNoiseBackground(root); break;
-    case 'grid': applyGridBackground(root); break;
-    case 'dots': applyDotsBackground(root); break;
-    case 'cinematic': applyCinematicBackground(root); break;
-    case 'glass': applyGlassBackground(root); break;
+    case 'noise': applyNoiseBackground(root, isLight); break;
+    case 'grid': applyGridBackground(root, isLight); break;
+    case 'dots': applyDotsBackground(root, isLight); break;
+    case 'cinematic': applyCinematicBackground(root, isLight); break;
+    case 'glass': applyGlassBackground(root, isLight); break;
     case 'liquid': applyLiquidBackground(); break;
     default: applyGradientBackground(root); break;
   }

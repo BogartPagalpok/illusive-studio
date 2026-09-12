@@ -47,9 +47,9 @@
     z-index: -2;
     background-color: var(--bg-primary);
     background-image: 
-      var(--bg-gradient),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' result='noise'/%3E%3CfeColorMatrix in='noise' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' fill='%23030305' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-    background-blend-mode: overlay;
+      var(--bg-pattern, none),
+      var(--bg-gradient);
+    background-size: var(--bg-pattern-size, auto), cover;
     pointer-events: none;
     transform: translateZ(0);
     will-change: transform;
@@ -184,17 +184,54 @@
   .font-body { font-family: var(--font-sans) !important; }
   .border-accent { border-color: var(--accent) !important; }
 
-  /* Keep shared admin controls readable when a light theme is active. */
-  [data-contrast='light'] .page-container .text-white { color: var(--text-primary) !important; }
-  [data-contrast='light'] .page-container .text-white\/20 { color: color-mix(in srgb, var(--text-primary) 35%, transparent) !important; }
-  [data-contrast='light'] .page-container .text-white\/30 { color: color-mix(in srgb, var(--text-primary) 50%, transparent) !important; }
-  [data-contrast='light'] .page-container .text-white\/40 { color: color-mix(in srgb, var(--text-primary) 65%, transparent) !important; }
-  [data-contrast='light'] .page-container .text-white\/50 { color: color-mix(in srgb, var(--text-primary) 75%, transparent) !important; }
-  [data-contrast='light'] .page-container .text-white\/60 { color: color-mix(in srgb, var(--text-primary) 82%, transparent) !important; }
-  [data-contrast='light'] .page-container .text-white\/70 { color: color-mix(in srgb, var(--text-primary) 88%, transparent) !important; }
-  [data-contrast='light'] .page-container .bg-white\/5 { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent) !important; }
-  [data-contrast='light'] .page-container .bg-white\/\[0\.02\] { background-color: color-mix(in srgb, var(--text-primary) 4%, transparent) !important; }
-  [data-contrast='light'] .page-container .border-white\/5 { border-color: color-mix(in srgb, var(--text-primary) 12%, transparent) !important; }
-  [data-contrast='light'] .page-container .border-white\/10 { border-color: color-mix(in srgb, var(--text-primary) 18%, transparent) !important; }
-  [data-contrast='light'] .page-container .border-white\/20 { border-color: color-mix(in srgb, var(--text-primary) 28%, transparent) !important; }
+  /* Site-wide light mode adaptation */
+  [data-contrast='light'] {
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(15, 23, 42, 0.12);
+  }
+
+  [data-contrast='light'] body {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-secondary);
+  }
+
+  [data-contrast='light'] .card-dark {
+    background-color: rgba(255, 255, 255, 0.88);
+    border-color: rgba(15, 23, 42, 0.1);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+  }
+
+  [data-contrast='light'] .card-dark:hover {
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px -4px rgba(var(--accent-rgb), 0.2);
+  }
+
+  [data-contrast='light'] .flip-card-front,
+  [data-contrast='light'] .flip-card-back {
+    border-color: rgba(15, 23, 42, 0.12) !important;
+  }
+
+  [data-contrast='light'] .flip-card-back {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+  }
+
+  [data-contrast='light'] .text-white:not(.btn-primary *):not([class*="bg-accent"] *):not(.badge-dark *) {
+    color: var(--text-primary) !important;
+  }
+  [data-contrast='light'] .text-white\/10 { color: color-mix(in srgb, var(--text-primary) 20%, transparent) !important; }
+  [data-contrast='light'] .text-white\/20 { color: color-mix(in srgb, var(--text-primary) 35%, transparent) !important; }
+  [data-contrast='light'] .text-white\/30 { color: color-mix(in srgb, var(--text-primary) 50%, transparent) !important; }
+  [data-contrast='light'] .text-white\/40 { color: color-mix(in srgb, var(--text-primary) 65%, transparent) !important; }
+  [data-contrast='light'] .text-white\/50 { color: color-mix(in srgb, var(--text-primary) 75%, transparent) !important; }
+  [data-contrast='light'] .text-white\/60 { color: color-mix(in srgb, var(--text-primary) 82%, transparent) !important; }
+  [data-contrast='light'] .text-white\/70 { color: color-mix(in srgb, var(--text-primary) 88%, transparent) !important; }
+  [data-contrast='light'] .text-white\/80 { color: color-mix(in srgb, var(--text-primary) 92%, transparent) !important; }
+  [data-contrast='light'] .text-white\/90 { color: var(--text-primary) !important; }
+
+  [data-contrast='light'] .bg-white\/5 { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent) !important; }
+  [data-contrast='light'] .bg-white\/10 { background-color: color-mix(in srgb, var(--text-primary) 10%, transparent) !important; }
+  [data-contrast='light'] .bg-white\/\[0\.02\] { background-color: color-mix(in srgb, var(--text-primary) 4%, transparent) !important; }
+  [data-contrast='light'] .border-white\/5 { border-color: color-mix(in srgb, var(--text-primary) 12%, transparent) !important; }
+  [data-contrast='light'] .border-white\/10 { border-color: color-mix(in srgb, var(--text-primary) 18%, transparent) !important; }
+  [data-contrast='light'] .border-white\/20 { border-color: color-mix(in srgb, var(--text-primary) 28%, transparent) !important; }
 }

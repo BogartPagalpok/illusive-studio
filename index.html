@@ -219,6 +219,9 @@
           var storedTheme = localStorage.getItem('portfolio-theme');
           if (storedTheme) {
             document.documentElement.setAttribute('data-theme', storedTheme);
+            if (storedTheme === 'GUNDAM') {
+              document.documentElement.setAttribute('data-contrast', 'light');
+            }
           }
         } catch (e) {}
       })();
