@@ -19,9 +19,9 @@ interface HeroContent {
 
 const defaultContent: HeroContent = {
   subtitle: 'Video Editor • Graphics Artist',
-  heading_line1: 'Crafting Visual',
-  heading_line2: 'Stories',
-  heading_line3: 'Resonate',
+  heading_line1: 'Crafting',
+  heading_line2: 'Visual Stories',
+  heading_line3: 'That Resonate',
   description: "I'm Ian Lester Eclevia — a video editor and graphics artist creating polished visual stories, expressive motion, and memorable brand content.",
 };
 
@@ -75,6 +75,16 @@ export default function Hero() {
           for (const row of contentData) {
             const key = row.key.toLowerCase() as keyof HeroContent;
             if (key in mapped) mapped[key] = row.value;
+          }
+          // Normalize legacy rows so "Visual Stories" is the highlighted line
+          if (
+            mapped.heading_line1.trim().toLowerCase() === 'crafting visual' ||
+            mapped.heading_line2.trim().toLowerCase() === 'stories that' ||
+            mapped.heading_line2.trim().toLowerCase() === 'stories'
+          ) {
+            mapped.heading_line1 = 'Crafting';
+            mapped.heading_line2 = 'Visual Stories';
+            mapped.heading_line3 = 'That Resonate';
           }
           setContent(mapped);
         }

@@ -16,9 +16,9 @@ interface SiteContent {
 
 const SEED_DATA = [
   { section: 'hero', key: 'subtitle', value: 'Video Editor • Graphics Artist' },
-  { section: 'hero', key: 'heading_line1', value: 'Crafting Visual' },
-  { section: 'hero', key: 'heading_line2', value: 'Stories That' },
-  { section: 'hero', key: 'heading_line3', value: 'Resonate' },
+  { section: 'hero', key: 'heading_line1', value: 'Crafting' },
+  { section: 'hero', key: 'heading_line2', value: 'Visual Stories' },
+  { section: 'hero', key: 'heading_line3', value: 'That Resonate' },
   { section: 'hero', key: 'description', value: "I'm Ian Lester Eclevia — where timeless design meets modern execution. From brand identity to digital painting, I bring ideas to life with precision and passion." },
   { section: 'services', key: 'subtitle', value: 'What I Do' },
   { section: 'services', key: 'heading', value: 'Services & Expertise' },
