@@ -3,12 +3,36 @@ import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
 const defaultServices = [
-  { title: 'Graphic Design', description: 'Bold visual systems, layouts, and artwork...', color: 'transparent' },
-  { title: 'Video Editing', description: 'Cinematic edits, pacing, sound, and finishing...', color: 'transparent' },
-  { title: 'Motion Graphics', description: 'Animated titles, transitions, and visual effects...', color: 'transparent' },
-  { title: 'Digital Illustration', description: 'Custom digital artwork and illustrated assets...', color: 'transparent' },
-  { title: 'Brand Identity', description: 'Distinctive logos, typography, color, and direction...', color: 'transparent' },
-  { title: 'Visual Content Production', description: 'End-to-end visual content from concept to delivery...', color: 'transparent' },
+  {
+    title: 'LONG-FORM EDITING',
+    description: 'Crafting 10 to 40-minute video essays and gaming content with deliberate pacing, narrative flow, and high audience retention in DaVinci Resolve.',
+    color: 'transparent',
+  },
+  {
+    title: 'SHORT-FORM CONTENT',
+    description: 'Pulling the best moments for YouTube Shorts and TikTok, optimized for immediate hooks, fast pacing, and algorithmic performance.',
+    color: 'transparent',
+  },
+  {
+    title: 'THUMBNAIL & CTR DESIGN',
+    description: 'Designing high-contrast, psychology-driven thumbnails in Photoshop built specifically to maximize Click-Through Rates (CTR) and viewer curiosity.',
+    color: 'transparent',
+  },
+  {
+    title: 'COLOR GRADING & LOOK DEV',
+    description: "Building custom cinematic grades and color pipelines to establish atmosphere, mood, and visual consistency across your channel's branding.",
+    color: 'transparent',
+  },
+  {
+    title: 'SOUND DESIGN & MIXING',
+    description: 'Enhancing narrative storytelling with immersive SFX, clean vocal EQ, and dynamic audio mixing to keep viewers fully engaged.',
+    color: 'transparent',
+  },
+  {
+    title: 'RETENTION STRATEGY',
+    description: 'Collaborating on script structure, pacing adjustments, and analytical feedback to grow overall watch hours and drive channel monetization.',
+    color: 'transparent',
+  },
 ];
 
 export default function Services() {
@@ -26,18 +50,25 @@ export default function Services() {
         if (!error && data && data.length > 0) {
           const mapped = { subtitle: 'What I Do', heading: 'Services & Expertise' };
           const mappedServices = [...defaultServices];
+          const isLegacyServices = data.some(
+            (row) => row.value === 'Graphic Design' || row.value === 'Visual Content Production'
+          );
           data.forEach((row) => {
             const key = row.key.toLowerCase();
             if (key === 'subtitle') mapped.subtitle = row.value;
             if (key === 'heading') mapped.heading = row.value;
-            for (let i = 1; i <= 6; i++) {
-              if (key === `service${i}_title`) mappedServices[i - 1].title = row.value;
-              if (key === `service${i}_desc`) mappedServices[i - 1].description = row.value;
-              if (key === `service${i}_color`) mappedServices[i - 1].color = row.value;
+            if (!isLegacyServices) {
+              for (let i = 1; i <= 6; i++) {
+                if (key === `service${i}_title`) mappedServices[i - 1].title = row.value;
+                if (key === `service${i}_desc`) mappedServices[i - 1].description = row.value;
+                if (key === `service${i}_color`) mappedServices[i - 1].color = row.value;
+              }
             }
           });
           setContent(mapped);
-          setServicesData(mappedServices);
+          if (!isLegacyServices) {
+            setServicesData(mappedServices);
+          }
         }
       } catch { console.warn('Fallback active'); }
     }
