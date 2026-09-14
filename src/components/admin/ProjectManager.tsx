@@ -120,15 +120,59 @@ export default function ProjectManager() {
     }
   };
 
+  const convertImageToWebP = async (file: File, quality = 0.9): Promise<{ blob: Blob; fileName: string }> => {
+    // If not an image (or already webp, svg, or animated gif), keep original
+    if (!file.type.startsWith('image/') || file.type === 'image/svg+xml' || file.type === 'image/gif' || file.type === 'image/webp') {
+      return { blob: file, fileName: file.name.replace(/\s+/g, '_') };
+    }
+
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          return resolve({ blob: file, fileName: file.name.replace(/\s+/g, '_') });
+        }
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              return resolve({ blob: file, fileName: file.name.replace(/\s+/g, '_') });
+            }
+            const baseName = file.name.replace(/\.[^/.]+$/, '').replace(/\s+/g, '_');
+            resolve({ blob, fileName: `${baseName}.webp` });
+          },
+          'image/webp',
+          quality
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve({ blob: file, fileName: file.name.replace(/\s+/g, '_') });
+      };
+      img.src = url;
+    });
+  };
+
   const uploadToStorage = async (file: any) => {
-    const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+    const { blob, fileName: cleanName } = await convertImageToWebP(file);
+    const uniqueFileName = `${Date.now()}_${cleanName}`;
     const { error: uploadError } = await supabase.storage
       .from(PORTFOLIO_BUCKET)
-      .upload(fileName, file);
+      .upload(uniqueFileName, blob, {
+        contentType: blob.type || 'image/webp',
+        cacheControl: '3600',
+        upsert: false,
+      });
     if (uploadError) throw uploadError;
     const { data: urlData } = supabase.storage
       .from(PORTFOLIO_BUCKET)
-      .getPublicUrl(fileName);
+      .getPublicUrl(uniqueFileName);
     return urlData.publicUrl;
   };
 
