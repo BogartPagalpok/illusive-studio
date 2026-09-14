@@ -134,10 +134,16 @@ export default function ProjectManager() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setSelectedFiles(files);
-    if (files.length === 1 && editingProject) {
+    if (files.length === 0) return;
+    setSelectedFiles(prev => [...prev, ...files]);
+    if (files.length === 1 && editingProject && !editingProjectGroup && !editingProject.id) {
       setEditingProject({ ...editingProject, image_url: files[0].name });
     }
+    e.target.value = '';
+  };
+
+  const removeSelectedFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const clearForm = () => {
@@ -274,91 +280,133 @@ export default function ProjectManager() {
       let mUrl = editingProject.hero_bg_mobile;
       if (mobileFile) mUrl = await uploadToStorage(mobileFile);
 
+      const targetGroupId = editingProject.project_group_id || crypto.randomUUID();
+
       const baseProjectData = {
-        project_group_id: editingProject.project_group_id || crypto.randomUUID(),
-        title: editingProject.title,
+        project_group_id: targetGroupId,
+        title: editingProject.title.trim(),
         category: editingProject.category,
-        description: editingProject.description,
-        process: editingProject.process,
+        description: editingProject.description || '',
+        process: editingProject.process || '',
         tools: toolArray,
-        results: editingProject.results,
-        featured: editingProject.featured,
-        visible: editingProject.visible,
+        results: editingProject.results || '',
+        featured: editingProject.featured ?? true,
+        visible: editingProject.visible ?? true,
         video_urls: editingProject.video_urls || [],
         facebook_urls: editingProject.facebook_urls || [],
         image_layout: editingProject.image_layout || 'auto',
         project_url: editingProject.project_url || '',
-        card_thumbnail: cUrl,
-        hero_bg_desktop: dUrl,
-        hero_bg_mobile: mUrl,
+        card_thumbnail: cUrl || '',
+        hero_bg_desktop: dUrl || '',
+        hero_bg_mobile: mUrl || '',
         sort_order: editingProject.sort_order ?? projects.length * 10,
       };
 
-      if (editingProject.id && selectedFiles.length > 0) {
-        setProgress({ current: 0, total: selectedFiles.length });
-        const newRows = [];
-        for (let i = 0; i < selectedFiles.length; i++) {
-          setProgress(prev => ({ ...prev, current: i + 1 }));
-          const url = await uploadToStorage(selectedFiles[i]);
-          newRows.push({ ...baseProjectData, image_url: url });
-        }
-        const { error } = await supabase.from('portfolio_projects').insert(newRows);
-        if (error) throw error;
-      } else if (selectedFiles.length > 1 && !editingProject.id) {
-        setProgress({ current: 0, total: selectedFiles.length });
-        const batchProjects = [];
-        for (let i = 0; i < selectedFiles.length; i++) {
-          setProgress(prev => ({ ...prev, current: i + 1 }));
-          const url = await uploadToStorage(selectedFiles[i]);
-          batchProjects.push({ ...baseProjectData, image_url: url });
-        }
-        const { error } = await supabase.from('portfolio_projects').insert(batchProjects);
-        if (error) throw error;
-      } else if (editingProject.id && selectedFiles.length === 0 && editingProjectGroup) {
+      if (editingProjectGroup) {
+        // 1. Update all existing rows in this project group
         const originalProject = projects.find(p => p.id === editingProject.id);
-        const { error } = await supabase
-          .from('portfolio_projects')
-          .update({ 
-            title: editingProject.title,
-            description: editingProject.description,
-            tools: toolArray,
-            process: editingProject.process,
-            results: editingProject.results,
-            category: editingProject.category,
-            project_url: editingProject.project_url || '',
-            facebook_urls: editingProject.facebook_urls || [],
-            video_urls: editingProject.video_urls || [],
-            visible: editingProject.visible,
-          })
-          .eq('project_group_id', originalProject?.project_group_id || editingProject.project_group_id);
-        if (error) throw error;
-      } else if (editingProject.id && selectedFiles.length === 0) {
-        const { error } = await supabase
-          .from('portfolio_projects')
-          .update({
-            title: editingProject.title,
-            description: editingProject.description,
-            tools: toolArray,
-            process: editingProject.process,
-            results: editingProject.results,
-            category: editingProject.category,
-            project_url: editingProject.project_url || '',
-            facebook_urls: editingProject.facebook_urls || [],
-            video_urls: editingProject.video_urls || [],
-            visible: editingProject.visible,
-          })
-          .eq('id', editingProject.id);
-        if (error) throw error;
-      } else {
+        const effectiveGroupId = originalProject?.project_group_id || editingProject.project_group_id;
+
+        const groupUpdatePayload: Record<string, any> = {
+          title: baseProjectData.title,
+          category: baseProjectData.category,
+          description: baseProjectData.description,
+          process: baseProjectData.process,
+          tools: baseProjectData.tools,
+          results: baseProjectData.results,
+          featured: baseProjectData.featured,
+          visible: baseProjectData.visible,
+          video_urls: baseProjectData.video_urls,
+          facebook_urls: baseProjectData.facebook_urls,
+          image_layout: baseProjectData.image_layout,
+          project_url: baseProjectData.project_url,
+          card_thumbnail: baseProjectData.card_thumbnail,
+          hero_bg_desktop: baseProjectData.hero_bg_desktop,
+          hero_bg_mobile: baseProjectData.hero_bg_mobile,
+        };
+
+        if (effectiveGroupId) {
+          const { error: updateGroupError } = await supabase
+            .from('portfolio_projects')
+            .update(groupUpdatePayload)
+            .eq('project_group_id', effectiveGroupId);
+          if (updateGroupError) throw updateGroupError;
+        } else if (editingProject.id) {
+          const { error: updateSingleError } = await supabase
+            .from('portfolio_projects')
+            .update(groupUpdatePayload)
+            .eq('id', editingProject.id);
+          if (updateSingleError) throw updateSingleError;
+        }
+
+        // 2. If new files were added to the group, upload & insert them into the same group
+        if (selectedFiles.length > 0) {
+          setProgress({ current: 0, total: selectedFiles.length });
+          const newRows = [];
+          for (let i = 0; i < selectedFiles.length; i++) {
+            setProgress(prev => ({ ...prev, current: i + 1 }));
+            const url = await uploadToStorage(selectedFiles[i]);
+            newRows.push({
+              ...baseProjectData,
+              project_group_id: effectiveGroupId || targetGroupId,
+              image_url: url
+            });
+          }
+          const { error: insertError } = await supabase.from('portfolio_projects').insert(newRows);
+          if (insertError) throw insertError;
+        }
+      } else if (editingProject.id) {
+        // Editing a single project row
         let finalUrl = editingProject.image_url;
         if (selectedFiles.length === 1) {
           finalUrl = await uploadToStorage(selectedFiles[0]);
         }
-        const projectData = { ...baseProjectData, image_url: finalUrl };
-        const { error } = editingProject.id
-          ? await supabase.from('portfolio_projects').update(projectData).eq('id', editingProject.id)
-          : await supabase.from('portfolio_projects').insert([projectData]);
-        if (error) throw error;
+        const singlePayload = {
+          ...baseProjectData,
+          image_url: finalUrl,
+        };
+        const { error: updateError } = await supabase
+          .from('portfolio_projects')
+          .update(singlePayload)
+          .eq('id', editingProject.id);
+        if (updateError) throw updateError;
+
+        // If user uploaded extra files while editing a single row, insert extras into same group
+        if (selectedFiles.length > 1) {
+          setProgress({ current: 0, total: selectedFiles.length - 1 });
+          const extraRows = [];
+          for (let i = 1; i < selectedFiles.length; i++) {
+            setProgress(prev => ({ ...prev, current: i }));
+            const url = await uploadToStorage(selectedFiles[i]);
+            extraRows.push({
+              ...baseProjectData,
+              image_url: url,
+            });
+          }
+          const { error: extraError } = await supabase.from('portfolio_projects').insert(extraRows);
+          if (extraError) throw extraError;
+        }
+      } else {
+        // New project creation
+        if (selectedFiles.length > 1) {
+          setProgress({ current: 0, total: selectedFiles.length });
+          const batchProjects = [];
+          for (let i = 0; i < selectedFiles.length; i++) {
+            setProgress(prev => ({ ...prev, current: i + 1 }));
+            const url = await uploadToStorage(selectedFiles[i]);
+            batchProjects.push({ ...baseProjectData, image_url: url });
+          }
+          const { error: batchError } = await supabase.from('portfolio_projects').insert(batchProjects);
+          if (batchError) throw batchError;
+        } else {
+          let finalUrl = editingProject.image_url;
+          if (selectedFiles.length === 1) {
+            finalUrl = await uploadToStorage(selectedFiles[0]);
+          }
+          const singleProjectData = { ...baseProjectData, image_url: finalUrl };
+          const { error: singleInsertError } = await supabase.from('portfolio_projects').insert([singleProjectData]);
+          if (singleInsertError) throw singleInsertError;
+        }
       }
 
       const savedCategory = editingProject.category;
@@ -543,6 +591,14 @@ export default function ProjectManager() {
     return grouped;
   };
 
+  const editingGroupImages = (editingProjectGroup && editingProject)
+    ? projects.filter(p => {
+        const originalProject = projects.find(proj => proj.id === editingProject.id);
+        const gid = originalProject?.project_group_id || editingProject.project_group_id;
+        return gid ? p.project_group_id === gid && p.image_url : p.id === editingProject.id && p.image_url;
+      })
+    : [];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -613,7 +669,11 @@ export default function ProjectManager() {
         <div className="p-4 sm:p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl space-y-4 sm:space-y-6 relative z-10">
           <div className="flex justify-between items-center border-b border-white/5 pb-3 sm:pb-4">
             <h3 className="text-xs sm:text-sm font-heading font-black uppercase tracking-[0.2em] text-white">
-              {editingProject.id ? 'Edit Details' : `New Entry ${selectedFiles.length > 1 ? `(${selectedFiles.length} files)` : ''}`}
+              {editingProjectGroup
+                ? `Edit Project Group (${editingProject.title || 'Untitled'})`
+                : editingProject.id
+                  ? 'Edit Item Details'
+                  : `New Entry ${selectedFiles.length > 0 ? `(${selectedFiles.length} file${selectedFiles.length === 1 ? '' : 's'} staged)` : ''}`}
             </h3>
             <button onClick={clearForm} className="text-white/20 hover:text-white"><X size={16} /></button>
           </div>
@@ -772,19 +832,82 @@ export default function ProjectManager() {
                   </div>
                 </div>
               </div>
-              <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">
-                  Main Image / Gallery {selectedFiles.length > 0 && <span className="text-accent ml-1">({selectedFiles.length} selected)</span>}
-                </label>
-                <div className="flex gap-1.5">
-                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] sm:text-sm text-white/50 flex items-center overflow-hidden whitespace-nowrap">
-                    {selectedFiles.length > 0 ? `${selectedFiles.length} files selected` : editingProject.image_url || 'No file chosen'}
+              {editingGroupImages.length > 0 && (
+                <div className="space-y-2 p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/40">
+                      Existing Images in Group ({editingGroupImages.length})
+                    </span>
+                    {editingProject.image_layout === '4up-grid' && (
+                      <span className="text-[9px] font-heading text-accent font-bold">
+                        {Math.floor(editingGroupImages.length / 4)} panel{Math.floor(editingGroupImages.length / 4) === 1 ? '' : 's'} of 4{editingGroupImages.length % 4 > 0 ? ` (+${editingGroupImages.length % 4} extra)` : ''}
+                      </span>
+                    )}
                   </div>
-                  <label className="flex items-center justify-center p-2 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
-                    <Upload size={12} />
+                  <div className="flex flex-wrap gap-2">
+                    {editingGroupImages.map(imgProj => (
+                      <div key={imgProj.id} className="relative w-12 h-12 rounded-lg border border-white/10 overflow-hidden group">
+                        <img src={imgProj.image_url} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => imgProj.id && handleDelete(imgProj.id)}
+                          className="absolute inset-0 bg-red-900/80 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition"
+                          title="Delete this image"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30">
+                    {editingProjectGroup ? 'Add More Images to Gallery' : 'Main Image / Gallery'} {selectedFiles.length > 0 && <span className="text-accent ml-1">({selectedFiles.length} staged)</span>}
+                  </label>
+                  {selectedFiles.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedFiles([])}
+                      className="text-[9px] text-red-400/80 hover:text-red-300 transition uppercase font-heading tracking-wider"
+                    >
+                      Clear new
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-1.5">
+                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] sm:text-sm text-white/50 flex items-center justify-between overflow-hidden">
+                    <span className="truncate">
+                      {selectedFiles.length > 0
+                        ? `${selectedFiles.length} file${selectedFiles.length === 1 ? '' : 's'} staged`
+                        : editingProject.image_url || 'Click Add to select images'}
+                    </span>
+                    {editingProject.image_layout === '4up-grid' && (selectedFiles.length + editingGroupImages.length) > 0 && (
+                      <span className="text-accent font-heading text-[9px] font-bold uppercase tracking-wider ml-2 flex-shrink-0">
+                        Total: {selectedFiles.length + editingGroupImages.length} pics ({Math.floor((selectedFiles.length + editingGroupImages.length) / 4)} × 4-pic panel{Math.floor((selectedFiles.length + editingGroupImages.length) / 4) === 1 ? '' : 's'}{(selectedFiles.length + editingGroupImages.length) % 4 > 0 ? ` + ${(selectedFiles.length + editingGroupImages.length) % 4}` : ''})
+                      </span>
+                    )}
+                  </div>
+                  <label className="flex items-center gap-1.5 px-3 py-2 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer bg-white/5 text-white/70 hover:text-white flex-shrink-0" title="Add images (can click multiple times to add sets)">
+                    <Upload size={13} />
+                    <span className="text-[10px] font-heading font-bold uppercase tracking-wider">Add</span>
                     <input type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
                   </label>
                 </div>
+                {selectedFiles.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {selectedFiles.map((file, idx) => (
+                      <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[9px] text-white/70 font-body">
+                        <span className="truncate max-w-[120px]">{file.name}</span>
+                        <button type="button" onClick={() => removeSelectedFile(idx)} className="text-white/30 hover:text-red-400">
+                          <X size={10} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Tech Stack</label>
@@ -990,8 +1113,9 @@ export default function ProjectManager() {
                               video_urls: first.video_urls || [],
                               facebook_urls: first.facebook_urls || [],
                               image_url: '',
-                              image_layout: ''
+                              image_layout: first.image_layout || 'auto'
                             });
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                           }}
                           className="p-1 text-white/20 hover:text-accent transition"
                           title="Edit details for all"
