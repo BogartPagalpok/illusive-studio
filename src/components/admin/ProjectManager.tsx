@@ -181,8 +181,13 @@ export default function ProjectManager() {
       setValidationErrors(['Enter a valid http or https video URL before adding it.']);
       return;
     }
+    const autoCategory = (editingProject.category === 'Graphic Design' && !editingProject.image_url && selectedFiles.length === 0)
+      ? 'Motion'
+      : editingProject.category;
+
     setEditingProject({
       ...editingProject,
+      category: autoCategory,
       video_urls: [
         ...(editingProject.video_urls || []),
         {
@@ -356,9 +361,13 @@ export default function ProjectManager() {
         if (error) throw error;
       }
 
+      const savedCategory = editingProject.category;
       clearForm();
       fetchProjects();
       setSaveStatus('saved');
+      if (savedCategory) {
+        setCollapsedFolders(prev => ({ ...prev, [savedCategory]: false }));
+      }
     } catch (error: any) {
       setSaveStatus('error');
       alert(`Operation failed: ${error.message}`);
@@ -1004,6 +1013,10 @@ export default function ProjectManager() {
                                   className="w-full h-full object-cover"
                                   alt={project.title}
                                 />
+                              ) : (project.video_urls && project.video_urls.length > 0) ? (
+                                <div className="w-full h-full flex items-center justify-center text-accent bg-accent/10">
+                                  <MonitorPlay size={16} />
+                                </div>
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-white/10">
                                   <Link size={12} />

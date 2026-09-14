@@ -760,7 +760,49 @@ export default function CategorySection({ category }: CategorySectionProps) {
               });
             }
           });
-          if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0) return null;
+          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> = [];
+          projectRows.forEach(project => {
+            const urls = project.video_urls || [];
+            urls.forEach(entry => {
+              const url = getUrl(entry);
+              const vertical = getVertical(entry);
+              const platform = detectVideoPlatform(url);
+              if (platform) {
+                allVideos.push({
+                  url,
+                  platform,
+                  projectId: project.id,
+                  projectTitle: project.title,
+                  vertical,
+                  posterUrl: project.card_thumbnail || project.image_url || undefined,
+                  title: (entry as VideoEntry).title || undefined,
+                  subtitle: (entry as VideoEntry).subtitle || undefined,
+                });
+              }
+            });
+          });
+
+          if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0 && allVideos.length === 0) return null;
+
+          if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0 && allVideos.length > 0) {
+            return (
+              <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
+                <div className="section-container relative">
+                  <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
+                    <span className="section-subtitle">{category}</span>
+                    <h2 className="section-title">{formatSectionTitle(title)}</h2>
+                    <div className="section-divider" />
+                  </motion.div>
+                  <MotionPanel
+                    title={title}
+                    description={projectRows[0]?.description || ''}
+                    tools={projectRows[0]?.tools || []}
+                    videoItems={allVideos}
+                  />
+                </div>
+              </section>
+            );
+          }
 
           return (
             <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
