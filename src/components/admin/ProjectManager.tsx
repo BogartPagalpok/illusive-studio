@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, ChevronUp, Link, Eye, EyeOff, Search, MonitorPlay, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Upload, Save, RefreshCw, X, Pencil, Folder, ChevronDown, ChevronRight, ChevronUp, Link, Eye, EyeOff, Search, MonitorPlay, ExternalLink, CheckCircle, AlertCircle, ArrowLeftRight, ArrowLeft, ArrowRight } from 'lucide-react';
 import { supabase, PORTFOLIO_BUCKET } from '../../lib/supabase';
 
 interface VideoEntry {
@@ -58,7 +58,8 @@ const LAYOUT_OPTIONS = [
   { value: 'auto', label: 'Auto (Count-based)' },
   { value: 'single', label: 'Single Image' },
   { value: '3up-portrait-left', label: '3-up Portrait Left' },
-  { value: '4up-grid', label: '4-up Grid (2×2)' },
+  { value: '4up-grid-16-9', label: '4-up Grid (16:9 Widescreen / Twitter)' },
+  { value: '4up-grid', label: '4-up Grid (2×2 Square)' },
   { value: 'preview-grid', label: 'Preview Grid (+more)' },
 ];
 
@@ -70,6 +71,16 @@ export default function ProjectManager() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingProjectGroup, setEditingProjectGroup] = useState(false);
   const [previewProject, setPreviewProject] = useState<Project | null>(null);
+  const [reorderModalGroup, setReorderModalGroup] = useState<{
+    groupId: string;
+    title: string;
+    category: string;
+    layout?: string;
+    images: Project[];
+  } | null>(null);
+  const [modalImages, setModalImages] = useState<Project[]>([]);
+  const [modalLayout, setModalLayout] = useState<string>('auto');
+  const [isReorderingSaving, setIsReorderingSaving] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
@@ -117,6 +128,90 @@ export default function ProjectManager() {
       console.error('Error fetching projects:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (reorderModalGroup) {
+      setModalImages([...reorderModalGroup.images]);
+      setModalLayout(reorderModalGroup.layout || 'auto');
+    }
+  }, [reorderModalGroup]);
+
+  const moveModalSlide = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= modalImages.length) return;
+    setModalImages(prev => {
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  };
+
+  const handleSaveModalOrder = async () => {
+    if (!reorderModalGroup) return;
+    setIsReorderingSaving(true);
+    setSaveStatus('saving');
+    try {
+      // 1. Update sort_order and image_layout for all images in the sequence
+      const updates = modalImages.map((img, idx) =>
+        supabase
+          .from('portfolio_projects')
+          .update({
+            sort_order: idx,
+            image_layout: modalLayout,
+          })
+          .eq('id', img.id!)
+      );
+
+      // 2. Also update image_layout on non-image rows of the group
+      const relatedRows = projects.filter(p => {
+        const matchesGroup =
+          (p.project_group_id && p.project_group_id === reorderModalGroup.groupId) ||
+          (p.title === reorderModalGroup.title && p.category === reorderModalGroup.category);
+        return matchesGroup && !p.image_url;
+      });
+
+      if (relatedRows.length > 0) {
+        updates.push(
+          ...relatedRows.map(p =>
+            supabase
+              .from('portfolio_projects')
+              .update({ image_layout: modalLayout })
+              .eq('id', p.id!)
+          )
+        );
+      }
+
+      await Promise.all(updates);
+      await fetchProjects();
+      setSaveStatus('saved');
+      setReorderModalGroup(null);
+    } catch (err: any) {
+      setSaveStatus('error');
+      alert(`Failed to save image order: ${err.message}`);
+    } finally {
+      setIsReorderingSaving(false);
+    }
+  };
+
+  const moveGroupImageQuick = async (fromIdx: number, toIdx: number, sortedImages: Project[]) => {
+    if (toIdx < 0 || toIdx >= sortedImages.length) return;
+    const itemA = sortedImages[fromIdx];
+    const itemB = sortedImages[toIdx];
+    if (!itemA?.id || !itemB?.id) return;
+
+    setSaveStatus('saving');
+    try {
+      await Promise.all([
+        supabase.from('portfolio_projects').update({ sort_order: toIdx }).eq('id', itemA.id),
+        supabase.from('portfolio_projects').update({ sort_order: fromIdx }).eq('id', itemB.id),
+      ]);
+      await fetchProjects();
+      setSaveStatus('saved');
+    } catch (e: any) {
+      setSaveStatus('error');
+      alert(`Reorder failed: ${e.message}`);
     }
   };
 
@@ -393,7 +488,8 @@ export default function ProjectManager() {
             newRows.push({
               ...baseProjectData,
               project_group_id: effectiveGroupId || targetGroupId,
-              image_url: url
+              image_url: url,
+              sort_order: editingGroupImages.length + i,
             });
           }
           const { error: insertError } = await supabase.from('portfolio_projects').insert(newRows);
@@ -438,7 +534,7 @@ export default function ProjectManager() {
           for (let i = 0; i < selectedFiles.length; i++) {
             setProgress(prev => ({ ...prev, current: i + 1 }));
             const url = await uploadToStorage(selectedFiles[i]);
-            batchProjects.push({ ...baseProjectData, image_url: url });
+            batchProjects.push({ ...baseProjectData, image_url: url, sort_order: i });
           }
           const { error: batchError } = await supabase.from('portfolio_projects').insert(batchProjects);
           if (batchError) throw batchError;
@@ -877,31 +973,93 @@ export default function ProjectManager() {
                 </div>
               </div>
               {editingGroupImages.length > 0 && (
-                <div className="space-y-2 p-3 rounded-xl border border-white/10 bg-white/[0.02]">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/40">
-                      Existing Images in Group ({editingGroupImages.length})
-                    </span>
-                    {editingProject.image_layout === '4up-grid' && (
-                      <span className="text-[9px] font-heading text-accent font-bold">
-                        {Math.floor(editingGroupImages.length / 4)} panel{Math.floor(editingGroupImages.length / 4) === 1 ? '' : 's'} of 4{editingGroupImages.length % 4 > 0 ? ` (+${editingGroupImages.length % 4} extra)` : ''}
+                <div className="space-y-3 p-3 sm:p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                  <div className="flex flex-wrap justify-between items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/40">
+                        Existing Images ({editingGroupImages.length})
                       </span>
+                      {(editingProject.image_layout === '4up-grid' || editingProject.image_layout === '4up-grid-16-9') && (
+                        <span className="text-[9px] font-heading text-accent font-bold">
+                          {Math.floor(editingGroupImages.length / 4)} panel{Math.floor(editingGroupImages.length / 4) === 1 ? '' : 's'} of 4{editingGroupImages.length % 4 > 0 ? ` (+${editingGroupImages.length % 4} extra)` : ''}
+                        </span>
+                      )}
+                    </div>
+                    {editingGroupImages.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const sorted = [...editingGroupImages].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+                          setReorderModalGroup({
+                            groupId: editingProject.project_group_id || editingProject.title,
+                            title: editingProject.title,
+                            category: editingProject.category,
+                            layout: editingProject.image_layout || 'auto',
+                            images: sorted,
+                          });
+                        }}
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-black transition text-[9px] font-heading font-bold uppercase tracking-wider shadow-sm"
+                      >
+                        <ArrowLeftRight size={11} />
+                        Visual Order Editor
+                      </button>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {editingGroupImages.map(imgProj => (
-                      <div key={imgProj.id} className="relative w-12 h-12 rounded-lg border border-white/10 overflow-hidden group">
-                        <img src={imgProj.image_url} alt="" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => imgProj.id && handleDelete(imgProj.id)}
-                          className="absolute inset-0 bg-red-900/80 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition"
-                          title="Delete this image"
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    ))}
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
+                    {[...editingGroupImages].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map((imgProj, idx, sortedArr) => {
+                      const panelNum = Math.floor(idx / 4) + 1;
+                      const slotNames = ['Top-L', 'Top-R', 'Bot-L', 'Bot-R'];
+                      const slotName = slotNames[idx % 4];
+                      const is4up = editingProject.image_layout === '4up-grid' || editingProject.image_layout === '4up-grid-16-9';
+
+                      return (
+                        <div key={imgProj.id} className="relative rounded-lg border border-white/10 overflow-hidden bg-black/40 group flex flex-col">
+                          <div className={`relative w-full ${editingProject.image_layout === '4up-grid-16-9' ? 'aspect-[16/9]' : 'aspect-square'} overflow-hidden bg-zinc-900`}>
+                            <img src={imgProj.image_url} alt="" className="w-full h-full object-cover" />
+                            <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-black font-heading bg-accent text-black shadow">
+                              #{idx + 1}
+                            </span>
+                            {is4up && (
+                              <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded text-[8px] font-bold font-heading bg-black/70 text-white/80 border border-white/10">
+                                P{panelNum} {slotName}
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => imgProj.id && handleDelete(imgProj.id)}
+                              className="absolute inset-0 bg-red-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition gap-1 text-[10px] font-bold uppercase tracking-wider"
+                              title="Delete this image"
+                            >
+                              <Trash2 size={12} />
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                          {sortedArr.length > 1 && (
+                            <div className="flex border-t border-white/10 bg-white/[0.03]">
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => moveGroupImageQuick(idx, idx - 1, sortedArr)}
+                                className="flex-1 py-1 text-[9px] font-bold text-white/40 hover:text-accent disabled:opacity-20 disabled:hover:text-white/40 flex items-center justify-center transition border-r border-white/5"
+                                title="Move earlier"
+                              >
+                                <ArrowLeft size={10} />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={idx === sortedArr.length - 1}
+                                onClick={() => moveGroupImageQuick(idx, idx + 1, sortedArr)}
+                                className="flex-1 py-1 text-[9px] font-bold text-white/40 hover:text-accent disabled:opacity-20 disabled:hover:text-white/40 flex items-center justify-center transition"
+                                title="Move later"
+                              >
+                                <ArrowRight size={10} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -1139,6 +1297,27 @@ export default function ProjectManager() {
                             Images
                           </button>
                         )}
+                        {projectRows.filter(project => project.image_url).length > 1 && (
+                          <button
+                            onClick={() => {
+                              const imgRows = projectRows
+                                .filter(project => project.image_url)
+                                .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+                              setReorderModalGroup({
+                                groupId: projectKey,
+                                title: projectTitle,
+                                category,
+                                layout: projectRows[0]?.image_layout || 'auto',
+                                images: imgRows,
+                              });
+                            }}
+                            className="flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider text-accent/80 hover:text-accent transition"
+                            title="Reorder images visually"
+                          >
+                            <ArrowLeftRight size={13} />
+                            Reorder ({projectRows.filter(p => p.image_url).length})
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDeleteProjectGroup(projectRows)}
                           className="flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider text-white/40 hover:text-red-400 transition"
@@ -1241,6 +1420,247 @@ export default function ProjectManager() {
           );
         })}
       </div>
+
+      {reorderModalGroup && (
+        <div
+          className="fixed inset-0 z-[300] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto"
+          onClick={() => !isReorderingSaving && setReorderModalGroup(null)}
+        >
+          <div
+            className="w-full max-w-5xl rounded-2xl border border-white/10 bg-zinc-950 p-5 sm:p-7 shadow-2xl space-y-6 my-auto max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-heading font-black uppercase tracking-[0.25em] text-accent">Visual Slide Reorder</span>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-white/10 text-white/70">
+                    {modalImages.length} Slides
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-heading font-black uppercase tracking-tight text-white mt-1">
+                  {reorderModalGroup.title}
+                </h3>
+                <p className="text-xs text-white/40 mt-0.5">
+                  Reorder each slide below. Changes will immediately sync to the front-end layout upon saving.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
+                  <span className="text-[10px] font-heading uppercase tracking-wider text-white/50">Layout:</span>
+                  <select
+                    value={modalLayout}
+                    onChange={e => setModalLayout(e.target.value)}
+                    className="bg-transparent text-xs text-accent font-semibold focus:outline-none cursor-pointer"
+                  >
+                    <option value="4up-grid-16-9" className="bg-zinc-900 text-white">4-up Grid (16:9 Twitter/Widescreen)</option>
+                    <option value="4up-grid" className="bg-zinc-900 text-white">4-up Grid (2×2 Square)</option>
+                    <option value="single" className="bg-zinc-900 text-white">Single Cards</option>
+                    <option value="preview-grid" className="bg-zinc-900 text-white">Preview Grid</option>
+                    <option value="auto" className="bg-zinc-900 text-white">Auto</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => setReorderModalGroup(null)}
+                  disabled={isReorderingSaving}
+                  className="p-2 text-white/40 hover:text-white rounded-lg bg-white/5 transition"
+                  title="Close"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Panels View for 4-up grids */}
+            {(modalLayout === '4up-grid' || modalLayout === '4up-grid-16-9' || modalImages.length >= 4) ? (
+              <div className="space-y-6">
+                {Array.from({ length: Math.ceil(modalImages.length / 4) }).map((_, panelIndex) => {
+                  const panelStart = panelIndex * 4;
+                  const panelEnd = Math.min(panelStart + 4, modalImages.length);
+                  const panelItems = modalImages.slice(panelStart, panelEnd);
+                  const slotLabels = ['Top-Left (Slot 1)', 'Top-Right (Slot 2)', 'Bottom-Left (Slot 3)', 'Bottom-Right (Slot 4)'];
+
+                  return (
+                    <div key={panelIndex} className="p-4 rounded-xl border border-white/10 bg-white/[0.02] space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-heading font-black uppercase tracking-widest text-accent flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-accent inline-block" />
+                          Panel {panelIndex + 1} (Slides {panelStart + 1} to {panelEnd})
+                        </span>
+                        <span className="text-[10px] uppercase font-bold text-white/40">
+                          {modalLayout === '4up-grid-16-9' ? '16:9 Widescreen (Twitter / X)' : '2×2 Grid'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {panelItems.map((img, slotIndex) => {
+                          const globalIndex = panelStart + slotIndex;
+                          const isWidescreen = modalLayout === '4up-grid-16-9';
+
+                          return (
+                            <div
+                              key={img.id || globalIndex}
+                              className="relative rounded-xl border border-white/15 bg-black/60 overflow-hidden flex flex-col"
+                            >
+                              {/* Image Container with slot label */}
+                              <div className={`relative w-full ${isWidescreen ? 'aspect-[16/9]' : 'aspect-square'} bg-zinc-900`}>
+                                <img
+                                  src={img.image_url}
+                                  alt={`Slide ${globalIndex + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none" />
+
+                                <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                                  <span className="px-2 py-0.5 rounded font-heading font-black text-xs bg-accent text-black shadow-lg">
+                                    #{globalIndex + 1}
+                                  </span>
+                                  <span className="px-2 py-0.5 rounded font-heading font-bold text-[10px] bg-black/80 text-white/90 border border-white/20">
+                                    {slotLabels[slotIndex]}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Controls Bar */}
+                              <div className="p-2.5 bg-zinc-900/90 border-t border-white/10 flex items-center justify-between gap-2">
+                                <button
+                                  type="button"
+                                  disabled={globalIndex === 0}
+                                  onClick={() => moveModalSlide(globalIndex, globalIndex - 1)}
+                                  className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-accent hover:border-accent/40 disabled:opacity-20 disabled:hover:text-white/60 disabled:hover:border-white/10 text-[10px] font-heading font-bold uppercase tracking-wider flex items-center gap-1 transition"
+                                  title="Shift 1 position earlier"
+                                >
+                                  <ArrowLeft size={12} />
+                                  <span>Earlier</span>
+                                </button>
+
+                                <div className="flex items-center gap-1">
+                                  <span className="text-[9px] font-heading uppercase text-white/40">Pos:</span>
+                                  <select
+                                    value={globalIndex}
+                                    onChange={e => moveModalSlide(globalIndex, parseInt(e.target.value))}
+                                    className="px-2 py-1 bg-white/10 border border-white/15 rounded text-[10px] text-white font-bold cursor-pointer"
+                                  >
+                                    {modalImages.map((_, pIdx) => (
+                                      <option key={pIdx} value={pIdx} className="bg-zinc-900 text-white">
+                                        #{pIdx + 1}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  disabled={globalIndex === modalImages.length - 1}
+                                  onClick={() => moveModalSlide(globalIndex, globalIndex + 1)}
+                                  className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-accent hover:border-accent/40 disabled:opacity-20 disabled:hover:text-white/60 disabled:hover:border-white/10 text-[10px] font-heading font-bold uppercase tracking-wider flex items-center gap-1 transition"
+                                  title="Shift 1 position later"
+                                >
+                                  <span>Later</span>
+                                  <ArrowRight size={12} />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {modalImages.map((img, globalIndex) => (
+                  <div
+                    key={img.id || globalIndex}
+                    className="relative rounded-xl border border-white/15 bg-black/60 overflow-hidden flex flex-col"
+                  >
+                    <div className="relative w-full aspect-square bg-zinc-900">
+                      <img
+                        src={img.image_url}
+                        alt={`Slide ${globalIndex + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded font-heading font-black text-xs bg-accent text-black shadow-lg">
+                        #{globalIndex + 1}
+                      </span>
+                    </div>
+
+                    <div className="p-2 bg-zinc-900 border-t border-white/10 flex items-center justify-between">
+                      <button
+                        type="button"
+                        disabled={globalIndex === 0}
+                        onClick={() => moveModalSlide(globalIndex, globalIndex - 1)}
+                        className="p-1 text-white/60 hover:text-accent disabled:opacity-20"
+                      >
+                        <ArrowLeft size={14} />
+                      </button>
+                      <select
+                        value={globalIndex}
+                        onChange={e => moveModalSlide(globalIndex, parseInt(e.target.value))}
+                        className="px-1.5 py-0.5 bg-white/10 border border-white/15 rounded text-[10px] text-white font-bold"
+                      >
+                        {modalImages.map((_, pIdx) => (
+                          <option key={pIdx} value={pIdx} className="bg-zinc-900 text-white">
+                            #{pIdx + 1}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        disabled={globalIndex === modalImages.length - 1}
+                        onClick={() => moveModalSlide(globalIndex, globalIndex + 1)}
+                        className="p-1 text-white/60 hover:text-accent disabled:opacity-20"
+                      >
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Footer */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-white/10">
+              <p className="text-[11px] text-white/40">
+                💡 Infographic 4-up panels flow: <span className="text-white/70 font-semibold">1. Top-Left → 2. Top-Right → 3. Bottom-Left → 4. Bottom-Right</span>.
+              </p>
+
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <button
+                  type="button"
+                  onClick={() => setReorderModalGroup(null)}
+                  disabled={isReorderingSaving}
+                  className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white text-xs font-heading font-bold uppercase tracking-wider transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveModalOrder}
+                  disabled={isReorderingSaving}
+                  className="px-5 py-2 rounded-xl bg-accent text-black font-heading font-black text-xs uppercase tracking-wider flex items-center gap-2 hover:opacity-90 disabled:opacity-50 shadow-lg transition"
+                >
+                  {isReorderingSaving ? (
+                    <>
+                      <RefreshCw size={13} className="animate-spin" />
+                      Saving Order...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={13} />
+                      Save Slide Order
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {previewProject && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setPreviewProject(null)}>

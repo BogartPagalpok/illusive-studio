@@ -399,11 +399,12 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
   );
 }
 
-function GraphicsCompositeCard({ images, title, description, tools }: { images: string[]; title: string; description?: string; tools?: string[] }) {
+function GraphicsCompositeCard({ images, title, description, tools, layout }: { images: string[]; title: string; description?: string; tools?: string[]; layout?: string }) {
   const [flipped, setFlipped] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState<'16-9' | 'square'>('square');
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -411,6 +412,23 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
+
+  useEffect(() => {
+    if (layout === '4up-grid-16-9') {
+      setAspectRatio('16-9');
+      return;
+    }
+    if (!images[0]) return;
+    const img = new Image();
+    img.onload = () => {
+      if (img.naturalWidth / img.naturalHeight >= 1.35) {
+        setAspectRatio('16-9');
+      } else {
+        setAspectRatio('square');
+      }
+    };
+    img.src = images[0];
+  }, [images, layout]);
 
   const count = images.length;
   const displayImages = images.slice(0, 6);
@@ -471,7 +489,11 @@ function GraphicsCompositeCard({ images, title, description, tools }: { images: 
             ) : count === 4 ? (
               <div className="grid grid-cols-2 gap-1 p-1">
                 {displayImages.map((img, i) => (
-                  <div key={i} className="cursor-pointer overflow-hidden aspect-square" onClick={(e) => handleImageClick(e, i)}>
+                  <div
+                    key={i}
+                    className={`cursor-pointer overflow-hidden ${aspectRatio === '16-9' ? 'aspect-[16/9]' : 'aspect-square'}`}
+                    onClick={(e) => handleImageClick(e, i)}
+                  >
                     <img src={img} alt={`${title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                 ))}
@@ -843,6 +865,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
                           title={title}
                           description={tile.description}
                           tools={tile.tools}
+                          layout={tile.layout}
                         />
                       )
                     ))}
