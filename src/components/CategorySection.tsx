@@ -36,6 +36,8 @@ interface Project {
 
 interface CategorySectionProps {
   category: string;
+  groupIndex?: number;
+  hideHeader?: boolean;
 }
 
 interface CopyMapping {
@@ -1082,7 +1084,7 @@ function MasonryWrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function CategorySection({ category }: CategorySectionProps) {
+export default function CategorySection({ category, groupIndex, hideHeader }: CategorySectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [columnCount, setColumnCount] = useState(3);
@@ -1176,7 +1178,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
     return acc;
   }, {} as Record<string, Project[]>);
 
-  const visibleGroups = Object.entries(groupedByProject).filter(([, projectRows]) => {
+  const allVisibleGroups = Object.entries(groupedByProject).filter(([, projectRows]) => {
     return projectRows.some(p =>
       p.image_url || 
       (p.video_urls && p.video_urls.length > 0 && p.video_urls.some((entry: any) => {
@@ -1187,13 +1189,19 @@ export default function CategorySection({ category }: CategorySectionProps) {
     );
   });
 
+  const visibleGroups = groupIndex !== undefined
+    ? (allVisibleGroups[groupIndex] ? [allVisibleGroups[groupIndex]] : [])
+    : allVisibleGroups;
+
   if (visibleGroups.length === 0) return null;
 
   const isGraphics = category === 'Graphic Design';
   const isMotion = category === 'Motion';
   const isPhotography = category === 'Photography';
   const isUIUX = category === 'UI/UX';
-  const categorySlug = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  const categorySlug = groupIndex !== undefined
+    ? `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${groupIndex}`
+    : `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
   const getVideoUrl = (project: Project): string | null => {
     if (project.video_urls && project.video_urls.length > 0) {
@@ -1208,14 +1216,16 @@ export default function CategorySection({ category }: CategorySectionProps) {
     <section ref={sectionRef} id={categorySlug} className="section-padding relative overflow-visible bg-transparent">
       <div className="section-container relative">
         {/* Unified Category Header - Rendered ONCE per category */}
-        <div
-          ref={categoryHeaderRef}
-          className="text-center mb-12 sm:mb-16 flex flex-col items-center will-change-transform"
-        >
-          <span className="section-subtitle">FEATURED WORK //</span>
-          <h2 className="section-title">{formatSectionTitle(category.toUpperCase())}</h2>
-          <div className="section-divider" />
-        </div>
+        {!hideHeader && (
+          <div
+            ref={categoryHeaderRef}
+            className="text-center mb-12 sm:mb-16 flex flex-col items-center will-change-transform"
+          >
+            <span className="section-subtitle">FEATURED WORK //</span>
+            <h2 className="section-title">{formatSectionTitle(category.toUpperCase())}</h2>
+            <div className="section-divider" />
+          </div>
+        )}
 
         {loading && (
           <div className="flex justify-center py-12">

@@ -45,7 +45,7 @@ function scrollToId(e: React.MouseEvent, id: string) {
   }
 }
 
-export default function Hero() {
+export default function Hero({ isSlideDeck = false }: { isSlideDeck?: boolean }) {
   const [content, setContent] = useState<HeroContent>(defaultContent);
   const overlayRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -95,16 +95,10 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    if (!sectionRef.current) return;
+    if (!sectionRef.current || isSlideDeck) return;
 
     const ctx = gsap.context(() => {
       // Elements arranged in succession: BOTTOM TO TOP
-      // 1. Resonate (bottom-most)
-      // 2. That
-      // 3. Stories
-      // 4. Visual
-      // 5. Crafting (top headline)
-      // 6. Subtitle (top metadata)
       const textItems = [
         line3B_Ref.current,
         line3A_Ref.current,
@@ -164,7 +158,7 @@ export default function Hero() {
       ctx.revert();
       window.removeEventListener('storage', handleThemeChange);
     };
-  }, [content]);
+  }, [content, isSlideDeck]);
 
   const line2Words = content.heading_line2.trim().split(/\s+/);
   const line3Words = content.heading_line3.trim().split(/\s+/);
@@ -173,9 +167,9 @@ export default function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="w-full overflow-hidden relative bg-transparent"
+      className={isSlideDeck ? "w-full h-full overflow-hidden relative bg-transparent" : "w-full overflow-hidden relative bg-transparent"}
     >
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 2}>
+      <ScrollSequence isPinned={!isSlideDeck} frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 2}>
         <div className="hidden lg:block pointer-events-none">
           <FloatingCube type="Ps" size={90} top="16%" left="3%" blur="1px" delay={0} duration={6} />
           <FloatingCube type="Ai" size={75} bottom="20%" right="3%" blur="1px" delay={1} duration={5} />
