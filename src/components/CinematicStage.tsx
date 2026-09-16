@@ -18,11 +18,13 @@ export default function CinematicStage({
   children,
   scrollMultiplier = 1.25,
 }: CinematicStageProps) {
+  const outerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const outer = outerRef.current;
     const stage = stageRef.current;
-    if (!stage) return;
+    if (!outer || !stage) return;
 
     const ctx = gsap.context(() => {
       // Find elements with semantic animation classes
@@ -35,11 +37,9 @@ export default function CinematicStage({
 
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: stage,
+          trigger: outer,
           start: 'top top',
-          end: `+=${Math.round(window.innerHeight * scrollMultiplier)}`,
-          pin: true,
-          anticipatePin: 1,
+          end: 'bottom bottom',
           scrub: 0.6,
         },
       });
@@ -158,7 +158,7 @@ export default function CinematicStage({
           0.65
         );
       }
-    }, stage);
+    }, outer);
 
     return () => {
       ctx.revert();
@@ -167,12 +167,17 @@ export default function CinematicStage({
 
   return (
     <div
-      ref={stageRef}
+      ref={outerRef}
       id={id}
-      className={`min-h-screen h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-transparent select-none ${className}`}
-      style={{ contain: 'paint' }}
+      className="relative w-full"
+      style={{ height: `${Math.round(100 * (1 + scrollMultiplier))}vh` }}
     >
-      {children}
+      <div
+        ref={stageRef}
+        className={`sticky top-0 h-screen min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-transparent select-none ${className}`}
+      >
+        {children}
+      </div>
     </div>
   );
 }
