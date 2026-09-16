@@ -722,7 +722,39 @@ function FacebookEmbed({ url }: { url: string }) {
   );
 }
 
+function getBentoClasses(index: number, total: number): string {
+  // Tablet (md: 6-col grid):
+  let mdSpan = 'md:col-span-3'; // 2 per row
+  if (total % 2 !== 0 && index === 0) {
+    mdSpan = 'md:col-span-6'; // featured first card for odd counts on tablet
+  }
+
+  // Desktop (lg: 6-col grid):
+  let lgSpan = 'lg:col-span-2'; // 3 per row (default)
+  if (total === 7) {
+    // 7 items: Row 1 has 4+2, Row 2 has 2+2+2, Row 3 has 2+4 (100% full, zero gaps)
+    lgSpan = (index === 0 || index === 6) ? 'lg:col-span-4' : 'lg:col-span-2';
+  } else if (total === 8) {
+    // 8 items: Row 1 has 3+3 (half-width spotlight), Row 2 has 2+2+2, Row 3 has 2+2+2 (100% full)
+    lgSpan = (index === 0 || index === 1) ? 'lg:col-span-3' : 'lg:col-span-2';
+  } else if (total === 5) {
+    // 5 items: Row 1 has 3+3, Row 2 has 2+2+2 (100% full)
+    lgSpan = (index === 0 || index === 1) ? 'lg:col-span-3' : 'lg:col-span-2';
+  } else if (total === 4 || total === 2) {
+    // 4 or 2 items: Rows of 2 (half-width)
+    lgSpan = 'lg:col-span-3';
+  } else if (total === 1) {
+    lgSpan = 'lg:col-span-6';
+  }
+
+  return `col-span-1 ${mdSpan} ${lgSpan}`;
+}
+
 function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> }) {
+  const isVerticalGroup = videoItems.every(
+    item => item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url))
+  );
+
   return (
     <div className="w-full flex flex-col">
       {/* Full-width sleek header banner */}
@@ -756,24 +788,16 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
         )}
       </div>
 
-      {/* Balanced, gap-free video showcase */}
-      <div className="flex flex-wrap justify-center gap-6 w-full">
-        {videoItems.map((item, i) => {
-          const usePhone = item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url));
-          const hasSpecificTitle = Boolean(item.title && item.title.trim().toLowerCase() !== title.trim().toLowerCase());
-          const displayTitle = hasSpecificTitle ? item.title! : '';
-          const cardSubtitle = item.subtitle;
+      {/* 100% Filled Bento Grid (Zero dead space or gaps) */}
+      {isVerticalGroup ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 justify-items-center w-full">
+          {videoItems.map((item, i) => {
+            const hasSpecificTitle = Boolean(item.title && item.title.trim().toLowerCase() !== title.trim().toLowerCase());
+            const displayTitle = hasSpecificTitle ? item.title! : '';
+            const cardSubtitle = item.subtitle;
 
-          return (
-            <div 
-              key={`${item.projectId}-${i}`}
-              className={
-                usePhone 
-                  ? "w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] max-w-[320px] flex flex-col items-center"
-                  : "w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-[540px] flex flex-col"
-              }
-            >
-              {usePhone ? (
+            return (
+              <div key={`${item.projectId}-${i}`} className="w-full max-w-[280px] flex flex-col items-center">
                 <PhoneFrame>
                   {item.platform === 'tiktok' ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
@@ -792,7 +816,30 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                     />
                   )}
                 </PhoneFrame>
-              ) : (
+                {displayTitle && (
+                  <p className="text-center text-xs font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>
+                    {displayTitle}
+                  </p>
+                )}
+                {cardSubtitle && (
+                  <p className="text-center text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                    {cardSubtitle}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6 w-full">
+          {videoItems.map((item, i) => {
+            const hasSpecificTitle = Boolean(item.title && item.title.trim().toLowerCase() !== title.trim().toLowerCase());
+            const displayTitle = hasSpecificTitle ? item.title! : '';
+            const cardSubtitle = item.subtitle;
+            const bentoClasses = getBentoClasses(i, videoItems.length);
+
+            return (
+              <div key={`${item.projectId}-${i}`} className={`${bentoClasses} flex flex-col`}>
                 <BrowserFrame title={displayTitle || title}>
                   <VideoFacade
                     url={item.url}
@@ -801,21 +848,21 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                     posterUrl={item.posterUrl}
                   />
                 </BrowserFrame>
-              )}
-              {displayTitle && (
-                <p className="text-center text-xs font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>
-                  {displayTitle}
-                </p>
-              )}
-              {cardSubtitle && (
-                <p className="text-center text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>
-                  {cardSubtitle}
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                {displayTitle && (
+                  <p className="text-center text-xs font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>
+                    {displayTitle}
+                  </p>
+                )}
+                {cardSubtitle && (
+                  <p className="text-center text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                    {cardSubtitle}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
