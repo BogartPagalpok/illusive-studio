@@ -129,8 +129,9 @@ export default function ScrollingMasonry({
             height: 100%;
             overflow: hidden;
             position: relative;
+            mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
             min-width: 0;
-            contain: paint layout;
           }
           .scroll-track {
             display: flex;
@@ -147,10 +148,6 @@ export default function ScrollingMasonry({
             background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
           }
         `}</style>
-
-        {/* Smooth Top & Bottom Fade Overlays without GPU-heavy mask-image */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[var(--bg-primary,#030305)] to-transparent z-10" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[var(--bg-primary,#030305)] to-transparent z-10" />
 
         <div className="grid gap-3 h-full" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
           {cols.map((col, colIdx) => (
