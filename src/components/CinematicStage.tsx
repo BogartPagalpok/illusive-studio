@@ -8,7 +8,7 @@ interface CinematicStageProps {
   id?: string;
   className?: string;
   children: React.ReactNode;
-  /** Custom scroll length multiplier (default 1.5) */
+  /** Custom scroll length multiplier (default 2.2 for rock-solid pinning) */
   scrollMultiplier?: number;
 }
 
@@ -16,7 +16,7 @@ export default function CinematicStage({
   id,
   className = '',
   children,
-  scrollMultiplier = 1.5,
+  scrollMultiplier = 2.2,
 }: CinematicStageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -38,22 +38,22 @@ export default function CinematicStage({
         scrollTrigger: {
           trigger: stage,
           start: 'top top',
-          end: `+=${Math.round(window.innerHeight * scrollMultiplier)}`,
+          end: () => `+=${Math.round(window.innerHeight * scrollMultiplier)}`,
           pin: true,
           pinSpacing: true,
           anticipatePin: 1,
-          scrub: 0.6,
+          scrub: 0.5,
           invalidateOnRefresh: true,
         },
       });
 
-      // Phase 1: Entrance (0% -> 20% of scroll)
-      // Text lands from bottom to top with directional motion blur
+      // Phase 1: Snappy Entrance (0% -> 15% of scroll)
+      // Text lands into place from bottom to top with directional motion blur
       if (textBottomToTop.length > 0) {
         tl.fromTo(
           textBottomToTop,
           {
-            y: () => (window.innerWidth < 768 ? 80 : 120),
+            y: () => (window.innerWidth < 768 ? 70 : 100),
             opacity: 0,
             filter: 'blur(8px)',
           },
@@ -61,20 +61,20 @@ export default function CinematicStage({
             y: 0,
             opacity: 1,
             filter: 'blur(0px)',
-            stagger: 0.04,
+            stagger: 0.03,
             ease: 'power2.out',
-            duration: 0.2,
+            duration: 0.15,
           },
           0
         );
       }
 
-      // Media sweeps from left to right one by one with motion blur into dead center
+      // Media sweeps from left to right into dead center stage with motion blur
       if (mediaElements.length > 0) {
         tl.fromTo(
           mediaElements,
           {
-            x: () => (window.innerWidth < 768 ? -120 : -200),
+            x: () => (window.innerWidth < 768 ? -100 : -180),
             opacity: 0,
             filter: 'blur(8px)',
           },
@@ -82,20 +82,20 @@ export default function CinematicStage({
             x: 0,
             opacity: 1,
             filter: 'blur(0px)',
-            stagger: 0.06,
+            stagger: 0.04,
             ease: 'power2.out',
-            duration: 0.22,
+            duration: 0.15,
           },
-          0.02
+          0.01
         );
       }
 
-      // Generic stage elements if used
+      // Generic stage elements
       if (allElements.length > 0) {
         tl.fromTo(
           allElements,
           {
-            y: 60,
+            y: 50,
             opacity: 0,
             filter: 'blur(6px)',
           },
@@ -103,47 +103,48 @@ export default function CinematicStage({
             y: 0,
             opacity: 1,
             filter: 'blur(0px)',
-            stagger: 0.04,
+            stagger: 0.03,
             ease: 'power2.out',
-            duration: 0.2,
+            duration: 0.15,
           },
           0
         );
       }
 
-      // Phase 2: Rest & View (20% -> 80% of scroll)
-      // Elements hold locked position dead-center with 0px blur and full opacity for easy viewing
+      // Phase 2: FIRMLY PINNED VIEWING WINDOW (15% -> 85% of scroll)
+      // 70% of the entire scroll distance is firmly locked at 100% opacity,
+      // 0px blur, dead-center in the viewport for effortless viewing/reading.
 
-      // Phase 3: Exit (80% -> 100% of scroll)
-      // Media flies out to the left with motion blur
+      // Phase 3: Exit (85% -> 100% of scroll)
+      // Media flies out to the left with directional motion blur
       if (mediaElements.length > 0) {
         tl.to(
           mediaElements,
           {
-            x: () => (window.innerWidth < 768 ? -140 : -240),
+            x: () => (window.innerWidth < 768 ? -120 : -220),
             opacity: 0,
             filter: 'blur(8px)',
-            stagger: 0.04,
+            stagger: 0.03,
             ease: 'power2.in',
-            duration: 0.2,
+            duration: 0.15,
           },
-          0.8
+          0.85
         );
       }
 
-      // Text launches upward off screen with motion blur
+      // Text launches upward off screen with directional motion blur
       if (textElements.length > 0) {
         tl.to(
           textElements,
           {
-            y: () => (window.innerWidth < 768 ? -80 : -120),
+            y: () => (window.innerWidth < 768 ? -70 : -100),
             opacity: 0,
             filter: 'blur(8px)',
-            stagger: 0.04,
+            stagger: 0.03,
             ease: 'power2.in',
-            duration: 0.2,
+            duration: 0.15,
           },
-          0.8
+          0.85
         );
       }
 
@@ -151,19 +152,25 @@ export default function CinematicStage({
         tl.to(
           allElements,
           {
-            y: -60,
+            y: -50,
             opacity: 0,
             filter: 'blur(6px)',
-            stagger: 0.04,
+            stagger: 0.03,
             ease: 'power2.in',
-            duration: 0.2,
+            duration: 0.15,
           },
-          0.8
+          0.85
         );
       }
     }, containerRef);
 
+    // Refresh ScrollTrigger so pinning offsets are precisely calculated
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+
     return () => {
+      clearTimeout(refreshTimer);
       ctx.revert();
     };
   }, [scrollMultiplier]);

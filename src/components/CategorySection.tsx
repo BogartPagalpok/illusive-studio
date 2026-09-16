@@ -723,20 +723,41 @@ function FacebookEmbed({ url }: { url: string }) {
   );
 }
 
-function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> }) {
+function MotionPanel({
+  title,
+  description,
+  tools,
+  videoItems,
+}: {
+  title: string;
+  description?: string;
+  tools?: string[];
+  videoItems: Array<{
+    url: string;
+    platform: VideoPlatform;
+    projectId: string;
+    projectTitle: string;
+    vertical: boolean;
+    posterUrl?: string;
+    title?: string;
+    subtitle?: string;
+  }>;
+}) {
+  const [activeClipIndex, setActiveClipIndex] = useState(0);
   const displayVideos = videoItems.slice(0, 3);
+  const isVertical = displayVideos.some(
+    (item) => item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url))
+  );
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-4 my-auto">
+    <div className="relative w-full h-full flex items-center justify-center px-4 sm:px-6">
       {/* Centered Media Stage: Sweeps in left to right */}
-      <div className="flex items-center justify-center gap-4 sm:gap-6 w-full max-h-[56vh]">
-        {displayVideos.map((item, i) => {
-          const usePhone = item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url));
-          const cardTitle = item.title || item.projectTitle;
-
-          return (
-            <div key={`${item.projectId}-${i}`} className="stage-media flex flex-col items-center justify-center max-h-[54vh]">
-              {usePhone ? (
+      {isVertical ? (
+        <div className="flex items-center justify-center gap-4 sm:gap-6 w-full max-h-[54vh] my-auto">
+          {displayVideos.map((item, i) => {
+            const cardTitle = item.title || item.projectTitle;
+            return (
+              <div key={`${item.projectId}-${i}`} className="stage-media flex flex-col items-center justify-center max-h-[52vh]">
                 <div className="max-h-[50vh] flex items-center justify-center">
                   <PhoneFrame>
                     {item.platform === 'tiktok' ? (
@@ -757,44 +778,67 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                     )}
                   </PhoneFrame>
                 </div>
-              ) : (
-                <div className="w-full max-w-2xl max-h-[50vh]">
-                  <BrowserFrame title={cardTitle}>
-                    <VideoFacade
-                      url={item.url}
-                      platform={item.platform!}
-                      title={cardTitle}
-                      posterUrl={item.posterUrl}
-                    />
-                  </BrowserFrame>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="stage-media w-full max-w-3xl max-h-[52vh] my-auto flex flex-col items-center justify-center">
+          <BrowserFrame title={displayVideos[activeClipIndex]?.title || displayVideos[activeClipIndex]?.projectTitle || title}>
+            <VideoFacade
+              key={displayVideos[activeClipIndex]?.url || activeClipIndex}
+              url={displayVideos[activeClipIndex]?.url || displayVideos[0]?.url}
+              platform={displayVideos[activeClipIndex]?.platform || displayVideos[0]?.platform || 'youtube'}
+              title={displayVideos[activeClipIndex]?.title || title}
+              posterUrl={displayVideos[activeClipIndex]?.posterUrl}
+            />
+          </BrowserFrame>
+        </div>
+      )}
 
-      {/* Cinematic Lower-Third Glass Overlay: Lands bottom to top */}
+      {/* Cinematic Lower-Third Glass Overlay: Absolute bottom overlay so it NEVER pushes media off-center */}
       <div 
-        className="stage-text w-full max-w-4xl mt-6 px-6 py-4 rounded-2xl border backdrop-blur-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-2xl"
-        style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
+        className="stage-text absolute bottom-4 sm:bottom-6 left-4 right-4 max-w-4xl mx-auto z-20 pointer-events-auto px-5 sm:px-6 py-3 sm:py-4 rounded-2xl border backdrop-blur-xl bg-black/80 shadow-2xl flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4"
+        style={{ borderColor: 'var(--glass-border)' }}
       >
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-accent">MOTION // FEATURED</span>
+            <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-accent">MOTION // FEATURED</span>
+            {!isVertical && displayVideos.length > 1 && (
+              <span className="text-[11px] font-mono text-white/50">
+                Clip {activeClipIndex + 1} of {displayVideos.length}
+              </span>
+            )}
           </div>
-          <h3 className="text-base sm:text-xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)]">
+          <h3 className="text-base sm:text-xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)] truncate">
             {title}
           </h3>
           {description && (
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed mt-1">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed mt-0.5">
               {description}
             </p>
           )}
         </div>
 
+        {/* Multi-clip switcher for landscape videos */}
+        {!isVertical && displayVideos.length > 1 && (
+          <div className="flex items-center gap-1.5 shrink-0 bg-white/5 p-1 rounded-lg border border-white/10">
+            {displayVideos.map((clip, idx) => (
+              <button
+                key={idx}
+                onClick={(e) => { e.stopPropagation(); setActiveClipIndex(idx); }}
+                className={`px-2.5 py-1 text-xs font-mono font-bold uppercase rounded transition-all ${
+                  activeClipIndex === idx ? 'bg-accent text-black shadow-md' : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {clip.title ? (clip.title.length > 14 ? `${clip.title.slice(0, 12)}…` : clip.title) : `Clip ${idx + 1}`}
+              </button>
+            ))}
+          </div>
+        )}
+
         {tools && tools.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 shrink-0">
+          <div className="hidden lg:flex flex-wrap gap-1.5 shrink-0">
             {tools.map(t => (
               <span key={t} className="px-2.5 py-1 text-xs font-mono font-semibold uppercase tracking-wider rounded-md border text-[var(--text-secondary)]" style={{ borderColor: 'var(--glass-border)' }}>
                 {t}
@@ -839,7 +883,8 @@ export default function CategorySection({ category }: CategorySectionProps) {
         if (typeof window !== 'undefined' && window.__lenis) {
           window.__lenis.resize();
         }
-      }, 100);
+        ScrollTrigger.refresh();
+      }, 150);
     } catch (err) {
       console.error(`Failed to fetch ${category} projects:`, err);
       setProjects([]);
@@ -901,19 +946,19 @@ export default function CategorySection({ category }: CategorySectionProps) {
       {/* Photography: 100vh CinematicStage */}
       {isPhotography && (
         <CinematicStage id="photography">
-          <div className="section-container relative flex flex-col items-center justify-center w-full max-w-6xl my-auto">
-            <div className="stage-text section-header-gap text-center flex flex-col items-center">
+          <div className="section-container relative flex flex-col items-center justify-center w-full max-w-6xl my-auto px-4">
+            <div className="stage-text mb-3 sm:mb-4 text-center flex flex-col items-center">
               <span className="section-subtitle">FEATURED WORK //</span>
               <h2 className="section-title">PHOTOGRAPHY & <span className="text-accent">VISUAL STORIES</span></h2>
               <div className="section-divider" />
             </div>
 
-            <div className="stage-media w-full max-h-[50vh] overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-              <ScrollingMasonry projects={projects} height={420} speed={90} />
+            <div className="stage-media w-full max-h-[46vh] overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+              <ScrollingMasonry projects={projects} height={360} speed={90} />
             </div>
 
             <div
-              className="stage-text w-full max-w-3xl mt-4 px-6 py-3 rounded-xl border backdrop-blur-xl text-center shadow-lg"
+              className="stage-text w-full max-w-3xl mt-3 sm:mt-4 px-5 py-2.5 rounded-xl border backdrop-blur-xl text-center shadow-lg"
               style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
             >
               <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-body">
@@ -927,19 +972,19 @@ export default function CategorySection({ category }: CategorySectionProps) {
       {/* UI/UX: 100vh CinematicStage */}
       {isUIUX && (
         <CinematicStage id="uiux">
-          <div className="section-container relative flex flex-col items-center justify-center w-full max-w-6xl my-auto">
-            <div className="stage-text section-header-gap text-center flex flex-col items-center">
+          <div className="section-container relative flex flex-col items-center justify-center w-full max-w-6xl my-auto px-4">
+            <div className="stage-text mb-3 sm:mb-4 text-center flex flex-col items-center">
               <span className="section-subtitle">FEATURED WORK //</span>
               <h2 className="section-title">UI/UX & WEB APP <span className="text-accent">DESIGN</span></h2>
               <div className="section-divider" />
             </div>
 
-            <div className="stage-media w-full max-h-[50vh] overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-              <ScrollingMasonry projects={projects} height={420} speed={90} />
+            <div className="stage-media w-full max-h-[46vh] overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+              <ScrollingMasonry projects={projects} height={360} speed={90} />
             </div>
 
             <div
-              className="stage-text w-full max-w-3xl mt-4 px-6 py-3 rounded-xl border backdrop-blur-xl text-center shadow-lg"
+              className="stage-text w-full max-w-3xl mt-3 sm:mt-4 px-5 py-2.5 rounded-xl border backdrop-blur-xl text-center shadow-lg"
               style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
             >
               <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-body">
@@ -1019,42 +1064,42 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
           return (
             <CinematicStage key={projectKey} id={`graphics-${projectKey.replace(/[^a-z0-9]+/gi, '-')}`}>
-              <div className="flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-4 my-auto">
-                {/* Dead Center Artwork: max-h-[56vh] so nothing overflows 100vh */}
-                <div className="flex items-center justify-center gap-4 sm:gap-6 w-full max-h-[56vh]">
+              <div className="relative w-full h-full flex items-center justify-center px-4 sm:px-6">
+                {/* Dead Center Artwork: max-h-[52vh] so nothing overflows 100vh */}
+                <div className="stage-media flex items-center justify-center gap-4 sm:gap-6 w-full max-h-[54vh] my-auto">
                   {graphicImages.map((img, i) => (
-                    <div key={i} className="stage-media max-h-[54vh] flex items-center justify-center">
+                    <div key={i} className="max-h-[52vh] flex items-center justify-center">
                       <img
                         src={img}
                         alt={`${title} ${i + 1}`}
-                        className="max-h-[52vh] w-auto max-w-full object-contain rounded-2xl border border-white/15 shadow-2xl hover:scale-[1.02] transition-transform duration-300 cursor-pointer"
+                        className="max-h-[50vh] w-auto max-w-full object-contain rounded-2xl border border-white/15 shadow-2xl hover:scale-[1.02] transition-transform duration-300 cursor-pointer"
                         onClick={() => setSelectedImage(img)}
                       />
                     </div>
                   ))}
                 </div>
 
-                {/* Lower-Third Glass Overlay: Lands bottom to top */}
+                {/* Cinematic Lower-Third Glass Overlay: Absolute bottom overlay so it NEVER pushes media off-center */}
                 <div 
-                  className="stage-text w-full max-w-4xl mt-6 px-6 py-4 rounded-2xl border backdrop-blur-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-2xl"
-                  style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
+                  className="stage-text absolute bottom-4 sm:bottom-6 left-4 right-4 max-w-4xl mx-auto z-20 pointer-events-auto px-5 sm:px-6 py-3 sm:py-4 rounded-2xl border backdrop-blur-xl bg-black/80 shadow-2xl flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4"
+                  style={{ borderColor: 'var(--glass-border)' }}
                 >
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-mono font-bold uppercase tracking-widest text-accent">GRAPHIC DESIGN // FEATURED</span>
+                      <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-accent">GRAPHIC DESIGN // FEATURED</span>
                     </div>
-                    <h3 className="text-base sm:text-xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)]">
+                    <h3 className="text-base sm:text-xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)] truncate">
                       {title}
                     </h3>
                     {desc && (
-                      <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed mt-1">
+                      <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed mt-0.5">
                         {desc}
                       </p>
                     )}
                   </div>
 
                   {tools && tools.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 shrink-0">
+                    <div className="hidden lg:flex flex-wrap gap-1.5 shrink-0">
                       {tools.map(t => (
                         <span key={t} className="px-2.5 py-1 text-xs font-mono font-semibold uppercase tracking-wider rounded-md border text-[var(--text-secondary)]" style={{ borderColor: 'var(--glass-border)' }}>
                           {t}
