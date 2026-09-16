@@ -42,8 +42,8 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
   };
 
   return (
-    <CinematicStage id="footer" className="font-heading">
-      <div className="section-container relative my-auto w-full max-w-6xl">
+    <footer id="footer" className="w-full relative z-20 bg-[var(--bg-primary)] py-16 sm:py-24 font-heading border-t border-white/10">
+      <div className="section-container relative mx-auto w-full max-w-6xl px-4">
         <div 
           className="relative z-10 p-6 sm:p-8 md:p-10 rounded-[28px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col shadow-2xl"
           style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
@@ -193,6 +193,6 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
 
         </div>
       </div>
-    </CinematicStage>
+    </footer>
   );
 }

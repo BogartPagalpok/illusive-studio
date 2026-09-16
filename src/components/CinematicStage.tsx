@@ -8,7 +8,7 @@ interface CinematicStageProps {
   id?: string;
   className?: string;
   children: React.ReactNode;
-  /** Custom scroll length multiplier (default 2.2 for rock-solid pinning) */
+  /** Custom scroll length multiplier (default 1.2 for crisp pacing without scroll traps) */
   scrollMultiplier?: number;
 }
 
@@ -16,7 +16,7 @@ export default function CinematicStage({
   id,
   className = '',
   children,
-  scrollMultiplier = 2.2,
+  scrollMultiplier = 1.2,
 }: CinematicStageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -44,6 +44,12 @@ export default function CinematicStage({
           anticipatePin: 1,
           scrub: 0.5,
           invalidateOnRefresh: true,
+          onLeave: () => {
+            gsap.set(stage, { autoAlpha: 0 });
+          },
+          onEnterBack: () => {
+            gsap.set(stage, { autoAlpha: 1 });
+          },
         },
       });
 
@@ -53,7 +59,7 @@ export default function CinematicStage({
         tl.fromTo(
           textBottomToTop,
           {
-            y: () => (window.innerWidth < 768 ? 70 : 100),
+            y: () => (window.innerWidth < 768 ? 60 : 80),
             opacity: 0,
             filter: 'blur(8px)',
           },
@@ -74,7 +80,7 @@ export default function CinematicStage({
         tl.fromTo(
           mediaElements,
           {
-            x: () => (window.innerWidth < 768 ? -100 : -180),
+            x: () => (window.innerWidth < 768 ? -80 : -140),
             opacity: 0,
             filter: 'blur(8px)',
           },
@@ -95,7 +101,7 @@ export default function CinematicStage({
         tl.fromTo(
           allElements,
           {
-            y: 50,
+            y: 40,
             opacity: 0,
             filter: 'blur(6px)',
           },
@@ -111,9 +117,8 @@ export default function CinematicStage({
         );
       }
 
-      // Phase 2: FIRMLY PINNED VIEWING WINDOW (15% -> 85% of scroll)
-      // 70% of the entire scroll distance is firmly locked at 100% opacity,
-      // 0px blur, dead-center in the viewport for effortless viewing/reading.
+      // Phase 2: LOCKED VIEWING WINDOW (15% -> 85% of scroll)
+      // Content holds static, dead-center, fully opaque, and pin-locked for reading
 
       // Phase 3: Exit (85% -> 100% of scroll)
       // Media flies out to the left with directional motion blur
@@ -121,7 +126,7 @@ export default function CinematicStage({
         tl.to(
           mediaElements,
           {
-            x: () => (window.innerWidth < 768 ? -120 : -220),
+            x: () => (window.innerWidth < 768 ? -80 : -140),
             opacity: 0,
             filter: 'blur(8px)',
             stagger: 0.03,
@@ -137,7 +142,7 @@ export default function CinematicStage({
         tl.to(
           textElements,
           {
-            y: () => (window.innerWidth < 768 ? -70 : -100),
+            y: () => (window.innerWidth < 768 ? -60 : -80),
             opacity: 0,
             filter: 'blur(8px)',
             stagger: 0.03,
@@ -152,7 +157,7 @@ export default function CinematicStage({
         tl.to(
           allElements,
           {
-            y: -50,
+            y: -40,
             opacity: 0,
             filter: 'blur(6px)',
             stagger: 0.03,
@@ -164,13 +169,7 @@ export default function CinematicStage({
       }
     }, containerRef);
 
-    // Refresh ScrollTrigger so pinning offsets are precisely calculated
-    const refreshTimer = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 100);
-
     return () => {
-      clearTimeout(refreshTimer);
       ctx.revert();
     };
   }, [scrollMultiplier]);
@@ -179,7 +178,8 @@ export default function CinematicStage({
     <div ref={containerRef} id={id} className="cinematic-stage-wrap w-full relative">
       <div
         ref={stageRef}
-        className={`min-h-screen h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-transparent select-none ${className}`}
+        className={`min-h-screen h-screen w-full flex flex-col items-center justify-center relative overflow-hidden select-none bg-[var(--bg-primary)] ${className}`}
+        style={{ backgroundColor: 'var(--bg-primary, #030305)' }}
       >
         {children}
       </div>

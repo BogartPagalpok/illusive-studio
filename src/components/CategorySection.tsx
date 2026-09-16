@@ -743,22 +743,21 @@ function MotionPanel({
     subtitle?: string;
   }>;
 }) {
-  const [activeClipIndex, setActiveClipIndex] = useState(0);
   const displayVideos = videoItems.slice(0, 3);
   const isVertical = displayVideos.some(
     (item) => item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url))
   );
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center px-4 sm:px-6">
-      {/* Centered Media Stage: Sweeps in left to right */}
+    <div className="flex flex-col items-center justify-center w-full max-w-5xl mx-auto px-4 my-auto">
+      {/* Centered Media Stage: max-h-[44vh] fits comfortably inside 100vh */}
       {isVertical ? (
-        <div className="flex items-center justify-center gap-4 sm:gap-6 w-full max-h-[54vh] my-auto">
+        <div className="flex items-center justify-center gap-4 sm:gap-6 w-full max-h-[44vh]">
           {displayVideos.map((item, i) => {
             const cardTitle = item.title || item.projectTitle;
             return (
-              <div key={`${item.projectId}-${i}`} className="stage-media flex flex-col items-center justify-center max-h-[52vh]">
-                <div className="max-h-[50vh] flex items-center justify-center">
+              <div key={`${item.projectId}-${i}`} className="stage-media flex flex-col items-center justify-center max-h-[44vh]">
+                <div className="max-h-[42vh] flex items-center justify-center">
                   <PhoneFrame>
                     {item.platform === 'tiktok' ? (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
@@ -783,64 +782,41 @@ function MotionPanel({
           })}
         </div>
       ) : (
-        <div className="stage-media w-full max-w-3xl max-h-[52vh] my-auto flex flex-col items-center justify-center">
-          <BrowserFrame title={displayVideos[activeClipIndex]?.title || displayVideos[activeClipIndex]?.projectTitle || title}>
+        <div className="stage-media w-full max-w-2xl max-h-[42vh] flex flex-col items-center justify-center">
+          <BrowserFrame title={displayVideos[0]?.title || displayVideos[0]?.projectTitle || title}>
             <VideoFacade
-              key={displayVideos[activeClipIndex]?.url || activeClipIndex}
-              url={displayVideos[activeClipIndex]?.url || displayVideos[0]?.url}
-              platform={displayVideos[activeClipIndex]?.platform || displayVideos[0]?.platform || 'youtube'}
-              title={displayVideos[activeClipIndex]?.title || title}
-              posterUrl={displayVideos[activeClipIndex]?.posterUrl}
+              url={displayVideos[0]?.url}
+              platform={displayVideos[0]?.platform || 'youtube'}
+              title={displayVideos[0]?.title || title}
+              posterUrl={displayVideos[0]?.posterUrl}
             />
           </BrowserFrame>
         </div>
       )}
 
-      {/* Cinematic Lower-Third Glass Overlay: Absolute bottom overlay so it NEVER pushes media off-center */}
+      {/* Clean Lower-Third Card: Lands bottom to top, full unconstrained text */}
       <div 
-        className="stage-text absolute bottom-4 sm:bottom-6 left-4 right-4 max-w-4xl mx-auto z-20 pointer-events-auto px-5 sm:px-6 py-3 sm:py-4 rounded-2xl border backdrop-blur-xl bg-black/80 shadow-2xl flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4"
+        className="stage-text w-full max-w-3xl mt-4 sm:mt-5 px-6 py-4 rounded-2xl border backdrop-blur-xl bg-black/85 shadow-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
         style={{ borderColor: 'var(--glass-border)' }}
       >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-accent">MOTION // FEATURED</span>
-            {!isVertical && displayVideos.length > 1 && (
-              <span className="text-[11px] font-mono text-white/50">
-                Clip {activeClipIndex + 1} of {displayVideos.length}
-              </span>
-            )}
-          </div>
-          <h3 className="text-base sm:text-xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)] truncate">
+        <div className="flex-1">
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-accent block mb-1">
+            MOTION // FEATURED
+          </span>
+          <h3 className="text-base sm:text-xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)]">
             {title}
           </h3>
           {description && (
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed mt-0.5">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed mt-1 max-w-xl">
               {description}
             </p>
           )}
         </div>
 
-        {/* Multi-clip switcher for landscape videos */}
-        {!isVertical && displayVideos.length > 1 && (
-          <div className="flex items-center gap-1.5 shrink-0 bg-white/5 p-1 rounded-lg border border-white/10">
-            {displayVideos.map((clip, idx) => (
-              <button
-                key={idx}
-                onClick={(e) => { e.stopPropagation(); setActiveClipIndex(idx); }}
-                className={`px-2.5 py-1 text-xs font-mono font-bold uppercase rounded transition-all ${
-                  activeClipIndex === idx ? 'bg-accent text-black shadow-md' : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {clip.title ? (clip.title.length > 14 ? `${clip.title.slice(0, 12)}…` : clip.title) : `Clip ${idx + 1}`}
-              </button>
-            ))}
-          </div>
-        )}
-
         {tools && tools.length > 0 && (
-          <div className="hidden lg:flex flex-wrap gap-1.5 shrink-0">
+          <div className="flex flex-wrap gap-1.5 shrink-0 max-w-xs justify-start sm:justify-end">
             {tools.map(t => (
-              <span key={t} className="px-2.5 py-1 text-xs font-mono font-semibold uppercase tracking-wider rounded-md border text-[var(--text-secondary)]" style={{ borderColor: 'var(--glass-border)' }}>
+              <span key={t} className="px-2.5 py-1 text-[11px] font-mono font-semibold uppercase tracking-wider rounded-md border text-[var(--text-secondary)]" style={{ borderColor: 'var(--glass-border)' }}>
                 {t}
               </span>
             ))}
@@ -1064,44 +1040,44 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
           return (
             <CinematicStage key={projectKey} id={`graphics-${projectKey.replace(/[^a-z0-9]+/gi, '-')}`}>
-              <div className="relative w-full h-full flex items-center justify-center px-4 sm:px-6">
-                {/* Dead Center Artwork: max-h-[52vh] so nothing overflows 100vh */}
-                <div className="stage-media flex items-center justify-center gap-4 sm:gap-6 w-full max-h-[54vh] my-auto">
+              <div className="flex flex-col items-center justify-center w-full max-w-5xl mx-auto px-4 my-auto">
+                {/* Dead Center Artwork: max-h-[44vh] */}
+                <div className="stage-media flex items-center justify-center gap-4 sm:gap-6 w-full max-h-[44vh]">
                   {graphicImages.map((img, i) => (
-                    <div key={i} className="max-h-[52vh] flex items-center justify-center">
+                    <div key={i} className="max-h-[44vh] flex items-center justify-center">
                       <img
                         src={img}
                         alt={`${title} ${i + 1}`}
-                        className="max-h-[50vh] w-auto max-w-full object-contain rounded-2xl border border-white/15 shadow-2xl hover:scale-[1.02] transition-transform duration-300 cursor-pointer"
+                        className="max-h-[42vh] w-auto max-w-full object-contain rounded-2xl border border-white/15 shadow-2xl hover:scale-[1.02] transition-transform duration-300 cursor-pointer"
                         onClick={() => setSelectedImage(img)}
                       />
                     </div>
                   ))}
                 </div>
 
-                {/* Cinematic Lower-Third Glass Overlay: Absolute bottom overlay so it NEVER pushes media off-center */}
+                {/* Clean Lower-Third Card: Full unconstrained text */}
                 <div 
-                  className="stage-text absolute bottom-4 sm:bottom-6 left-4 right-4 max-w-4xl mx-auto z-20 pointer-events-auto px-5 sm:px-6 py-3 sm:py-4 rounded-2xl border backdrop-blur-xl bg-black/80 shadow-2xl flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4"
+                  className="stage-text w-full max-w-3xl mt-4 sm:mt-5 px-6 py-4 rounded-2xl border backdrop-blur-xl bg-black/85 shadow-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
                   style={{ borderColor: 'var(--glass-border)' }}
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-accent">GRAPHIC DESIGN // FEATURED</span>
-                    </div>
-                    <h3 className="text-base sm:text-xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)] truncate">
+                  <div className="flex-1">
+                    <span className="text-xs font-mono font-bold uppercase tracking-widest text-accent block mb-1">
+                      GRAPHIC DESIGN // FEATURED
+                    </span>
+                    <h3 className="text-base sm:text-xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)]">
                       {title}
                     </h3>
                     {desc && (
-                      <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed mt-0.5">
+                      <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed mt-1 max-w-xl">
                         {desc}
                       </p>
                     )}
                   </div>
 
                   {tools && tools.length > 0 && (
-                    <div className="hidden lg:flex flex-wrap gap-1.5 shrink-0">
+                    <div className="flex flex-wrap gap-1.5 shrink-0 max-w-xs justify-start sm:justify-end">
                       {tools.map(t => (
-                        <span key={t} className="px-2.5 py-1 text-xs font-mono font-semibold uppercase tracking-wider rounded-md border text-[var(--text-secondary)]" style={{ borderColor: 'var(--glass-border)' }}>
+                        <span key={t} className="px-2.5 py-1 text-[11px] font-mono font-semibold uppercase tracking-wider rounded-md border text-[var(--text-secondary)]" style={{ borderColor: 'var(--glass-border)' }}>
                           {t}
                         </span>
                       ))}
