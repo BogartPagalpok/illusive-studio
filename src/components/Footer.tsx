@@ -1,6 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   MailDuotone,
   PhoneDuotone,
@@ -16,14 +14,10 @@ import {
 import { supabase } from '../lib/supabase';
 import { formatSectionTitle } from '../lib/formatTitle';
 
-gsap.registerPlugin(ScrollTrigger);
-
 export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void }) {
   const [content, setContent] = useState<any>(null);
   const [discordCopied, setDiscordCopied] = useState(false);
   const clickCountRef = useRef(0);
-  const footerRef = useRef<HTMLElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -34,32 +28,6 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
       }
     };
     fetchContent();
-  }, []);
-
-  useEffect(() => {
-    const footer = footerRef.current;
-    const card = cardRef.current;
-    if (!footer || !card) return;
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        card,
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.85,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: footer,
-            start: 'top 95%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-    }, footer);
-
-    return () => ctx.revert();
   }, []);
 
   const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -73,11 +41,10 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
   };
 
   return (
-    <footer ref={footerRef} id="footer" className="relative z-20 bg-transparent overflow-hidden mt-12 sm:mt-16 md:mt-24 font-heading">
-      <div className="section-container relative pb-12 sm:pb-16">
+    <footer className="relative bg-transparent overflow-hidden mt-12 sm:mt-16 md:mt-24 font-heading">
+      <div className="section-container relative pb-10">
         <div 
-          ref={cardRef}
-          className="relative z-10 p-6 sm:p-8 md:p-10 rounded-[28px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col will-change-transform shadow-2xl"
+          className="relative z-10 p-6 sm:p-8 md:p-10 rounded-[28px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col"
           style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
         >
           <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start mb-8 gap-8">

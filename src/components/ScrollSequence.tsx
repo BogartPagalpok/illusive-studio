@@ -10,14 +10,12 @@ interface ScrollSequenceProps {
   filePrefix?: string;
   fileExtension?: string;
   scrollLength?: number;
-  isPinned?: boolean;
   children?: ReactNode;
 }
 
 export default function ScrollSequence({
   frameCount = TOTAL_FRAMES,
   scrollLength = 4,
-  isPinned = true,
   children,
 }: ScrollSequenceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -74,26 +72,6 @@ export default function ScrollSequence({
     const inner = innerRef.current;
     if (!container || !inner) return;
 
-    if (!isPinned) {
-      let animId: number;
-      let frame = 0;
-      let lastTime = performance.now();
-      const fps = 24;
-      const interval = 1000 / fps;
-
-      const loop = (time: number) => {
-        if (time - lastTime >= interval) {
-          drawFrame(frame);
-          frame = (frame + 1) % frameCount;
-          lastTime = time;
-        }
-        animId = requestAnimationFrame(loop);
-      };
-      animId = requestAnimationFrame(loop);
-
-      return () => cancelAnimationFrame(animId);
-    }
-
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: container,
@@ -127,11 +105,11 @@ export default function ScrollSequence({
     });
 
     return () => ctx.revert();
-  }, [frameCount, drawFrame, scrollLength, isPinned]);
+  }, [frameCount, drawFrame, scrollLength]);
 
   return (
-    <div ref={containerRef} className={isPinned ? "relative w-full z-0" : "relative w-full h-full z-0"}>
-      <div ref={innerRef} className={isPinned ? "h-screen w-full overflow-hidden relative" : "h-full w-full overflow-hidden relative"} style={{ backgroundColor: 'var(--hero-bg, #030305)' }}>
+    <div ref={containerRef} className="relative w-full z-0">
+      <div ref={innerRef} className="h-screen w-full overflow-hidden relative" style={{ backgroundColor: 'var(--hero-bg, #030305)' }}>
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" />
         
         <div 

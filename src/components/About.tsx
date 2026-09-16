@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
@@ -11,6 +12,7 @@ import {
   FilmDuotone,
   ZapDuotone,
 } from './icons/StreamlineIcons';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
 import { formatSectionTitle } from '../lib/formatTitle';
 
@@ -64,13 +66,11 @@ const defaultContent: AboutContent = {
 };
 
 export default function About() {
+  const { ref, isVisible } = useScrollReveal();
   const [content, setContent] = useState<AboutContent>(defaultContent);
   const [skills, setSkills] = useState(defaultSkills);
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const leftColRef = useRef<HTMLDivElement>(null);
-  const rightColRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -112,82 +112,14 @@ export default function About() {
   useEffect(() => {
     const section = sectionRef.current;
     const bg = bgRef.current;
-    if (!section) return;
-
+    if (!section || !bg) return;
     const ctx = gsap.context(() => {
-      // Subtle background parallax
-      if (bg) {
-        gsap.fromTo(
-          bg,
-          { yPercent: 0 },
-          {
-            yPercent: -20,
-            ease: 'none',
-            scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: 1 },
-          }
-        );
-      }
-
-      // Kinetic Section Header: sweeps left to right
-      if (headerRef.current) {
-        gsap.fromTo(
-          headerRef.current,
-          { x: -70, opacity: 0 },
-          {
-            x: 0,
-            opacity: 1,
-            duration: 0.8,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 85%',
-              end: 'bottom 15%',
-              toggleActions: 'play none none reverse',
-            },
-          }
-        );
-      }
-
-      // Left Column (Creative Profile) & Right Column (Skills Grid)
-      if (leftColRef.current) {
-        gsap.fromTo(
-          leftColRef.current,
-          { x: -60, opacity: 0 },
-          {
-            x: 0,
-            opacity: 1,
-            duration: 0.85,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 75%',
-              end: 'bottom 15%',
-              toggleActions: 'play none none reverse',
-            },
-          }
-        );
-      }
-
-      if (rightColRef.current) {
-        gsap.fromTo(
-          rightColRef.current,
-          { x: 60, opacity: 0 },
-          {
-            x: 0,
-            opacity: 1,
-            duration: 0.85,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 75%',
-              end: 'bottom 15%',
-              toggleActions: 'play none none reverse',
-            },
-          }
-        );
-      }
-    }, section);
-
+      gsap.fromTo(bg, { yPercent: 0 }, {
+        yPercent: -20,
+        ease: 'none',
+        scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: 1 },
+      });
+    });
     return () => ctx.revert();
   }, []);
 
@@ -201,24 +133,28 @@ export default function About() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
       </div>
 
-      <div className="section-container relative">
-        <div
-          ref={headerRef}
-          className="text-center mb-10 md:mb-12 flex flex-col items-center will-change-transform"
+      <div ref={ref} className="section-container relative">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10 md:mb-12 flex flex-col items-center"
         >
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
             {formatSectionTitle(content.heading)}
           </h2>
           <div className="section-divider" />
-        </div>
+        </motion.div>
 
         <div className="grid lg:grid-cols-12 gap-6 md:gap-8 items-stretch">
           
           {/* ── Left Bento Spotlight Card (5 Cols) ── */}
-          <div
-            ref={leftColRef}
-            className="lg:col-span-5 flex will-change-transform"
+          <motion.div
+            initial={{ opacity: 0, x: -25 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="lg:col-span-5 flex"
           >
             <div className="card-dark relative overflow-hidden flex flex-col justify-between w-full h-full border group hover:border-[var(--accent)]/50 transition-all duration-500">
               
@@ -306,12 +242,14 @@ export default function About() {
               </div>
 
             </div>
-          </div>
+          </motion.div>
 
           {/* ── Right Bento Skills Grid (7 Cols) ── */}
-          <div
-            ref={rightColRef}
-            className="lg:col-span-7 flex flex-col justify-between space-y-4 will-change-transform"
+          <motion.div
+            initial={{ opacity: 0, x: 25 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="lg:col-span-7 flex flex-col justify-between space-y-4"
           >
             <div className="flex items-center justify-between px-1">
               <h3 className="text-base sm:text-lg lg:text-xl font-heading font-black uppercase tracking-tight text-[var(--text-primary)]">
@@ -334,8 +272,11 @@ export default function About() {
                 const IconComponent = meta.icon;
 
                 return (
-                  <div
+                  <motion.div
                     key={skill.name}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.45, delay: 0.25 + i * 0.04 }}
                     className="card-dark-sm rounded-xl relative overflow-hidden group hover:border-[var(--accent-secondary)] transition-all duration-300 flex flex-col justify-between"
                   >
                     {/* Top Row: Icon, Tag & Percentage Pill */}
@@ -387,23 +328,25 @@ export default function About() {
                         aria-valuemin={0}
                         aria-valuemax={100}
                       >
-                        <div
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={isVisible ? { width: `${skill.level}%` } : {}}
+                          transition={{ duration: 1.2, delay: 0.3 + i * 0.05, ease: [0.16, 1, 0.3, 1] }}
                           style={{
-                            width: `${skill.level}%`,
                             background: `linear-gradient(90deg, ${colorConfig.accent} 0%, ${colorConfig.secondary} 100%)`,
                             boxShadow: `0 0 10px ${colorConfig.accent}66`,
                           }}
-                          className="h-full rounded-full relative transition-all duration-1000 ease-out"
+                          className="h-full rounded-full relative"
                         >
                           <div className="absolute right-0 top-0 bottom-0 w-1 bg-white rounded-full shadow-[0_0_6px_#fff]" />
-                        </div>
+                        </motion.div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </div>
