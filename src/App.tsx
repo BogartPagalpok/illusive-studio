@@ -224,21 +224,21 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Keep native 120Hz/60Hz touch scrolling on mobile and tablets.
-    // Lenis is only enabled for desktop mouse-wheel interactions.
-    const isTouch = 'ontouchstart' in window || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
-    const isSmallViewport = window.innerWidth < 1024;
-    if (isTouch || isSmallViewport) {
+    // Enable Lenis smooth scrolling for desktops and laptops.
+    // Keep native touch momentum on phones and small tablets.
+    const isMobileDevice = window.innerWidth < 1024 || (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+    if (isMobileDevice) {
       return;
     }
 
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1.0,
+      touchMultiplier: 1.5,
     });
 
     window.__lenis = lenis;
@@ -250,9 +250,25 @@ function App() {
     };
 
     gsap.ticker.add(updateTicker);
-    gsap.ticker.lagSmoothing(0);
+    gsap.ticker.lagSmoothing(500, 33);
+
+    // Automatically recalculate scroll height when asynchronous components (portfolio projects, images) mount
+    let resizeTimer: any;
+    const resizeObserver = new ResizeObserver(() => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        lenis.resize();
+        ScrollTrigger.refresh();
+      }, 60);
+    });
+
+    if (document.body) {
+      resizeObserver.observe(document.body);
+    }
 
     return () => {
+      clearTimeout(resizeTimer);
+      resizeObserver.disconnect();
       gsap.ticker.remove(updateTicker);
       lenis.destroy();
       delete window.__lenis;

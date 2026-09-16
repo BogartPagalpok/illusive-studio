@@ -725,7 +725,7 @@ function FacebookEmbed({ url }: { url: string }) {
 function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> }) {
   return (
     <div className="flex flex-col lg:flex-row gap-6">
-      <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-xl overflow-y-auto no-scrollbar" style={{ maxHeight: '80vh', touchAction: 'pan-y', backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
+      <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-md self-start lg:sticky lg:top-24" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
         <h3 className="text-xl font-heading font-black uppercase tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>{title}</h3>
         {description && (
           <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>{description}</p>
@@ -815,6 +815,11 @@ export default function CategorySection({ category }: CategorySectionProps) {
       }
       if (error) throw error;
       setProjects((data || []).map(normalizeProjectCopy));
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.__lenis) {
+          window.__lenis.resize();
+        }
+      }, 100);
     } catch (err) {
       console.error(`Failed to fetch ${category} projects:`, err);
       setProjects([]);

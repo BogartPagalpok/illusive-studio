@@ -168,6 +168,8 @@ export default function ProjectPortal() {
         }
         .shoe-float {
           animation: floatBounce 4s ease-in-out infinite;
+          will-change: transform;
+          transform: translateZ(0);
         }
         .fade-edges {
           mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
