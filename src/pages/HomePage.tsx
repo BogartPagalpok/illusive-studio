@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import DualShowreel from '../components/DualShowreel';
@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 import AdminModal from '../components/AdminModal';
 import CategorySection from '../components/CategorySection';
 import ProjectPortal from '../components/ProjectPortal';
+import CinematicTimeline, { TimelineSectionItem } from '../components/CinematicTimeline';
 import { supabase } from '../lib/supabase';
 import { isAdminEmail } from '../lib/admin';
 import { usePortfolioStore } from '../lib/store';
@@ -23,7 +24,7 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.body.setAttribute('data-theme', savedTheme);
     fetchSettings();
-  }, []);
+  }, [fetchSettings]);
 
   const isSectionVisible = (key: string, defaultValue = true) => {
     const sec = sections.find((s) => s.key === key);
@@ -48,41 +49,97 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
     onAdminAuth();
   }, [onAdminAuth]);
 
+  // Master Cinematic Timeline (Obys Agency & Mad Dogs style unbroken scroll choreography)
+  const timelineSections: TimelineSectionItem[] = useMemo(() => {
+    const list: TimelineSectionItem[] = [
+      {
+        id: 'hero',
+        watermark: 'IAN LESTER // 01',
+        fullBleed: true,
+        content: <Hero isTimelineMode={true} />,
+      },
+    ];
+
+    if (isSectionVisible('dual-showreel', true)) {
+      list.push({
+        id: 'dual-showreel',
+        watermark: 'SHOWREELS // 02',
+        content: <DualShowreel />,
+      });
+    }
+
+    if (isSectionVisible('about', true)) {
+      list.push({
+        id: 'about',
+        watermark: 'PROFILE // 03',
+        content: <About />,
+      });
+    }
+
+    if (isSectionVisible('services', true)) {
+      list.push({
+        id: 'services',
+        watermark: 'SERVICES // 04',
+        content: <Services />,
+      });
+    }
+
+    if (isSectionVisible('works', true)) {
+      list.push({
+        id: 'works',
+        watermark: 'CASE STUDY // 05',
+        content: <ProjectPortal />,
+      });
+
+      list.push({
+        id: 'works-motion',
+        watermark: 'MOTION // 06',
+        content: <CategorySection category="Motion" />,
+      });
+
+      list.push({
+        id: 'works-graphics',
+        watermark: 'DESIGN // 07',
+        content: <CategorySection category="Graphic Design" />,
+      });
+
+      list.push({
+        id: 'works-uiux',
+        watermark: 'UI / UX // 08',
+        content: <CategorySection category="UI/UX" />,
+      });
+
+      list.push({
+        id: 'works-photography',
+        watermark: 'PHOTO // 09',
+        content: <CategorySection category="Photography" />,
+      });
+    }
+
+    if (isSectionVisible('contact', true)) {
+      list.push({
+        id: 'contact',
+        watermark: 'CONNECT // 10',
+        content: <Contact />,
+      });
+    }
+
+    list.push({
+      id: 'footer',
+      watermark: 'DIRECTORY // 11',
+      content: <Footer onAdminTrigger={handleAdminTrigger} />,
+    });
+
+    return list;
+  }, [sections, handleAdminTrigger]);
+
   return (
     <div className="relative min-h-screen w-full selection:bg-[var(--accent)] selection:text-[var(--accent-contrast)]">
-
       <Navbar />
-      
-      <main className="relative z-10">
-        <Hero />
-        
-        {isSectionVisible('dual-showreel', true) && <DualShowreel />}
 
-        {isSectionVisible('about', true) && <About />}
-        
-        {isSectionVisible('services', true) && <Services />}
-        
-        {/* --- FIXED WORKS SECTION --- */}
-        {/* The id="works" is now wrapping the entire portfolio block */}
-        {isSectionVisible('works', true) && <div id="works" className="w-full">
-          
-          {/* 1. Portal is the absolute first thing they see when clicking 'Works' */}
-          <ProjectPortal />
-
-          {/* 2. Then they scroll down into your standard categories */}
-          <div style={{ minHeight: '50vh' }}>
-            <CategorySection category="Motion" />
-            <CategorySection category="Graphic Design" />
-            <CategorySection category="UI/UX" />
-            <CategorySection category="Photography" />
-          </div>
-          
-        </div>}
-
-        {isSectionVisible('contact', true) && <Contact />}
+      <main className="relative z-10 w-full">
+        <CinematicTimeline sections={timelineSections} />
       </main>
-
-      <Footer onAdminTrigger={handleAdminTrigger} />
 
       <AdminModal
         isOpen={adminModalOpen}

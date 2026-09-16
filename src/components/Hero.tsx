@@ -45,7 +45,7 @@ function scrollToId(e: React.MouseEvent, id: string) {
   }
 }
 
-export default function Hero() {
+export default function Hero({ isTimelineMode = false }: { isTimelineMode?: boolean }) {
   const [content, setContent] = useState<HeroContent>(defaultContent);
   const overlayRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -95,7 +95,7 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    if (!sectionRef.current) return;
+    if (!sectionRef.current || isTimelineMode) return;
 
     const ctx = gsap.context(() => {
       // Elements arranged in succession: BOTTOM TO TOP
@@ -173,9 +173,9 @@ export default function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="w-full overflow-hidden relative bg-transparent"
+      className={isTimelineMode ? "w-full h-full overflow-hidden relative bg-transparent" : "w-full overflow-hidden relative bg-transparent"}
     >
-      <ScrollSequence frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 2}>
+      <ScrollSequence isPinned={!isTimelineMode} frameCount={288} fileExtension="webp" scrollLength={window.innerWidth < 768 ? 2 : 2}>
         <div className="hidden lg:block pointer-events-none">
           <FloatingCube type="Ps" size={90} top="16%" left="3%" blur="1px" delay={0} duration={6} />
           <FloatingCube type="Ai" size={75} bottom="20%" right="3%" blur="1px" delay={1} duration={5} />
