@@ -30,7 +30,7 @@ export const themePresets: ThemePreset[] = [
     id: 'GUNDAM', name: 'GUNDAM', tagline: 'RX-78-2 PROTOTYPE',
     colors: ['#FFFFFF', '#C1292E', '#1E40AF', '#F1D302', '#0F172A'],
     bgPrimary: '#F3F4F6', bgSecondary: '#FFFFFF',
-    textPrimary: '#0F172A', textSecondary: '#334155', textMuted: '#64748B',
+    textPrimary: '#1E40AF', textSecondary: '#1E3A8A', textMuted: '#64748B',
     accent: '#C1292E', accentSecondary: '#1E40AF', accentTertiary: '#F1D302',
     bgGradient: 'linear-gradient(135deg, #FFFFFF 0%, #F3F4F6 50%, #E5E7EB 100%)',
     fontDisplay: "'Satoshi', sans-serif", fontSans: "'General Sans', sans-serif",
@@ -277,6 +277,7 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
     root.style.setProperty('--hero-tint-opacity', '0.45');
     root.style.setProperty('--hero-bg', '#0B132B');
     root.style.setProperty('--hero-bottom-fade', 'rgba(11, 19, 43, 0.95)');
+    root.style.setProperty('--hero-heading-color', '#60A5FA');
     root.style.setProperty('--frame-bg', '#0B132B');
     root.style.setProperty('--frame-border', '#1E40AF');
     root.style.setProperty('--frame-header', '#101B3B');
@@ -286,6 +287,7 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
     root.style.setProperty('--hero-tint-opacity', '0.35');
     root.style.setProperty('--hero-bg', theme.bgPrimary);
     root.style.setProperty('--hero-bottom-fade', theme.bgPrimary);
+    root.style.setProperty('--hero-heading-color', '#FFFFFF');
     root.style.setProperty('--frame-bg', '#101114');
     root.style.setProperty('--frame-border', '#27292e');
     root.style.setProperty('--frame-header', '#18191e');

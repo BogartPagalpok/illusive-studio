@@ -32,15 +32,18 @@
     --hero-tint-opacity: 0.35;
     --hero-bg: #030305;
     --hero-bottom-fade: transparent;
+    --hero-heading-color: #FFFFFF;
   }
 
-  [data-theme='GUNDAM'],
-  [data-contrast='light'] {
-    --hero-tint: #FFFFFF;
+  [data-theme='GUNDAM'] {
+    --hero-tint: #1E40AF;
     --hero-tint-blend: color;
-    --hero-tint-opacity: 0.55;
-    --hero-bg: #030305;
-    --hero-bottom-fade: rgba(3, 3, 5, 0.95);
+    --hero-tint-opacity: 0.45;
+    --hero-bg: #0B132B;
+    --hero-bottom-fade: rgba(11, 19, 43, 0.95);
+    --hero-heading-color: #60A5FA;
+    --text-primary: #1E40AF;
+    --text-secondary: #1E3A8A;
   }
 
   body {
@@ -269,11 +272,24 @@
   #hero .hero-headline,
   #hero [class*="drop-shadow"],
   [data-contrast='light'] #hero h1,
-  [data-contrast='light'] #hero h1 *,
-  [data-theme='GUNDAM'] #hero h1,
-  [data-theme='GUNDAM'] #hero h1 * {
+  [data-contrast='light'] #hero h1 * {
     color: #FFFFFF !important;
     text-shadow: 0 4px 28px rgba(0, 0, 0, 0.95), 0 2px 10px rgba(0, 0, 0, 0.9) !important;
+  }
+
+  [data-theme='GUNDAM'] #hero h1 span:not(.text-accent):not(.text-accent *) {
+    color: var(--hero-heading-color, #60A5FA) !important;
+    text-shadow: 0 0 25px rgba(30, 64, 175, 0.7), 0 2px 10px rgba(0, 0, 0, 0.9) !important;
+  }
+
+  /* In Gundam theme, use iconic Gundam Blue (#1E40AF) for headings and titles across the site instead of black */
+  [data-theme='GUNDAM'] .section-title,
+  [data-theme='GUNDAM'] .section-title *:not(.text-accent),
+  [data-theme='GUNDAM'] h1:not(#hero *),
+  [data-theme='GUNDAM'] h2:not(#hero *),
+  [data-theme='GUNDAM'] h3:not(#hero *),
+  [data-theme='GUNDAM'] .card-dark h3 {
+    color: #1E40AF !important;
   }
 
   /* Keep accented words in the dynamic theme accent */

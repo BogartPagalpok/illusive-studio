@@ -214,7 +214,7 @@ export default function Hero() {
                     <span 
                       ref={line1Ref} 
                       className="inline-block text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)] will-change-transform"
-                      style={{ color: '#FFFFFF' }}
+                      style={{ color: 'var(--hero-heading-color, #FFFFFF)' }}
                     >
                       {content.heading_line1}
                     </span>
@@ -238,11 +238,11 @@ export default function Hero() {
                   </span>
 
                   {/* Line 3: That Resonate */}
-                  <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)] block overflow-visible" style={{ color: '#FFFFFF' }}>
+                  <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)] block overflow-visible" style={{ color: 'var(--hero-heading-color, #FFFFFF)' }}>
                     <span 
                       ref={line3A_Ref} 
                       className="block sm:inline-block mr-2 sm:mr-3 will-change-transform text-white"
-                      style={{ color: '#FFFFFF' }}
+                      style={{ color: 'var(--hero-heading-color, #FFFFFF)' }}
                     >
                       {line3Words[0] || content.heading_line3}
                     </span>
@@ -250,7 +250,7 @@ export default function Hero() {
                       <span 
                         ref={line3B_Ref} 
                         className="block sm:inline-block will-change-transform text-white"
-                        style={{ color: '#FFFFFF' }}
+                        style={{ color: 'var(--hero-heading-color, #FFFFFF)' }}
                       >
                         {line3Words.slice(1).join(' ')}
                       </span>
