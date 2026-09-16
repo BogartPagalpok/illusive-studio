@@ -799,7 +799,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
       let { data, error } = await supabase
         .from('portfolio_projects')
         .select('*')
-        .ilike('category', category.trim())
+        .ilike('category', `${category.trim()}%`)
         .eq('visible', true)
         .order('sort_order', { ascending: true, nullsFirst: true })
         .order('created_at', { ascending: true });
@@ -807,7 +807,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
         const fallback = await supabase
           .from('portfolio_projects')
           .select('*')
-          .ilike('category', category.trim())
+          .ilike('category', `${category.trim()}%`)
           .order('sort_order', { ascending: true, nullsFirst: true })
           .order('created_at', { ascending: true });
         data = fallback.data;
