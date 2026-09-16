@@ -811,6 +811,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [columnCount, setColumnCount] = useState(3);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -881,8 +882,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
       (p.facebook_urls && p.facebook_urls.length > 0)
     );
   });
-
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   if (visibleGroups.length === 0) return null;
 
