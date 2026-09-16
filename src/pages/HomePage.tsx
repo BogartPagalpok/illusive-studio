@@ -64,18 +64,20 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
         
         {/* --- FIXED WORKS SECTION --- */}
         {/* The id="works" is now wrapping the entire portfolio block */}
-        {isSectionVisible('works', true) && (
-          <div id="works" className="w-full">
-            {/* 1. Portal is the absolute first thing they see when clicking 'Works' */}
-            <ProjectPortal />
+        {isSectionVisible('works', true) && <div id="works" className="w-full">
+          
+          {/* 1. Portal is the absolute first thing they see when clicking 'Works' */}
+          <ProjectPortal />
 
-            {/* 2. Then they scroll down into your standard categories */}
+          {/* 2. Then they scroll down into your standard categories */}
+          <div style={{ minHeight: '50vh' }}>
             <CategorySection category="Motion" />
             <CategorySection category="Graphic Design" />
             <CategorySection category="UI/UX" />
             <CategorySection category="Photography" />
           </div>
-        )}
+          
+        </div>}
 
         {isSectionVisible('contact', true) && <Contact />}
       </main>

@@ -16,8 +16,6 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
 import { formatSectionTitle } from '../lib/formatTitle';
 
-import CinematicStage from './CinematicStage';
-
 gsap.registerPlugin(ScrollTrigger);
 
 const defaultSkills = [
@@ -128,24 +126,36 @@ export default function About() {
   const coreTools = ['DaVinci Resolve', 'Photoshop', 'Illustrator', 'Figma'];
 
   return (
-    <CinematicStage id="about">
+    <section ref={sectionRef} className="relative section-padding overflow-visible z-40 bg-transparent">
+      <div id="about" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
+
       <div ref={bgRef} className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[var(--accent)]/5 via-transparent to-transparent" />
       </div>
 
-      <div ref={ref} className="section-container relative flex flex-col items-center justify-center w-full max-w-6xl my-auto">
-        <div className="stage-text text-center mb-8 sm:mb-10 flex flex-col items-center">
+      <div ref={ref} className="section-container relative">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10 md:mb-12 flex flex-col items-center"
+        >
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
             {formatSectionTitle(content.heading)}
           </h2>
           <div className="section-divider" />
-        </div>
+        </motion.div>
 
-        <div className="grid lg:grid-cols-12 gap-6 md:gap-8 items-stretch w-full">
+        <div className="grid lg:grid-cols-12 gap-6 md:gap-8 items-stretch">
           
           {/* ── Left Bento Spotlight Card (5 Cols) ── */}
-          <div className="stage-media lg:col-span-5 flex">
+          <motion.div
+            initial={{ opacity: 0, x: -25 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="lg:col-span-5 flex"
+          >
             <div className="card-dark relative overflow-hidden flex flex-col justify-between w-full h-full border group hover:border-[var(--accent)]/50 transition-all duration-500">
               
               {/* Background Ambient Glow Orbs */}
@@ -232,10 +242,15 @@ export default function About() {
               </div>
 
             </div>
-          </div>
+          </motion.div>
 
           {/* ── Right Bento Skills Grid (7 Cols) ── */}
-          <div className="stage-media lg:col-span-7 flex flex-col justify-between space-y-4">
+          <motion.div
+            initial={{ opacity: 0, x: 25 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="lg:col-span-7 flex flex-col justify-between space-y-4"
+          >
             <div className="flex items-center justify-between px-1">
               <h3 className="text-base sm:text-lg lg:text-xl font-heading font-black uppercase tracking-tight text-[var(--text-primary)]">
                 {content.skills_heading}
@@ -331,10 +346,10 @@ export default function About() {
                 );
               })}
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </div>
-    </CinematicStage>
+    </section>
   );
 }

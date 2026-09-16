@@ -13,7 +13,6 @@ import {
 } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 import { formatSectionTitle } from '../lib/formatTitle';
-import CinematicStage from './CinematicStage';
 
 export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void }) {
   const [content, setContent] = useState<any>(null);
@@ -42,15 +41,15 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
   };
 
   return (
-    <footer id="footer" className="w-full relative z-20 bg-[var(--bg-primary)] py-16 sm:py-24 font-heading border-t border-white/10">
-      <div className="section-container relative mx-auto w-full max-w-6xl px-4">
+    <footer className="relative bg-transparent overflow-hidden mt-12 sm:mt-16 md:mt-24 font-heading">
+      <div className="section-container relative pb-10">
         <div 
-          className="relative z-10 p-6 sm:p-8 md:p-10 rounded-[28px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col shadow-2xl"
+          className="relative z-10 p-6 sm:p-8 md:p-10 rounded-[28px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col"
           style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
         >
-          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start mb-6 gap-8">
+          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start mb-8 gap-8">
             
-            <div className="stage-text flex flex-col justify-between h-full min-h-[120px] lg:w-2/5 w-full">
+            <div className="flex flex-col justify-between h-full min-h-[120px] lg:w-2/5 w-full">
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <SparklesDuotone size={16} />
@@ -71,7 +70,7 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               </div>
             </div>
 
-            <div className="stage-media grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 w-full lg:w-3/5 lg:justify-items-end">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 w-full lg:w-3/5 lg:justify-items-end">
               
               {/* Navigation */}
               <div className="flex flex-col">
@@ -158,14 +157,14 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
             </div>
           </div>
             
-          <div className="relative z-0 w-full flex justify-end mt-1 mb-1 md:mt-0 pointer-events-none select-none overflow-hidden">
+          <div className="relative z-0 w-full flex justify-end mt-2 mb-2 md:mt-0 pointer-events-none select-none overflow-hidden">
             <h2 className="text-[10vw] sm:text-[8vw] md:text-[5vw] lg:text-[3.5vw] font-black uppercase leading-[0.8] tracking-tighter" style={{ color: 'var(--text-primary)', opacity: 0.06 }}>
               IAN LESTER
             </h2>
           </div>
 
           <div 
-            className="stage-element relative z-10 pt-4 border-t flex flex-col md:flex-row justify-between items-center gap-3 uppercase tracking-wider font-semibold text-center md:text-left text-xs"
+            className="relative z-10 pt-5 border-t flex flex-col md:flex-row justify-between items-center gap-4 md:gap-3 uppercase tracking-wider font-semibold text-center md:text-left text-xs sm:text-sm"
             style={{ borderColor: 'var(--glass-border)' }}
           >
             <div className="flex flex-col md:flex-row items-center gap-3 md:gap-5 text-[var(--text-secondary)]">

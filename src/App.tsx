@@ -302,35 +302,25 @@ function App() {
     };
 
     gsap.ticker.add(updateTicker);
-    // lagSmoothing(0) is required when pairing GSAP ticker with Lenis RAF
-    // so the virtual scroll position and GSAP timeline never drift apart.
-    gsap.ticker.lagSmoothing(0);
+    gsap.ticker.lagSmoothing(500, 33);
 
-    // Keep Lenis scroll metrics synchronized when body height changes without triggering a ScrollTrigger rebuild loop
+    // Automatically recalculate scroll height when asynchronous components (portfolio projects, images) mount
     let resizeTimer: any;
     const resizeObserver = new ResizeObserver(() => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         lenis.resize();
-      }, 100);
+        ScrollTrigger.refresh();
+      }, 60);
     });
 
     if (document.body) {
       resizeObserver.observe(document.body);
     }
 
-    const handleWindowResize = () => {
-      lenis.resize();
-      ScrollTrigger.refresh();
-    };
-    window.addEventListener('resize', handleWindowResize);
-    window.addEventListener('orientationchange', handleWindowResize);
-
     return () => {
       clearTimeout(resizeTimer);
       resizeObserver.disconnect();
-      window.removeEventListener('resize', handleWindowResize);
-      window.removeEventListener('orientationchange', handleWindowResize);
       gsap.ticker.remove(updateTicker);
       lenis.destroy();
       delete window.__lenis;
@@ -464,7 +454,7 @@ function App() {
   }
 
   return (
-    <main className="min-h-screen relative overflow-x-clip">
+    <main className="min-h-screen relative overflow-x-hidden">
       {showLoader && <BrandLoader progress={loadProgress} isFading={loaderFading} />}
       <ErrorBoundary componentName="LiquidEtherBackground" fallback={<AtmosphereGradient />}>
         <LiquidEtherBackground
