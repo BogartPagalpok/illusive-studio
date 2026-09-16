@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowDownDuotone } from './icons/StreamlineIcons';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -24,9 +24,6 @@ const defaultContent: HeroContent = {
   heading_line3: 'That Resonate',
   description: "I'm Ian Lester Eclevia — a video editor and graphics artist creating polished visual stories, expressive motion, and memorable brand content.",
 };
-
-// Removed the standard HTML smooth scroll fallback from here
-// since you are utilizing GSAP and Framer Motion which can conflict with standard CSS scrolling behaviors.
 
 function scrollToId(e: React.MouseEvent, id: string) {
   e.preventDefault();
@@ -53,13 +50,15 @@ export default function Hero() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end start'],
-  });
-
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.15], ['0%', '-20%']);
+  // Discrete text line refs for succession animation from bottom to top
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const line1Ref = useRef<HTMLSpanElement>(null);
+  const line2A_Ref = useRef<HTMLSpanElement>(null);
+  const line2B_Ref = useRef<HTMLSpanElement>(null);
+  const line3A_Ref = useRef<HTMLSpanElement>(null);
+  const line3B_Ref = useRef<HTMLSpanElement>(null);
+  const rightColRef = useRef<HTMLDivElement>(null);
+  const bottomBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -96,23 +95,65 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    const overlay = overlayRef.current;
-    if (!overlay) return;
+    if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
-      gsap.to(overlay, {
-        yPercent: -100,
-        opacity: 0,
-        ease: 'none',
-        immediateRender: false,
+      // Elements arranged in succession: BOTTOM TO TOP
+      // 1. Resonate (bottom-most)
+      // 2. That
+      // 3. Stories
+      // 4. Visual
+      // 5. Crafting (top headline)
+      // 6. Subtitle (top metadata)
+      const textItems = [
+        line3B_Ref.current,
+        line3A_Ref.current,
+        line2B_Ref.current,
+        line2A_Ref.current,
+        line1Ref.current,
+        subtitleRef.current,
+      ].filter(Boolean);
+
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: window.innerWidth < 768 ? '+=100%' : '+=150%',
-          scrub: 0.5,
+          end: window.innerWidth < 768 ? '+=120%' : '+=150%',
+          scrub: 0.6,
         },
       });
-    });
+
+      // Synchronize text moving from LEFT to RIGHT in succession (starts bottom -> top)
+      tl.to(textItems, {
+        x: () => (window.innerWidth < 768 ? 260 : 540),
+        opacity: 0,
+        filter: 'blur(8px)',
+        stagger: 0.1,
+        ease: 'power1.inOut',
+        duration: 0.45,
+      }, 0);
+
+      // Right Column smoothly drifts to the right & fades out
+      if (rightColRef.current) {
+        tl.to(rightColRef.current, {
+          x: () => (window.innerWidth < 768 ? 140 : 320),
+          opacity: 0,
+          filter: 'blur(6px)',
+          ease: 'power1.inOut',
+          duration: 0.55,
+        }, 0.08);
+      }
+
+      // Bottom specialty bar slides down & fades out early
+      if (bottomBarRef.current) {
+        tl.to(bottomBarRef.current, {
+          y: 40,
+          opacity: 0,
+          ease: 'power1.out',
+          duration: 0.35,
+        }, 0);
+      }
+    }, sectionRef);
 
     const handleThemeChange = () => {
       setTimeout(() => ScrollTrigger.refresh(), 150);
@@ -123,7 +164,10 @@ export default function Hero() {
       ctx.revert();
       window.removeEventListener('storage', handleThemeChange);
     };
-  }, []);
+  }, [content]);
+
+  const line2Words = content.heading_line2.trim().split(/\s+/);
+  const line3Words = content.heading_line3.trim().split(/\s+/);
 
   return (
     <section
@@ -146,52 +190,65 @@ export default function Hero() {
             }}
           />
 
-          <motion.div
-            style={{ opacity: heroOpacity, y: heroY }}
-            className="relative z-10 flex flex-col justify-between w-full h-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 pointer-events-auto"
-          >
+          <div className="relative z-10 flex flex-col justify-between w-full h-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 pointer-events-auto">
             {/* Main Left & Right Split Container */}
             <div className="flex-1 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 lg:gap-12 w-full my-auto">
               
               {/* LEFT COLUMN: Subtitle + Giant Headline */}
-              <div className="w-full lg:w-3/5 text-left max-w-2xl">
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="text-[10px] sm:text-xs md:text-sm font-heading tracking-[0.25em] md:tracking-[0.35em] uppercase mb-3 sm:mb-4 md:mb-6 font-bold text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] flex items-center gap-2"
+              <div className="w-full lg:w-3/5 text-left max-w-2xl overflow-visible">
+                <p
+                  ref={subtitleRef}
+                  className="text-[10px] sm:text-xs md:text-sm font-heading tracking-[0.25em] md:tracking-[0.35em] uppercase mb-3 sm:mb-4 md:mb-6 font-bold text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] flex items-center gap-2 will-change-transform"
                   style={{ textShadow: '0 0 20px rgba(var(--accent-rgb), 0.6), 0 2px 10px rgba(0, 0, 0, 0.9)' }}
                 >
                   <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
                   {content.subtitle}
-                </motion.p>
+                </p>
 
-                <motion.h1
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tighter leading-[0.92] uppercase text-left w-full"
+                <h1
+                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tighter leading-[0.92] uppercase text-left w-full overflow-visible"
                   style={{ fontFamily: "'Clash Display', sans-serif" }}
                 >
-                  <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)] block">
-                    {content.heading_line1}
+                  {/* Line 1: Crafting */}
+                  <span className="block overflow-visible">
+                    <span ref={line1Ref} className="inline-block text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)] will-change-transform">
+                      {content.heading_line1}
+                    </span>
                   </span>
+
+                  {/* Line 2: Visual Stories */}
                   <span
-                    className="italic text-accent block my-1 sm:my-2"
+                    className="italic text-accent block my-1 sm:my-2 overflow-visible"
                     style={{
                       textShadow: '0 0 25px var(--accent), 0 0 50px rgba(var(--accent-rgb), 0.5)',
                     }}
                   >
-                    {content.heading_line2}
+                    <span ref={line2A_Ref} className="block sm:inline-block mr-2 sm:mr-3 will-change-transform">
+                      {line2Words[0] || content.heading_line2}
+                    </span>
+                    {line2Words.length > 1 && (
+                      <span ref={line2B_Ref} className="block sm:inline-block will-change-transform">
+                        {line2Words.slice(1).join(' ')}
+                      </span>
+                    )}
                   </span>
-                  <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)] block">
-                    {content.heading_line3}
+
+                  {/* Line 3: That Resonate */}
+                  <span className="text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.95)] block overflow-visible">
+                    <span ref={line3A_Ref} className="block sm:inline-block mr-2 sm:mr-3 will-change-transform">
+                      {line3Words[0] || content.heading_line3}
+                    </span>
+                    {line3Words.length > 1 && (
+                      <span ref={line3B_Ref} className="block sm:inline-block will-change-transform">
+                        {line3Words.slice(1).join(' ')}
+                      </span>
+                    )}
                   </span>
-                </motion.h1>
+                </h1>
               </div>
 
               {/* RIGHT COLUMN: Catchphrase + Description + CTAs */}
-              <div className="w-full lg:w-2/5 flex flex-col items-start lg:items-end text-left lg:text-right max-w-md lg:ml-auto">
+              <div ref={rightColRef} className="w-full lg:w-2/5 flex flex-col items-start lg:items-end text-left lg:text-right max-w-md lg:ml-auto will-change-transform">
                 <motion.h3
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -236,11 +293,9 @@ export default function Hero() {
             </div>
 
             {/* BOTTOM BAR: #01, #02, #03, #04 specialty pills + Scroll button */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1.1 }}
-              className="w-full flex flex-col md:flex-row items-center justify-between gap-4 pt-4 sm:pt-6 border-t border-white/10 mt-auto"
+            <div
+              ref={bottomBarRef}
+              className="w-full flex flex-col md:flex-row items-center justify-between gap-4 pt-4 sm:pt-6 border-t border-white/10 mt-auto will-change-transform"
             >
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 w-full md:w-auto">
                 <div className="flex flex-col text-left">
@@ -269,8 +324,8 @@ export default function Hero() {
                 <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase">Scroll</span>
                 <ArrowDownDuotone size={14} className="group-hover:translate-y-1 transition-transform text-accent" />
               </button>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </ScrollSequence>
     </section>
