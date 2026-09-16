@@ -167,21 +167,96 @@ function PhoneFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-function BrowserFrame({ children }: { children: React.ReactNode }) {
+function BrowserFrame({ children, title }: { children: React.ReactNode; title?: string }) {
+  const safeTitle = title || 'SOURCE_01';
+  const hash = safeTitle.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const minutes = String(hash % 45).padStart(2, '0');
+  const seconds = String((hash * 7) % 60).padStart(2, '0');
+  const frames = String((hash * 13) % 60).padStart(2, '0');
+  const timecode = `01:${minutes}:${seconds}:${frames}`;
+
   return (
-    <div className="relative w-full" style={{ borderRadius: 12, overflow: 'hidden', background: '#1a1a1a', boxShadow: '2px 5px 15px rgba(0,0,0,0.486)', border: '1px solid rgb(40,40,40)' }}>
-      {/* Chrome bar */}
-      <div style={{ height: 32, display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8, background: '#1a1a1a', flexShrink: 0 }}>
-        <div style={{ display: 'flex', gap: 6 }}>
-          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f56' }} />
-          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ffbd2e' }} />
-          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#27c93f' }} />
+    <div className="davinci-monitor-frame relative w-full group rounded-xl overflow-hidden bg-[#101114] border border-[#27292e] shadow-[0_12px_36px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-accent/50 hover:shadow-[0_0_30px_rgba(var(--accent-rgb),0.18)]">
+      {/* DaVinci Resolve Source Monitor Header */}
+      <div className="h-7 px-3 flex items-center justify-between bg-[#18191e] border-b border-[#26282f] select-none text-[10px] font-mono tracking-wider">
+        {/* Left: DaVinci Resolve Color Tag & Clip Name */}
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="w-2 h-2 rounded-full bg-[#e63946]" title="Channel R" />
+            <span className="w-2 h-2 rounded-full bg-[#2a9d8f]" title="Channel G" />
+            <span className="w-2 h-2 rounded-full bg-[#457b9d]" title="Channel B" />
+          </div>
+          <span className="font-bold text-white/90 truncate uppercase tracking-widest text-[9px] max-w-[130px] sm:max-w-[190px]">
+            {safeTitle.replace(/\s+/g, '_')}
+          </span>
         </div>
-        <div style={{ flex: 1, height: 22, borderRadius: 4, background: '#111', display: 'flex', alignItems: 'center', padding: '0 10px', fontSize: 10, color: '#555', marginLeft: 8 }}>iframe</div>
+
+        {/* Center: Monospace Timecode with Playhead Status */}
+        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/60 border border-white/5 text-accent">
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
+          <span className="text-[10px] tracking-widest font-bold font-mono">{timecode}</span>
+        </div>
+
+        {/* Right: Technical Specs */}
+        <div className="flex items-center gap-1.5 text-white/50 text-[9px] shrink-0">
+          <span className="px-1.5 py-0.5 rounded bg-white/5 text-white/70 font-semibold font-mono">4K UHD</span>
+          <span className="hidden sm:inline font-mono">60 FPS</span>
+        </div>
       </div>
-      {/* Content — 16:9 ratio applied HERE so the chrome doesn't steal height */}
-      <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: 'black', overflow: 'hidden' }}>
+
+      {/* Video Content Canvas (16:9) with Safe Guides Overlay */}
+      <div className="relative w-full aspect-video bg-black overflow-hidden">
         {children}
+
+        {/* DaVinci Viewfinder / Safe-Area Reticle Marks (Non-blocking) */}
+        <div className="absolute inset-2.5 sm:inset-4 pointer-events-none border border-white/0 group-hover:border-white/10 transition-colors duration-300 z-10">
+          {/* Top-left corner mark */}
+          <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-accent/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Top-right corner mark */}
+          <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-accent/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Bottom-left corner mark */}
+          <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-accent/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Bottom-right corner mark */}
+          <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-accent/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          {/* Center Crosshair (subtle) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 opacity-0 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-white" />
+            <div className="absolute top-1/2 left-0 -translate-y-1/2 w-full h-[1px] bg-white" />
+          </div>
+        </div>
+      </div>
+
+      {/* DaVinci Transport / Timeline Scrubber Footer */}
+      <div className="h-6 px-3 flex items-center justify-between bg-[#15161a] border-t border-[#23252b] select-none text-[9px] font-mono text-white/50">
+        {/* Left: Transport buttons */}
+        <div className="flex items-center gap-2 text-white/60">
+          <span className="hover:text-accent cursor-default transition-colors text-[8px]">◀◀</span>
+          <span className="hover:text-accent cursor-default transition-colors text-[8px]">▶</span>
+          <span className="hover:text-accent cursor-default transition-colors text-[8px]">▶▶</span>
+        </div>
+
+        {/* Center: Mini Scrubber Track with Playhead */}
+        <div className="flex-1 mx-3 h-1.5 rounded-full bg-[#202228] relative overflow-hidden">
+          <div 
+            className="h-full bg-accent/70 rounded-full transition-all duration-300 group-hover:bg-accent"
+            style={{ width: `${30 + (hash % 45)}%` }}
+          />
+          <div 
+            className="absolute top-0 w-1 h-full bg-white shadow-sm"
+            style={{ left: `${30 + (hash % 45)}%` }}
+          />
+        </div>
+
+        {/* Right: Audio Stereo VU Meter Peak Display */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[8px] text-white/40">LR</span>
+          <div className="flex gap-0.5 items-end h-2.5">
+            <span className="w-1 h-2 bg-[#2a9d8f] rounded-[0.5px]" />
+            <span className="w-1 h-2.5 bg-[#e9c46a] rounded-[0.5px]" />
+            <span className="w-1 h-1.5 bg-[#e63946] rounded-[0.5px]" />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -662,7 +737,7 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                     )}
                   </PhoneFrame>
                 ) : (
-                  <BrowserFrame>
+                  <BrowserFrame title={cardTitle}>
                     <VideoFacade
                       url={item.url}
                       platform={item.platform!}
