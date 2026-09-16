@@ -196,7 +196,7 @@ function BrowserFrame({ children, title }: { children: React.ReactNode; title?: 
     >
       {/* DaVinci Resolve Source Monitor Header */}
       <div 
-        className="h-7 px-3 flex items-center justify-between border-b select-none text-[10px] font-mono tracking-wider"
+        className="h-7.5 px-3 flex items-center justify-between border-b select-none text-xs font-mono tracking-wider"
         style={{
           backgroundColor: 'var(--frame-header, #18191e)',
           borderBottomColor: 'var(--frame-border, #26282f)',
@@ -209,7 +209,7 @@ function BrowserFrame({ children, title }: { children: React.ReactNode; title?: 
             <span className="w-2 h-2 rounded-full bg-[#2a9d8f]" title="Channel G" />
             <span className="w-2 h-2 rounded-full bg-[#457b9d]" title="Channel B" />
           </div>
-          <span className="font-bold text-white/90 truncate uppercase tracking-widest text-[9px] max-w-[130px] sm:max-w-[190px]">
+          <span className="font-bold text-white/95 truncate uppercase tracking-widest text-xs max-w-[130px] sm:max-w-[190px]">
             {safeTitle.replace(/\s+/g, '_')}
           </span>
         </div>
@@ -217,12 +217,12 @@ function BrowserFrame({ children, title }: { children: React.ReactNode; title?: 
         {/* Center: Monospace Timecode with Playhead Status */}
         <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/60 border border-white/5 text-accent">
           <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
-          <span className="text-[10px] tracking-widest font-bold font-mono">{timecode}</span>
+          <span className="text-xs tracking-widest font-bold font-mono">{timecode}</span>
         </div>
 
         {/* Right: Technical Specs */}
-        <div className="flex items-center gap-1.5 text-white/50 text-[9px] shrink-0">
-          <span className="px-1.5 py-0.5 rounded bg-white/5 text-white/70 font-semibold font-mono">4K UHD</span>
+        <div className="flex items-center gap-1.5 text-white/70 text-xs shrink-0">
+          <span className="px-1.5 py-0.5 rounded bg-white/5 text-white/90 font-semibold font-mono">4K UHD</span>
           <span className="hidden sm:inline font-mono">60 FPS</span>
         </div>
       </div>
@@ -252,17 +252,17 @@ function BrowserFrame({ children, title }: { children: React.ReactNode; title?: 
 
       {/* DaVinci Transport / Timeline Scrubber Footer */}
       <div 
-        className="h-6 px-3 flex items-center justify-between border-t select-none text-[9px] font-mono text-white/50"
+        className="h-6.5 px-3 flex items-center justify-between border-t select-none text-xs font-mono text-white/70"
         style={{
           backgroundColor: 'var(--frame-header, #15161a)',
           borderTopColor: 'var(--frame-border, #23252b)',
         }}
       >
         {/* Left: Transport buttons */}
-        <div className="flex items-center gap-2 text-white/60">
-          <span className="hover:text-accent cursor-default transition-colors text-[8px]">◀◀</span>
-          <span className="hover:text-accent cursor-default transition-colors text-[8px]">▶</span>
-          <span className="hover:text-accent cursor-default transition-colors text-[8px]">▶▶</span>
+        <div className="flex items-center gap-2 text-white/70">
+          <span className="hover:text-accent cursor-default transition-colors text-xs">◀◀</span>
+          <span className="hover:text-accent cursor-default transition-colors text-xs">▶</span>
+          <span className="hover:text-accent cursor-default transition-colors text-xs">▶▶</span>
         </div>
 
         {/* Center: Mini Scrubber Track with Playhead */}
@@ -279,7 +279,7 @@ function BrowserFrame({ children, title }: { children: React.ReactNode; title?: 
 
         {/* Right: Audio Stereo VU Meter Peak Display */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[8px] text-white/40">LR</span>
+          <span className="text-xs font-mono text-white/70">LR</span>
           <div className="flex gap-0.5 items-end h-2.5">
             <span className="w-1 h-2 bg-[#2a9d8f] rounded-[0.5px]" />
             <span className="w-1 h-2.5 bg-[#e9c46a] rounded-[0.5px]" />
@@ -465,9 +465,9 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
               loading="lazy"
               style={isHero ? { minHeight: '300px' } : undefined}
             />
-            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+            <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-black/80 to-transparent">
               <p className="text-white text-xs font-bold uppercase tracking-wider">{project.title}</p>
-              {isMobile && <p className="text-white/50 text-[8px] mt-0.5">Tap to flip</p>}
+              {isMobile && <p className="text-white/80 text-xs mt-0.5 font-medium">Tap to flip</p>}
             </div>
           </div>
           <div
@@ -485,13 +485,13 @@ function FlipCard({ project, isHero = false }: { project: Project; isHero?: bool
               <p className="text-xs mt-2 leading-relaxed text-center" style={{ color: 'var(--text-secondary)' }}>{project.description}</p>
             )}
             {project.tools && (
-              <div className="flex flex-wrap gap-1 mt-3 justify-center">
+              <div className="flex flex-wrap gap-1.5 mt-3 justify-center">
                 {project.tools.slice(0, 3).map(t => (
-                  <span key={t} className="px-2 py-0.5 text-[8px] uppercase tracking-wider rounded border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
+                  <span key={t} className="px-2 py-0.5 text-xs uppercase tracking-wider rounded border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
                 ))}
               </div>
             )}
-            {isMobile && <p className="text-accent text-[8px] mt-3 font-bold">Tap to view full</p>}
+            {isMobile && <p className="text-accent text-xs mt-3 font-bold">Tap to view full</p>}
           </div>
         </div>
       </div>
@@ -633,9 +633,9 @@ function GraphicsCompositeCard({ images, title, description, tools, layout }: { 
                 ))}
               </div>
             )}
-            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent pointer-events-none">
+            <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
               <p className="text-white text-xs font-bold uppercase tracking-wider">{title}</p>
-              {isMobile && <p className="text-white/50 text-[8px] mt-0.5">Tap to flip</p>}
+              {isMobile && <p className="text-white/80 text-xs mt-0.5 font-medium">Tap to flip</p>}
             </div>
           </div>
           <div
@@ -653,13 +653,13 @@ function GraphicsCompositeCard({ images, title, description, tools, layout }: { 
               <p className="text-xs mt-2 leading-relaxed text-center" style={{ color: 'var(--text-secondary)' }}>{description}</p>
             )}
             {tools && tools.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-3 justify-center">
+              <div className="flex flex-wrap gap-1.5 mt-3 justify-center">
                 {tools.slice(0, 3).map(t => (
-                  <span key={t} className="px-2 py-0.5 text-[8px] uppercase tracking-wider rounded border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
+                  <span key={t} className="px-2 py-0.5 text-xs uppercase tracking-wider rounded border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
                 ))}
               </div>
             )}
-            {isMobile && <p className="text-accent text-[8px] mt-3 font-bold">Tap to view full</p>}
+            {isMobile && <p className="text-accent text-xs mt-3 font-bold">Tap to view full</p>}
           </div>
         </div>
       </div>
@@ -733,7 +733,7 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
         {tools && tools.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {tools.map(t => (
-              <span key={t} className="px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
+              <span key={t} className="px-3 py-1 text-xs uppercase tracking-wider rounded-full border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
             ))}
           </div>
         )}
@@ -751,7 +751,7 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                     {item.platform === 'tiktok' ? (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
                         <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
-                        <p className="text-white/70 text-xs text-center mb-3">{cardTitle}</p>
+                        <p className="text-white/80 text-xs text-center mb-3 font-medium">{cardTitle}</p>
                         <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
                           <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
                         </a>
@@ -775,9 +775,9 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                     />
                   </BrowserFrame>
                 )}
-                <p className="text-center text-[10px] font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{cardTitle}</p>
+                <p className="text-center text-xs font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{cardTitle}</p>
                 {cardSubtitle && (
-                  <p className="text-center text-[9px] mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>{cardSubtitle}</p>
+                  <p className="text-center text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>{cardSubtitle}</p>
                 )}
               </div>
             );
@@ -1003,7 +1003,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
         }
         // ── Motion: Panel Layout ─────────────────────────
         if (isMotion) {
-          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string }> = [];
+          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> = [];
           let titleDescription = '';
           let titleTools: string[] = [];
 
@@ -1126,7 +1126,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
                             </PhoneFrame>
                             <div className="p-3">
                               <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{project.title}</h3>
-                              {project.description && <p className="text-[var(--text-secondary)] text-[10px] mt-1 line-clamp-2">{project.description}</p>}
+                              {project.description && <p className="text-[var(--text-secondary)] text-xs mt-1 line-clamp-2">{project.description}</p>}
                             </div>
                           </div>
                         </div>

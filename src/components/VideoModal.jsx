@@ -60,13 +60,13 @@ export default function VideoModal({ isOpen, onClose, youtubeId, title = 'Showre
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/10 bg-white/[0.04]">
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse" />
-            <span className="text-[11px] sm:text-xs font-heading font-black tracking-[0.2em] uppercase text-white/90">
+            <span className="text-xs font-heading font-black tracking-[0.2em] uppercase text-white/95">
               {title}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-block text-[10px] font-heading tracking-widest uppercase text-white/40">
+            <span className="hidden sm:inline-block text-xs font-heading tracking-widest uppercase text-white/70">
               Press ESC to exit
             </span>
             <button

@@ -88,20 +88,20 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
 
               {/* Connect */}
               <div className="flex flex-col">
-                 <h4 className="uppercase tracking-[0.25em] mb-3 sm:mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Connect</h4>
-                 <ul className="space-y-2.5 font-semibold" style={{ fontSize: 'clamp(12px, 0.9vw, 14px)' }}>
+                 <h4 className="uppercase tracking-[0.25em] mb-3 sm:mb-4 font-black text-xs text-[var(--text-secondary)]">Connect</h4>
+                 <ul className="space-y-2.5 font-semibold text-xs sm:text-sm">
                    <li>
-                     <a href={content?.x || 'https://x.com/il_lusivestudio'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                     <a href={content?.x || 'https://x.com/il_lusivestudio'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit text-[var(--text-primary)]">
                        <XTwitterDuotone size={16} className="shrink-0" /> X / Twitter
                      </a>
                    </li>
                    <li>
-                     <a href={content?.linkedin || 'https://www.linkedin.com/in/ian-lester-eclevia'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                     <a href={content?.linkedin || 'https://www.linkedin.com/in/ian-lester-eclevia'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit text-[var(--text-primary)]">
                        <LinkedinDuotone size={16} className="shrink-0" /> LinkedIn
                      </a>
                    </li>
                    <li>
-                     <a href={content?.reddit || 'https://www.reddit.com/user/yhanlhester/'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                     <a href={content?.reddit || 'https://www.reddit.com/user/yhanlhester/'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit text-[var(--text-primary)]">
                        <RedditDuotone size={16} className="shrink-0" /> Reddit
                      </a>
                    </li>
@@ -109,29 +109,28 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
                      <button
                        type="button"
                        onClick={handleCopyDiscord}
-                       className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit text-left cursor-pointer group"
-                       style={{ color: 'var(--text-primary)', opacity: 0.85 }}
+                       className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit text-left cursor-pointer group text-[var(--text-primary)]"
                        title="Click to copy Discord handle"
                      >
                        <DiscordDuotone size={16} className="shrink-0" />
                        <span>Discord</span>
-                       <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-accent group-hover:bg-accent group-hover:text-[var(--accent-contrast)] transition-colors">
+                       <span className="text-xs font-mono px-2 py-0.5 rounded bg-white/10 text-accent group-hover:bg-accent group-hover:text-[var(--accent-contrast)] transition-colors">
                          {discordCopied ? 'Copied!' : (content?.discord || 'illusivestudio')}
                        </span>
                      </button>
                    </li>
                    <li>
-                     <a href={content?.instagram || 'https://instagram.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                     <a href={content?.instagram || 'https://instagram.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit text-[var(--text-primary)]">
                        <InstagramDuotone size={16} className="shrink-0" /> Instagram
                      </a>
                    </li>
                    <li>
-                     <a href={content?.github || 'https://github.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                     <a href={content?.github || 'https://github.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit text-[var(--text-primary)]">
                        <GithubDuotone size={16} className="shrink-0" /> GitHub
                      </a>
                    </li>
                    <li>
-                     <a href={content?.facebook || 'https://facebook.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+                     <a href={content?.facebook || 'https://facebook.com'} target="_blank" rel="noopener noreferrer" className="hover:text-accent flex items-center gap-2.5 transition-colors w-fit text-[var(--text-primary)]">
                        <FacebookDuotone size={16} className="shrink-0" /> Facebook
                      </a>
                    </li>
@@ -140,16 +139,16 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
 
               {/* Contact: Spans full width on mobile so email never breaks */}
               <div className="flex flex-col col-span-2 sm:col-span-1 pt-2 sm:pt-0 border-t border-white/5 sm:border-t-0">
-                 <h4 className="uppercase tracking-[0.25em] mb-3 sm:mb-4 font-black text-xs" style={{ color: 'var(--text-primary)', opacity: 0.5 }}>Contact</h4>
-                 <ul className="space-y-2.5 font-medium" style={{ fontSize: 'clamp(13px, 0.95vw, 14px)' }}>
+                 <h4 className="uppercase tracking-[0.25em] mb-3 sm:mb-4 font-black text-xs text-[var(--text-secondary)]">Contact</h4>
+                 <ul className="space-y-2.5 font-medium text-xs sm:text-sm">
                    <li>
-                     <a href={`mailto:${content?.email || 'yhanlhester@gmail.com'}`} className="flex items-center gap-2.5 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
-                       <MailDuotone size={16} className="shrink-0 text-accent" /> <span className="font-mono text-xs sm:text-[13px] break-all sm:break-normal">{content?.email || 'yhanlhester@gmail.com'}</span>
+                     <a href={`mailto:${content?.email || 'yhanlhester@gmail.com'}`} className="flex items-center gap-2.5 hover:text-accent transition-colors text-[var(--text-primary)]">
+                       <MailDuotone size={16} className="shrink-0 text-accent" /> <span className="font-mono text-xs sm:text-sm break-all sm:break-normal">{content?.email || 'yhanlhester@gmail.com'}</span>
                      </a>
                    </li>
                    <li>
-                     <a href={`tel:${content?.phone || '+639524437988'}`} className="flex items-center gap-2.5 hover:text-accent transition-colors" style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
-                       <PhoneDuotone size={16} className="shrink-0 text-accent" /> <span className="font-mono text-xs sm:text-[13px]">{content?.phone || '+639524437988'}</span>
+                     <a href={`tel:${content?.phone || '+639524437988'}`} className="flex items-center gap-2.5 hover:text-accent transition-colors text-[var(--text-primary)]">
+                       <PhoneDuotone size={16} className="shrink-0 text-accent" /> <span className="font-mono text-xs sm:text-sm">{content?.phone || '+639524437988'}</span>
                      </a>
                    </li>
                  </ul>
@@ -165,10 +164,10 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
           </div>
 
           <div 
-            className="relative z-10 pt-5 border-t flex flex-col md:flex-row justify-between items-center gap-4 md:gap-3 uppercase tracking-wider font-semibold text-center md:text-left"
-            style={{ borderColor: 'var(--glass-border)', fontSize: 'clamp(11px, 0.85vw, 13px)' }}
+            className="relative z-10 pt-5 border-t flex flex-col md:flex-row justify-between items-center gap-4 md:gap-3 uppercase tracking-wider font-semibold text-center md:text-left text-xs sm:text-sm"
+            style={{ borderColor: 'var(--glass-border)' }}
           >
-            <div className="flex flex-col md:flex-row items-center gap-3 md:gap-5" style={{ color: 'var(--text-primary)', opacity: 0.65 }}>
+            <div className="flex flex-col md:flex-row items-center gap-3 md:gap-5 text-[var(--text-secondary)]">
               <button 
                 onClick={() => { 
                   clickCountRef.current++; 
@@ -181,12 +180,12 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
               
               <div className="flex items-center justify-center gap-3">
                 <a href="/privacy" className="hover:text-accent transition-colors">Privacy</a>
-                <span style={{ color: 'var(--text-primary)', opacity: 0.3 }}>|</span>
+                <span className="text-[var(--text-muted)]">|</span>
                 <a href="/terms" className="hover:text-accent transition-colors">Terms</a>
               </div>
             </div>
 
-            <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors mt-1 md:mt-0 font-bold" style={{ color: 'var(--text-primary)', opacity: 0.65 }} aria-label="Scroll back to top of page">
+            <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="hover:text-accent transition-colors mt-1 md:mt-0 font-bold text-[var(--text-secondary)]" aria-label="Scroll back to top of page">
               Back to Top ↑
             </button>
           </div>

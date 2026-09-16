@@ -29,7 +29,7 @@ export default function Terms() {
           <h1 className="text-4xl md:text-5xl font-heading font-black tracking-wider uppercase mb-4 text-white">
             Terms <span className="text-accent">&amp; Conditions</span>
           </h1>
-          <p className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase mb-12 text-white/40">
+          <p className="text-xs font-heading font-bold tracking-[0.2em] uppercase mb-12 text-[var(--text-muted)]">
             Last Updated: May 2026
           </p>
 

@@ -108,7 +108,7 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
                 <Lock size={24} className="text-accent drop-shadow-[0_0_6px_var(--accent)]" />
               </div>
               <h3 className="text-xl font-heading font-black text-white tracking-tighter uppercase">Admin Access</h3>
-              <p className="text-[10px] mt-2 font-heading tracking-widest uppercase opacity-60 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              <p className="text-xs mt-2 font-heading tracking-widest uppercase text-[var(--text-muted)] leading-relaxed">
                 Restricted studio access
               </p>
             </div>
@@ -120,7 +120,7 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="text-[10px] text-red-400 mt-2 font-heading tracking-[0.2em] uppercase font-bold text-center"
+                      className="text-xs text-red-400 mt-2 font-heading tracking-[0.2em] uppercase font-bold text-center"
                     >
                       Unauthorized access denied
                     </motion.p>
@@ -131,7 +131,7 @@ export default function AdminModal({ isOpen, onClose, onSuccess }: AdminModalPro
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isSubmitting}
-                className="w-full rounded-lg border border-white/15 px-4 py-2.5 text-[10px] font-heading font-bold uppercase tracking-widest text-white hover:bg-white/10 transition disabled:opacity-50"
+                className="w-full rounded-lg border border-white/15 px-4 py-2.5 text-xs font-heading font-bold uppercase tracking-widest text-white hover:bg-white/10 transition disabled:opacity-50"
               >
                 Continue with Google
               </button>

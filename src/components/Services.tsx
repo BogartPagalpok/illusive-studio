@@ -86,7 +86,7 @@ export default function Services() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-8 flex flex-col items-center"
+          className="section-header-gap text-center flex flex-col items-center"
         >
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
@@ -95,7 +95,7 @@ export default function Services() {
           <div className="section-divider" />
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {servicesData.map((service, index) => {
             const palette = [
               'var(--accent)',
@@ -116,22 +116,16 @@ export default function Services() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span
-                    className="text-[9px] font-heading font-black tracking-widest uppercase opacity-75 group-hover:opacity-100 transition-opacity"
+                    className="text-xs font-heading font-black tracking-widest uppercase opacity-85 group-hover:opacity-100 transition-opacity"
                     style={{ color: cardAccent }}
                   >
                     0{index + 1} //
                   </span>
                 </div>
-                <h3
-                  className="font-bold tracking-tight uppercase text-[var(--text-primary)] transition-colors mb-1.5"
-                  style={{ fontSize: 'clamp(12px, 1.2vw, 18px)' }}
-                >
+                <h3 className="text-base sm:text-lg font-heading font-bold tracking-tight uppercase text-[var(--text-primary)] transition-colors mb-2">
                   {service.title}
                 </h3>
-                <p
-                  className="font-light leading-relaxed text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors"
-                  style={{ fontSize: 'clamp(10px, 0.9vw, 14px)' }}
-                >
+                <p className="text-xs sm:text-sm font-body leading-relaxed text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
                   {service.description}
                 </p>
                 <div

@@ -159,7 +159,7 @@ export default function ProjectPortal() {
   );
 
   return (
-    <section className="w-full min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
+    <section className="section-padding flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
       
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes floatBounce {
@@ -183,10 +183,10 @@ export default function ProjectPortal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5 }}
-            className="w-full flex flex-col items-center justify-center min-h-[700px]"
+            className="section-container w-full flex flex-col items-center justify-center min-h-[700px]"
           >
             {/* Context Header */}
-            <div className="text-center mb-12 lg:mb-16 flex flex-col items-center px-4">
+            <div className="section-header-gap text-center flex flex-col items-center px-4">
               <span className="section-subtitle">
                 Growth Marketing Case Study
               </span>
@@ -194,13 +194,13 @@ export default function ProjectPortal() {
                 MODULAR CREATIVE <span className="text-accent">TESTING</span>
               </h2>
               <div className="section-divider mb-6" />
-              <p className="max-w-2xl text-center text-[clamp(0.875rem,1vw,1rem)] text-[var(--text-secondary)] leading-relaxed">
+              <p className="max-w-2xl text-center text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed font-body">
                 This interactive portal demonstrates a modern Meta Ads testing strategy. Select a variant below to explore how we use visual hooks as targeting filters, aligning each colorway with specific audience segments, post-click landing pages, and campaign performance metrics.
               </p>
             </div>
 
             {/* DESKTOP VIEW */}
-            <div className="hidden lg:grid grid-cols-5 gap-6 xl:gap-8 max-w-[1600px] w-full px-8">
+            <div className="hidden lg:grid grid-cols-5 gap-6 xl:gap-8 max-w-[1600px] w-full px-4 sm:px-8">
               {dynamicShoes.map((shoe) => (
                 <button
                   key={`desktop-${shoe.id}`}
@@ -211,22 +211,22 @@ export default function ProjectPortal() {
                     <img src={shoe.bgImage} alt={`${shoe.title} Background`} className="absolute inset-0 w-full h-full object-cover rounded-3xl transition-transform duration-500 group-hover:scale-105" />
                     <img src={shoe.shoeImage} alt={shoe.title} className="absolute z-10 w-[90%] h-auto object-contain shoe-float drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-105" style={{ top: '0%', left: '5%' }} />
                   </div>
-                  <h4 className="text-[clamp(0.875rem,1vw,1rem)] font-black text-[var(--text-primary)] uppercase tracking-wider transition-transform duration-500 group-hover:-translate-y-2 text-center">{shoe.title}</h4>
-                  <span className="text-[clamp(0.75rem,1vw,0.875rem)] font-bold uppercase tracking-widest mt-1 transition-transform duration-500 group-hover:-translate-y-2 text-center" style={{ color: shoe.colorHex }}>{shoe.colorName}</span>
+                  <h4 className="text-sm sm:text-base font-black text-[var(--text-primary)] uppercase tracking-wider transition-transform duration-500 group-hover:-translate-y-2 text-center">{shoe.title}</h4>
+                  <span className="text-xs sm:text-sm font-bold uppercase tracking-widest mt-1 transition-transform duration-500 group-hover:-translate-y-2 text-center" style={{ color: shoe.colorHex }}>{shoe.colorName}</span>
 
                   <div className="mt-4 w-full text-left space-y-1.5 border-t border-white/10 pt-3">
-                    <div className="flex justify-between items-center text-[clamp(0.75rem,1vw,0.875rem)] uppercase tracking-widest text-[var(--text-secondary)]">
+                    <div className="flex justify-between items-center text-xs sm:text-sm uppercase tracking-widest text-[var(--text-secondary)]">
                       <span>Target</span><span className="text-[var(--text-primary)] font-bold">{shoe.audience}</span>
                     </div>
-                    <div className="flex justify-between items-center text-[clamp(0.75rem,1vw,0.875rem)] uppercase tracking-widest text-[var(--text-secondary)]">
+                    <div className="flex justify-between items-center text-xs sm:text-sm uppercase tracking-widest text-[var(--text-secondary)]">
                       <span>Goal</span><span className="text-[var(--text-primary)] font-bold">{shoe.conversionFocus}</span>
                     </div>
                     
                     <div className="mt-3 pt-3 border-t border-white/5 space-y-1.5">
-                      <div className="flex justify-between items-center text-[clamp(0.75rem,1vw,0.875rem)] uppercase tracking-widest text-[var(--text-secondary)]">
+                      <div className="flex justify-between items-center text-xs sm:text-sm uppercase tracking-widest text-[var(--text-secondary)]">
                         <span>{shoe.primaryMetricLabel}</span><span className="font-mono font-bold" style={{ color: shoe.colorHex }}>{shoe.primaryMetricValue}</span>
                       </div>
-                      <div className="flex justify-between items-center text-[clamp(0.75rem,1vw,0.875rem)] uppercase tracking-widest text-[var(--text-secondary)]">
+                      <div className="flex justify-between items-center text-xs sm:text-sm uppercase tracking-widest text-[var(--text-secondary)]">
                         <span>{shoe.secondaryMetricLabel}</span><span className="font-mono text-[var(--text-primary)] font-bold">{shoe.secondaryMetricValue}</span>
                       </div>
                     </div>
@@ -252,8 +252,8 @@ export default function ProjectPortal() {
                       <img src={shoe.bgImage} alt={`${shoe.title} Background`} className="absolute inset-0 w-full h-full object-cover rounded-2xl" />
                       <img src={shoe.shoeImage} alt={shoe.title} className="absolute z-10 w-[90%] h-auto object-contain shoe-float drop-shadow-[0_15px_15px_rgba(0,0,0,0.7)]" style={{ top: '0%', left: '5%' }} />
                     </div>
-                    <h4 className="text-[clamp(0.875rem,1vw,1rem)] font-black text-[var(--text-primary)] uppercase tracking-wider">{shoe.title}</h4>
-                    <span className="text-[clamp(0.75rem,1vw,0.875rem)] font-bold uppercase tracking-widest mt-1" style={{ color: shoe.colorHex }}>{shoe.colorName}</span>
+                    <h4 className="text-sm sm:text-base font-black text-[var(--text-primary)] uppercase tracking-wider">{shoe.title}</h4>
+                    <span className="text-xs sm:text-sm font-bold uppercase tracking-widest mt-1" style={{ color: shoe.colorHex }}>{shoe.colorName}</span>
                   </button>
                 ))}
               </motion.div>
@@ -268,14 +268,14 @@ export default function ProjectPortal() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full flex flex-col max-w-[1800px]"
+            className="section-container w-full flex flex-col max-w-[1800px]"
           >
             <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 px-2">
               <div>
-                <span className="text-[clamp(0.75rem,1vw,0.875rem)] font-black tracking-[0.4em] uppercase" style={{ color: activeShoe.colorHex }}>
+                <span className="text-xs sm:text-sm font-black tracking-[0.3em] uppercase" style={{ color: activeShoe.colorHex }}>
                   Campaign Live Portal &rarr; {activeShoe.colorName}
                 </span>
-                <h3 className="text-2xl md:text-3xl font-black text-[var(--text-primary)] uppercase tracking-tight">Match Verification Frame</h3>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-[var(--text-primary)] uppercase tracking-tight">Match Verification Frame</h3>
               </div>
               <button
                 onClick={() => setActiveShoe(null)}
@@ -287,18 +287,18 @@ export default function ProjectPortal() {
 
             <div className="w-full bg-[var(--bg-secondary)] border border-[var(--glass-border)] rounded-2xl p-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl relative overflow-hidden">
               <div className="flex-1 space-y-3 z-10">
-                <h4 className="text-[clamp(0.75rem,1vw,0.875rem)] font-black tracking-widest uppercase text-[var(--text-secondary)]">Growth Strategy Analysis</h4>
-                <div className="text-[clamp(0.75rem,1vw,0.875rem)] text-[var(--text-primary)] leading-relaxed space-y-1">
-                  <p><span style={{ color: activeShoe.colorHex }} className="font-bold uppercase tracking-wider">Hypothesis:</span> Testing modular visual hooks against distinct audience segments using Meta Advantage+.</p>
-                  <p><span style={{ color: activeShoe.colorHex }} className="font-bold uppercase tracking-wider">Execution:</span> Deployed rapid UI variations to isolate which creative acted as the best targeting filter.</p>
-                  <p><span style={{ color: activeShoe.colorHex }} className="font-bold uppercase tracking-wider">Result:</span> Scaled budget safely while achieving a <span className="font-mono font-bold">{activeShoe.primaryMetricValue} {activeShoe.primaryMetricLabel}</span>.</p>
+                <h4 className="text-xs sm:text-sm font-black tracking-widest uppercase text-[var(--text-secondary)]">Growth Strategy Analysis</h4>
+                <div className="text-xs sm:text-sm text-[var(--text-primary)] leading-relaxed space-y-1.5 font-body">
+                  <p><span style={{ color: activeShoe.colorHex }} className="font-bold uppercase tracking-wider font-heading">Hypothesis:</span> Testing modular visual hooks against distinct audience segments using Meta Advantage+.</p>
+                  <p><span style={{ color: activeShoe.colorHex }} className="font-bold uppercase tracking-wider font-heading">Execution:</span> Deployed rapid UI variations to isolate which creative acted as the best targeting filter.</p>
+                  <p><span style={{ color: activeShoe.colorHex }} className="font-bold uppercase tracking-wider font-heading">Result:</span> Scaled budget safely while achieving a <span className="font-mono font-bold">{activeShoe.primaryMetricValue} {activeShoe.primaryMetricLabel}</span>.</p>
                 </div>
               </div>
               
               <div className="w-full md:w-72 h-24 border border-white/10 rounded-xl relative overflow-hidden bg-black/40 p-3 flex flex-col justify-end z-10 shrink-0">
                 <div className="absolute top-3 left-4 flex justify-between w-[calc(100%-2rem)]">
-                   <span className="text-[10px] uppercase tracking-widest text-[var(--text-secondary)] font-bold">CPA Trend Optimization</span>
-                   <span className="text-[10px] font-mono text-green-400 font-bold">-22%</span>
+                   <span className="text-xs uppercase tracking-widest text-[var(--text-secondary)] font-bold">CPA Trend Optimization</span>
+                   <span className="text-xs font-mono text-green-400 font-bold">-22%</span>
                 </div>
                 <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible" preserveAspectRatio="none">
                   <path d="M0,35 Q20,35 40,25 T80,10 T100,5" fill="none" stroke={activeShoe.colorHex} strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
@@ -316,7 +316,7 @@ export default function ProjectPortal() {
                   <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                   <div className="w-3 h-3 rounded-full bg-green-500/80" />
                 </div>
-                <div className="w-full h-8 flex items-center justify-center text-[10px] font-bold text-[var(--text-secondary)] border-b border-white/5 uppercase tracking-widest mb-2 bg-[var(--glass-bg)] rounded-t-lg pointer-events-none">
+                <div className="w-full h-8 flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] border-b border-white/5 uppercase tracking-widest mb-2 bg-[var(--glass-bg)] rounded-t-lg pointer-events-none">
                   Desktop Live Context
                 </div>
                 <div className="w-full h-full rounded-xl overflow-hidden border border-[var(--glass-border)] bg-black relative group">

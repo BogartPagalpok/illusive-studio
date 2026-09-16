@@ -29,7 +29,7 @@ export default function Privacy() {
           <h1 className="text-4xl md:text-5xl font-heading font-black tracking-wider uppercase mb-4 text-white">
             Privacy <span className="text-accent">Policy</span>
           </h1>
-          <p className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase mb-12 text-white/40">
+          <p className="text-xs font-heading font-bold tracking-[0.2em] uppercase mb-12 text-[var(--text-muted)]">
             Last Updated: May 2026
           </p>
 
@@ -69,13 +69,13 @@ export default function Privacy() {
               </p>
               <div className="flex flex-col gap-3">
                 <p className="flex items-center gap-3">
-                  <span className="font-heading font-black text-white/30 uppercase tracking-[0.2em] text-[10px] w-12">Email</span>
+                  <span className="font-heading font-bold text-[var(--text-muted)] uppercase tracking-[0.2em] text-xs w-16">Email</span>
                   <a href="mailto:yhanlhester@gmail.com" className="text-accent hover:opacity-80 transition-opacity font-bold">
                     yhanlhester@gmail.com
                   </a>
                 </p>
                 <p className="flex items-center gap-3">
-                  <span className="font-heading font-black text-white/30 uppercase tracking-[0.2em] text-[10px] w-12">Phone</span>
+                  <span className="font-heading font-bold text-[var(--text-muted)] uppercase tracking-[0.2em] text-xs w-16">Phone</span>
                   <a href="tel:8" className="text-accent hover:opacity-80 transition-opacity font-bold">
                     
                   </a>

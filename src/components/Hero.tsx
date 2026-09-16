@@ -198,7 +198,7 @@ export default function Hero() {
               <div className="w-full lg:w-3/5 text-left max-w-2xl overflow-visible">
                 <p
                   ref={subtitleRef}
-                  className="text-[10px] sm:text-xs md:text-sm font-heading tracking-[0.25em] md:tracking-[0.35em] uppercase mb-3 sm:mb-4 md:mb-6 font-bold text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] flex items-center gap-2 will-change-transform"
+                  className="text-xs sm:text-sm font-heading tracking-[0.25em] md:tracking-[0.35em] uppercase mb-3 sm:mb-4 md:mb-6 font-bold text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] flex items-center gap-2 will-change-transform"
                   style={{ textShadow: '0 0 20px rgba(var(--accent-rgb), 0.6), 0 2px 10px rgba(0, 0, 0, 0.9)' }}
                 >
                   <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
@@ -288,14 +288,14 @@ export default function Hero() {
                   <a
                     href="#works"
                     onClick={(e) => scrollToId(e, 'works')}
-                    className="btn-primary py-3 px-6 sm:px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center shadow-xl flex-1 sm:flex-initial"
+                    className="btn-primary py-3 px-6 sm:px-8 text-xs uppercase font-bold tracking-[0.2em] text-center shadow-xl flex-1 sm:flex-initial"
                   >
                     View Works
                   </a>
                   <a
                     href="#contact"
                     onClick={(e) => scrollToId(e, 'contact')}
-                    className="btn-outline !border-white/80 !text-white hover:!bg-white hover:!text-black py-3 px-6 sm:px-8 text-[10px] uppercase font-bold tracking-[0.2em] text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] flex-1 sm:flex-initial"
+                    className="btn-outline !border-white/80 !text-white hover:!bg-white hover:!text-black py-3 px-6 sm:px-8 text-xs uppercase font-bold tracking-[0.2em] text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] flex-1 sm:flex-initial"
                   >
                     Get in Touch
                   </a>
@@ -311,19 +311,19 @@ export default function Hero() {
             >
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 w-full md:w-auto">
                 <div className="flex flex-col text-left">
-                  <span className="text-[10px] font-mono font-bold text-accent"># 01</span>
+                  <span className="text-xs font-mono font-bold text-accent"># 01</span>
                   <span className="text-xs font-semibold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">Video Editing</span>
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="text-[10px] font-mono font-bold text-accent"># 02</span>
+                  <span className="text-xs font-mono font-bold text-accent"># 02</span>
                   <span className="text-xs font-semibold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">Motion Graphics</span>
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="text-[10px] font-mono font-bold text-accent"># 03</span>
+                  <span className="text-xs font-mono font-bold text-accent"># 03</span>
                   <span className="text-xs font-semibold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">Graphic Design</span>
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="text-[10px] font-mono font-bold text-accent"># 04</span>
+                  <span className="text-xs font-mono font-bold text-accent"># 04</span>
                   <span className="text-xs font-semibold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">Visual Direction</span>
                 </div>
               </div>
@@ -333,7 +333,7 @@ export default function Hero() {
                 onClick={(e) => scrollToId(e as any, 'services')} 
                 className="hidden md:flex items-center gap-2 !text-white/70 hover:!text-white transition-colors duration-300 ml-auto shrink-0 group cursor-pointer"
               >
-                <span className="text-[10px] font-heading font-black tracking-[0.3em] uppercase">Scroll</span>
+                <span className="text-xs font-heading font-black tracking-[0.3em] uppercase">Scroll</span>
                 <ArrowDownDuotone size={14} className="group-hover:translate-y-1 transition-transform text-accent" />
               </button>
             </div>

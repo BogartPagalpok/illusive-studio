@@ -52,17 +52,17 @@ export default function AdminDashboard({ onExit, onLogout }: AdminDashboardProps
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
           <button
             onClick={onExit || onLogout}
-            className="flex items-center gap-2 text-[10px] font-heading tracking-widest uppercase transition-opacity opacity-60 hover:opacity-100"
+            className="flex items-center gap-2 text-xs font-heading tracking-widest uppercase transition-opacity opacity-80 hover:opacity-100"
             style={{ color: 'var(--text-primary)' }}
           >
-            <ArrowLeft size={14} /> Exit
+            <ArrowLeft size={16} /> Exit
           </button>
 
           <h1 className="font-heading font-black tracking-tighter text-sm italic" style={{ color: 'var(--text-primary)' }}>
             CONTROL <span style={{ color: 'var(--accent)' }}>SYSTEM</span>
           </h1>
 
-          <button onClick={onLogout} className="btn-primary py-2 px-4 text-[9px]">
+          <button onClick={onLogout} className="btn-primary py-2 px-4 text-xs">
             Logout
           </button>
         </div>
@@ -73,7 +73,7 @@ export default function AdminDashboard({ onExit, onLogout }: AdminDashboardProps
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-2 text-[10px] font-heading tracking-widest rounded-lg shadow-2xl uppercase font-black"
+          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-2 text-xs font-heading tracking-widest rounded-lg shadow-2xl uppercase font-black"
           style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
         >
           {message}
@@ -86,10 +86,10 @@ export default function AdminDashboard({ onExit, onLogout }: AdminDashboardProps
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`px-5 py-2.5 text-[10px] font-heading font-black tracking-[0.2em] uppercase rounded-lg transition-all duration-300 border ${
+              className={`px-5 py-2.5 text-xs font-heading font-black tracking-[0.2em] uppercase rounded-lg transition-all duration-300 border ${
                 tab === t.key
                   ? 'border-accent shadow-[0_0_20px_rgba(var(--accent-rgb),0.2)]'
-                  : 'border-transparent opacity-40 hover:opacity-100'
+                  : 'border-transparent opacity-60 hover:opacity-100'
               }`}
               style={
                 tab === t.key
@@ -114,7 +114,7 @@ export default function AdminDashboard({ onExit, onLogout }: AdminDashboardProps
               </div>
               <div>
                 <h2 className="text-2xl font-heading font-black italic tracking-tighter" style={{ color: 'var(--text-primary)' }}>Atmosphere Engine</h2>
-                <p className="text-[10px] uppercase tracking-[0.3em] font-bold" style={{ color: 'var(--accent)' }}>Visual Synchronization Module</p>
+                <p className="text-xs uppercase tracking-[0.25em] font-bold" style={{ color: 'var(--accent)' }}>Visual Synchronization Module</p>
               </div>
             </div>
 
@@ -145,7 +145,7 @@ export default function AdminDashboard({ onExit, onLogout }: AdminDashboardProps
                   <h3 className="text-base font-heading font-black mb-1 uppercase italic text-[var(--text-primary)]">
                     {theme.name}
                   </h3>
-                  <p className="text-[8px] font-heading font-bold tracking-[0.3em] uppercase opacity-60 text-[var(--text-primary)]">
+                  <p className="text-xs font-heading font-bold tracking-[0.2em] uppercase text-[var(--text-muted)]">
                     {theme.tagline}
                   </p>
 

@@ -62,7 +62,7 @@ export default function MessageManager() {
         </h2>
         <button
           onClick={fetchMessages}
-          className="text-[10px] font-heading tracking-widest uppercase text-white/40 hover:text-accent transition-colors"
+          className="text-xs font-heading tracking-widest uppercase text-white/40 hover:text-accent transition-colors"
         >
           Refresh
         </button>
@@ -95,7 +95,7 @@ export default function MessageManager() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Clock size={14} className="text-accent" />
-                      <span className="text-[10px] font-heading uppercase tracking-widest text-white/30">
+                      <span className="text-xs font-heading uppercase tracking-widest text-white/30">
                         {new Date(msg.created_at).toLocaleString()}
                       </span>
                     </div>

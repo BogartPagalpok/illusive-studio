@@ -46,7 +46,7 @@ function ShowreelCard({
 
       {/* Top Category Badge */}
       <div className="absolute top-4 left-4 z-20 pointer-events-none">
-        <span className="px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-heading font-black tracking-[0.2em] uppercase bg-black/60 border border-white/15 text-white/90 backdrop-blur-md">
+        <span className="px-3 py-1 rounded-full text-xs font-heading font-black tracking-[0.2em] uppercase bg-black/60 border border-white/15 text-white/90 backdrop-blur-md">
           {category}
         </span>
       </div>
@@ -78,11 +78,11 @@ function ShowreelCard({
             {title}
           </h3>
         </div>
-        <p className="text-xs text-white/70 line-clamp-1 font-body">
+        <p className="text-xs text-white/80 line-clamp-1 font-body">
           {description}
         </p>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-[10px] font-heading font-bold uppercase tracking-[0.2em] text-accent group-hover:translate-x-1 transition-transform">
+          <span className="text-xs font-heading font-bold uppercase tracking-[0.2em] text-accent group-hover:translate-x-1 transition-transform">
             Watch Full Reel →
           </span>
         </div>
@@ -94,7 +94,7 @@ function ShowreelCard({
           <span className="text-2xl sm:text-3xl md:text-4xl font-heading font-black tracking-[0.35em] uppercase text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
             COMING SOON
           </span>
-          <span className="mt-2 text-[10px] sm:text-xs font-heading font-bold tracking-[0.25em] uppercase text-accent">
+          <span className="mt-2 text-xs font-heading font-bold tracking-[0.25em] uppercase text-accent">
             {title}
           </span>
         </div>
@@ -131,21 +131,22 @@ export default function DualShowreel(props) {
   };
 
   return (
-    <section id="dual-showreel" className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto z-20">
-      {/* Section Header */}
-      <div className="flex flex-col items-center text-center mb-10 sm:mb-14">
-        <span className="section-subtitle">FEATURED REELS //</span>
-        <h2 className="section-title">
-          DUAL <span className="text-accent">SHOWREEL</span>
-        </h2>
-        <div className="section-divider" />
-        <p className="mt-4 text-xs sm:text-sm text-white/60 max-w-xl font-body leading-relaxed">
-          High-retention storytelling, rhythmic documentary pacing, and gaming retention loops.
-        </p>
-      </div>
+    <section id="dual-showreel" className="section-padding relative z-20">
+      <div className="section-container relative">
+        {/* Section Header */}
+        <div className="section-header-gap flex flex-col items-center text-center">
+          <span className="section-subtitle">FEATURED REELS //</span>
+          <h2 className="section-title">
+            DUAL <span className="text-accent">SHOWREEL</span>
+          </h2>
+          <div className="section-divider" />
+          <p className="mt-4 text-xs sm:text-sm text-[var(--text-secondary)] max-w-xl font-body leading-relaxed">
+            High-retention storytelling, rhythmic documentary pacing, and gaming retention loops.
+          </p>
+        </div>
 
-      {/* 2-Column Exact CSS Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 w-full">
+        {/* 2-Column Exact CSS Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 section-content-gap w-full">
         {/* Card 1: Video Essays & Docu */}
         <ShowreelCard
           title="Video Essays & Docu"
@@ -176,6 +177,7 @@ export default function DualShowreel(props) {
         youtubeId={activeYoutubeId}
         title={activeTitle}
       />
+      </div>
     </section>
   );
 }

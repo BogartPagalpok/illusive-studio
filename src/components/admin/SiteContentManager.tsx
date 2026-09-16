@@ -186,19 +186,19 @@ export default function SiteContentManager() {
       <div className="sticky top-0 z-[100] bg-black/40 backdrop-blur-2xl border-b border-white/10 py-4 -mx-4 px-6 flex flex-col md:flex-row justify-between items-center gap-4 rounded-b-2xl">
         <div>
           <h2 className="text-base font-heading font-bold tracking-widest uppercase text-white">System Content</h2>
-          <p className="text-[10px] text-accent uppercase tracking-[0.3em] font-black">Live Production Editor</p>
+          <p className="text-xs text-accent uppercase tracking-[0.3em] font-black">Live Production Editor</p>
         </div>
         <div className="flex gap-3">
           <button
             onClick={seedDefaultContent}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 text-[10px] font-heading font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 text-xs font-heading font-bold uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
           >
             <Database size={14} /> Restore Defaults
           </button>
           <button
             onClick={handleMasterSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
             style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)', boxShadow: '0 4px 15px rgba(157,0,255,0.3)' }}
           >
             {isSaving ? <RefreshCw className="animate-spin" size={14} /> : <CheckCircle size={14} />}
@@ -210,7 +210,7 @@ export default function SiteContentManager() {
       {/* PORTFOLIO SECTIONS with Dual Showreel & Visibility Controls */}
       <div className="space-y-3">
         <div className="flex items-center gap-4">
-          <h3 className="text-[11px] font-heading font-black tracking-[0.5em] uppercase text-accent/60">PORTFOLIO SECTIONS</h3>
+          <h3 className="text-xs font-heading font-black tracking-[0.5em] uppercase text-accent/60">PORTFOLIO SECTIONS</h3>
           <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -220,7 +220,7 @@ export default function SiteContentManager() {
               className="flex items-center justify-between gap-3 p-3.5 rounded-xl border border-white/10 bg-white/[0.02] hover:border-accent/30 transition group"
             >
               <div className="flex items-center gap-2 overflow-hidden">
-                <span className="text-[11px] font-heading font-bold uppercase tracking-wider text-white/80 group-hover:text-white transition-colors truncate">
+                <span className="text-xs font-heading font-bold uppercase tracking-wider text-white/80 group-hover:text-white transition-colors truncate">
                   {section.label}
                 </span>
                 {section.key === 'dual-showreel' && (
@@ -240,7 +240,7 @@ export default function SiteContentManager() {
                   <button
                     type="button"
                     onClick={() => setDualShowreelModalOpen(true)}
-                    className="px-2 py-1 rounded text-[9px] font-heading font-bold uppercase tracking-wider text-accent hover:bg-accent/10 border border-accent/30 transition"
+                    className="px-2 py-1 rounded text-xs font-heading font-bold uppercase tracking-wider text-accent hover:bg-accent/10 border border-accent/30 transition"
                   >
                     Edit
                   </button>
@@ -248,7 +248,7 @@ export default function SiteContentManager() {
                 <button
                   type="button"
                   onClick={() => toggleSectionVisibility(section.key)}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[9px] font-heading font-bold uppercase tracking-wider transition-colors ${
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-heading font-bold uppercase tracking-wider transition-colors ${
                     section.visible
                       ? 'bg-accent/15 text-accent hover:bg-accent/25 border border-accent/30'
                       : 'bg-white/5 text-white/40 hover:bg-white/10 border border-white/10'
@@ -267,7 +267,7 @@ export default function SiteContentManager() {
       {contentSections.map((sectionName) => (
         <div key={sectionName} className="space-y-4">
           <div className="flex items-center gap-4">
-            <h3 className="text-[11px] font-heading font-black tracking-[0.5em] uppercase text-accent/60">{sectionName}</h3>
+            <h3 className="text-xs font-heading font-black tracking-[0.5em] uppercase text-accent/60">{sectionName}</h3>
             <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
           </div>
 
@@ -280,14 +280,14 @@ export default function SiteContentManager() {
                   className="group p-4 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl hover:border-accent/30 hover:bg-white/[0.04] transition-all"
                 >
                   <div className="flex items-center justify-between gap-3 mb-2">
-                    <label className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-white/40 group-hover:text-accent transition-colors">
+                    <label className="text-xs font-heading font-bold tracking-[0.2em] uppercase text-white/40 group-hover:text-accent transition-colors">
                       {item.key.replace(/_/g, ' ')}
                     </label>
                     <button
                       type="button"
                       onClick={() => setEditingContentId(editingContentId === item.id ? null : item.id)}
                       aria-label={editingContentId === item.id ? `Finish editing ${item.key}` : `Edit ${item.key}`}
-                      className="flex items-center gap-1 p-1.5 rounded-md text-[9px] font-heading font-bold uppercase tracking-wider text-white/50 hover:text-accent hover:bg-accent/10 transition-colors"
+                      className="flex items-center gap-1 p-1.5 rounded-md text-xs font-heading font-bold uppercase tracking-wider text-white/50 hover:text-accent hover:bg-accent/10 transition-colors"
                     >
                       <Pencil size={13} />
                       {editingContentId === item.id ? 'Done' : 'Edit'}
@@ -297,7 +297,7 @@ export default function SiteContentManager() {
                       onClick={() => setContents(contents.map(c => c.id === item.id ? { ...c, visible: !c.visible } : c))}
                       aria-label={item.visible ? `Hide ${item.key}` : `Display ${item.key}`}
                       title={item.visible ? 'Displayed on site' : 'Hidden from site'}
-                      className={`flex items-center gap-1 p-1.5 rounded-md text-[9px] font-heading font-bold uppercase tracking-wider transition-colors ${item.visible ? 'text-accent hover:bg-accent/10' : 'text-white/30 hover:bg-white/10'}`}
+                      className={`flex items-center gap-1 p-1.5 rounded-md text-xs font-heading font-bold uppercase tracking-wider transition-colors ${item.visible ? 'text-accent hover:bg-accent/10' : 'text-white/30 hover:bg-white/10'}`}
                     >
                       {item.visible ? <Eye size={15} /> : <EyeOff size={15} />}
                       {item.visible ? 'Hide' : 'Show'}

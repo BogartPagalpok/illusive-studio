@@ -156,7 +156,7 @@ export default function About() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:col-span-5 flex"
           >
-            <div className="card-dark !p-6 sm:!p-8 relative overflow-hidden flex flex-col justify-between w-full h-full border group hover:border-[var(--accent)]/50 transition-all duration-500">
+            <div className="card-dark relative overflow-hidden flex flex-col justify-between w-full h-full border group hover:border-[var(--accent)]/50 transition-all duration-500">
               
               {/* Background Ambient Glow Orbs */}
               <div className="absolute -top-20 -right-20 w-44 h-44 rounded-full bg-[var(--accent)]/10 blur-[60px] pointer-events-none group-hover:bg-[var(--accent)]/20 transition-all duration-700" />
@@ -165,17 +165,17 @@ export default function About() {
               <div className="relative z-10">
                 {/* Status Badge */}
                 <div className="flex items-center justify-between gap-2 mb-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider border border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider border border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]">
                     <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
                     Creative Profile // Spec
                   </div>
-                  <span className="text-[10px] sm:text-[11px] font-mono text-[var(--text-primary)]/40 tracking-widest uppercase">
+                  <span className="text-xs font-mono text-[var(--text-muted)] tracking-widest uppercase">
                     EST. 2026
                   </span>
                 </div>
 
                 {/* Subheading */}
-                <h3 className="font-heading font-black tracking-tight mb-5 text-[var(--text-primary)] leading-[1.15]" style={{ fontSize: 'clamp(20px, 2.2vw, 30px)' }}>
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-heading font-black tracking-tight mb-5 text-[var(--text-primary)] leading-[1.15]">
                   {content.subheading.includes('.') ? (
                     <>
                       <span>{content.subheading.split('.')[0]}.</span>{' '}
@@ -200,7 +200,7 @@ export default function About() {
                   <div className="space-y-3.5 text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-light">
                     {content.description_line2 && <p>{content.description_line2}</p>}
                     {content.description_line3 && (
-                      <p className="italic text-[var(--text-primary)]/80 pl-3 border-l border-white/10">
+                      <p className="italic text-[var(--text-primary)] pl-3 border-l border-[var(--glass-border)]">
                         "{content.description_line3}"
                       </p>
                     )}
@@ -209,14 +209,14 @@ export default function About() {
 
                 {/* Creative Software Stack Pills */}
                 <div className="pt-6 mt-6 border-t border-[var(--glass-border)]">
-                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--text-primary)]/50 mb-3 font-bold">
+                  <p className="text-xs font-mono uppercase tracking-[0.2em] text-[var(--text-muted)] mb-3 font-bold">
                     Primary Production Stack
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {coreTools.map((tool) => (
                       <span
                         key={tool}
-                        className="px-2.5 py-1 text-[10px] font-mono font-medium rounded-md border border-[var(--glass-border)] bg-white/[0.03] text-[var(--text-primary)]/75 hover:border-[var(--accent)]/50 hover:text-[var(--text-primary)] transition-all"
+                        className="px-2.5 py-1 text-xs font-mono font-medium rounded-md border border-[var(--glass-border)] bg-white/[0.03] text-[var(--text-secondary)] hover:border-[var(--accent)]/50 hover:text-[var(--text-primary)] transition-all"
                       >
                         {tool}
                       </span>
@@ -229,15 +229,15 @@ export default function About() {
               <div className="pt-6 mt-6 border-t border-[var(--glass-border)] grid grid-cols-3 gap-2 relative z-10">
                 <div className="flex flex-col">
                   <span className="text-lg sm:text-2xl font-black font-heading text-[var(--text-primary)]">8+</span>
-                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-[var(--text-secondary)]">Disciplines</span>
+                  <span className="text-xs font-mono uppercase tracking-wider text-[var(--text-secondary)]">Disciplines</span>
                 </div>
                 <div className="flex flex-col border-x border-[var(--glass-border)] px-2 text-center">
                   <span className="text-lg sm:text-2xl font-black font-heading text-accent">100%</span>
-                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-[var(--text-secondary)]">Precision</span>
+                  <span className="text-xs font-mono uppercase tracking-wider text-[var(--text-secondary)]">Precision</span>
                 </div>
                 <div className="flex flex-col text-right">
                   <span className="text-lg sm:text-2xl font-black font-heading text-[var(--accent-secondary)]">4K+</span>
-                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-[var(--text-secondary)]">Post-Ready</span>
+                  <span className="text-xs font-mono uppercase tracking-wider text-[var(--text-secondary)]">Post-Ready</span>
                 </div>
               </div>
 
@@ -252,10 +252,10 @@ export default function About() {
             className="lg:col-span-7 flex flex-col justify-between space-y-4"
           >
             <div className="flex items-center justify-between px-1">
-              <h3 className="font-heading font-black uppercase tracking-tight text-[var(--text-primary)]" style={{ fontSize: 'clamp(16px, 1.8vw, 22px)' }}>
+              <h3 className="text-base sm:text-lg lg:text-xl font-heading font-black uppercase tracking-tight text-[var(--text-primary)]">
                 {content.skills_heading}
               </h3>
-              <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-[var(--text-secondary)] font-bold">
+              <span className="text-xs font-mono uppercase tracking-widest text-[var(--text-secondary)] font-bold">
                 {skills.length} Core Capabilities
               </span>
             </div>
@@ -277,7 +277,7 @@ export default function About() {
                     initial={{ opacity: 0, y: 15 }}
                     animate={isVisible ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.45, delay: 0.25 + i * 0.04 }}
-                    className="card-dark !p-4 rounded-xl relative overflow-hidden group hover:border-[var(--accent-secondary)] transition-all duration-300 flex flex-col justify-between"
+                    className="card-dark-sm rounded-xl relative overflow-hidden group hover:border-[var(--accent-secondary)] transition-all duration-300 flex flex-col justify-between"
                   >
                     {/* Top Row: Icon, Tag & Percentage Pill */}
                     <div className="flex items-center justify-between mb-2.5">
@@ -296,7 +296,7 @@ export default function About() {
                             secondaryColor={colorConfig.secondary}
                           />
                         </div>
-                        <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-[var(--text-primary)]/50">
+                        <span className="text-xs font-mono font-bold uppercase tracking-widest text-[var(--text-muted)]">
                           {meta.tag}
                         </span>
                       </div>
@@ -314,7 +314,7 @@ export default function About() {
                     </div>
 
                     {/* Skill Name */}
-                    <h4 className="font-heading font-bold uppercase text-xs sm:text-sm text-[var(--text-primary)] group-hover:text-white transition-colors mb-3 tracking-tight">
+                    <h4 className="font-heading font-bold uppercase text-xs sm:text-sm text-[var(--text-primary)] group-hover:text-accent transition-colors mb-3 tracking-tight">
                       {skill.name}
                     </h4>
 

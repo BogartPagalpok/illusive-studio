@@ -60,7 +60,7 @@ export default function DualShowreelModal({ isOpen, onClose }: DualShowreelModal
                 DUAL SHOWREEL CONFIGURATION
               </h2>
             </div>
-            <p className="text-[11px] font-mono tracking-wider text-white/50 uppercase">
+            <p className="text-xs font-mono tracking-wider text-white/50 uppercase">
               Control hover loops, YouTube video modals, and placeholder states
             </p>
           </div>
@@ -93,7 +93,7 @@ export default function DualShowreelModal({ isOpen, onClose }: DualShowreelModal
                   Video Essays & Docu
                 </h4>
               </div>
-              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-white/5 text-white/60 border border-white/10">
+              <span className="px-2 py-0.5 rounded text-xs font-mono font-bold uppercase bg-white/5 text-white/60 border border-white/10">
                 Long-Form
               </span>
             </div>
@@ -113,9 +113,9 @@ export default function DualShowreelModal({ isOpen, onClose }: DualShowreelModal
 
             {/* webm_url */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-heading font-bold tracking-wider uppercase text-white/60 flex items-center justify-between">
+              <label className="text-xs font-heading font-bold tracking-wider uppercase text-white/60 flex items-center justify-between">
                 <span>WebM Hover Loop URL</span>
-                <span className="text-[9px] text-white/30 font-mono">Supabase Storage / WebM</span>
+                <span className="text-xs text-white/30 font-mono">Supabase Storage / WebM</span>
               </label>
               <div className="flex gap-2">
                 <input
@@ -139,7 +139,7 @@ export default function DualShowreelModal({ isOpen, onClose }: DualShowreelModal
                   type="button"
                   disabled={uploadingEssay}
                   onClick={() => essayFileInputRef.current?.click()}
-                  className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[10px] font-heading font-bold uppercase tracking-wider flex items-center gap-1 transition disabled:opacity-50"
+                  className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-1 transition disabled:opacity-50"
                   title="Upload WebM file to Supabase Storage"
                 >
                   <Upload size={12} />
@@ -150,9 +150,9 @@ export default function DualShowreelModal({ isOpen, onClose }: DualShowreelModal
 
             {/* youtube_url */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-heading font-bold tracking-wider uppercase text-white/60 flex items-center justify-between">
+              <label className="text-xs font-heading font-bold tracking-wider uppercase text-white/60 flex items-center justify-between">
                 <span>YouTube Modal Video Link</span>
-                <span className="text-[9px] text-white/30 font-mono">Full Modal Embed</span>
+                <span className="text-xs text-white/30 font-mono">Full Modal Embed</span>
               </label>
               <div className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus-within:border-accent/50 transition">
                 <Video size={14} className="text-white/40" />
@@ -178,7 +178,7 @@ export default function DualShowreelModal({ isOpen, onClose }: DualShowreelModal
                   Gaming & Retention
                 </h4>
               </div>
-              <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-white/5 text-white/60 border border-white/10">
+              <span className="px-2 py-0.5 rounded text-xs font-mono font-bold uppercase bg-white/5 text-white/60 border border-white/10">
                 Pacing & Retention
               </span>
             </div>
@@ -198,9 +198,9 @@ export default function DualShowreelModal({ isOpen, onClose }: DualShowreelModal
 
             {/* webm_url */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-heading font-bold tracking-wider uppercase text-white/60 flex items-center justify-between">
+              <label className="text-xs font-heading font-bold tracking-wider uppercase text-white/60 flex items-center justify-between">
                 <span>WebM Hover Loop URL</span>
-                <span className="text-[9px] text-white/30 font-mono">Supabase Storage / WebM</span>
+                <span className="text-xs text-white/30 font-mono">Supabase Storage / WebM</span>
               </label>
               <div className="flex gap-2">
                 <input
@@ -224,7 +224,7 @@ export default function DualShowreelModal({ isOpen, onClose }: DualShowreelModal
                   type="button"
                   disabled={uploadingGaming}
                   onClick={() => gamingFileInputRef.current?.click()}
-                  className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[10px] font-heading font-bold uppercase tracking-wider flex items-center gap-1 transition disabled:opacity-50"
+                  className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-1 transition disabled:opacity-50"
                   title="Upload WebM file to Supabase Storage"
                 >
                   <Upload size={12} />
@@ -235,9 +235,9 @@ export default function DualShowreelModal({ isOpen, onClose }: DualShowreelModal
 
             {/* youtube_url */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-heading font-bold tracking-wider uppercase text-white/60 flex items-center justify-between">
+              <label className="text-xs font-heading font-bold tracking-wider uppercase text-white/60 flex items-center justify-between">
                 <span>YouTube Modal Video Link</span>
-                <span className="text-[9px] text-white/30 font-mono">Full Modal Embed</span>
+                <span className="text-xs text-white/30 font-mono">Full Modal Embed</span>
               </label>
               <div className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus-within:border-accent/50 transition">
                 <Video size={14} className="text-white/40" />
@@ -258,7 +258,7 @@ export default function DualShowreelModal({ isOpen, onClose }: DualShowreelModal
           <button
             type="button"
             onClick={onClose}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-[10px] font-heading font-black tracking-widest uppercase hover:brightness-110 transition"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-heading font-black tracking-widest uppercase hover:brightness-110 transition"
             style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
           >
             <CheckCircle size={14} />

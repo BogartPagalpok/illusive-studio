@@ -762,7 +762,7 @@ export default function ProjectManager() {
         <div className="flex items-center gap-3">
           <h2 className="text-sm sm:text-base font-heading font-bold tracking-widest uppercase text-white">Portfolio Manager</h2>
           {saveStatus !== 'idle' && (
-            <span className={`flex items-center gap-1 text-[9px] font-heading font-bold uppercase tracking-wider ${saveStatus === 'saved' ? 'text-emerald-400' : saveStatus === 'error' ? 'text-red-400' : 'text-accent'}`}>
+            <span className={`flex items-center gap-1 text-xs font-heading font-bold uppercase tracking-wider ${saveStatus === 'saved' ? 'text-emerald-400' : saveStatus === 'error' ? 'text-red-400' : 'text-accent'}`}>
               {saveStatus === 'saving' && <RefreshCw size={12} className="animate-spin" />}
               {saveStatus === 'saved' && <CheckCircle size={12} />}
               {saveStatus === 'error' && <AlertCircle size={12} />}
@@ -775,7 +775,7 @@ export default function ProjectManager() {
             clearForm();
             setEditingProject(EMPTY_PROJECT);
           }}
-          className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition"
+          className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-xs font-heading font-bold uppercase tracking-widest hover:brightness-110 transition"
           style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
         >
           <Plus size={14} /> New
@@ -821,7 +821,7 @@ export default function ProjectManager() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Project Title *</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Project Title *</label>
                 <input
                   value={editingProject.title}
                   onChange={e => setEditingProject({ ...editingProject, title: e.target.value })}
@@ -830,7 +830,7 @@ export default function ProjectManager() {
                 />
               </div>
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Category</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Category</label>
                 <select
                   value={editingProject.category}
                   onChange={e => setEditingProject({ ...editingProject, category: e.target.value })}
@@ -848,7 +848,7 @@ export default function ProjectManager() {
                 </select>
               </div>
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Display Layout</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Display Layout</label>
                 <select
                   value={editingProject.image_layout || 'auto'}
                   onChange={e => setEditingProject({ ...editingProject, image_layout: e.target.value })}
@@ -866,7 +866,7 @@ export default function ProjectManager() {
                 </select>
               </div>
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Project URL (Optional)</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Project URL (Optional)</label>
                 <input
                   value={editingProject.project_url || ''}
                   onChange={e => setEditingProject({ ...editingProject, project_url: e.target.value })}
@@ -875,16 +875,16 @@ export default function ProjectManager() {
                 />
               </div>
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Video Entries (Optional)</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Video Entries (Optional)</label>
                 <div className="space-y-2">
                   {(editingProject.video_urls || []).map((entry, index) => (
                     <div key={index} className="rounded-lg border border-white/10 bg-white/[0.03] p-2.5 space-y-1.5">
                       {/* URL row + vertical + remove */}
                       <div className="flex gap-1.5 items-center">
-                        <div className="flex-1 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-[10px] text-white/50 truncate">
+                        <div className="flex-1 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-xs text-white/50 truncate">
                           {entry.url}
                         </div>
-                        <label className="flex items-center gap-1 text-[9px] text-white/40 cursor-pointer flex-shrink-0">
+                        <label className="flex items-center gap-1 text-xs text-white/40 cursor-pointer flex-shrink-0">
                           <input type="checkbox" checked={entry.vertical} onChange={() => toggleVideoVertical(index)} className="w-3 h-3 rounded accent-accent" />
                           Vert
                         </label>
@@ -896,14 +896,14 @@ export default function ProjectManager() {
                       <input
                         value={entry.title || ''}
                         onChange={e => updateVideoField(index, 'title', e.target.value)}
-                        className="w-full px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-[10px] text-white font-body focus:outline-none focus:border-accent/50 transition"
+                        className="w-full px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-xs text-white font-body focus:outline-none focus:border-accent/50 transition"
                         placeholder="Video title (shown on card)"
                       />
                       {/* Per-video subtitle/caption */}
                       <input
                         value={entry.subtitle || ''}
                         onChange={e => updateVideoField(index, 'subtitle', e.target.value)}
-                        className="w-full px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-[10px] text-white/70 font-body focus:outline-none focus:border-accent/50 transition"
+                        className="w-full px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-xs text-white/70 font-body focus:outline-none focus:border-accent/50 transition"
                         placeholder="Caption / subtitle (optional)"
                       />
                     </div>
@@ -916,10 +916,10 @@ export default function ProjectManager() {
                         value={newVideoUrl}
                         onChange={e => setNewVideoUrl(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && addVideoUrl()}
-                        className="flex-1 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-[10px] text-white font-body focus:outline-none focus:border-accent/50 transition"
+                        className="flex-1 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-xs text-white font-body focus:outline-none focus:border-accent/50 transition"
                         placeholder="https://youtube.com/watch?v=..."
                       />
-                      <label className="flex items-center gap-1 text-[9px] text-white/40 cursor-pointer flex-shrink-0">
+                      <label className="flex items-center gap-1 text-xs text-white/40 cursor-pointer flex-shrink-0">
                         <input type="checkbox" checked={newVideoVertical} onChange={e => setNewVideoVertical(e.target.checked)} className="w-3 h-3 rounded accent-accent" />
                         Vert
                       </label>
@@ -927,18 +927,18 @@ export default function ProjectManager() {
                     <input
                       value={newVideoTitle}
                       onChange={e => setNewVideoTitle(e.target.value)}
-                      className="w-full px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-[10px] text-white font-body focus:outline-none focus:border-accent/50 transition"
+                      className="w-full px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-xs text-white font-body focus:outline-none focus:border-accent/50 transition"
                       placeholder="Video title (shown on card)"
                     />
                     <input
                       value={newVideoSubtitle}
                       onChange={e => setNewVideoSubtitle(e.target.value)}
-                      className="w-full px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-[10px] text-white/70 font-body focus:outline-none focus:border-accent/50 transition"
+                      className="w-full px-2.5 py-1.5 bg-white/5 border border-white/10 rounded text-xs text-white/70 font-body focus:outline-none focus:border-accent/50 transition"
                       placeholder="Caption / subtitle (optional)"
                     />
                     <button
                       onClick={addVideoUrl}
-                      className="flex items-center gap-1.5 px-3 py-1.5 w-full justify-center text-[9px] font-heading font-bold uppercase tracking-wider text-white/40 hover:text-accent border border-dashed border-white/10 hover:border-accent/40 rounded transition"
+                      className="flex items-center gap-1.5 px-3 py-1.5 w-full justify-center text-xs font-heading font-bold uppercase tracking-wider text-white/40 hover:text-accent border border-dashed border-white/10 hover:border-accent/40 rounded transition"
                     >
                       <Plus size={11} /> Add Video Entry
                     </button>
@@ -946,11 +946,11 @@ export default function ProjectManager() {
                 </div>
               </div>
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Facebook URLs (Optional)</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Facebook URLs (Optional)</label>
                 <div className="space-y-1.5">
                   {(editingProject.facebook_urls || []).map((url, index) => (
                     <div key={index} className="flex gap-1.5 items-center">
-                      <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] sm:text-sm text-white/70 flex items-center overflow-hidden whitespace-nowrap">
+                      <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white/70 flex items-center overflow-hidden whitespace-nowrap">
                         {url}
                       </div>
                       <button onClick={() => removeFacebookUrl(index)} className="p-1.5 text-white/20 hover:text-red-400 transition bg-white/5 rounded-lg flex-shrink-0">
@@ -963,7 +963,7 @@ export default function ProjectManager() {
                       value={newFacebookUrl}
                       onChange={e => setNewFacebookUrl(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && addFacebookUrl()}
-                      className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
+                      className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white font-body focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition"
                       placeholder="https://facebook.com/your-post"
                     />
                     <button onClick={addFacebookUrl} className="p-1.5 text-white/20 hover:text-accent transition bg-white/5 rounded-lg flex-shrink-0">
@@ -976,11 +976,11 @@ export default function ProjectManager() {
                 <div className="space-y-3 p-3 sm:p-4 rounded-xl border border-white/10 bg-white/[0.02]">
                   <div className="flex flex-wrap justify-between items-center gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/40">
+                      <span className="text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/40">
                         Existing Images ({editingGroupImages.length})
                       </span>
                       {(editingProject.image_layout === '4up-grid' || editingProject.image_layout === '4up-grid-16-9') && (
-                        <span className="text-[9px] font-heading text-accent font-bold">
+                        <span className="text-xs font-heading text-accent font-bold">
                           {Math.floor(editingGroupImages.length / 4)} panel{Math.floor(editingGroupImages.length / 4) === 1 ? '' : 's'} of 4{editingGroupImages.length % 4 > 0 ? ` (+${editingGroupImages.length % 4} extra)` : ''}
                         </span>
                       )}
@@ -998,7 +998,7 @@ export default function ProjectManager() {
                             images: sorted,
                           });
                         }}
-                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-black transition text-[9px] font-heading font-bold uppercase tracking-wider shadow-sm"
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-black transition text-xs font-heading font-bold uppercase tracking-wider shadow-sm"
                       >
                         <ArrowLeftRight size={11} />
                         Visual Order Editor
@@ -1017,18 +1017,18 @@ export default function ProjectManager() {
                         <div key={imgProj.id} className="relative rounded-lg border border-white/10 overflow-hidden bg-black/40 group flex flex-col">
                           <div className={`relative w-full ${editingProject.image_layout === '4up-grid-16-9' ? 'aspect-[16/9]' : 'aspect-square'} overflow-hidden bg-zinc-900`}>
                             <img src={imgProj.image_url} alt="" className="w-full h-full object-cover" />
-                            <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-black font-heading bg-accent text-black shadow">
+                            <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-xs font-black font-heading bg-accent text-black shadow">
                               #{idx + 1}
                             </span>
                             {is4up && (
-                              <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded text-[8px] font-bold font-heading bg-black/70 text-white/80 border border-white/10">
+                              <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded text-xs font-bold font-heading bg-black/70 text-white/80 border border-white/10">
                                 P{panelNum} {slotName}
                               </span>
                             )}
                             <button
                               type="button"
                               onClick={() => imgProj.id && handleDelete(imgProj.id)}
-                              className="absolute inset-0 bg-red-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition gap-1 text-[10px] font-bold uppercase tracking-wider"
+                              className="absolute inset-0 bg-red-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition gap-1 text-xs font-bold uppercase tracking-wider"
                               title="Delete this image"
                             >
                               <Trash2 size={12} />
@@ -1041,7 +1041,7 @@ export default function ProjectManager() {
                                 type="button"
                                 disabled={idx === 0}
                                 onClick={() => moveGroupImageQuick(idx, idx - 1, sortedArr)}
-                                className="flex-1 py-1 text-[9px] font-bold text-white/40 hover:text-accent disabled:opacity-20 disabled:hover:text-white/40 flex items-center justify-center transition border-r border-white/5"
+                                className="flex-1 py-1 text-xs font-bold text-white/40 hover:text-accent disabled:opacity-20 disabled:hover:text-white/40 flex items-center justify-center transition border-r border-white/5"
                                 title="Move earlier"
                               >
                                 <ArrowLeft size={10} />
@@ -1050,7 +1050,7 @@ export default function ProjectManager() {
                                 type="button"
                                 disabled={idx === sortedArr.length - 1}
                                 onClick={() => moveGroupImageQuick(idx, idx + 1, sortedArr)}
-                                className="flex-1 py-1 text-[9px] font-bold text-white/40 hover:text-accent disabled:opacity-20 disabled:hover:text-white/40 flex items-center justify-center transition"
+                                className="flex-1 py-1 text-xs font-bold text-white/40 hover:text-accent disabled:opacity-20 disabled:hover:text-white/40 flex items-center justify-center transition"
                                 title="Move later"
                               >
                                 <ArrowRight size={10} />
@@ -1066,42 +1066,42 @@ export default function ProjectManager() {
 
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30">
+                  <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30">
                     {editingProjectGroup ? 'Add More Images to Gallery' : 'Main Image / Gallery'} {selectedFiles.length > 0 && <span className="text-accent ml-1">({selectedFiles.length} staged)</span>}
                   </label>
                   {selectedFiles.length > 0 && (
                     <button
                       type="button"
                       onClick={() => setSelectedFiles([])}
-                      className="text-[9px] text-red-400/80 hover:text-red-300 transition uppercase font-heading tracking-wider"
+                      className="text-xs text-red-400/80 hover:text-red-300 transition uppercase font-heading tracking-wider"
                     >
                       Clear new
                     </button>
                   )}
                 </div>
                 <div className="flex gap-1.5">
-                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] sm:text-sm text-white/50 flex items-center justify-between overflow-hidden">
+                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs sm:text-sm text-white/50 flex items-center justify-between overflow-hidden">
                     <span className="truncate">
                       {selectedFiles.length > 0
                         ? `${selectedFiles.length} file${selectedFiles.length === 1 ? '' : 's'} staged`
                         : editingProject.image_url || 'Click Add to select images'}
                     </span>
                     {editingProject.image_layout === '4up-grid' && (selectedFiles.length + editingGroupImages.length) > 0 && (
-                      <span className="text-accent font-heading text-[9px] font-bold uppercase tracking-wider ml-2 flex-shrink-0">
+                      <span className="text-accent font-heading text-xs font-bold uppercase tracking-wider ml-2 flex-shrink-0">
                         Total: {selectedFiles.length + editingGroupImages.length} pics ({Math.floor((selectedFiles.length + editingGroupImages.length) / 4)} × 4-pic panel{Math.floor((selectedFiles.length + editingGroupImages.length) / 4) === 1 ? '' : 's'}{(selectedFiles.length + editingGroupImages.length) % 4 > 0 ? ` + ${(selectedFiles.length + editingGroupImages.length) % 4}` : ''})
                       </span>
                     )}
                   </div>
                   <label className="flex items-center gap-1.5 px-3 py-2 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer bg-white/5 text-white/70 hover:text-white flex-shrink-0" title="Add images (can click multiple times to add sets)">
                     <Upload size={13} />
-                    <span className="text-[10px] font-heading font-bold uppercase tracking-wider">Add</span>
+                    <span className="text-xs font-heading font-bold uppercase tracking-wider">Add</span>
                     <input type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
                   </label>
                 </div>
                 {selectedFiles.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {selectedFiles.map((file, idx) => (
-                      <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[9px] text-white/70 font-body">
+                      <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/5 border border-white/10 text-xs text-white/70 font-body">
                         <span className="truncate max-w-[120px]">{file.name}</span>
                         <button type="button" onClick={() => removeSelectedFile(idx)} className="text-white/30 hover:text-red-400">
                           <X size={10} />
@@ -1112,7 +1112,7 @@ export default function ProjectManager() {
                 )}
               </div>
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Tech Stack</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Tech Stack</label>
                 <input
                   value={Array.isArray(editingProject.tools) ? editingProject.tools.join(', ') : editingProject.tools}
                   onChange={e => setEditingProject({ ...editingProject, tools: e.target.value.split(',').map(t => t.trim()) })}
@@ -1124,7 +1124,7 @@ export default function ProjectManager() {
 
             <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Overview</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Overview</label>
                 <textarea
                   value={editingProject.description}
                   onChange={e => setEditingProject({ ...editingProject, description: e.target.value })}
@@ -1133,7 +1133,7 @@ export default function ProjectManager() {
                 />
               </div>
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Workflow / Process</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Workflow / Process</label>
                 <textarea
                   value={editingProject.process}
                   onChange={e => setEditingProject({ ...editingProject, process: e.target.value })}
@@ -1142,7 +1142,7 @@ export default function ProjectManager() {
                 />
               </div>
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Results</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Results</label>
                 <textarea
                   value={editingProject.results}
                   onChange={e => setEditingProject({ ...editingProject, results: e.target.value })}
@@ -1154,18 +1154,18 @@ export default function ProjectManager() {
           </div>
 
           {validationErrors.length > 0 && (
-            <div className="rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2 text-[10px] font-body text-red-200 space-y-1">
+            <div className="rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2 text-xs font-body text-red-200 space-y-1">
               {validationErrors.map(error => <p key={error}>{error}</p>)}
             </div>
           )}
 
           <div className="border-t border-white/5 pt-4 mt-2 space-y-3">
-            <h4 className="text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-accent">Layout Assets (Optional)</h4>
+            <h4 className="text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-accent">Layout Assets (Optional)</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Card Thumbnail</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Card Thumbnail</label>
                 <div className="flex gap-1.5">
-                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/50 flex items-center overflow-hidden whitespace-nowrap">
+                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/50 flex items-center overflow-hidden whitespace-nowrap">
                     {cardFile ? cardFile.name : editingProject.card_thumbnail ? 'URL exists' : 'Fallback to Main'}
                   </div>
                   <label className="flex items-center justify-center p-2 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
@@ -1175,9 +1175,9 @@ export default function ProjectManager() {
                 </div>
               </div>
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Hero (Desktop)</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Hero (Desktop)</label>
                 <div className="flex gap-1.5">
-                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/50 flex items-center overflow-hidden whitespace-nowrap">
+                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/50 flex items-center overflow-hidden whitespace-nowrap">
                     {desktopFile ? desktopFile.name : editingProject.hero_bg_desktop ? 'URL exists' : 'Fallback to Main'}
                   </div>
                   <label className="flex items-center justify-center p-2 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
@@ -1187,9 +1187,9 @@ export default function ProjectManager() {
                 </div>
               </div>
               <div>
-                <label className="block text-[9px] sm:text-[10px] font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Hero (Mobile)</label>
+                <label className="block text-xs sm:text-xs font-heading font-black uppercase tracking-[0.2em] text-white/30 mb-1.5">Hero (Mobile)</label>
                 <div className="flex gap-1.5">
-                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] text-white/50 flex items-center overflow-hidden whitespace-nowrap">
+                  <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/50 flex items-center overflow-hidden whitespace-nowrap">
                     {mobileFile ? mobileFile.name : editingProject.hero_bg_mobile ? 'URL exists' : 'Fallback to Main'}
                   </div>
                   <label className="flex items-center justify-center p-2 border border-white/10 rounded-lg hover:bg-white/10 transition cursor-pointer">
@@ -1204,7 +1204,7 @@ export default function ProjectManager() {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
+            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-xs sm:text-xs font-heading font-bold uppercase tracking-widest hover:brightness-110 transition disabled:opacity-50"
             style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-contrast)' }}
           >
             {isSaving ? (
@@ -1236,7 +1236,7 @@ export default function ProjectManager() {
                   <Folder size={16} className="text-accent flex-shrink-0" />
                   <div className="text-left">
                     <h3 className="text-xs sm:text-sm font-heading font-bold tracking-widest uppercase text-white">{category}</h3>
-                    <p className="text-[9px] sm:text-[10px] text-white/30 font-heading uppercase tracking-[0.2em]">
+                    <p className="text-xs sm:text-xs text-white/30 font-heading uppercase tracking-[0.2em]">
                       {projectCount} {projectCount === 1 ? 'project' : 'projects'}
                     </p>
                   </div>
@@ -1275,13 +1275,13 @@ export default function ProjectManager() {
                               <ChevronDown size={12} />
                             </button>
                           </div>
-                          <span className="text-[10px] sm:text-xs font-heading font-bold uppercase tracking-wider text-white/50">{projectTitle}</span>
-                          <span className="text-[9px] sm:text-[10px] text-white/20 ml-2">({projectRows.length})</span>
+                          <span className="text-xs sm:text-xs font-heading font-bold uppercase tracking-wider text-white/50">{projectTitle}</span>
+                          <span className="text-xs sm:text-xs text-white/20 ml-2">({projectRows.length})</span>
                         </div>
                         <div className="flex items-center gap-2">
                         <button
                           onClick={() => toggleProjectVisibility(projectRows)}
-                          className={`flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider ${projectRows.every(project => project.visible) ? 'text-accent' : 'text-white/30'} hover:text-accent transition`}
+                          className={`flex items-center gap-1 p-1 text-xs font-heading font-bold uppercase tracking-wider ${projectRows.every(project => project.visible) ? 'text-accent' : 'text-white/30'} hover:text-accent transition`}
                           title={projectRows.every(project => project.visible) ? 'Hide project' : 'Display project'}
                         >
                           {projectRows.every(project => project.visible) ? <Eye size={13} /> : <EyeOff size={13} />}
@@ -1290,7 +1290,7 @@ export default function ProjectManager() {
                         {projectRows.some(project => project.image_url) && (
                           <button
                             onClick={() => toggleProjectImages(projectRows)}
-                            className="flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider text-white/40 hover:text-accent transition"
+                            className="flex items-center gap-1 p-1 text-xs font-heading font-bold uppercase tracking-wider text-white/40 hover:text-accent transition"
                             title={projectRows.filter(project => project.image_url).every(project => project.visible) ? 'Hide all project images' : 'Show all project images'}
                           >
                             {projectRows.filter(project => project.image_url).every(project => project.visible) ? <EyeOff size={13} /> : <Eye size={13} />}
@@ -1311,7 +1311,7 @@ export default function ProjectManager() {
                                 images: imgRows,
                               });
                             }}
-                            className="flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider text-accent/80 hover:text-accent transition"
+                            className="flex items-center gap-1 p-1 text-xs font-heading font-bold uppercase tracking-wider text-accent/80 hover:text-accent transition"
                             title="Reorder images visually"
                           >
                             <ArrowLeftRight size={13} />
@@ -1320,7 +1320,7 @@ export default function ProjectManager() {
                         )}
                         <button
                           onClick={() => handleDeleteProjectGroup(projectRows)}
-                          className="flex items-center gap-1 p-1 text-[9px] font-heading font-bold uppercase tracking-wider text-white/40 hover:text-red-400 transition"
+                          className="flex items-center gap-1 p-1 text-xs font-heading font-bold uppercase tracking-wider text-white/40 hover:text-red-400 transition"
                           title="Delete entire project"
                         >
                           <Trash2 size={13} />
@@ -1371,14 +1371,14 @@ export default function ProjectManager() {
                               )}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-[10px] sm:text-xs text-white/60 truncate">{project.image_layout !== 'auto' ? `Layout: ${project.image_layout}` : 'Image'}</p>
+                              <p className="text-xs sm:text-xs text-white/60 truncate">{project.image_layout !== 'auto' ? `Layout: ${project.image_layout}` : 'Image'}</p>
                               {(project.video_urls || []).length > 0 && (
-                                <p className="text-[9px] sm:text-[10px] text-white/20 flex items-center gap-1">
+                                <p className="text-xs sm:text-xs text-white/20 flex items-center gap-1">
                                   <span className="w-1 h-1 rounded-full bg-accent inline-block flex-shrink-0" /> {(project.video_urls || []).length} video
                                 </p>
                               )}
                               {(project.facebook_urls || []).length > 0 && (
-                                <p className="text-[9px] sm:text-[10px] text-white/20 flex items-center gap-1">
+                                <p className="text-xs sm:text-xs text-white/20 flex items-center gap-1">
                                   <span className="w-1 h-1 rounded-full bg-accent inline-block flex-shrink-0" /> {(project.facebook_urls || []).length} FB post
                                 </p>
                               )}
@@ -1434,8 +1434,8 @@ export default function ProjectManager() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-heading font-black uppercase tracking-[0.25em] text-accent">Visual Slide Reorder</span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-white/10 text-white/70">
+                  <span className="text-xs font-heading font-black uppercase tracking-[0.25em] text-accent">Visual Slide Reorder</span>
+                  <span className="px-2 py-0.5 rounded-full text-xs font-bold uppercase bg-white/10 text-white/70">
                     {modalImages.length} Slides
                   </span>
                 </div>
@@ -1449,7 +1449,7 @@ export default function ProjectManager() {
 
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
-                  <span className="text-[10px] font-heading uppercase tracking-wider text-white/50">Layout:</span>
+                  <span className="text-xs font-heading uppercase tracking-wider text-white/50">Layout:</span>
                   <select
                     value={modalLayout}
                     onChange={e => setModalLayout(e.target.value)}
@@ -1490,7 +1490,7 @@ export default function ProjectManager() {
                           <span className="w-2 h-2 rounded-full bg-accent inline-block" />
                           Panel {panelIndex + 1} (Slides {panelStart + 1} to {panelEnd})
                         </span>
-                        <span className="text-[10px] uppercase font-bold text-white/40">
+                        <span className="text-xs uppercase font-bold text-white/40">
                           {modalLayout === '4up-grid-16-9' ? '16:9 Widescreen (Twitter / X)' : '2×2 Grid'}
                         </span>
                       </div>
@@ -1518,7 +1518,7 @@ export default function ProjectManager() {
                                   <span className="px-2 py-0.5 rounded font-heading font-black text-xs bg-accent text-black shadow-lg">
                                     #{globalIndex + 1}
                                   </span>
-                                  <span className="px-2 py-0.5 rounded font-heading font-bold text-[10px] bg-black/80 text-white/90 border border-white/20">
+                                  <span className="px-2 py-0.5 rounded font-heading font-bold text-xs bg-black/80 text-white/90 border border-white/20">
                                     {slotLabels[slotIndex]}
                                   </span>
                                 </div>
@@ -1530,7 +1530,7 @@ export default function ProjectManager() {
                                   type="button"
                                   disabled={globalIndex === 0}
                                   onClick={() => moveModalSlide(globalIndex, globalIndex - 1)}
-                                  className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-accent hover:border-accent/40 disabled:opacity-20 disabled:hover:text-white/60 disabled:hover:border-white/10 text-[10px] font-heading font-bold uppercase tracking-wider flex items-center gap-1 transition"
+                                  className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-accent hover:border-accent/40 disabled:opacity-20 disabled:hover:text-white/60 disabled:hover:border-white/10 text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-1 transition"
                                   title="Shift 1 position earlier"
                                 >
                                   <ArrowLeft size={12} />
@@ -1538,11 +1538,11 @@ export default function ProjectManager() {
                                 </button>
 
                                 <div className="flex items-center gap-1">
-                                  <span className="text-[9px] font-heading uppercase text-white/40">Pos:</span>
+                                  <span className="text-xs font-heading uppercase text-white/40">Pos:</span>
                                   <select
                                     value={globalIndex}
                                     onChange={e => moveModalSlide(globalIndex, parseInt(e.target.value))}
-                                    className="px-2 py-1 bg-white/10 border border-white/15 rounded text-[10px] text-white font-bold cursor-pointer"
+                                    className="px-2 py-1 bg-white/10 border border-white/15 rounded text-xs text-white font-bold cursor-pointer"
                                   >
                                     {modalImages.map((_, pIdx) => (
                                       <option key={pIdx} value={pIdx} className="bg-zinc-900 text-white">
@@ -1556,7 +1556,7 @@ export default function ProjectManager() {
                                   type="button"
                                   disabled={globalIndex === modalImages.length - 1}
                                   onClick={() => moveModalSlide(globalIndex, globalIndex + 1)}
-                                  className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-accent hover:border-accent/40 disabled:opacity-20 disabled:hover:text-white/60 disabled:hover:border-white/10 text-[10px] font-heading font-bold uppercase tracking-wider flex items-center gap-1 transition"
+                                  className="px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-accent hover:border-accent/40 disabled:opacity-20 disabled:hover:text-white/60 disabled:hover:border-white/10 text-xs font-heading font-bold uppercase tracking-wider flex items-center gap-1 transition"
                                   title="Shift 1 position later"
                                 >
                                   <span>Later</span>
@@ -1601,7 +1601,7 @@ export default function ProjectManager() {
                       <select
                         value={globalIndex}
                         onChange={e => moveModalSlide(globalIndex, parseInt(e.target.value))}
-                        className="px-1.5 py-0.5 bg-white/10 border border-white/15 rounded text-[10px] text-white font-bold"
+                        className="px-1.5 py-0.5 bg-white/10 border border-white/15 rounded text-xs text-white font-bold"
                       >
                         {modalImages.map((_, pIdx) => (
                           <option key={pIdx} value={pIdx} className="bg-zinc-900 text-white">
@@ -1625,7 +1625,7 @@ export default function ProjectManager() {
 
             {/* Footer */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-white/10">
-              <p className="text-[11px] text-white/40">
+              <p className="text-xs text-white/40">
                 💡 Infographic 4-up panels flow: <span className="text-white/70 font-semibold">1. Top-Left → 2. Top-Right → 3. Bottom-Left → 4. Bottom-Right</span>.
               </p>
 
@@ -1670,9 +1670,9 @@ export default function ProjectManager() {
           >
             <div className="flex items-start justify-between gap-4 mb-5">
               <div>
-                <p className="text-[10px] font-heading font-bold uppercase tracking-[0.25em] text-accent">Project Preview</p>
+                <p className="text-xs font-heading font-bold uppercase tracking-[0.25em] text-accent">Project Preview</p>
                 <h3 className="text-xl sm:text-2xl font-heading font-black uppercase tracking-tight text-white mt-1">{previewProject.title}</h3>
-                <p className="text-[10px] uppercase tracking-widest text-white/40 mt-1">{previewProject.category}</p>
+                <p className="text-xs uppercase tracking-widest text-white/40 mt-1">{previewProject.category}</p>
               </div>
               <button onClick={() => setPreviewProject(null)} className="p-2 text-white/40 hover:text-white rounded-lg bg-white/5" title="Close preview">
                 <X size={16} />
@@ -1689,21 +1689,21 @@ export default function ProjectManager() {
 
             <div className="space-y-4 text-sm text-white/70">
               {previewProject.description && <p className="leading-relaxed">{previewProject.description}</p>}
-              {previewProject.process && <p><span className="text-white/40 uppercase text-[10px] tracking-widest">Process:</span> {previewProject.process}</p>}
-              {previewProject.tools.length > 0 && <p><span className="text-white/40 uppercase text-[10px] tracking-widest">Tools:</span> {previewProject.tools.join(', ')}</p>}
+              {previewProject.process && <p><span className="text-white/40 uppercase text-xs tracking-widest">Process:</span> {previewProject.process}</p>}
+              {previewProject.tools.length > 0 && <p><span className="text-white/40 uppercase text-xs tracking-widest">Tools:</span> {previewProject.tools.join(', ')}</p>}
               <div className="flex flex-wrap gap-2">
                 {previewProject.project_url && (
-                  <a href={previewProject.project_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--accent-contrast)' }}>
+                  <a href={previewProject.project_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--accent-contrast)' }}>
                     Project Link <ExternalLink size={12} />
                   </a>
                 )}
                 {(previewProject.video_urls || []).map((video, index) => (
-                  <a key={`${video.url}-${index}`} href={video.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/10 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-white/20">
+                  <a key={`${video.url}-${index}`} href={video.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/10 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/20">
                     Video {index + 1} <ExternalLink size={12} />
                   </a>
                 ))}
                 {(previewProject.facebook_urls || []).map((url, index) => (
-                  <a key={`${url}-${index}`} href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/10 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-white/20">
+                  <a key={`${url}-${index}`} href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/10 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/20">
                     Link {index + 1} <ExternalLink size={12} />
                   </a>
                 ))}

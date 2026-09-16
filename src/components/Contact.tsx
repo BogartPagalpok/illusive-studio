@@ -92,7 +92,7 @@ export default function Contact() {
               {formatSectionTitle(content.heading)}
             </h2>
             <div className="w-12 h-0.5 bg-[var(--accent)] mt-4 mb-4" />
-            <p className="mt-4 mb-5 leading-relaxed text-[var(--text-secondary)]" style={{ fontSize: 'clamp(11px, 1vw, 14px)' }}>
+            <p className="mt-4 mb-5 leading-relaxed text-[var(--text-secondary)] text-sm sm:text-base font-body">
               {content.description}
             </p>
           </motion.div>
@@ -101,18 +101,18 @@ export default function Contact() {
             initial={{ opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="card-dark !p-5 !rounded-2xl w-full box-border"
+            className="card-dark w-full box-border"
             style={{ boxShadow: '0 15px 30px -8px rgba(0, 0, 0, 0.4)' }}
           >
             <div className="flex flex-col gap-1 mb-5">
-              <p className="uppercase font-bold text-[var(--text-secondary)]/50" style={{ fontSize: 'clamp(8px, 0.8vw, 11px)', letterSpacing: '0.3em' }}>
+              <p className="uppercase font-bold text-xs tracking-widest text-[var(--text-muted)] font-mono">
                 Secure Channel
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 w-full">
               <div className="w-full">
-                <label className="block font-heading uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60" style={{ fontSize: 'clamp(7px, 0.7vw, 10px)', letterSpacing: '0.2em' }}>NAME</label>
+                <label className="block font-heading font-bold uppercase text-xs tracking-wider mb-2 ml-1 text-[var(--text-secondary)]">NAME</label>
                 <input
                   type="text" required value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -121,7 +121,7 @@ export default function Contact() {
               </div>
 
               <div className="w-full">
-                <label className="block font-heading uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60" style={{ fontSize: 'clamp(7px, 0.7vw, 10px)', letterSpacing: '0.2em' }}>EMAIL</label>
+                <label className="block font-heading font-bold uppercase text-xs tracking-wider mb-2 ml-1 text-[var(--text-secondary)]">EMAIL</label>
                 <input
                   type="email" required value={form.email} 
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -130,7 +130,7 @@ export default function Contact() {
               </div>
 
               <div className="w-full">
-                <label className="block font-heading uppercase mb-1.5 ml-1 text-[var(--text-primary)]/60" style={{ fontSize: 'clamp(7px, 0.7vw, 10px)', letterSpacing: '0.2em' }}>MESSAGE</label>
+                <label className="block font-heading font-bold uppercase text-xs tracking-wider mb-2 ml-1 text-[var(--text-secondary)]">MESSAGE</label>
                 <textarea
                   required rows={3} value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
@@ -139,7 +139,7 @@ export default function Contact() {
                 />
               </div>
               
-              <button type="submit" disabled={sending} className="btn-primary w-full !py-3 !rounded-xl disabled:opacity-30 flex items-center justify-center gap-2 group">
+              <button type="submit" disabled={sending} className="btn-primary w-full py-3.5 rounded-xl disabled:opacity-50 flex items-center justify-center gap-2 group text-xs font-black tracking-widest">
                 {sending ? (
                   <span className="flex items-center gap-2">
                     <span className="w-3.5 h-3.5 border-2 border-t-transparent animate-spin rounded-full border-current" />

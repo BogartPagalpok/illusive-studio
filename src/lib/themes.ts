@@ -189,13 +189,22 @@ export function getLuminance(hex: string): number {
   return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
 }
 
+export function getWCAGContrast(hex1: string, hex2: string): number {
+  const l1 = getLuminance(hex1);
+  const l2 = getLuminance(hex2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+export function getOptimalTextColor(bgHex: string): '#000000' | '#FFFFFF' {
+  const contrastWithBlack = getWCAGContrast(bgHex, '#000000');
+  const contrastWithWhite = getWCAGContrast(bgHex, '#FFFFFF');
+  return contrastWithBlack >= contrastWithWhite ? '#000000' : '#FFFFFF';
+}
+
 function getContrastYIQ(hexcolor: string) {
-  hexcolor = hexcolor.replace("#", "");
-  const r = parseInt(hexcolor.substr(0, 2), 16);
-  const g = parseInt(hexcolor.substr(2, 2), 16);
-  const b = parseInt(hexcolor.substr(4, 2), 16);
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 128 ? 'black' : 'white';
+  return getOptimalTextColor(hexcolor) === '#000000' ? 'black' : 'white';
 }
 
 // ── Background renderers ─────────────────────────────────
@@ -298,7 +307,7 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   root.style.setProperty('--bg-gradient', theme.bgGradient);
   root.style.setProperty('--text-primary', theme.textPrimary);
   root.style.setProperty('--text-secondary', theme.textSecondary);
-  root.style.setProperty('--text-muted', theme.textMuted || (isLight ? '#64748B' : 'rgba(255, 255, 255, 0.45)'));
+  root.style.setProperty('--text-muted', theme.textMuted || (isLight ? '#475569' : '#94A3B8'));
   root.style.setProperty('--accent', theme.accent);
   root.style.setProperty('--accent-secondary', theme.accentSecondary);
   root.style.setProperty('--accent-tertiary', theme.accentTertiary || theme.colors[2] || theme.accent);
@@ -314,8 +323,8 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   root.style.setProperty('--accent-tertiary-rgb', hexToRgb(theme.accentTertiary || theme.colors[2] || theme.accent));
   root.style.setProperty('--glass-bg', isLight ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.03)');
   root.style.setProperty('--glass-border', isLight ? 'rgba(15, 23, 42, 0.12)' : 'rgba(255, 255, 255, 0.12)');
-  root.style.setProperty('--accent-contrast', getContrastYIQ(theme.accent) === 'black' ? '#000000' : '#FFFFFF');
-  root.style.setProperty('--accent-secondary-contrast', getContrastYIQ(theme.accentSecondary) === 'black' ? '#000000' : '#FFFFFF');
+  root.style.setProperty('--accent-contrast', getOptimalTextColor(theme.accent));
+  root.style.setProperty('--accent-secondary-contrast', getOptimalTextColor(theme.accentSecondary));
   switch (theme.backgroundStyle) {
     case 'noise': applyNoiseBackground(root, isLight); break;
     case 'grid': applyGridBackground(root, isLight); break;

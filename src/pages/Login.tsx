@@ -115,7 +115,7 @@ export default function Login() {
           {/* Divider */}
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-[10px] font-heading tracking-[0.2em] uppercase" style={{ color: 'var(--text-secondary)', opacity: 0.3 }}>
+            <span className="text-xs font-heading tracking-[0.2em] uppercase text-[var(--text-muted)]">
               or
             </span>
             <div className="flex-1 h-px bg-white/10" />
@@ -124,11 +124,11 @@ export default function Login() {
           {/* Email/Password Form */}
           <form onSubmit={handleEmailAuth} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-heading tracking-[0.2em] uppercase mb-2" style={{ color: 'var(--text-secondary)', opacity: 0.4 }}>
+              <label className="block text-xs font-heading tracking-[0.2em] uppercase mb-2 text-[var(--text-secondary)]">
                 Email
               </label>
               <div className="relative">
-                <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                 <input
                   type="email"
                   required
@@ -142,11 +142,11 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-heading tracking-[0.2em] uppercase mb-2" style={{ color: 'var(--text-secondary)', opacity: 0.4 }}>
+              <label className="block text-xs font-heading tracking-[0.2em] uppercase mb-2 text-[var(--text-secondary)]">
                 Password
               </label>
               <div className="relative">
-                <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                 <input
                   type="password"
                   required
