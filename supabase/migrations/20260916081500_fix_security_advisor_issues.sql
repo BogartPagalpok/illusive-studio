@@ -1,9 +1,5 @@
 -- ==============================================================================
--- MIGRATION: Resolve Supabase Security Advisor Alerts
--- 1. Fixes 4 ERRORS: Enables RLS on public.portfolio, public.services,
---    public.user_profiles, public.user_preferences
--- 2. Fixes WARNINGS: Locks down contact_messages to approved admins
--- 3. Fixes INFO: Adds appropriate policies for public.inquiries
+-- MIGRATION: Resolve Supabase Security Advisor Alerts (v2 - column-agnostic)
 -- ==============================================================================
 
 -- ------------------------------------------------------------------------------
@@ -14,46 +10,39 @@ ALTER TABLE IF EXISTS public.services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS public.user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS public.user_preferences ENABLE ROW LEVEL SECURITY;
 
--- If user_profiles exists, ensure users can only read/manage their own row, or admins can view
+-- user_profiles: restrict to approved admins (column-agnostic)
 DO $$
 BEGIN
   IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'user_profiles') THEN
     DROP POLICY IF EXISTS "Users can view own profile" ON public.user_profiles;
     DROP POLICY IF EXISTS "Users can update own profile" ON public.user_profiles;
+    DROP POLICY IF EXISTS "Admins can manage user_profiles" ON public.user_profiles;
     
-    CREATE POLICY "Users can view own profile"
-      ON public.user_profiles FOR SELECT
+    CREATE POLICY "Admins can manage user_profiles"
+      ON public.user_profiles FOR ALL
       TO authenticated
-      USING (auth.uid() = id OR (auth.jwt() ->> 'email') IN ('yhanlhester@gmail.com', 'illusivestudio.ph@gmail.com'));
-
-    CREATE POLICY "Users can update own profile"
-      ON public.user_profiles FOR UPDATE
-      TO authenticated
-      USING (auth.uid() = id OR (auth.jwt() ->> 'email') IN ('yhanlhester@gmail.com', 'illusivestudio.ph@gmail.com'))
-      WITH CHECK (auth.uid() = id OR (auth.jwt() ->> 'email') IN ('yhanlhester@gmail.com', 'illusivestudio.ph@gmail.com'));
+      USING ((auth.jwt() ->> 'email') IN ('yhanlhester@gmail.com', 'illusivestudio.ph@gmail.com'))
+      WITH CHECK ((auth.jwt() ->> 'email') IN ('yhanlhester@gmail.com', 'illusivestudio.ph@gmail.com'));
   END IF;
 END $$;
 
--- If user_preferences exists, restrict similarly
+-- user_preferences: restrict to approved admins (column-agnostic)
 DO $$
 BEGIN
   IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'user_preferences') THEN
     DROP POLICY IF EXISTS "Users can view own preferences" ON public.user_preferences;
     DROP POLICY IF EXISTS "Users can update own preferences" ON public.user_preferences;
+    DROP POLICY IF EXISTS "Admins can manage user_preferences" ON public.user_preferences;
 
-    CREATE POLICY "Users can view own preferences"
-      ON public.user_preferences FOR SELECT
-      TO authenticated
-      USING (auth.uid() = user_id OR (auth.jwt() ->> 'email') IN ('yhanlhester@gmail.com', 'illusivestudio.ph@gmail.com'));
-
-    CREATE POLICY "Users can update own preferences"
+    CREATE POLICY "Admins can manage user_preferences"
       ON public.user_preferences FOR ALL
       TO authenticated
-      USING (auth.uid() = user_id OR (auth.jwt() ->> 'email') IN ('yhanlhester@gmail.com', 'illusivestudio.ph@gmail.com'));
+      USING ((auth.jwt() ->> 'email') IN ('yhanlhester@gmail.com', 'illusivestudio.ph@gmail.com'))
+      WITH CHECK ((auth.jwt() ->> 'email') IN ('yhanlhester@gmail.com', 'illusivestudio.ph@gmail.com'));
   END IF;
 END $$;
 
--- For legacy portfolio & services tables: public read, admin write
+-- For portfolio & services tables: public read, admin write
 DO $$
 BEGIN
   IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'portfolio') THEN
@@ -110,7 +99,7 @@ CREATE POLICY "Approved admins can delete contact messages"
   USING ((auth.jwt() ->> 'email') IN ('yhanlhester@gmail.com', 'illusivestudio.ph@gmail.com'));
 
 -- ------------------------------------------------------------------------------
--- 3. FIX INFO: Add policies for public.inquiries (RLS was enabled with 0 policies)
+-- 3. FIX INFO: Add policies for public.inquiries (was RLS enabled with 0 policies)
 -- ------------------------------------------------------------------------------
 DO $$
 BEGIN
@@ -139,7 +128,7 @@ BEGIN
 END $$;
 
 -- ------------------------------------------------------------------------------
--- 4. FIX WARNINGS: Lock down any legacy tables (experience_items, pricing_items, media_items)
+-- 4. FIX WARNINGS: Lock down legacy tables (experience_items, pricing_items, media_items)
 -- ------------------------------------------------------------------------------
 DO $$
 DECLARE
