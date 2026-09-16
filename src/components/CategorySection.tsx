@@ -724,65 +724,97 @@ function FacebookEmbed({ url }: { url: string }) {
 
 function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> }) {
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
-      <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-md self-start lg:sticky lg:top-24" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
-        <h3 className="text-xl font-heading font-black uppercase tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>{title}</h3>
-        {description && (
-          <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>{description}</p>
-        )}
+    <div className="w-full flex flex-col">
+      {/* Full-width sleek header banner */}
+      <div 
+        className="w-full mb-8 p-6 sm:p-8 rounded-2xl border backdrop-blur-md flex flex-col md:flex-row md:items-center md:justify-between gap-6 transition-all duration-300"
+        style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
+      >
+        <div className="max-w-2xl">
+          <h3 className="text-xl sm:text-2xl font-heading font-black uppercase tracking-wider mb-2" style={{ color: 'var(--text-primary)' }}>
+            {title}
+          </h3>
+          {description && (
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              {description}
+            </p>
+          )}
+        </div>
+
         {tools && tools.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap md:justify-end gap-2 md:max-w-md">
             {tools.map(t => (
-              <span key={t} className="px-3 py-1 text-xs uppercase tracking-wider rounded-full border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
+              <span 
+                key={t} 
+                className="px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-full border"
+                style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)', backgroundColor: 'rgba(255,255,255,0.02)' }}
+              >
+                {t}
+              </span>
             ))}
           </div>
         )}
       </div>
-      <div className="lg:w-3/4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {videoItems.map((item, i) => {
-            const usePhone = item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url));
-            const cardTitle = item.title || item.projectTitle;
-            const cardSubtitle = item.subtitle;
-            return (
-              <div key={`${item.projectId}-${i}`}>
-                {usePhone ? (
-                  <PhoneFrame>
-                    {item.platform === 'tiktok' ? (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
-                        <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
-                        <p className="text-white/80 text-xs text-center mb-3 font-medium">{cardTitle}</p>
-                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
-                          <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
-                        </a>
-                      </div>
-                    ) : (
-                      <VideoFacade
-                        url={item.url}
-                        platform={item.platform!}
-                        title={cardTitle}
-                        posterUrl={item.posterUrl}
-                      />
-                    )}
-                  </PhoneFrame>
-                ) : (
-                  <BrowserFrame title={cardTitle}>
+
+      {/* Balanced, gap-free video showcase */}
+      <div className="flex flex-wrap justify-center gap-6 w-full">
+        {videoItems.map((item, i) => {
+          const usePhone = item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url));
+          const hasSpecificTitle = Boolean(item.title && item.title.trim().toLowerCase() !== title.trim().toLowerCase());
+          const displayTitle = hasSpecificTitle ? item.title! : '';
+          const cardSubtitle = item.subtitle;
+
+          return (
+            <div 
+              key={`${item.projectId}-${i}`}
+              className={
+                usePhone 
+                  ? "w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] max-w-[320px] flex flex-col items-center"
+                  : "w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-[540px] flex flex-col"
+              }
+            >
+              {usePhone ? (
+                <PhoneFrame>
+                  {item.platform === 'tiktok' ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
+                      <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
+                      <p className="text-white/80 text-xs text-center mb-3 font-medium">{displayTitle || title}</p>
+                      <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                        <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
+                      </a>
+                    </div>
+                  ) : (
                     <VideoFacade
                       url={item.url}
                       platform={item.platform!}
-                      title={cardTitle}
+                      title={displayTitle || title}
                       posterUrl={item.posterUrl}
                     />
-                  </BrowserFrame>
-                )}
-                <p className="text-center text-xs font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{cardTitle}</p>
-                {cardSubtitle && (
-                  <p className="text-center text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>{cardSubtitle}</p>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                  )}
+                </PhoneFrame>
+              ) : (
+                <BrowserFrame title={displayTitle || title}>
+                  <VideoFacade
+                    url={item.url}
+                    platform={item.platform!}
+                    title={displayTitle || title}
+                    posterUrl={item.posterUrl}
+                  />
+                </BrowserFrame>
+              )}
+              {displayTitle && (
+                <p className="text-center text-xs font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>
+                  {displayTitle}
+                </p>
+              )}
+              {cardSubtitle && (
+                <p className="text-center text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                  {cardSubtitle}
+                </p>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
