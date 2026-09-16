@@ -1,8 +1,7 @@
 import { supabase, SCROLL_SEQUENCE_BUCKET, isSupabaseConfigured } from './supabase';
 
 export const TOTAL_FRAMES = 288;
-const MIN_FRAMES_TO_LAUNCH = 45; // Frames 0-44 loaded before loader unmounts
-const KEYFRAME_STEP = 4; // Distributed keyframes across entire timeline
+const MIN_FRAMES_TO_LAUNCH = 20; // First 20 frames ensure instantaneous initial scroll response
 
 class HeroSequenceCache {
   images: HTMLImageElement[] = new Array(TOTAL_FRAMES);
@@ -27,7 +26,6 @@ class HeroSequenceCache {
 
     return new Promise((resolve) => {
       const img = new Image();
-      img.crossOrigin = 'anonymous';
       img.src = this.getPublicUrl(index);
 
       img.onload = () => {
@@ -51,35 +49,36 @@ class HeroSequenceCache {
     this.isPreloadStarted = true;
 
     const run = async () => {
-      // 1. First frame (instant paint)
+      // 1. Paint frame 0 immediately
       await this.loadSingleFrame(0);
 
-      // 2. Load critical startup window (0..44) and distributed keyframes in parallel
-      const startupPromises: Promise<boolean>[] = [];
+      // 2. Concurrently load the essential startup window (1..19)
+      const startupBatch: Promise<boolean>[] = [];
       for (let i = 1; i < MIN_FRAMES_TO_LAUNCH; i++) {
-        startupPromises.push(this.loadSingleFrame(i));
+        startupBatch.push(this.loadSingleFrame(i));
       }
-      for (let k = MIN_FRAMES_TO_LAUNCH; k < TOTAL_FRAMES; k += KEYFRAME_STEP) {
-        startupPromises.push(this.loadSingleFrame(k));
-      }
-
-      await Promise.all(startupPromises);
+      await Promise.all(startupBatch);
       this.isReady = true;
       this.notify();
 
-      // 3. Concurrently stream all remaining in-between frames in parallel worker pools
-      const remaining: number[] = [];
-      for (let i = 0; i < TOTAL_FRAMES; i++) {
-        if (!this.loadedFlags[i]) {
-          remaining.push(i);
+      // 3. Continuously stream all remaining frames (20..287) in a steady worker pool
+      // Keyframes (every 4th frame) are queued first, then all intermediate frames
+      const keyframes: number[] = [];
+      const intermediate: number[] = [];
+      for (let i = MIN_FRAMES_TO_LAUNCH; i < TOTAL_FRAMES; i++) {
+        if (i % 4 === 0) {
+          keyframes.push(i);
+        } else {
+          intermediate.push(i);
         }
       }
+      const queue = [...keyframes, ...intermediate];
 
-      const CONCURRENCY = 8;
+      const CONCURRENCY = 6;
       let currentIndex = 0;
       const worker = async () => {
-        while (currentIndex < remaining.length) {
-          const idx = remaining[currentIndex++];
+        while (currentIndex < queue.length) {
+          const idx = queue[currentIndex++];
           if (idx !== undefined) {
             await this.loadSingleFrame(idx);
           }
@@ -115,15 +114,13 @@ class HeroSequenceCache {
   }
 
   notify() {
-    const targetFramesForLaunch = MIN_FRAMES_TO_LAUNCH + Math.floor((TOTAL_FRAMES - MIN_FRAMES_TO_LAUNCH) / KEYFRAME_STEP);
-    const progress = Math.min(1, this.loadedCount / targetFramesForLaunch);
+    const progress = Math.min(1, this.loadedCount / MIN_FRAMES_TO_LAUNCH);
     this.listeners.forEach((fn) => fn(progress, this.isReady));
   }
 
   subscribe(fn: (progress: number, ready: boolean) => void): () => void {
     this.listeners.push(fn);
-    const targetFramesForLaunch = MIN_FRAMES_TO_LAUNCH + Math.floor((TOTAL_FRAMES - MIN_FRAMES_TO_LAUNCH) / KEYFRAME_STEP);
-    fn(Math.min(1, this.loadedCount / targetFramesForLaunch), this.isReady);
+    fn(Math.min(1, this.loadedCount / MIN_FRAMES_TO_LAUNCH), this.isReady);
     return () => {
       this.listeners = this.listeners.filter((l) => l !== fn);
     };

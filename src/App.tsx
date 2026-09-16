@@ -51,7 +51,36 @@ function AtmosphereGradient() {
 }
 
 function BrandLoader({ progress = 0, isFading = false }: { progress?: number; isFading?: boolean }) {
-  const percent = Math.min(100, Math.max(0, Math.round(progress * 100)));
+  const [percent, setPercent] = useState(0);
+
+  useEffect(() => {
+    let animId: number;
+    let current = 0;
+    const startTime = performance.now();
+
+    const update = (now: number) => {
+      // Natural sequence preload progress (0 to 1)
+      const rawTarget = Math.min(100, Math.max(0, Math.round(progress * 100)));
+
+      // Pacing curve ensures the counter starts counting upwards immediately (never frozen at 1%)
+      const elapsed = now - startTime;
+      const pacing = Math.min(40, Math.floor((elapsed / 600) * 40));
+      const target = Math.max(pacing, rawTarget);
+
+      if (current < target) {
+        const diff = target - current;
+        const step = Math.max(1, Math.ceil(diff * 0.14));
+        current = Math.min(target, current + step);
+        setPercent(current);
+      }
+
+      animId = requestAnimationFrame(update);
+    };
+
+    animId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(animId);
+  }, [progress]);
+
   return (
     <div className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black transition-opacity duration-700 ${isFading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <style dangerouslySetInnerHTML={{ __html: `
@@ -60,19 +89,20 @@ function BrandLoader({ progress = 0, isFading = false }: { progress?: number; is
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: min(92vw, 680px);
-          height: 320px;
+          width: 100vw;
+          max-width: 1200px;
+          height: 480px;
           pointer-events: none;
           z-index: 1;
           background-color: transparent;
-          -webkit-mask: repeating-linear-gradient(
+          -webkit-mask-image: repeating-linear-gradient(
             90deg,
             transparent 0,
             transparent 6px,
             black 7px,
             black 8px
           );
-          mask: repeating-linear-gradient(
+          mask-image: repeating-linear-gradient(
             90deg,
             transparent 0,
             transparent 6px,
@@ -83,30 +113,36 @@ function BrandLoader({ progress = 0, isFading = false }: { progress?: number; is
         .loader-scanner::after {
           content: "";
           position: absolute;
-          inset: 0;
+          top: 50%;
+          left: 50%;
+          width: min(85vw, 540px);
+          height: 380px;
+          margin-top: -190px;
+          margin-left: max(-270px, -42.5vw);
           background-image: 
-            radial-gradient(circle at 50% 50%, var(--accent, #ff8000) 0%, transparent 60%),
+            radial-gradient(circle at 50% 50%, var(--accent, #ff8000) 0%, transparent 65%),
             radial-gradient(circle at 45% 45%, #ff0055 0%, transparent 50%),
             radial-gradient(circle at 55% 55%, #00ffff 0%, transparent 50%);
-          -webkit-mask: radial-gradient(
-            circle at 50% 50%,
+          -webkit-mask-image: radial-gradient(
+            ellipse 48% 46% at 50% 50%,
             black 0%,
-            black 25%,
-            transparent 55%
+            black 20%,
+            transparent 70%
           );
-          mask: radial-gradient(
-            circle at 50% 50%,
+          mask-image: radial-gradient(
+            ellipse 48% 46% at 50% 50%,
             black 0%,
-            black 25%,
-            transparent 55%
+            black 20%,
+            transparent 70%
           );
           animation:
-            loader-sweep 2.5s infinite alternate ease-in-out,
+            loader-sweep 2.8s infinite alternate ease-in-out,
             loader-glow 3s infinite ease-in-out;
+          will-change: transform, opacity;
         }
         @keyframes loader-sweep {
-          0% { transform: translateX(-35%) scale(0.9); }
-          100% { transform: translateX(35%) scale(1.1); }
+          0% { transform: translateX(calc(-1 * min(20vw, 160px))) scale(0.94); }
+          100% { transform: translateX(min(20vw, 160px)) scale(1.06); }
         }
         @keyframes loader-glow {
           0%, 100% { opacity: 0.35; }
@@ -142,7 +178,7 @@ function BrandLoader({ progress = 0, isFading = false }: { progress?: number; is
         }
       `}} />
 
-      <div className="relative flex flex-col items-center justify-center w-full max-w-2xl px-4 min-h-[300px]">
+      <div className="relative flex flex-col items-center justify-center w-full max-w-4xl px-4 min-h-[320px] overflow-visible">
         {/* Full unmasked scanning circular radar beam */}
         <div className="loader-scanner" />
 
@@ -160,14 +196,14 @@ function BrandLoader({ progress = 0, isFading = false }: { progress?: number; is
         </div>
 
         {/* Subtle Progress Bar & Percentage */}
-        <div className="relative z-10 flex flex-col items-center gap-2 mt-2">
+        <div className="relative z-10 flex flex-col items-center gap-2 mt-3">
           <div className="w-48 sm:w-64 h-[2px] bg-white/10 rounded-full overflow-hidden">
             <div
-              className="h-full bg-accent transition-all duration-300 ease-out rounded-full"
-              style={{ width: `${Math.max(5, percent)}%`, boxShadow: '0 0 10px var(--accent)' }}
+              className="h-full bg-accent transition-all duration-200 ease-out rounded-full"
+              style={{ width: `${Math.max(4, percent)}%`, boxShadow: '0 0 10px var(--accent)' }}
             />
           </div>
-          <span className="text-white/40 font-mono text-[10px] sm:text-xs tracking-[0.25em] uppercase font-bold">
+          <span className="text-white/45 font-mono text-[10px] sm:text-xs tracking-[0.25em] uppercase font-bold">
             {percent}%
           </span>
         </div>
@@ -332,9 +368,11 @@ function App() {
   useEffect(() => {
     heroSequenceCache.startPreload();
 
+    const mountTime = performance.now();
     let finished = false;
     let fadeTimer: any;
     let removeTimer: any;
+    let readyTimer: any;
 
     const finishLoading = () => {
       if (finished) return;
@@ -351,17 +389,26 @@ function App() {
     const unsubscribe = heroSequenceCache.subscribe((progress, ready) => {
       setLoadProgress(progress);
       if (ready) {
-        finishLoading();
+        // Ensure at least 1.3s of smooth loader animation so user experiences the brand laser and count-up
+        const elapsed = performance.now() - mountTime;
+        const remaining = Math.max(0, 1300 - elapsed);
+        clearTimeout(readyTimer);
+        readyTimer = setTimeout(() => {
+          setLoadProgress(1);
+          finishLoading();
+        }, remaining);
       }
     });
 
     // Safety fallback timer: guarantees unmount even if user is offline or connection times out
     const safetyTimer = setTimeout(() => {
+      setLoadProgress(1);
       finishLoading();
     }, 4500);
 
     return () => {
       unsubscribe();
+      clearTimeout(readyTimer);
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
       clearTimeout(safetyTimer);
