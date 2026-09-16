@@ -862,6 +862,9 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
   const isGraphics = category === 'Graphic Design';
   const isMotion = category === 'Motion';
+  const isPhotography = category === 'Photography';
+  const isUIUX = category === 'UI/UX';
+  const categorySlug = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
   const getVideoUrl = (project: Project): string | null => {
     if (project.video_urls && project.video_urls.length > 0) {
@@ -873,274 +876,268 @@ export default function CategorySection({ category }: CategorySectionProps) {
   };
 
   return (
-    <>
-      {visibleGroups.map(([projectKey, projectRows]) => {
-        const title = projectRows[0]?.title || 'Untitled';
-        // ── Graphics: Singles + Tiles + FB ───────────────
-        if (isGraphics) {
-          const singles = projectRows.filter(p => p.image_url && p.image_layout === 'single');
-          const fbPosts = projectRows.filter(p => p.facebook_urls && p.facebook_urls.length > 0);
-          const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
-          
-          projectRows.forEach(project => {
-            if (!project.image_url) return;
-            if (project.image_layout === 'single') return;
-            const layout = project.image_layout || 'auto';
-            const maxPerTile = layout === '3up-portrait-left' ? 3 : 4;
-            const existingTile = tiles[tiles.length - 1];
-            if (existingTile && existingTile.layout === layout && existingTile.images.length < maxPerTile) {
-              existingTile.images.push(project.image_url);
-            } else {
-              tiles.push({
-                images: [project.image_url],
-                layout,
-                description: project.description || projectRows.find(p => p.description)?.description || '',
-                tools: project.tools || projectRows.find(p => p.tools && p.tools.length > 0)?.tools || []
-              });
-            }
-          });
-          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> = [];
-          projectRows.forEach(project => {
-            const urls = project.video_urls || [];
-            urls.forEach(entry => {
-              const url = getUrl(entry);
-              const vertical = getVertical(entry);
-              const platform = detectVideoPlatform(url);
-              if (platform) {
-                allVideos.push({
-                  url,
-                  platform,
-                  projectId: project.id,
-                  projectTitle: project.title,
-                  vertical,
-                  posterUrl: project.card_thumbnail || project.image_url || undefined,
-                  title: (entry as VideoEntry).title || undefined,
-                  subtitle: (entry as VideoEntry).subtitle || undefined,
+    <section id={categorySlug} className="section-padding relative overflow-visible bg-transparent">
+      <div className="section-container relative">
+        {/* Unified Category Header - Rendered ONCE per category */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12 sm:mb-16 flex flex-col items-center"
+        >
+          <span className="section-subtitle">FEATURED WORK //</span>
+          <h2 className="section-title">{formatSectionTitle(category.toUpperCase())}</h2>
+          <div className="section-divider" />
+        </motion.div>
+
+        {loading && (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 text-accent animate-spin" />
+          </div>
+        )}
+
+        {/* Photography & UI/UX: Single continuous scrolling masonry for the category */}
+        {(isPhotography || isUIUX) && (
+          <ScrollingMasonry projects={projects} height={600} speed={100} />
+        )}
+
+        {/* Motion: Multiple project panels spaced cleanly without repeating category headers */}
+        {isMotion && (
+          <div className="space-y-16 sm:space-y-20 lg:space-y-24">
+            {visibleGroups.map(([projectKey, projectRows]) => {
+              const title = projectRows[0]?.title || 'Untitled';
+              const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> = [];
+              let titleDescription = '';
+              let titleTools: string[] = [];
+
+              projectRows.forEach(project => {
+                if (project.description && !titleDescription) titleDescription = project.description;
+                if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
+                const urls = project.video_urls || [];
+                urls.forEach(entry => {
+                  const url = getUrl(entry);
+                  const vertical = getVertical(entry);
+                  const platform = detectVideoPlatform(url);
+                  if (platform) {
+                    allVideos.push({
+                      url,
+                      platform,
+                      projectId: project.id,
+                      projectTitle: project.title,
+                      vertical,
+                      posterUrl: project.card_thumbnail || project.image_url || undefined,
+                      title: (entry as VideoEntry).title || undefined,
+                      subtitle: (entry as VideoEntry).subtitle || undefined,
+                    });
+                  }
                 });
-              }
-            });
-          });
+              });
 
-          if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0 && allVideos.length === 0) return null;
+              if (allVideos.length === 0) return null;
 
-          if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0 && allVideos.length > 0) {
-            return (
-              <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
-                <div className="section-container relative">
-                  <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
-                    <span className="section-subtitle">{category}</span>
-                    <h2 className="section-title">{formatSectionTitle(title)}</h2>
-                    <div className="section-divider" />
-                  </motion.div>
+              return (
+                <div key={projectKey} className="w-full">
                   <MotionPanel
                     title={title}
-                    description={projectRows[0]?.description || ''}
-                    tools={projectRows[0]?.tools || []}
+                    description={titleDescription}
+                    tools={titleTools}
                     videoItems={allVideos}
                   />
                 </div>
-              </section>
-            );
-          }
+              );
+            })}
+          </div>
+        )}
 
-          return (
-            <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
-              <div className="section-container relative">
-                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
-                  <span className="section-subtitle">{category}</span>
-                  <h2 className="section-title">{formatSectionTitle(title)}</h2>
-                  <div className="section-divider" />
-                </motion.div>
-                {singles.length > 0 && (
-                  <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4 mb-6">
-                    {singles.map((project) => (
-                      <div className="break-inside-avoid" key={project.id}>
-                        <FlipCard project={project} />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {tiles.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    {tiles.map((tile, i) => (
-                      tile.images.length === 1 ? (
-                        <FlipCard 
-                          key={`tile-${i}`}
-                          project={{ 
-                            id: `${title}-tile-${i}`, 
-                            title, 
-                            category, 
-                            image_url: tile.images[0], 
-                            description: tile.description, 
-                            tools: tile.tools 
-                          }} 
-                        />
-                      ) : (
-                        <GraphicsCompositeCard
-                          key={`tile-${i}`}
-                          images={tile.images}
-                          title={title}
-                          description={tile.description}
-                          tools={tile.tools}
-                          layout={tile.layout}
-                        />
-                      )
-                    ))}
-                  </div>
-                )}
-                {fbPosts.length > 0 && (
-                  <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
-                    {fbPosts.map((project) => (project.facebook_urls || []).map((url, i) => (
-                      <div className="break-inside-avoid" key={`${project.id}-fb-${i}`}>
-                        <FacebookEmbed url={url} />
-                      </div>
-                    )))}
-                  </div>
-                )}
-              </div>
-            </section>
-          );
-        }
-        // ── Motion: Panel Layout ─────────────────────────
-        if (isMotion) {
-          const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> = [];
-          let titleDescription = '';
-          let titleTools: string[] = [];
+        {/* Graphic Design: Grouped composite tiles, singles, or video fallback */}
+        {isGraphics && (
+          <div className="space-y-16 sm:space-y-20">
+            {visibleGroups.map(([projectKey, projectRows]) => {
+              const title = projectRows[0]?.title || 'Untitled';
+              const singles = projectRows.filter(p => p.image_url && p.image_layout === 'single');
+              const fbPosts = projectRows.filter(p => p.facebook_urls && p.facebook_urls.length > 0);
+              const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
 
-          projectRows.forEach(project => {
-            if (project.description && !titleDescription) titleDescription = project.description;
-            if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
-            const urls = project.video_urls || [];
-            urls.forEach(entry => {
-              const url = getUrl(entry);
-              const vertical = getVertical(entry);
-              const platform = detectVideoPlatform(url);
-              if (platform) {
-                allVideos.push({
-                  url,
-                  platform,
-                  projectId: project.id,
-                  projectTitle: project.title,
-                  vertical,
-                  posterUrl: project.card_thumbnail || project.image_url || undefined,
-                  title: (entry as VideoEntry).title || undefined,
-                  subtitle: (entry as VideoEntry).subtitle || undefined,
+              projectRows.forEach(project => {
+                if (!project.image_url) return;
+                if (project.image_layout === 'single') return;
+                const layout = project.image_layout || 'auto';
+                const maxPerTile = layout === '3up-portrait-left' ? 3 : 4;
+                const existingTile = tiles[tiles.length - 1];
+                if (existingTile && existingTile.layout === layout && existingTile.images.length < maxPerTile) {
+                  existingTile.images.push(project.image_url);
+                } else {
+                  tiles.push({
+                    images: [project.image_url],
+                    layout,
+                    description: project.description || projectRows.find(p => p.description)?.description || '',
+                    tools: project.tools || projectRows.find(p => p.tools && p.tools.length > 0)?.tools || []
+                  });
+                }
+              });
+
+              const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> = [];
+              projectRows.forEach(project => {
+                const urls = project.video_urls || [];
+                urls.forEach(entry => {
+                  const url = getUrl(entry);
+                  const vertical = getVertical(entry);
+                  const platform = detectVideoPlatform(url);
+                  if (platform) {
+                    allVideos.push({
+                      url,
+                      platform,
+                      projectId: project.id,
+                      projectTitle: project.title,
+                      vertical,
+                      posterUrl: project.card_thumbnail || project.image_url || undefined,
+                      title: (entry as VideoEntry).title || undefined,
+                      subtitle: (entry as VideoEntry).subtitle || undefined,
+                    });
+                  }
                 });
-              }
-            });
-          });
+              });
 
-          return (
-           <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
-              <div className="section-container relative">
-                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
-                  <span className="section-subtitle">{category}</span>
-                  <h2 className="section-title">{formatSectionTitle(title)}</h2>
-                  <div className="section-divider" />
-                </motion.div>
-                <MotionPanel
-                  title={title}
-                  description={titleDescription}
-                  tools={titleTools}
-                  videoItems={allVideos}
-                />
-              </div>
-            </section>
-          );
-        }
+              if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0 && allVideos.length === 0) return null;
 
-               // ── Photography & UI/UX: Scrolling Masonry ────────
-        const isPhotography = category === 'Photography';
-        const isUIUX = category === 'UI/UX';
-
-        if (isPhotography || isUIUX) {
-          return (
-            <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
-              <div className="section-container relative">
-                <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
-                  <span className="section-subtitle">{category}</span>
-                  <h2 className="section-title">{formatSectionTitle(title)}</h2>
-                  <div className="section-divider" />
-                </motion.div>
-
-                {loading && (
-                  <div className="flex justify-center py-12">
-                    <Loader2 className="w-8 h-8 text-accent animate-spin" />
+              if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0 && allVideos.length > 0) {
+                return (
+                  <div key={projectKey} className="w-full">
+                    <MotionPanel
+                      title={title}
+                      description={projectRows[0]?.description || ''}
+                      tools={projectRows[0]?.tools || []}
+                      videoItems={allVideos}
+                    />
                   </div>
-                )}
+                );
+              }
 
-                <ScrollingMasonry projects={projectRows} height={600} speed={100} />
-              </div>
-            </section>
-          );
-        }
-
-        // ── Fallback masonry ─────────────────────────────
-        const hasGap = projectRows.length % columnCount !== 0;
-        const lastIndex = projectRows.length - 1;
-        return (
-          <section key={projectKey} className="section-padding relative overflow-visible bg-transparent">
-            <div className="section-container relative">
-              <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 flex flex-col items-center">
-                <span className="section-subtitle">{category}</span>
-                <h2 className="section-title">{formatSectionTitle(title)}</h2>
-                <div className="section-divider" />
-              </motion.div>
-
-              {loading && (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="w-8 h-8 text-accent animate-spin" />
-                </div>
-              )}
-
-              <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
-                {projectRows.map((project, index) => {
-                  const videoUrl = getVideoUrl(project);
-                  const platform = videoUrl ? detectVideoPlatform(videoUrl) : null;
-                  const isVideo = !!platform;
-                  const isLast = index === lastIndex;
-                  const isHero = hasGap && isLast && !isVideo;
-
-                  return (
-                    <div key={project.id} className="break-inside-avoid">
-                      {isVideo ? (
-                        <div className="mb-3">
-                          <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
-                            <PhoneFrame>
-                              {platform === 'tiktok' ? (
-                                <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
-                                  <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
-                                  <p className="text-white/70 text-xs text-center mb-3">{project.title}</p>
-                                  <a href={videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
-                                    <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
-                                  </a>
-                                </div>
-                              ) : (
-                                <VideoFacade
-                                  url={videoUrl!}
-                                  platform={platform}
-                                  title={project.title}
-                                  posterUrl={project.card_thumbnail || project.image_url}
-                                />
-                              )}
-                            </PhoneFrame>
-                            <div className="p-3">
-                              <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{project.title}</h3>
-                              {project.description && <p className="text-[var(--text-secondary)] text-xs mt-1 line-clamp-2">{project.description}</p>}
-                            </div>
-                          </div>
+              return (
+                <div key={projectKey} className="w-full">
+                  {visibleGroups.length > 1 && title && title.toLowerCase() !== category.toLowerCase() && (
+                    <h3 className="text-xl sm:text-2xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)] mb-6 text-center">
+                      {formatSectionTitle(title)}
+                    </h3>
+                  )}
+                  {singles.length > 0 && (
+                    <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4 mb-6">
+                      {singles.map((project) => (
+                        <div className="break-inside-avoid" key={project.id}>
+                          <FlipCard project={project} />
                         </div>
-                      ) : (
-                        <FlipCard project={project} isHero={isHero} />
-                      )}
+                      ))}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-        );
-      })}
-    </>
+                  )}
+                  {tiles.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {tiles.map((tile, i) => (
+                        tile.images.length === 1 ? (
+                          <FlipCard 
+                            key={`tile-${i}`}
+                            project={{ 
+                              id: `${title}-tile-${i}`, 
+                              title, 
+                              category, 
+                              image_url: tile.images[0], 
+                              description: tile.description, 
+                              tools: tile.tools 
+                            }} 
+                          />
+                        ) : (
+                          <GraphicsCompositeCard
+                            key={`tile-${i}`}
+                            images={tile.images}
+                            title={title}
+                            description={tile.description}
+                            tools={tile.tools}
+                            layout={tile.layout}
+                          />
+                        )
+                      ))}
+                    </div>
+                  )}
+                  {fbPosts.length > 0 && (
+                    <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
+                      {fbPosts.map((project) => (project.facebook_urls || []).map((url, i) => (
+                        <div className="break-inside-avoid" key={`${project.id}-fb-${i}`}>
+                          <FacebookEmbed url={url} />
+                        </div>
+                      )))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Fallback masonry for any other custom category */}
+        {!isPhotography && !isUIUX && !isMotion && !isGraphics && (
+          <div className="space-y-16">
+            {visibleGroups.map(([projectKey, projectRows]) => {
+              const title = projectRows[0]?.title || 'Untitled';
+              const hasGap = projectRows.length % columnCount !== 0;
+              const lastIndex = projectRows.length - 1;
+
+              return (
+                <div key={projectKey} className="w-full">
+                  {visibleGroups.length > 1 && title && title.toLowerCase() !== category.toLowerCase() && (
+                    <h3 className="text-xl sm:text-2xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)] mb-6 text-center">
+                      {formatSectionTitle(title)}
+                    </h3>
+                  )}
+                  <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
+                    {projectRows.map((project, index) => {
+                      const videoUrl = getVideoUrl(project);
+                      const platform = videoUrl ? detectVideoPlatform(videoUrl) : null;
+                      const isVideo = !!platform;
+                      const isLast = index === lastIndex;
+                      const isHero = hasGap && isLast && !isVideo;
+
+                      return (
+                        <div key={project.id} className="break-inside-avoid">
+                          {isVideo ? (
+                            <div className="mb-3">
+                              <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
+                                <PhoneFrame>
+                                  {platform === 'tiktok' ? (
+                                    <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
+                                      <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
+                                      <p className="text-white/70 text-xs text-center mb-3">{project.title}</p>
+                                      <a href={videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                                        <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
+                                      </a>
+                                    </div>
+                                  ) : (
+                                    <VideoFacade
+                                      url={videoUrl!}
+                                      platform={platform}
+                                      title={project.title}
+                                      posterUrl={project.card_thumbnail || project.image_url}
+                                    />
+                                  )}
+                                </PhoneFrame>
+                                <div className="p-3">
+                                  <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{project.title}</h3>
+                                  {project.description && <p className="text-[var(--text-secondary)] text-xs mt-1 line-clamp-2">{project.description}</p>}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <FlipCard project={project} isHero={isHero} />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
