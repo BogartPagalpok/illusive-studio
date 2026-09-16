@@ -778,7 +778,28 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
             scrollTrigger: {
               trigger: panel,
               start: 'top 85%',
-              toggleActions: 'play none none reverse',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+
+      // Track entrance
+      if (track) {
+        gsap.fromTo(
+          track,
+          { opacity: 0.2, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.75,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'top 85%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
             },
           }
         );
@@ -989,6 +1010,78 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
   );
 }
 
+function GraphicsGroupPanel({ children }: { children: React.ReactNode }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = panelRef.current;
+    if (!el) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        el,
+        { x: -50, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 85%',
+            end: 'bottom 15%',
+            toggleActions: 'play reverse play reverse',
+          },
+        }
+      );
+    }, el);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div ref={panelRef} className="w-full will-change-transform">
+      {children}
+    </div>
+  );
+}
+
+function MasonryWrapper({ children }: { children: React.ReactNode }) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        el,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.85,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 85%',
+            end: 'bottom 15%',
+            toggleActions: 'play reverse play reverse',
+          },
+        }
+      );
+    }, el);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div ref={wrapperRef} className="w-full will-change-transform">
+      {children}
+    </div>
+  );
+}
+
 export default function CategorySection({ category }: CategorySectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1072,6 +1165,37 @@ export default function CategorySection({ category }: CategorySectionProps) {
   const isUIUX = category === 'UI/UX';
   const categorySlug = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const categoryHeaderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      if (categoryHeaderRef.current) {
+        gsap.fromTo(
+          categoryHeaderRef.current,
+          { x: -70, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 85%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+    }, section);
+
+    return () => ctx.revert();
+  }, [category]);
+
   const getVideoUrl = (project: Project): string | null => {
     if (project.video_urls && project.video_urls.length > 0) {
       const first = project.video_urls[0];
@@ -1082,20 +1206,17 @@ export default function CategorySection({ category }: CategorySectionProps) {
   };
 
   return (
-    <section id={categorySlug} className="section-padding relative overflow-visible bg-transparent">
+    <section ref={sectionRef} id={categorySlug} className="section-padding relative overflow-visible bg-transparent">
       <div className="section-container relative">
         {/* Unified Category Header - Rendered ONCE per category */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12 sm:mb-16 flex flex-col items-center"
+        <div
+          ref={categoryHeaderRef}
+          className="text-center mb-12 sm:mb-16 flex flex-col items-center will-change-transform"
         >
           <span className="section-subtitle">FEATURED WORK //</span>
           <h2 className="section-title">{formatSectionTitle(category.toUpperCase())}</h2>
           <div className="section-divider" />
-        </motion.div>
+        </div>
 
         {loading && (
           <div className="flex justify-center py-12">
@@ -1105,7 +1226,9 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
         {/* Photography & UI/UX: Single continuous scrolling masonry for the category */}
         {(isPhotography || isUIUX) && (
-          <ScrollingMasonry projects={projects} height={600} speed={100} />
+          <MasonryWrapper>
+            <ScrollingMasonry projects={projects} height={600} speed={100} />
+          </MasonryWrapper>
         )}
 
         {/* Motion: Multiple project panels spaced cleanly without repeating category headers */}
@@ -1221,7 +1344,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
               }
 
               return (
-                <div key={projectKey} className="w-full">
+                <GraphicsGroupPanel key={projectKey}>
                   {visibleGroups.length > 1 && title && title.toLowerCase() !== category.toLowerCase() && (
                     <h3 className="text-xl sm:text-2xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)] mb-6 text-center">
                       {formatSectionTitle(title)}
@@ -1273,7 +1396,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
                       )))}
                     </div>
                   )}
-                </div>
+                </GraphicsGroupPanel>
               );
             })}
           </div>

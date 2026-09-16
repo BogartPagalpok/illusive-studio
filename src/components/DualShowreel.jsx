@@ -2,6 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { PlayDuotone, MonitorPlayDuotone } from './icons/StreamlineIcons';
 import VideoModal from './VideoModal';
 import { usePortfolioStore } from '../lib/store';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 function extractYoutubeId(url) {
   if (!url) return '';
@@ -110,6 +114,11 @@ export default function DualShowreel(props) {
   const [activeTitle, setActiveTitle] = useState('Featured Showreel');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const sectionRef = useRef(null);
+  const headerRef = useRef(null);
+  const card1Ref = useRef(null);
+  const card2Ref = useRef(null);
+
   const essayConfig = {
     is_coming_soon: props?.essay?.is_coming_soon ?? props?.card1?.is_coming_soon ?? dualShowreel?.essay?.is_coming_soon ?? false,
     webm_url: props?.essay?.webm_url ?? props?.card1?.webm_url ?? dualShowreel?.essay?.webm_url ?? '',
@@ -122,6 +131,74 @@ export default function DualShowreel(props) {
     youtube_url: props?.gaming?.youtube_url ?? props?.card2?.youtube_url ?? dualShowreel?.gaming?.youtube_url ?? '',
   };
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      // Kinetic left-to-right header entrance
+      if (headerRef.current) {
+        gsap.fromTo(
+          headerRef.current,
+          { x: -70, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.75,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 85%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+
+      // Card 1 from left, Card 2 from right with slight stagger
+      if (card1Ref.current) {
+        gsap.fromTo(
+          card1Ref.current,
+          { x: -50, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 78%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+
+      if (card2Ref.current) {
+        gsap.fromTo(
+          card2Ref.current,
+          { x: 50, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 78%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
   const handleOpenModal = (youtubeUrl, cardTitle) => {
     const target = youtubeUrl ? youtubeUrl : 'LXb3EKWsInQ';
     const parsedId = extractYoutubeId(target);
@@ -131,10 +208,10 @@ export default function DualShowreel(props) {
   };
 
   return (
-    <section id="dual-showreel" className="section-padding relative z-20">
+    <section ref={sectionRef} id="dual-showreel" className="section-padding relative z-20 overflow-hidden">
       <div className="section-container relative">
         {/* Section Header */}
-        <div className="section-header-gap flex flex-col items-center text-center">
+        <div ref={headerRef} className="section-header-gap flex flex-col items-center text-center will-change-transform">
           <span className="section-subtitle">FEATURED REELS //</span>
           <h2 className="section-title">
             DUAL <span className="text-accent">SHOWREEL</span>
@@ -147,36 +224,40 @@ export default function DualShowreel(props) {
 
         {/* 2-Column Exact CSS Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 section-content-gap w-full">
-        {/* Card 1: Video Essays & Docu */}
-        <ShowreelCard
-          title="Video Essays & Docu"
-          category="Long-Form Narratives"
-          description="Pacing, narrative arc, dynamic archival cutaways, and sound design."
-          is_coming_soon={essayConfig.is_coming_soon}
-          webm_url={essayConfig.webm_url}
-          youtube_url={essayConfig.youtube_url}
-          onOpenModal={(url) => handleOpenModal(url, 'Video Essays & Docu')}
-        />
+          {/* Card 1: Video Essays & Docu */}
+          <div ref={card1Ref} className="will-change-transform">
+            <ShowreelCard
+              title="Video Essays & Docu"
+              category="Long-Form Narratives"
+              description="Pacing, narrative arc, dynamic archival cutaways, and sound design."
+              is_coming_soon={essayConfig.is_coming_soon}
+              webm_url={essayConfig.webm_url}
+              youtube_url={essayConfig.youtube_url}
+              onOpenModal={(url) => handleOpenModal(url, 'Video Essays & Docu')}
+            />
+          </div>
 
-        {/* Card 2: Gaming & Retention */}
-        <ShowreelCard
-          title="Gaming & Retention"
-          category="Retention & Pacing"
-          description="Instant hook momentum, visual gags, zooms, and algorithmic engagement."
-          is_coming_soon={gamingConfig.is_coming_soon}
-          webm_url={gamingConfig.webm_url}
-          youtube_url={gamingConfig.youtube_url}
-          onOpenModal={(url) => handleOpenModal(url, 'Gaming & Retention')}
-        />
-      </div>
+          {/* Card 2: Gaming & Retention */}
+          <div ref={card2Ref} className="will-change-transform">
+            <ShowreelCard
+              title="Gaming & Retention"
+              category="Retention & Pacing"
+              description="Instant hook momentum, visual gags, zooms, and algorithmic engagement."
+              is_coming_soon={gamingConfig.is_coming_soon}
+              webm_url={gamingConfig.webm_url}
+              youtube_url={gamingConfig.youtube_url}
+              onOpenModal={(url) => handleOpenModal(url, 'Gaming & Retention')}
+            />
+          </div>
+        </div>
 
-      {/* Full-Screen YouTube Video Modal */}
-      <VideoModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        youtubeId={activeYoutubeId}
-        title={activeTitle}
-      />
+        {/* Full-Screen YouTube Video Modal */}
+        <VideoModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          youtubeId={activeYoutubeId}
+          title={activeTitle}
+        />
       </div>
     </section>
   );

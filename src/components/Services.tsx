@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { supabase } from '../lib/supabase';
+import { formatSectionTitle } from '../lib/formatTitle';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const defaultServices = [
   {
@@ -35,11 +39,13 @@ const defaultServices = [
   },
 ];
 
-import { formatSectionTitle } from '../lib/formatTitle';
-
 export default function Services() {
   const [content, setContent] = useState({ subtitle: 'What I Do', heading: 'Services & Expertise' });
   const [servicesData, setServicesData] = useState(defaultServices);
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const cardsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchContent() {
@@ -77,25 +83,74 @@ export default function Services() {
     fetchContent();
   }, []);
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      // Kinetic header sweep from left to right
+      if (headerRef.current) {
+        gsap.fromTo(
+          headerRef.current,
+          { x: -70, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 85%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+
+      // 6 Services cards staggered sweep from left/bottom
+      if (cardsContainerRef.current) {
+        const cards = cardsContainerRef.current.children;
+        gsap.fromTo(
+          cards,
+          { x: -30, y: 35, opacity: 0 },
+          {
+            x: 0,
+            y: 0,
+            opacity: 1,
+            duration: 0.65,
+            stagger: 0.08,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 75%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+    }, section);
+
+    return () => ctx.revert();
+  }, [servicesData]);
+
   return (
-    <section className="section-padding bg-transparent relative overflow-hidden">
+    <section ref={sectionRef} className="section-padding bg-transparent relative overflow-hidden">
       <div id="services" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
       <div className="section-container relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="section-header-gap text-center flex flex-col items-center"
+        <div
+          ref={headerRef}
+          className="section-header-gap text-center flex flex-col items-center will-change-transform"
         >
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
             {formatSectionTitle(content.heading)}
           </h2>
           <div className="section-divider" />
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div ref={cardsContainerRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {servicesData.map((service, index) => {
             const palette = [
               'var(--accent)',
@@ -105,13 +160,9 @@ export default function Services() {
             const cardAccent = palette[index % palette.length];
 
             return (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.04 }}
-                className="card-dark h-full flex flex-col group relative cursor-pointer"
+                className="card-dark h-full flex flex-col group relative cursor-pointer will-change-transform"
                 style={{ backgroundColor: service.color }}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -132,7 +183,7 @@ export default function Services() {
                   className="absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-500 group-hover:w-full"
                   style={{ backgroundColor: cardAccent }}
                 />
-              </motion.div>
+              </div>
             );
           })}
         </div>

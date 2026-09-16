@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { PlayDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface ShoeVariant {
   id: string;
@@ -27,6 +31,10 @@ export default function ProjectPortal() {
   // NEW: State to control when the iframe is actually clickable
   const [interactiveMode, setInteractiveMode] = useState(false);
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
   // Reset interactive mode every time they pick a new shoe
   useEffect(() => {
     setInteractiveMode(false);
@@ -45,6 +53,58 @@ export default function ProjectPortal() {
     };
     fetchVisibility();
   }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || activeShoe) return;
+
+    const ctx = gsap.context(() => {
+      // Kinetic header entrance from left to right
+      if (headerRef.current) {
+        gsap.fromTo(
+          headerRef.current,
+          { x: -70, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 85%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+
+      // Variant columns staggered entrance
+      if (gridRef.current) {
+        const items = gridRef.current.children;
+        gsap.fromTo(
+          items,
+          { x: -25, y: 30, opacity: 0 },
+          {
+            x: 0,
+            y: 0,
+            opacity: 1,
+            duration: 0.65,
+            stagger: 0.08,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 75%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+    }, section);
+
+    return () => ctx.revert();
+  }, [activeShoe]);
 
   const dynamicShoes: ShoeVariant[] = [
     {
@@ -159,7 +219,7 @@ export default function ProjectPortal() {
   );
 
   return (
-    <section className="section-padding flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
+    <section ref={sectionRef} className="section-padding flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
       
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes floatBounce {
@@ -188,7 +248,7 @@ export default function ProjectPortal() {
             className="section-container w-full flex flex-col items-center justify-center min-h-[700px]"
           >
             {/* Context Header */}
-            <div className="section-header-gap text-center flex flex-col items-center px-4">
+            <div ref={headerRef} className="section-header-gap text-center flex flex-col items-center px-4 will-change-transform">
               <span className="section-subtitle">
                 Growth Marketing Case Study
               </span>
@@ -202,7 +262,7 @@ export default function ProjectPortal() {
             </div>
 
             {/* DESKTOP VIEW */}
-            <div className="hidden lg:grid grid-cols-5 gap-6 xl:gap-8 max-w-[1600px] w-full px-4 sm:px-8">
+            <div ref={gridRef} className="hidden lg:grid grid-cols-5 gap-6 xl:gap-8 max-w-[1600px] w-full px-4 sm:px-8">
               {dynamicShoes.map((shoe) => (
                 <button
                   key={`desktop-${shoe.id}`}

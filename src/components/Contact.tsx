@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SendDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
-import { useScrollReveal } from '../hooks/useScrollReveal';
 import { formatSectionTitle } from '../lib/formatTitle';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface ContactContent {
   subtitle: string;
@@ -18,11 +20,14 @@ const defaultContent: ContactContent = {
 };
 
 export default function Contact() {
-  const { ref, isVisible } = useScrollReveal();
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [content, setContent] = useState<ContactContent>(defaultContent);
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const leftColRef = useRef<HTMLDivElement>(null);
+  const rightColRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -46,6 +51,53 @@ export default function Contact() {
     };
 
     fetchContent();
+  }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      if (leftColRef.current) {
+        gsap.fromTo(
+          leftColRef.current,
+          { x: -60, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 80%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+
+      if (rightColRef.current) {
+        gsap.fromTo(
+          rightColRef.current,
+          { x: 60, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 80%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+    }, section);
+
+    return () => ctx.revert();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,16 +128,15 @@ export default function Contact() {
   };
 
   return (
-    <section className="section-padding relative overflow-visible z-30 bg-transparent">
+    <section ref={sectionRef} className="section-padding relative overflow-visible z-30 bg-transparent">
       <div id="contact" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
 
-      <div ref={ref} className="section-container relative">
+      <div className="section-container relative">
         <div className="grid lg:grid-cols-2 gap-8 items-start max-w-4xl mx-auto">
           
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
+          <div
+            ref={leftColRef}
+            className="will-change-transform"
           >
             <span className="section-subtitle !mb-3 font-black">{content.subtitle}</span>
             <h2 className="section-title !text-left">
@@ -95,13 +146,11 @@ export default function Contact() {
             <p className="mt-4 mb-5 leading-relaxed text-[var(--text-secondary)] text-sm sm:text-base font-body">
               {content.description}
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="card-dark w-full box-border"
+          <div
+            ref={rightColRef}
+            className="card-dark w-full box-border will-change-transform"
             style={{ boxShadow: '0 15px 30px -8px rgba(0, 0, 0, 0.4)' }}
           >
             <div className="flex flex-col gap-1 mb-5">
@@ -162,7 +211,7 @@ export default function Contact() {
             </form>
 
             <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-accent/5 blur-[40px] rounded-full pointer-events-none" />
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
