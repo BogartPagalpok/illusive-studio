@@ -150,7 +150,7 @@ export default function DualShowreel(props) {
               trigger: section,
               start: 'top 85%',
               end: 'bottom 15%',
-              toggleActions: 'play reverse play reverse',
+              toggleActions: 'play none none reverse',
             },
           }
         );
@@ -170,7 +170,7 @@ export default function DualShowreel(props) {
               trigger: section,
               start: 'top 78%',
               end: 'bottom 15%',
-              toggleActions: 'play reverse play reverse',
+              toggleActions: 'play none none reverse',
             },
           }
         );
@@ -189,7 +189,7 @@ export default function DualShowreel(props) {
               trigger: section,
               start: 'top 78%',
               end: 'bottom 15%',
-              toggleActions: 'play reverse play reverse',
+              toggleActions: 'play none none reverse',
             },
           }
         );
@@ -208,7 +208,11 @@ export default function DualShowreel(props) {
   };
 
   return (
-    <section ref={sectionRef} id="dual-showreel" className="section-padding relative z-20 overflow-hidden">
+    <section
+      ref={sectionRef}
+      id="dual-showreel"
+      className="section-padding relative z-20 overflow-hidden bg-[var(--bg-primary)] rounded-t-[32px] sm:rounded-t-[48px] shadow-[0_-25px_60px_rgba(0,0,0,0.8)] -mt-8 sm:-mt-12"
+    >
       <div className="section-container relative">
         {/* Section Header */}
         <div ref={headerRef} className="section-header-gap flex flex-col items-center text-center will-change-transform">

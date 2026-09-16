@@ -779,7 +779,7 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
               trigger: panel,
               start: 'top 85%',
               end: 'bottom 15%',
-              toggleActions: 'play reverse play reverse',
+              toggleActions: 'play none none reverse',
             },
           }
         );
@@ -799,7 +799,7 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
               trigger: panel,
               start: 'top 85%',
               end: 'bottom 15%',
-              toggleActions: 'play reverse play reverse',
+              toggleActions: 'play none none reverse',
             },
           }
         );
@@ -1030,7 +1030,7 @@ function GraphicsGroupPanel({ children }: { children: React.ReactNode }) {
             trigger: el,
             start: 'top 85%',
             end: 'bottom 15%',
-            toggleActions: 'play reverse play reverse',
+            toggleActions: 'play none none reverse',
           },
         }
       );
@@ -1066,7 +1066,7 @@ function MasonryWrapper({ children }: { children: React.ReactNode }) {
             trigger: el,
             start: 'top 85%',
             end: 'bottom 15%',
-            toggleActions: 'play reverse play reverse',
+            toggleActions: 'play none none reverse',
           },
         }
       );
@@ -1107,7 +1107,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
               trigger: section,
               start: 'top 85%',
               end: 'bottom 15%',
-              toggleActions: 'play reverse play reverse',
+              toggleActions: 'play none none reverse',
             },
           }
         );

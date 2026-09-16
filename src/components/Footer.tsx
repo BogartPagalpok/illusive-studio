@@ -52,9 +52,8 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
           ease: 'power2.out',
           scrollTrigger: {
             trigger: footer,
-            start: 'top 90%',
-            end: 'bottom bottom',
-            toggleActions: 'play reverse play reverse',
+            start: 'top 95%',
+            toggleActions: 'play none none reverse',
           },
         }
       );
@@ -74,11 +73,11 @@ export default function Footer({ onAdminTrigger }: { onAdminTrigger: () => void 
   };
 
   return (
-    <footer ref={footerRef} className="relative bg-transparent overflow-hidden mt-12 sm:mt-16 md:mt-24 font-heading">
-      <div className="section-container relative pb-10">
+    <footer ref={footerRef} id="footer" className="relative z-20 bg-transparent overflow-hidden mt-12 sm:mt-16 md:mt-24 font-heading">
+      <div className="section-container relative pb-12 sm:pb-16">
         <div 
           ref={cardRef}
-          className="relative z-10 p-6 sm:p-8 md:p-10 rounded-[28px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col will-change-transform"
+          className="relative z-10 p-6 sm:p-8 md:p-10 rounded-[28px] border transition-all duration-500 backdrop-blur-[32px] flex flex-col will-change-transform shadow-2xl"
           style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
         >
           <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start mb-8 gap-8">

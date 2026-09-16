@@ -73,7 +73,7 @@ export default function ProjectPortal() {
               trigger: section,
               start: 'top 85%',
               end: 'bottom 15%',
-              toggleActions: 'play reverse play reverse',
+              toggleActions: 'play none none reverse',
             },
           }
         );
@@ -96,7 +96,7 @@ export default function ProjectPortal() {
               trigger: section,
               start: 'top 75%',
               end: 'bottom 15%',
-              toggleActions: 'play reverse play reverse',
+              toggleActions: 'play none none reverse',
             },
           }
         );
