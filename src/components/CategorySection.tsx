@@ -1,10 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CloseDuotone, PlayDuotone, ExternalLinkDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 import ScrollingMasonry from '../components/ScrollingMasonry';
 import { formatSectionTitle } from '../lib/formatTitle';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface VideoEntry {
   url: string;
@@ -723,65 +727,262 @@ function FacebookEmbed({ url }: { url: string }) {
 }
 
 function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const triggerRef = useRef<ScrollTrigger | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024);
+
+  // Desktop displays 3 videos per batch; Mobile displays 1 per batch
+  const itemsPerPage = isDesktop ? 3 : 1;
+  const totalPages = Math.ceil(videoItems.length / itemsPerPage);
+  const hasMultiplePages = totalPages > 1;
+
+  // Group videos into pages
+  const pages = useMemo(() => {
+    const chunks: Array<typeof videoItems> = [];
+    for (let i = 0; i < videoItems.length; i += itemsPerPage) {
+      chunks.push(videoItems.slice(i, i + itemsPerPage));
+    }
+    return chunks;
+  }, [videoItems, itemsPerPage]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // GSAP Kinetic Title & Pinned 3-at-a-Time Video Scrub
+  useEffect(() => {
+    const panel = panelRef.current;
+    const track = trackRef.current;
+    const titleEl = titleRef.current;
+    if (!panel) return;
+
+    const ctx = gsap.context(() => {
+      // 1. Kinetic Left-to-Right Title Entrance
+      if (titleEl) {
+        gsap.fromTo(
+          titleEl,
+          { x: -60, opacity: 0.2 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      }
+
+      // 2. Pinned 3-at-a-Time Horizontal Reel (Active when > 3 items on desktop)
+      if (isDesktop && hasMultiplePages && track) {
+        const totalDistance = (totalPages - 1) * 850;
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: panel,
+            start: 'top top+=80',
+            end: () => `+=${totalDistance}`,
+            pin: true,
+            scrub: 0.8,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              const progress = self.progress;
+              const pageIdx = Math.min(totalPages - 1, Math.round(progress * (totalPages - 1)));
+              setCurrentPage(pageIdx);
+            },
+          },
+        });
+
+        tl.to(track, {
+          xPercent: -(totalPages - 1) * 100,
+          ease: 'none',
+        });
+
+        triggerRef.current = tl.scrollTrigger || null;
+      }
+    }, panel);
+
+    return () => {
+      ctx.revert();
+      triggerRef.current = null;
+    };
+  }, [isDesktop, hasMultiplePages, totalPages]);
+
+  const goToPage = (pageIdx: number) => {
+    const clamped = Math.max(0, Math.min(totalPages - 1, pageIdx));
+    setCurrentPage(clamped);
+
+    if (isDesktop && triggerRef.current) {
+      const st = triggerRef.current;
+      const targetY = st.start + (st.end - st.start) * (clamped / (totalPages - 1));
+      if (window.__lenis) {
+        window.__lenis.scrollTo(targetY, { duration: 1.0 });
+      } else {
+        window.scrollTo({ top: targetY, behavior: 'smooth' });
+      }
+    } else if (trackRef.current && !isDesktop) {
+      const child = trackRef.current.children[clamped] as HTMLElement;
+      if (child) {
+        child.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
-      <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-md self-start lg:sticky lg:top-24" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
-        <h3 className="text-xl font-heading font-black uppercase tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+    <div ref={panelRef} className="w-full flex flex-col lg:flex-row gap-6 relative">
+      {/* Sidebar: Project Title, Description & Hardware Info */}
+      <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-md self-start lg:sticky lg:top-24 z-10" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
+        <h3 ref={titleRef} className="text-xl font-heading font-black uppercase tracking-wider mb-4 will-change-transform" style={{ color: 'var(--text-primary)' }}>
+          {title}
+        </h3>
         {description && (
-          <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>{description}</p>
+          <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>
+            {description}
+          </p>
         )}
         {tools && tools.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-4">
             {tools.map(t => (
-              <span key={t} className="px-3 py-1 text-xs uppercase tracking-wider rounded-full border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
+              <span key={t} className="px-3 py-1 text-xs uppercase tracking-wider rounded-full border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>
+                {t}
+              </span>
             ))}
           </div>
         )}
-      </div>
-      <div className="lg:w-3/4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {videoItems.map((item, i) => {
-            const usePhone = item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url));
-            const cardTitle = item.title || item.projectTitle;
-            const cardSubtitle = item.subtitle;
-            return (
-              <div key={`${item.projectId}-${i}`}>
-                {usePhone ? (
-                  <PhoneFrame>
-                    {item.platform === 'tiktok' ? (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
-                        <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
-                        <p className="text-white/80 text-xs text-center mb-3 font-medium">{cardTitle}</p>
-                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
-                          <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
-                        </a>
-                      </div>
-                    ) : (
-                      <VideoFacade
-                        url={item.url}
-                        platform={item.platform!}
-                        title={cardTitle}
-                        posterUrl={item.posterUrl}
-                      />
-                    )}
-                  </PhoneFrame>
-                ) : (
-                  <BrowserFrame title={cardTitle}>
-                    <VideoFacade
-                      url={item.url}
-                      platform={item.platform!}
-                      title={cardTitle}
-                      posterUrl={item.posterUrl}
-                    />
-                  </BrowserFrame>
-                )}
-                <p className="text-center text-xs font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{cardTitle}</p>
-                {cardSubtitle && (
-                  <p className="text-center text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>{cardSubtitle}</p>
-                )}
+
+        {/* Paging / Batch Monitor Status for multi-page sections */}
+        {hasMultiplePages && (
+          <div className="mt-auto pt-4 border-t flex flex-col gap-2.5" style={{ borderColor: 'var(--glass-border)' }}>
+            <div className="flex items-center justify-between text-xs font-mono text-white/50">
+              <span className="flex items-center gap-1.5 font-bold tracking-wider text-accent">
+                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                BATCH [{String(currentPage + 1).padStart(2, '0')} / {String(totalPages).padStart(2, '0')}]
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 0}
+                  aria-label="Previous batch"
+                  className="p-1 rounded hover:bg-white/10 text-white/60 hover:text-white disabled:opacity-20 transition-all cursor-pointer"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages - 1}
+                  aria-label="Next batch"
+                  className="p-1 rounded hover:bg-white/10 text-white/60 hover:text-white disabled:opacity-20 transition-all cursor-pointer"
+                >
+                  <ChevronRight size={16} />
+                </button>
               </div>
-            );
-          })}
+            </div>
+
+            {/* Segmented Progress Indicators */}
+            <div className="flex items-center gap-1.5 w-full">
+              {Array.from({ length: totalPages }).map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => goToPage(idx)}
+                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    idx === currentPage ? 'w-8 bg-accent shadow-[0_0_8px_var(--accent)]' : 'w-3 bg-white/20 hover:bg-white/40'
+                  }`}
+                  aria-label={`Jump to batch ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Video Showcase Viewport */}
+      <div className="lg:w-3/4 overflow-hidden relative">
+        <div
+          ref={trackRef}
+          className={
+            isDesktop && hasMultiplePages
+              ? "flex will-change-transform"
+              : isDesktop
+              ? "w-full"
+              : "flex overflow-x-auto snap-x snap-mandatory scrollbar-none gap-4"
+          }
+          style={
+            isDesktop && hasMultiplePages
+              ? { width: `${totalPages * 100}%` }
+              : undefined
+          }
+        >
+          {pages.map((pageItems, pageIdx) => (
+            <div
+              key={pageIdx}
+              className={
+                isDesktop && hasMultiplePages
+                  ? "w-full shrink-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-1"
+                  : isDesktop
+                  ? "w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  : "w-full shrink-0 snap-center px-1"
+              }
+            >
+              {pageItems.map((item, i) => {
+                const usePhone = item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url));
+                const cardTitle = item.title || item.projectTitle;
+                const cardSubtitle = item.subtitle;
+
+                return (
+                  <div key={`${item.projectId}-${pageIdx}-${i}`}>
+                    {usePhone ? (
+                      <PhoneFrame>
+                        {item.platform === 'tiktok' ? (
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
+                            <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
+                            <p className="text-white/80 text-xs text-center mb-3 font-medium">{cardTitle}</p>
+                            <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                              <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
+                            </a>
+                          </div>
+                        ) : (
+                          <VideoFacade
+                            url={item.url}
+                            platform={item.platform!}
+                            title={cardTitle}
+                            posterUrl={item.posterUrl}
+                          />
+                        )}
+                      </PhoneFrame>
+                    ) : (
+                      <BrowserFrame title={cardTitle}>
+                        <VideoFacade
+                          url={item.url}
+                          platform={item.platform!}
+                          title={cardTitle}
+                          posterUrl={item.posterUrl}
+                        />
+                      </BrowserFrame>
+                    )}
+                    <p className="text-center text-xs font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{cardTitle}</p>
+                    {cardSubtitle && (
+                      <p className="text-center text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>{cardSubtitle}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
     </div>
