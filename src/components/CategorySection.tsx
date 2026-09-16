@@ -1086,6 +1086,36 @@ export default function CategorySection({ category }: CategorySectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [columnCount, setColumnCount] = useState(3);
+  const sectionRef = useRef<HTMLElement>(null);
+  const categoryHeaderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      if (categoryHeaderRef.current) {
+        gsap.fromTo(
+          categoryHeaderRef.current,
+          { x: -70, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 85%',
+              end: 'bottom 15%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+    }, section);
+
+    return () => ctx.revert();
+  }, [category]);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -1164,37 +1194,6 @@ export default function CategorySection({ category }: CategorySectionProps) {
   const isPhotography = category === 'Photography';
   const isUIUX = category === 'UI/UX';
   const categorySlug = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-
-  const sectionRef = useRef<HTMLElement>(null);
-  const categoryHeaderRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const ctx = gsap.context(() => {
-      if (categoryHeaderRef.current) {
-        gsap.fromTo(
-          categoryHeaderRef.current,
-          { x: -70, opacity: 0 },
-          {
-            x: 0,
-            opacity: 1,
-            duration: 0.8,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top 85%',
-              end: 'bottom 15%',
-              toggleActions: 'play reverse play reverse',
-            },
-          }
-        );
-      }
-    }, section);
-
-    return () => ctx.revert();
-  }, [category]);
 
   const getVideoUrl = (project: Project): string | null => {
     if (project.video_urls && project.video_urls.length > 0) {
