@@ -8,7 +8,7 @@ interface CinematicStageProps {
   id?: string;
   className?: string;
   children: React.ReactNode;
-  /** Custom scroll length multiplier (default 1.25) */
+  /** Custom scroll length multiplier (default 1.5) */
   scrollMultiplier?: number;
 }
 
@@ -16,15 +16,14 @@ export default function CinematicStage({
   id,
   className = '',
   children,
-  scrollMultiplier = 1.25,
+  scrollMultiplier = 1.5,
 }: CinematicStageProps) {
-  const outerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const outer = outerRef.current;
     const stage = stageRef.current;
-    if (!outer || !stage) return;
+    if (!stage) return;
 
     const ctx = gsap.context(() => {
       // Find elements with semantic animation classes
@@ -37,30 +36,34 @@ export default function CinematicStage({
 
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: outer,
+          trigger: stage,
           start: 'top top',
-          end: 'bottom bottom',
+          end: `+=${Math.round(window.innerHeight * scrollMultiplier)}`,
+          pin: true,
+          pinSpacing: true,
+          anticipatePin: 1,
           scrub: 0.6,
+          invalidateOnRefresh: true,
         },
       });
 
-      // Phase 1: Entrance (0% -> 35% of scroll)
+      // Phase 1: Entrance (0% -> 20% of scroll)
       // Text lands from bottom to top with directional motion blur
       if (textBottomToTop.length > 0) {
         tl.fromTo(
           textBottomToTop,
           {
-            y: () => (window.innerWidth < 768 ? 90 : 140),
+            y: () => (window.innerWidth < 768 ? 80 : 120),
             opacity: 0,
-            filter: 'blur(10px)',
+            filter: 'blur(8px)',
           },
           {
             y: 0,
             opacity: 1,
             filter: 'blur(0px)',
-            stagger: 0.08,
+            stagger: 0.04,
             ease: 'power2.out',
-            duration: 0.35,
+            duration: 0.2,
           },
           0
         );
@@ -71,19 +74,19 @@ export default function CinematicStage({
         tl.fromTo(
           mediaElements,
           {
-            x: () => (window.innerWidth < 768 ? -120 : -220),
+            x: () => (window.innerWidth < 768 ? -120 : -200),
             opacity: 0,
-            filter: 'blur(10px)',
+            filter: 'blur(8px)',
           },
           {
             x: 0,
             opacity: 1,
             filter: 'blur(0px)',
-            stagger: 0.1,
+            stagger: 0.06,
             ease: 'power2.out',
-            duration: 0.4,
+            duration: 0.22,
           },
-          0.04
+          0.02
         );
       }
 
@@ -92,39 +95,39 @@ export default function CinematicStage({
         tl.fromTo(
           allElements,
           {
-            y: 70,
+            y: 60,
             opacity: 0,
-            filter: 'blur(8px)',
+            filter: 'blur(6px)',
           },
           {
             y: 0,
             opacity: 1,
             filter: 'blur(0px)',
-            stagger: 0.06,
+            stagger: 0.04,
             ease: 'power2.out',
-            duration: 0.35,
+            duration: 0.2,
           },
           0
         );
       }
 
-      // Phase 2: Rest & View (35% -> 65% of scroll)
-      // Elements hold position dead-center for reading and interaction
+      // Phase 2: Rest & View (20% -> 80% of scroll)
+      // Elements hold locked position dead-center with 0px blur and full opacity for easy viewing
 
-      // Phase 3: Exit (65% -> 100% of scroll)
+      // Phase 3: Exit (80% -> 100% of scroll)
       // Media flies out to the left with motion blur
       if (mediaElements.length > 0) {
         tl.to(
           mediaElements,
           {
-            x: () => (window.innerWidth < 768 ? -140 : -260),
+            x: () => (window.innerWidth < 768 ? -140 : -240),
             opacity: 0,
-            filter: 'blur(10px)',
-            stagger: 0.08,
+            filter: 'blur(8px)',
+            stagger: 0.04,
             ease: 'power2.in',
-            duration: 0.35,
+            duration: 0.2,
           },
-          0.65
+          0.8
         );
       }
 
@@ -133,14 +136,14 @@ export default function CinematicStage({
         tl.to(
           textElements,
           {
-            y: () => (window.innerWidth < 768 ? -90 : -140),
+            y: () => (window.innerWidth < 768 ? -80 : -120),
             opacity: 0,
-            filter: 'blur(10px)',
-            stagger: 0.06,
+            filter: 'blur(8px)',
+            stagger: 0.04,
             ease: 'power2.in',
-            duration: 0.35,
+            duration: 0.2,
           },
-          0.65
+          0.8
         );
       }
 
@@ -148,17 +151,17 @@ export default function CinematicStage({
         tl.to(
           allElements,
           {
-            y: -70,
+            y: -60,
             opacity: 0,
-            filter: 'blur(8px)',
-            stagger: 0.06,
+            filter: 'blur(6px)',
+            stagger: 0.04,
             ease: 'power2.in',
-            duration: 0.35,
+            duration: 0.2,
           },
-          0.65
+          0.8
         );
       }
-    }, outer);
+    }, containerRef);
 
     return () => {
       ctx.revert();
@@ -166,15 +169,10 @@ export default function CinematicStage({
   }, [scrollMultiplier]);
 
   return (
-    <div
-      ref={outerRef}
-      id={id}
-      className="relative w-full"
-      style={{ height: `${Math.round(100 * (1 + scrollMultiplier))}vh` }}
-    >
+    <div ref={containerRef} id={id} className="cinematic-stage-wrap w-full relative">
       <div
         ref={stageRef}
-        className={`sticky top-0 h-screen min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-transparent select-none ${className}`}
+        className={`min-h-screen h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-transparent select-none ${className}`}
       >
         {children}
       </div>
