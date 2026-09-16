@@ -92,26 +92,38 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
       });
 
       list.push({
-        id: 'works-motion',
-        watermark: 'MOTION // 06',
-        content: <CategorySection category="Motion" />,
+        id: 'works-motion-shorts',
+        watermark: 'SHORTS // 06',
+        content: <CategorySection category="Motion" groupIndex={0} hideHeader={false} />,
+      });
+
+      list.push({
+        id: 'works-motion-events',
+        watermark: 'EVENTS // 07',
+        content: <CategorySection category="Motion" groupIndex={1} hideHeader={false} />,
+      });
+
+      list.push({
+        id: 'works-motion-led',
+        watermark: 'STAGE // 08',
+        content: <CategorySection category="Motion" groupIndex={2} hideHeader={false} />,
       });
 
       list.push({
         id: 'works-graphics',
-        watermark: 'DESIGN // 07',
+        watermark: 'DESIGN // 09',
         content: <CategorySection category="Graphic Design" />,
       });
 
       list.push({
         id: 'works-uiux',
-        watermark: 'UI / UX // 08',
+        watermark: 'UI / UX // 10',
         content: <CategorySection category="UI/UX" />,
       });
 
       list.push({
         id: 'works-photography',
-        watermark: 'PHOTO // 09',
+        watermark: 'PHOTO // 11',
         content: <CategorySection category="Photography" />,
       });
     }
@@ -119,14 +131,14 @@ export default function HomePage({ onAdminAuth }: { onAdminAuth: () => void }) {
     if (isSectionVisible('contact', true)) {
       list.push({
         id: 'contact',
-        watermark: 'CONNECT // 10',
+        watermark: 'CONNECT // 12',
         content: <Contact />,
       });
     }
 
     list.push({
       id: 'footer',
-      watermark: 'DIRECTORY // 11',
+      watermark: 'DIRECTORY // 13',
       content: <Footer onAdminTrigger={handleAdminTrigger} />,
     });
 

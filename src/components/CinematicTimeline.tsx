@@ -168,7 +168,7 @@ export default function CinematicTimeline({ sections }: CinematicTimelineProps) 
                   ? `h-screen shrink-0 relative flex flex-col justify-center items-center ${
                       sec.fullBleed
                         ? "w-screen overflow-hidden"
-                        : "w-screen max-w-[100vw] px-6 sm:px-12 lg:px-16 overflow-y-auto overflow-x-hidden scrollbar-none"
+                        : "w-screen max-w-[100vw] px-4 sm:px-8 lg:px-12 overflow-hidden"
                     }`
                   : "w-full min-h-screen relative flex flex-col justify-center items-center px-4 sm:px-6 py-12"
               }

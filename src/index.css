@@ -1,4 +1,5 @@
 @import 'lenis/dist/lenis.css';
+@import url('https://api.fontshare.com/v2/css?f[]=clash-grotesk@200,300,400,500,600,700&f[]=clash-display@200,300,400,500,600,700&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=general-sans@400,500,600,700&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/stylesheet.css');
 
@@ -8,31 +9,42 @@
 
 @layer base {
   :root {
-    --bg-primary: #030305;
+    /* Mad Dogs Design System Tokens */
+    --black: #000000;
+    --silver: #888888;
+    --white: #ffffff;
+    --orange: #ff6d00;
+    --red: #ff003d;
+    --green: #7fff68;
+    --color-border: #212121;
+    --border-radius: 1.875rem;
+    --border-radius-big: 2.25rem;
+
+    --bg-primary: #000000;
     --bg-secondary: #0A0A0A;
     --bg-gradient: none;
-    --text-primary: #FAFAFA;
-    --text-secondary: #CBD5E1;
-    --text-muted: #94A3B8;
-    --accent: #FC931F;
-    --accent-secondary: #2A9DA6;
-    --accent-tertiary: #F67608;
-    --accent-contrast: #000000;
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --text-muted: #666666;
+    --accent: #ff003d;
+    --accent-secondary: #7fff68;
+    --accent-tertiary: #ff6d00;
+    --accent-contrast: #ffffff;
     --accent-secondary-contrast: #000000;
-    --font-display: 'Satoshi', sans-serif;
-    --font-sans: 'General Sans', sans-serif;
-    --font-heading: 'Satoshi', sans-serif;
-    --glass-border: rgba(255, 255, 255, 0.12);
-    --accent-rgb: 252, 147, 31;
-    --accent-secondary-rgb: 42, 157, 166;
-    --accent-tertiary-rgb: 246, 118, 8;
-    --glass-bg: rgba(255, 255, 255, 0.03);
+    --font-display: 'Clash Display', 'Clash Grotesk', sans-serif;
+    --font-sans: 'Clash Grotesk', sans-serif;
+    --font-heading: 'Clash Display', 'Clash Grotesk', sans-serif;
+    --glass-border: #212121;
+    --accent-rgb: 255, 0, 61;
+    --accent-secondary-rgb: 127, 255, 104;
+    --accent-tertiary-rgb: 255, 109, 0;
+    --glass-bg: rgba(20, 20, 20, 0.7);
     --hero-tint: var(--accent);
     --hero-tint-blend: color;
     --hero-tint-opacity: 0.35;
-    --hero-bg: #030305;
+    --hero-bg: #000000;
     --hero-bottom-fade: transparent;
-    --hero-heading-color: #FFFFFF;
+    --hero-heading-color: #ffffff;
   }
 
   [data-theme='GUNDAM'] {
@@ -103,49 +115,113 @@
   .text-gap { margin-bottom: clamp(0.75rem, 1vw, 1.5rem); }
 
   .btn-primary {
-    @apply relative overflow-hidden rounded-full font-bold flex items-center justify-center gap-2 uppercase transition-all duration-300;
-    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1.5rem, 3vw, 2.5rem);
-    font-size: clamp(0.75rem, 1vw, 0.875rem);
-    letter-spacing: 0.1em;
-    background: var(--accent) !important; color: var(--accent-contrast) !important;
-    box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
+    @apply relative overflow-hidden font-bold flex items-center justify-center gap-2 uppercase transition-all duration-300;
+    border-radius: 34.1042px;
+    padding: 0 28px;
+    height: 3.5rem;
+    font-size: 15.3469px;
+    letter-spacing: 0.08em;
+    background: var(--accent) !important;
+    color: #ffffff !important;
+    border: none;
+    box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.35);
   }
-  .btn-primary svg { @apply fill-current text-inherit; width: clamp(1rem, 1.2vw, 1.25rem); height: clamp(1rem, 1.2vw, 1.25rem); }
-  .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.5); filter: brightness(1.1); }
+  .btn-primary svg { @apply fill-current text-inherit; width: 1.15rem; height: 1.15rem; }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(var(--accent-rgb), 0.6);
+    filter: brightness(1.15);
+  }
+
+  .btn-filled {
+    background: #212121;
+    color: #ffffff;
+    border-radius: 34.1042px;
+    padding: 0 25.5781px;
+    height: 3.5rem;
+    font-size: 16px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-filled:hover {
+    background: #2e2e2e;
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: #ffffff;
+    border-radius: 45.188px;
+    padding: 6.82083px 17.0521px;
+    font-size: 17.0521px;
+    font-weight: 500;
+    border: 1px solid #212121;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .btn-ghost:hover {
+    background: #212121;
+    border-color: #333333;
+  }
 
   .btn-outline {
-    @apply relative inline-flex items-center justify-center gap-2 rounded-full border font-bold uppercase transition-all duration-300;
-    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1.5rem, 3vw, 2.5rem);
-    font-size: clamp(0.75rem, 1vw, 0.875rem);
-    letter-spacing: 0.1em;
-    border-color: var(--text-primary); color: var(--text-primary); background: transparent;
+    @apply relative inline-flex items-center justify-center gap-2 font-bold uppercase transition-all duration-300;
+    border-radius: 34.1042px;
+    padding: 0 28px;
+    height: 3.5rem;
+    font-size: 15.3469px;
+    letter-spacing: 0.08em;
+    border: 1.5px solid #212121;
+    color: #ffffff;
+    background: transparent;
   }
-  .btn-outline:hover { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+  .btn-outline:hover {
+    background: #212121;
+    border-color: #333333;
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
 
   .section-subtitle { 
     @apply font-heading uppercase block; 
     color: var(--accent); 
-    font-size: clamp(0.75rem, 1vw, 0.875rem);
+    font-size: 14px;
     letter-spacing: 0.25em;
-    margin-bottom: clamp(0.5rem, 0.75vw, 0.75rem);
+    margin-bottom: 0.75rem;
   }
   .section-title { 
     @apply font-bold tracking-tighter uppercase font-heading; 
     color: var(--text-primary); 
-    font-size: clamp(2rem, 4vw, 3rem); 
-    line-height: 1.1;
+    font-size: clamp(2.2rem, 5vw, 4.5rem); 
+    line-height: 0.95;
   }
-  .section-divider { @apply mt-4 w-12 h-0.5 mx-auto; background-color: var(--accent); }
+  .section-divider { @apply mt-4 w-14 h-0.5 mx-auto; background-color: var(--accent); }
 
   .card-dark {
-    @apply rounded-xl transition-all duration-500 backdrop-blur-xl border relative overflow-hidden;
-    padding: clamp(1.5rem, 2vw, 2rem);
-    background-color: var(--glass-bg); border-color: var(--glass-border);
-    font-size: clamp(0.875rem, 1vw, 1rem);
-    line-height: 1.5;
+    border-radius: 30.6937px;
+    background-color: #000000;
+    border: 1px solid #212121;
+    padding: clamp(1.5rem, 2.5vw, 2.5rem);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .card-dark:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.15); transform: translateY(-3px); }
-  .card-dark::after { content: ''; @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none; background: radial-gradient(circle at center, rgba(var(--accent-rgb), 0.1)); }
+  .card-dark:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 25px rgba(var(--accent-rgb), 0.25);
+    transform: translateY(-3px);
+  }
+  .card-dark::after {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none;
+    background: radial-gradient(circle at center, rgba(var(--accent-rgb), 0.08));
+  }
   .card-dark:hover::after { @apply opacity-100; }
 
   .heading-xl { font-size: clamp(2.5rem, 7vw, 5rem); @apply font-black uppercase leading-[0.9] tracking-tighter italic; }
