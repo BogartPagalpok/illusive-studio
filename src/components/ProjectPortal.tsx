@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlayDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
+import CinematicStage from './CinematicStage';
 
 interface ShoeVariant {
   id: string;
@@ -159,7 +160,7 @@ export default function ProjectPortal() {
   );
 
   return (
-    <section className="section-padding flex flex-col justify-center items-center relative z-10 bg-transparent overflow-hidden select-none">
+    <CinematicStage id="case-study">
       
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes floatBounce {
@@ -185,50 +186,50 @@ export default function ProjectPortal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5 }}
-            className="section-container w-full flex flex-col items-center justify-center min-h-[700px]"
+            className="section-container w-full flex flex-col items-center justify-center my-auto"
           >
             {/* Context Header */}
-            <div className="section-header-gap text-center flex flex-col items-center px-4">
+            <div className="stage-text section-header-gap text-center flex flex-col items-center px-4">
               <span className="section-subtitle">
                 Growth Marketing Case Study
               </span>
               <h2 className="section-title">
                 MODULAR CREATIVE <span className="text-accent">TESTING</span>
               </h2>
-              <div className="section-divider mb-6" />
-              <p className="max-w-2xl text-center text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed font-body">
+              <div className="section-divider mb-4" />
+              <p className="max-w-2xl text-center text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-body">
                 This interactive portal demonstrates a modern Meta Ads testing strategy. Select a variant below to explore how we use visual hooks as targeting filters, aligning each colorway with specific audience segments, post-click landing pages, and campaign performance metrics.
               </p>
             </div>
 
             {/* DESKTOP VIEW */}
-            <div className="hidden lg:grid grid-cols-5 gap-6 xl:gap-8 max-w-[1600px] w-full px-4 sm:px-8">
+            <div className="hidden lg:grid grid-cols-5 gap-5 xl:gap-6 max-w-[1400px] w-full px-4 sm:px-6">
               {dynamicShoes.map((shoe) => (
                 <button
                   key={`desktop-${shoe.id}`}
                   onClick={() => setActiveShoe(shoe)}
-                  className="group relative flex flex-col items-center justify-start w-full outline-none"
+                  className="stage-media group relative flex flex-col items-center justify-start w-full outline-none"
                 >
-                  <div className="relative w-full aspect-square flex items-center justify-center mb-6">
+                  <div className="relative w-full aspect-square flex items-center justify-center mb-4">
                     <img src={shoe.bgImage} alt={`${shoe.title} Background`} className="absolute inset-0 w-full h-full object-cover rounded-3xl transition-transform duration-500 group-hover:scale-105" />
                     <img src={shoe.shoeImage} alt={shoe.title} className="absolute z-10 w-[90%] h-auto object-contain shoe-float drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-105" style={{ top: '0%', left: '5%' }} />
                   </div>
                   <h4 className="text-sm sm:text-base font-black text-[var(--text-primary)] uppercase tracking-wider transition-transform duration-500 group-hover:-translate-y-2 text-center">{shoe.title}</h4>
                   <span className="text-xs sm:text-sm font-bold uppercase tracking-widest mt-1 transition-transform duration-500 group-hover:-translate-y-2 text-center" style={{ color: shoe.colorHex }}>{shoe.colorName}</span>
 
-                  <div className="mt-4 w-full text-left space-y-1.5 border-t border-white/10 pt-3">
-                    <div className="flex justify-between items-center text-xs sm:text-sm uppercase tracking-widest text-[var(--text-secondary)]">
+                  <div className="mt-3 w-full text-left space-y-1.5 border-t border-white/10 pt-2.5">
+                    <div className="flex justify-between items-center text-xs uppercase tracking-widest text-[var(--text-secondary)]">
                       <span>Target</span><span className="text-[var(--text-primary)] font-bold">{shoe.audience}</span>
                     </div>
-                    <div className="flex justify-between items-center text-xs sm:text-sm uppercase tracking-widest text-[var(--text-secondary)]">
+                    <div className="flex justify-between items-center text-xs uppercase tracking-widest text-[var(--text-secondary)]">
                       <span>Goal</span><span className="text-[var(--text-primary)] font-bold">{shoe.conversionFocus}</span>
                     </div>
                     
-                    <div className="mt-3 pt-3 border-t border-white/5 space-y-1.5">
-                      <div className="flex justify-between items-center text-xs sm:text-sm uppercase tracking-widest text-[var(--text-secondary)]">
+                    <div className="mt-2 pt-2 border-t border-white/5 space-y-1">
+                      <div className="flex justify-between items-center text-xs uppercase tracking-widest text-[var(--text-secondary)]">
                         <span>{shoe.primaryMetricLabel}</span><span className="font-mono font-bold" style={{ color: shoe.colorHex }}>{shoe.primaryMetricValue}</span>
                       </div>
-                      <div className="flex justify-between items-center text-xs sm:text-sm uppercase tracking-widest text-[var(--text-secondary)]">
+                      <div className="flex justify-between items-center text-xs uppercase tracking-widest text-[var(--text-secondary)]">
                         <span>{shoe.secondaryMetricLabel}</span><span className="font-mono text-[var(--text-primary)] font-bold">{shoe.secondaryMetricValue}</span>
                       </div>
                     </div>
@@ -359,6 +360,6 @@ export default function ProjectPortal() {
           </motion.div>
         )}
       </AnimatePresence>
-    </section>
+    </CinematicStage>
   );
 }

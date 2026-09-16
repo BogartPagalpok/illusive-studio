@@ -5,6 +5,7 @@ import { CloseDuotone, PlayDuotone, ExternalLinkDuotone } from './icons/Streamli
 import { supabase } from '../lib/supabase';
 import ScrollingMasonry from '../components/ScrollingMasonry';
 import { formatSectionTitle } from '../lib/formatTitle';
+import CinematicStage from './CinematicStage';
 
 interface VideoEntry {
   url: string;
@@ -723,30 +724,20 @@ function FacebookEmbed({ url }: { url: string }) {
 }
 
 function MotionPanel({ title, description, tools, videoItems }: { title: string; description?: string; tools?: string[]; videoItems: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> }) {
+  const displayVideos = videoItems.slice(0, 3);
+
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
-      <div className="lg:w-1/4 flex flex-col justify-start p-6 rounded-xl border backdrop-blur-md self-start lg:sticky lg:top-24" style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}>
-        <h3 className="text-xl font-heading font-black uppercase tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>{title}</h3>
-        {description && (
-          <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>{description}</p>
-        )}
-        {tools && tools.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {tools.map(t => (
-              <span key={t} className="px-3 py-1 text-xs uppercase tracking-wider rounded-full border" style={{ borderColor: 'var(--glass-border)', color: 'var(--text-secondary)' }}>{t}</span>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="lg:w-3/4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {videoItems.map((item, i) => {
-            const usePhone = item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url));
-            const cardTitle = item.title || item.projectTitle;
-            const cardSubtitle = item.subtitle;
-            return (
-              <div key={`${item.projectId}-${i}`}>
-                {usePhone ? (
+    <div className="flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-4 my-auto">
+      {/* Centered Media Stage: Sweeps in left to right */}
+      <div className="flex items-center justify-center gap-4 sm:gap-6 w-full max-h-[56vh]">
+        {displayVideos.map((item, i) => {
+          const usePhone = item.platform === 'tiktok' || item.vertical || (item.platform === 'youtube' && isShort(item.url));
+          const cardTitle = item.title || item.projectTitle;
+
+          return (
+            <div key={`${item.projectId}-${i}`} className="stage-media flex flex-col items-center justify-center max-h-[54vh]">
+              {usePhone ? (
+                <div className="max-h-[50vh] flex items-center justify-center">
                   <PhoneFrame>
                     {item.platform === 'tiktok' ? (
                       <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
@@ -765,7 +756,9 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                       />
                     )}
                   </PhoneFrame>
-                ) : (
+                </div>
+              ) : (
+                <div className="w-full max-w-2xl max-h-[50vh]">
                   <BrowserFrame title={cardTitle}>
                     <VideoFacade
                       url={item.url}
@@ -774,15 +767,41 @@ function MotionPanel({ title, description, tools, videoItems }: { title: string;
                       posterUrl={item.posterUrl}
                     />
                   </BrowserFrame>
-                )}
-                <p className="text-center text-xs font-heading font-bold uppercase tracking-wider mt-2" style={{ color: 'var(--text-primary)' }}>{cardTitle}</p>
-                {cardSubtitle && (
-                  <p className="text-center text-xs mt-0.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>{cardSubtitle}</p>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Cinematic Lower-Third Glass Overlay: Lands bottom to top */}
+      <div 
+        className="stage-text w-full max-w-4xl mt-6 px-6 py-4 rounded-2xl border backdrop-blur-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-2xl"
+        style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
+      >
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-accent">MOTION // FEATURED</span>
+          </div>
+          <h3 className="text-base sm:text-xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)]">
+            {title}
+          </h3>
+          {description && (
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed mt-1">
+              {description}
+            </p>
+          )}
         </div>
+
+        {tools && tools.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 shrink-0">
+            {tools.map(t => (
+              <span key={t} className="px-2.5 py-1 text-xs font-mono font-semibold uppercase tracking-wider rounded-md border text-[var(--text-secondary)]" style={{ borderColor: 'var(--glass-border)' }}>
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -863,286 +882,222 @@ export default function CategorySection({ category }: CategorySectionProps) {
     );
   });
 
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   if (visibleGroups.length === 0) return null;
 
   const isGraphics = category === 'Graphic Design';
   const isMotion = category === 'Motion';
   const isPhotography = category === 'Photography';
   const isUIUX = category === 'UI/UX';
-  const categorySlug = `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-
-  const getVideoUrl = (project: Project): string | null => {
-    if (project.video_urls && project.video_urls.length > 0) {
-      const first = project.video_urls[0];
-      return getUrl(first);
-    }
-    if ((project as any).video_url) return (project as any).video_url;
-    return null;
-  };
 
   return (
-    <section id={categorySlug} className="section-padding relative overflow-visible bg-transparent">
-      <div className="section-container relative">
-        {/* Unified Category Header - Rendered ONCE per category */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12 sm:mb-16 flex flex-col items-center"
-        >
-          <span className="section-subtitle">FEATURED WORK //</span>
-          <h2 className="section-title">{formatSectionTitle(category.toUpperCase())}</h2>
-          <div className="section-divider" />
-        </motion.div>
+    <>
+      {loading && (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-8 h-8 text-accent animate-spin" />
+        </div>
+      )}
 
-        {loading && (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      {/* Photography: 100vh CinematicStage */}
+      {isPhotography && (
+        <CinematicStage id="photography">
+          <div className="section-container relative flex flex-col items-center justify-center w-full max-w-6xl my-auto">
+            <div className="stage-text section-header-gap text-center flex flex-col items-center">
+              <span className="section-subtitle">FEATURED WORK //</span>
+              <h2 className="section-title">PHOTOGRAPHY & <span className="text-accent">VISUAL STORIES</span></h2>
+              <div className="section-divider" />
+            </div>
+
+            <div className="stage-media w-full max-h-[50vh] overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+              <ScrollingMasonry projects={projects} height={420} speed={90} />
+            </div>
+
+            <div
+              className="stage-text w-full max-w-3xl mt-4 px-6 py-3 rounded-xl border backdrop-blur-xl text-center shadow-lg"
+              style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
+            >
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-body">
+                Candid street moments, dynamic live stage concerts, and authentic editorial community storytelling.
+              </p>
+            </div>
           </div>
-        )}
+        </CinematicStage>
+      )}
 
-        {/* Photography & UI/UX: Single continuous scrolling masonry for the category */}
-        {(isPhotography || isUIUX) && (
-          <ScrollingMasonry projects={projects} height={600} speed={100} />
-        )}
+      {/* UI/UX: 100vh CinematicStage */}
+      {isUIUX && (
+        <CinematicStage id="uiux">
+          <div className="section-container relative flex flex-col items-center justify-center w-full max-w-6xl my-auto">
+            <div className="stage-text section-header-gap text-center flex flex-col items-center">
+              <span className="section-subtitle">FEATURED WORK //</span>
+              <h2 className="section-title">UI/UX & WEB APP <span className="text-accent">DESIGN</span></h2>
+              <div className="section-divider" />
+            </div>
 
-        {/* Motion: Multiple project panels spaced cleanly without repeating category headers */}
-        {isMotion && (
-          <div className="space-y-16 sm:space-y-20 lg:space-y-24">
-            {visibleGroups.map(([projectKey, projectRows]) => {
-              const title = projectRows[0]?.title || 'Untitled';
-              const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> = [];
-              let titleDescription = '';
-              let titleTools: string[] = [];
+            <div className="stage-media w-full max-h-[50vh] overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+              <ScrollingMasonry projects={projects} height={420} speed={90} />
+            </div>
 
-              projectRows.forEach(project => {
-                if (project.description && !titleDescription) titleDescription = project.description;
-                if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
-                const urls = project.video_urls || [];
-                urls.forEach(entry => {
-                  const url = getUrl(entry);
-                  const vertical = getVertical(entry);
-                  const platform = detectVideoPlatform(url);
-                  if (platform) {
-                    allVideos.push({
-                      url,
-                      platform,
-                      projectId: project.id,
-                      projectTitle: project.title,
-                      vertical,
-                      posterUrl: project.card_thumbnail || project.image_url || undefined,
-                      title: (entry as VideoEntry).title || undefined,
-                      subtitle: (entry as VideoEntry).subtitle || undefined,
-                    });
-                  }
-                });
-              });
-
-              if (allVideos.length === 0) return null;
-
-              return (
-                <div key={projectKey} className="w-full">
-                  <MotionPanel
-                    title={title}
-                    description={titleDescription}
-                    tools={titleTools}
-                    videoItems={allVideos}
-                  />
-                </div>
-              );
-            })}
+            <div
+              className="stage-text w-full max-w-3xl mt-4 px-6 py-3 rounded-xl border backdrop-blur-xl text-center shadow-lg"
+              style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
+            >
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-body">
+                Designing intuitive, mobile-optimized interfaces and high-conversion design systems for modern web applications.
+              </p>
+            </div>
           </div>
-        )}
+        </CinematicStage>
+      )}
 
-        {/* Graphic Design: Grouped composite tiles, singles, or video fallback */}
-        {isGraphics && (
-          <div className="space-y-16 sm:space-y-20">
-            {visibleGroups.map(([projectKey, projectRows]) => {
-              const title = projectRows[0]?.title || 'Untitled';
-              const singles = projectRows.filter(p => p.image_url && p.image_layout === 'single');
-              const fbPosts = projectRows.filter(p => p.facebook_urls && p.facebook_urls.length > 0);
-              const tiles: Array<{ images: string[]; layout: string; description: string; tools: string[] }> = [];
+      {/* Motion: Each project group in its own 100vh CinematicStage */}
+      {isMotion &&
+        visibleGroups.map(([projectKey, projectRows]) => {
+          const title = projectRows[0]?.title || 'Untitled';
+          const allVideos: Array<{
+            url: string;
+            platform: VideoPlatform;
+            projectId: string;
+            projectTitle: string;
+            vertical: boolean;
+            posterUrl?: string;
+            title?: string;
+            subtitle?: string;
+          }> = [];
+          let titleDescription = '';
+          let titleTools: string[] = [];
 
-              projectRows.forEach(project => {
-                if (!project.image_url) return;
-                if (project.image_layout === 'single') return;
-                const layout = project.image_layout || 'auto';
-                const maxPerTile = layout === '3up-portrait-left' ? 3 : 4;
-                const existingTile = tiles[tiles.length - 1];
-                if (existingTile && existingTile.layout === layout && existingTile.images.length < maxPerTile) {
-                  existingTile.images.push(project.image_url);
-                } else {
-                  tiles.push({
-                    images: [project.image_url],
-                    layout,
-                    description: project.description || projectRows.find(p => p.description)?.description || '',
-                    tools: project.tools || projectRows.find(p => p.tools && p.tools.length > 0)?.tools || []
-                  });
-                }
-              });
-
-              const allVideos: Array<{ url: string; platform: VideoPlatform; projectId: string; projectTitle: string; vertical: boolean; posterUrl?: string; title?: string; subtitle?: string }> = [];
-              projectRows.forEach(project => {
-                const urls = project.video_urls || [];
-                urls.forEach(entry => {
-                  const url = getUrl(entry);
-                  const vertical = getVertical(entry);
-                  const platform = detectVideoPlatform(url);
-                  if (platform) {
-                    allVideos.push({
-                      url,
-                      platform,
-                      projectId: project.id,
-                      projectTitle: project.title,
-                      vertical,
-                      posterUrl: project.card_thumbnail || project.image_url || undefined,
-                      title: (entry as VideoEntry).title || undefined,
-                      subtitle: (entry as VideoEntry).subtitle || undefined,
-                    });
-                  }
+          projectRows.forEach(project => {
+            if (project.description && !titleDescription) titleDescription = project.description;
+            if (project.tools && project.tools.length > 0 && titleTools.length === 0) titleTools = project.tools;
+            const urls = project.video_urls || [];
+            urls.forEach(entry => {
+              const url = getUrl(entry);
+              const vertical = getVertical(entry);
+              const platform = detectVideoPlatform(url);
+              if (platform) {
+                allVideos.push({
+                  url,
+                  platform,
+                  projectId: project.id,
+                  projectTitle: project.title,
+                  vertical,
+                  posterUrl: project.card_thumbnail || project.image_url || undefined,
+                  title: (entry as VideoEntry).title || undefined,
+                  subtitle: (entry as VideoEntry).subtitle || undefined,
                 });
-              });
-
-              if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0 && allVideos.length === 0) return null;
-
-              if (singles.length === 0 && tiles.length === 0 && fbPosts.length === 0 && allVideos.length > 0) {
-                return (
-                  <div key={projectKey} className="w-full">
-                    <MotionPanel
-                      title={title}
-                      description={projectRows[0]?.description || ''}
-                      tools={projectRows[0]?.tools || []}
-                      videoItems={allVideos}
-                    />
-                  </div>
-                );
               }
+            });
+          });
 
-              return (
-                <div key={projectKey} className="w-full">
-                  {visibleGroups.length > 1 && title && title.toLowerCase() !== category.toLowerCase() && (
-                    <h3 className="text-xl sm:text-2xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)] mb-6 text-center">
-                      {formatSectionTitle(title)}
-                    </h3>
-                  )}
-                  {singles.length > 0 && (
-                    <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4 mb-6">
-                      {singles.map((project) => (
-                        <div className="break-inside-avoid" key={project.id}>
-                          <FlipCard project={project} />
-                        </div>
-                      ))}
+          if (allVideos.length === 0) return null;
+
+          return (
+            <CinematicStage key={projectKey} id={`motion-${projectKey.replace(/[^a-z0-9]+/gi, '-')}`}>
+              <MotionPanel
+                title={title}
+                description={titleDescription}
+                tools={titleTools}
+                videoItems={allVideos}
+              />
+            </CinematicStage>
+          );
+        })}
+
+      {/* Graphic Design: Each project group in its own 100vh CinematicStage */}
+      {isGraphics &&
+        visibleGroups.map(([projectKey, projectRows]) => {
+          const title = projectRows[0]?.title || 'Untitled';
+          const graphicImages = projectRows
+            .map(p => p.image_url)
+            .filter(Boolean)
+            .slice(0, 3);
+          const desc = projectRows.find(p => p.description)?.description || '';
+          const tools = projectRows.find(p => p.tools && p.tools.length > 0)?.tools || [];
+
+          if (graphicImages.length === 0) return null;
+
+          return (
+            <CinematicStage key={projectKey} id={`graphics-${projectKey.replace(/[^a-z0-9]+/gi, '-')}`}>
+              <div className="flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-4 my-auto">
+                {/* Dead Center Artwork: max-h-[56vh] so nothing overflows 100vh */}
+                <div className="flex items-center justify-center gap-4 sm:gap-6 w-full max-h-[56vh]">
+                  {graphicImages.map((img, i) => (
+                    <div key={i} className="stage-media max-h-[54vh] flex items-center justify-center">
+                      <img
+                        src={img}
+                        alt={`${title} ${i + 1}`}
+                        className="max-h-[52vh] w-auto max-w-full object-contain rounded-2xl border border-white/15 shadow-2xl hover:scale-[1.02] transition-transform duration-300 cursor-pointer"
+                        onClick={() => setSelectedImage(img)}
+                      />
                     </div>
-                  )}
-                  {tiles.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      {tiles.map((tile, i) => (
-                        tile.images.length === 1 ? (
-                          <FlipCard 
-                            key={`tile-${i}`}
-                            project={{ 
-                              id: `${title}-tile-${i}`, 
-                              title, 
-                              category, 
-                              image_url: tile.images[0], 
-                              description: tile.description, 
-                              tools: tile.tools 
-                            }} 
-                          />
-                        ) : (
-                          <GraphicsCompositeCard
-                            key={`tile-${i}`}
-                            images={tile.images}
-                            title={title}
-                            description={tile.description}
-                            tools={tile.tools}
-                            layout={tile.layout}
-                          />
-                        )
-                      ))}
-                    </div>
-                  )}
-                  {fbPosts.length > 0 && (
-                    <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
-                      {fbPosts.map((project) => (project.facebook_urls || []).map((url, i) => (
-                        <div className="break-inside-avoid" key={`${project.id}-fb-${i}`}>
-                          <FacebookEmbed url={url} />
-                        </div>
-                      )))}
-                    </div>
-                  )}
+                  ))}
                 </div>
-              );
-            })}
-          </div>
-        )}
 
-        {/* Fallback masonry for any other custom category */}
-        {!isPhotography && !isUIUX && !isMotion && !isGraphics && (
-          <div className="space-y-16">
-            {visibleGroups.map(([projectKey, projectRows]) => {
-              const title = projectRows[0]?.title || 'Untitled';
-              const hasGap = projectRows.length % columnCount !== 0;
-              const lastIndex = projectRows.length - 1;
-
-              return (
-                <div key={projectKey} className="w-full">
-                  {visibleGroups.length > 1 && title && title.toLowerCase() !== category.toLowerCase() && (
-                    <h3 className="text-xl sm:text-2xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)] mb-6 text-center">
-                      {formatSectionTitle(title)}
+                {/* Lower-Third Glass Overlay: Lands bottom to top */}
+                <div 
+                  className="stage-text w-full max-w-4xl mt-6 px-6 py-4 rounded-2xl border backdrop-blur-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-2xl"
+                  style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)' }}
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-mono font-bold uppercase tracking-widest text-accent">GRAPHIC DESIGN // FEATURED</span>
+                    </div>
+                    <h3 className="text-base sm:text-xl font-heading font-black uppercase tracking-wider text-[var(--text-primary)]">
+                      {title}
                     </h3>
-                  )}
-                  <div className="columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
-                    {projectRows.map((project, index) => {
-                      const videoUrl = getVideoUrl(project);
-                      const platform = videoUrl ? detectVideoPlatform(videoUrl) : null;
-                      const isVideo = !!platform;
-                      const isLast = index === lastIndex;
-                      const isHero = hasGap && isLast && !isVideo;
-
-                      return (
-                        <div key={project.id} className="break-inside-avoid">
-                          {isVideo ? (
-                            <div className="mb-3">
-                              <div className="rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--glass-border)', backgroundColor: 'var(--glass-bg)' }}>
-                                <PhoneFrame>
-                                  {platform === 'tiktok' ? (
-                                    <div className="w-full h-full flex flex-col items-center justify-center bg-black/50 p-4">
-                                      <PlayDuotone size={32} className="mb-2" primaryColor="rgba(255,255,255,0.8)" secondaryColor="rgba(255,255,255,0.2)" />
-                                      <p className="text-white/70 text-xs text-center mb-3">{project.title}</p>
-                                      <a href={videoUrl!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs rounded-full font-bold hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
-                                        <ExternalLinkDuotone size={14} primaryColor="var(--accent-contrast, #000000)" secondaryColor="rgba(0,0,0,0.25)" /> Watch on TikTok
-                                      </a>
-                                    </div>
-                                  ) : (
-                                    <VideoFacade
-                                      url={videoUrl!}
-                                      platform={platform}
-                                      title={project.title}
-                                      posterUrl={project.card_thumbnail || project.image_url}
-                                    />
-                                  )}
-                                </PhoneFrame>
-                                <div className="p-3">
-                                  <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider">{project.title}</h3>
-                                  {project.description && <p className="text-[var(--text-secondary)] text-xs mt-1 line-clamp-2">{project.description}</p>}
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            <FlipCard project={project} isHero={isHero} />
-                          )}
-                        </div>
-                      );
-                    })}
+                    {desc && (
+                      <p className="text-xs sm:text-sm text-[var(--text-secondary)] line-clamp-2 leading-relaxed mt-1">
+                        {desc}
+                      </p>
+                    )}
                   </div>
+
+                  {tools && tools.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 shrink-0">
+                      {tools.map(t => (
+                        <span key={t} className="px-2.5 py-1 text-xs font-mono font-semibold uppercase tracking-wider rounded-md border text-[var(--text-secondary)]" style={{ borderColor: 'var(--glass-border)' }}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            </CinematicStage>
+          );
+        })}
+
+      {/* Selected Image Fullscreen Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.95)', touchAction: 'none' }}
+            onClick={() => setSelectedImage(null)}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 p-2.5 rounded-full border transition-all z-[10000]"
+              style={{ backgroundColor: 'var(--glass-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-primary)' }}
+            >
+              <CloseDuotone size={18} />
+            </button>
+            <img
+              src={selectedImage}
+              alt="Preview"
+              className="max-w-full max-h-[90vh] object-contain rounded-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
         )}
-      </div>
-    </section>
+      </AnimatePresence>
+    </>
   );
 }

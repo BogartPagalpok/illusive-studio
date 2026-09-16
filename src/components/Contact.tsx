@@ -4,6 +4,7 @@ import { SendDuotone } from './icons/StreamlineIcons';
 import { supabase } from '../lib/supabase';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { formatSectionTitle } from '../lib/formatTitle';
+import CinematicStage from './CinematicStage';
 
 interface ContactContent {
   subtitle: string;
@@ -76,43 +77,34 @@ export default function Contact() {
   };
 
   return (
-    <section className="section-padding relative overflow-visible z-30 bg-transparent">
-      <div id="contact" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
-
-      <div ref={ref} className="section-container relative">
-        <div className="grid lg:grid-cols-2 gap-8 items-start max-w-4xl mx-auto">
+    <CinematicStage id="contact">
+      <div ref={ref} className="section-container relative my-auto w-full">
+        <div className="grid lg:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
           
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <div className="stage-text flex flex-col">
             <span className="section-subtitle !mb-3 font-black">{content.subtitle}</span>
             <h2 className="section-title !text-left">
               {formatSectionTitle(content.heading)}
             </h2>
             <div className="w-12 h-0.5 bg-[var(--accent)] mt-4 mb-4" />
-            <p className="mt-4 mb-5 leading-relaxed text-[var(--text-secondary)] text-sm sm:text-base font-body">
+            <p className="mt-2 mb-5 leading-relaxed text-[var(--text-secondary)] text-sm sm:text-base font-body">
               {content.description}
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="card-dark w-full box-border"
+          <div
+            className="stage-media card-dark w-full box-border shadow-2xl"
             style={{ boxShadow: '0 15px 30px -8px rgba(0, 0, 0, 0.4)' }}
           >
-            <div className="flex flex-col gap-1 mb-5">
+            <div className="flex flex-col gap-1 mb-4">
               <p className="uppercase font-bold text-xs tracking-widest text-[var(--text-muted)] font-mono">
-                Secure Channel
+                Secure Channel // Direct Transmission
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 w-full">
+            <form onSubmit={handleSubmit} className="space-y-3.5 w-full">
               <div className="w-full">
-                <label className="block font-heading font-bold uppercase text-xs tracking-wider mb-2 ml-1 text-[var(--text-secondary)]">NAME</label>
+                <label className="block font-heading font-bold uppercase text-xs tracking-wider mb-1.5 ml-1 text-[var(--text-secondary)]">NAME</label>
                 <input
                   type="text" required value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -121,7 +113,7 @@ export default function Contact() {
               </div>
 
               <div className="w-full">
-                <label className="block font-heading font-bold uppercase text-xs tracking-wider mb-2 ml-1 text-[var(--text-secondary)]">EMAIL</label>
+                <label className="block font-heading font-bold uppercase text-xs tracking-wider mb-1.5 ml-1 text-[var(--text-secondary)]">EMAIL</label>
                 <input
                   type="email" required value={form.email} 
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -130,7 +122,7 @@ export default function Contact() {
               </div>
 
               <div className="w-full">
-                <label className="block font-heading font-bold uppercase text-xs tracking-wider mb-2 ml-1 text-[var(--text-secondary)]">MESSAGE</label>
+                <label className="block font-heading font-bold uppercase text-xs tracking-wider mb-1.5 ml-1 text-[var(--text-secondary)]">MESSAGE</label>
                 <textarea
                   required rows={3} value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
@@ -139,7 +131,7 @@ export default function Contact() {
                 />
               </div>
               
-              <button type="submit" disabled={sending} className="btn-primary w-full py-3.5 rounded-xl disabled:opacity-50 flex items-center justify-center gap-2 group text-xs font-black tracking-widest">
+              <button type="submit" disabled={sending} className="btn-primary w-full py-3 rounded-xl disabled:opacity-50 flex items-center justify-center gap-2 group text-xs font-black tracking-widest">
                 {sending ? (
                   <span className="flex items-center gap-2">
                     <span className="w-3.5 h-3.5 border-2 border-t-transparent animate-spin rounded-full border-current" />
@@ -162,9 +154,9 @@ export default function Contact() {
             </form>
 
             <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-accent/5 blur-[40px] rounded-full pointer-events-none" />
-          </motion.div>
+          </div>
         </div>
       </div>
-    </section>
+    </CinematicStage>
   );
 }

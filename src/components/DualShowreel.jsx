@@ -103,6 +103,8 @@ function ShowreelCard({
   );
 }
 
+import CinematicStage from './CinematicStage';
+
 export default function DualShowreel(props) {
   const dualShowreel = usePortfolioStore((s) => s.dualShowreel);
 
@@ -131,53 +133,55 @@ export default function DualShowreel(props) {
   };
 
   return (
-    <section id="dual-showreel" className="section-padding relative z-20">
-      <div className="section-container relative">
-        {/* Section Header */}
-        <div className="section-header-gap flex flex-col items-center text-center">
+    <CinematicStage id="dual-showreel">
+      <div className="section-container relative flex flex-col items-center justify-center w-full max-w-6xl">
+        {/* Section Header - Docked from bottom to top */}
+        <div className="stage-text section-header-gap flex flex-col items-center text-center">
           <span className="section-subtitle">FEATURED REELS //</span>
           <h2 className="section-title">
             DUAL <span className="text-accent">SHOWREEL</span>
           </h2>
           <div className="section-divider" />
-          <p className="mt-4 text-xs sm:text-sm text-[var(--text-secondary)] max-w-xl font-body leading-relaxed">
+          <p className="mt-3 text-xs sm:text-sm text-[var(--text-secondary)] max-w-xl font-body leading-relaxed">
             High-retention storytelling, rhythmic documentary pacing, and gaming retention loops.
           </p>
         </div>
 
-        {/* 2-Column Exact CSS Grid */}
+        {/* 2-Column Exact CSS Grid - Sweeps in from left to right */}
         <div className="grid grid-cols-1 md:grid-cols-2 section-content-gap w-full">
-        {/* Card 1: Video Essays & Docu */}
-        <ShowreelCard
-          title="Video Essays & Docu"
-          category="Long-Form Narratives"
-          description="Pacing, narrative arc, dynamic archival cutaways, and sound design."
-          is_coming_soon={essayConfig.is_coming_soon}
-          webm_url={essayConfig.webm_url}
-          youtube_url={essayConfig.youtube_url}
-          onOpenModal={(url) => handleOpenModal(url, 'Video Essays & Docu')}
-        />
+          <div className="stage-media w-full">
+            <ShowreelCard
+              title="Video Essays & Docu"
+              category="Long-Form Narratives"
+              description="Pacing, narrative arc, dynamic archival cutaways, and sound design."
+              is_coming_soon={essayConfig.is_coming_soon}
+              webm_url={essayConfig.webm_url}
+              youtube_url={essayConfig.youtube_url}
+              onOpenModal={(url) => handleOpenModal(url, 'Video Essays & Docu')}
+            />
+          </div>
 
-        {/* Card 2: Gaming & Retention */}
-        <ShowreelCard
-          title="Gaming & Retention"
-          category="Retention & Pacing"
-          description="Instant hook momentum, visual gags, zooms, and algorithmic engagement."
-          is_coming_soon={gamingConfig.is_coming_soon}
-          webm_url={gamingConfig.webm_url}
-          youtube_url={gamingConfig.youtube_url}
-          onOpenModal={(url) => handleOpenModal(url, 'Gaming & Retention')}
+          <div className="stage-media w-full">
+            <ShowreelCard
+              title="Gaming & Retention"
+              category="Retention & Pacing"
+              description="Instant hook momentum, visual gags, zooms, and algorithmic engagement."
+              is_coming_soon={gamingConfig.is_coming_soon}
+              webm_url={gamingConfig.webm_url}
+              youtube_url={gamingConfig.youtube_url}
+              onOpenModal={(url) => handleOpenModal(url, 'Gaming & Retention')}
+            />
+          </div>
+        </div>
+
+        {/* Full-Screen YouTube Video Modal */}
+        <VideoModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          youtubeId={activeYoutubeId}
+          title={activeTitle}
         />
       </div>
-
-      {/* Full-Screen YouTube Video Modal */}
-      <VideoModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        youtubeId={activeYoutubeId}
-        title={activeTitle}
-      />
-      </div>
-    </section>
+    </CinematicStage>
   );
 }

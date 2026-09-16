@@ -37,6 +37,8 @@ const defaultServices = [
 
 import { formatSectionTitle } from '../lib/formatTitle';
 
+import CinematicStage from './CinematicStage';
+
 export default function Services() {
   const [content, setContent] = useState({ subtitle: 'What I Do', heading: 'Services & Expertise' });
   const [servicesData, setServicesData] = useState(defaultServices);
@@ -78,24 +80,17 @@ export default function Services() {
   }, []);
 
   return (
-    <section className="section-padding bg-transparent relative overflow-hidden">
-      <div id="services" className="absolute -top-20 left-0 w-full h-1 pointer-events-none" />
-      <div className="section-container relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="section-header-gap text-center flex flex-col items-center"
-        >
+    <CinematicStage id="services">
+      <div className="section-container relative flex flex-col items-center justify-center w-full max-w-6xl my-auto">
+        <div className="stage-text section-header-gap text-center flex flex-col items-center">
           <span className="section-subtitle">{content.subtitle}</span>
           <h2 className="section-title">
             {formatSectionTitle(content.heading)}
           </h2>
           <div className="section-divider" />
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
           {servicesData.map((service, index) => {
             const palette = [
               'var(--accent)',
@@ -105,13 +100,9 @@ export default function Services() {
             const cardAccent = palette[index % palette.length];
 
             return (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.04 }}
-                className="card-dark h-full flex flex-col group relative cursor-pointer"
+                className="stage-media card-dark h-full flex flex-col group relative cursor-pointer"
                 style={{ backgroundColor: service.color }}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -132,11 +123,11 @@ export default function Services() {
                   className="absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-500 group-hover:w-full"
                   style={{ backgroundColor: cardAccent }}
                 />
-              </motion.div>
+              </div>
             );
           })}
         </div>
       </div>
-    </section>
+    </CinematicStage>
   );
 }
