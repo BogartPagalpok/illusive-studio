@@ -27,6 +27,20 @@
     --accent-secondary-rgb: 42, 157, 166;
     --accent-tertiary-rgb: 246, 118, 8;
     --glass-bg: rgba(255, 255, 255, 0.03);
+    --hero-tint: var(--accent);
+    --hero-tint-blend: color;
+    --hero-tint-opacity: 0.35;
+    --hero-bg: #030305;
+    --hero-bottom-fade: transparent;
+  }
+
+  [data-theme='GUNDAM'],
+  [data-contrast='light'] {
+    --hero-tint: #FFFFFF;
+    --hero-tint-blend: color;
+    --hero-tint-opacity: 0.55;
+    --hero-bg: #030305;
+    --hero-bottom-fade: rgba(3, 3, 5, 0.95);
   }
 
   body {
@@ -215,37 +229,86 @@
     background-color: rgba(255, 255, 255, 0.95) !important;
   }
 
-  /* Exempt #hero and nav hero text so the dark 3D sequence always has brilliant white text */
-  [data-contrast='light'] :not(#hero):not(#hero *):not(.nav-hero-text):not(.nav-hero-text *) > .text-white:not(.btn-primary *):not([class*="bg-accent"] *):not(.badge-dark *),
-  [data-contrast='light'] :not(#hero):not(#hero *):not(.nav-hero-text):not(.nav-hero-text *) .text-white:not(.btn-primary *):not([class*="bg-accent"] *):not(.badge-dark *) {
+  /* For light mode, convert white text in non-hero sections to dark text */
+  [data-contrast='light'] section:not(#hero) .text-white:not(.btn-primary *):not([class*="bg-accent"] *):not(.badge-dark *),
+  [data-contrast='light'] footer .text-white:not(.btn-primary *):not([class*="bg-accent"] *):not(.badge-dark *),
+  [data-contrast='light'] aside .text-white:not(.btn-primary *):not([class*="bg-accent"] *):not(.badge-dark *) {
     color: var(--text-primary) !important;
   }
-  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/10 { color: color-mix(in srgb, var(--text-primary) 20%, transparent) !important; }
-  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/20 { color: color-mix(in srgb, var(--text-primary) 35%, transparent) !important; }
-  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/30 { color: color-mix(in srgb, var(--text-primary) 50%, transparent) !important; }
-  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/40 { color: color-mix(in srgb, var(--text-primary) 65%, transparent) !important; }
-  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/50 { color: color-mix(in srgb, var(--text-primary) 75%, transparent) !important; }
-  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/60 { color: color-mix(in srgb, var(--text-primary) 82%, transparent) !important; }
-  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/70 { color: color-mix(in srgb, var(--text-primary) 88%, transparent) !important; }
-  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/80 { color: color-mix(in srgb, var(--text-primary) 92%, transparent) !important; }
-  [data-contrast='light'] :not(#hero):not(#hero *) .text-white\/90 { color: var(--text-primary) !important; }
+  [data-contrast='light'] section:not(#hero) .text-white\/10 { color: color-mix(in srgb, var(--text-primary) 20%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .text-white\/20 { color: color-mix(in srgb, var(--text-primary) 35%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .text-white\/30 { color: color-mix(in srgb, var(--text-primary) 50%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .text-white\/40 { color: color-mix(in srgb, var(--text-primary) 65%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .text-white\/50 { color: color-mix(in srgb, var(--text-primary) 75%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .text-white\/60 { color: color-mix(in srgb, var(--text-primary) 82%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .text-white\/70 { color: color-mix(in srgb, var(--text-primary) 88%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .text-white\/80 { color: color-mix(in srgb, var(--text-primary) 92%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .text-white\/90 { color: var(--text-primary) !important; }
 
-  [data-contrast='light'] .bg-white\/5 { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent) !important; }
-  [data-contrast='light'] .bg-white\/10 { background-color: color-mix(in srgb, var(--text-primary) 10%, transparent) !important; }
-  [data-contrast='light'] .bg-white\/\[0\.02\] { background-color: color-mix(in srgb, var(--text-primary) 4%, transparent) !important; }
-  [data-contrast='light'] .border-white\/5 { border-color: color-mix(in srgb, var(--text-primary) 12%, transparent) !important; }
-  [data-contrast='light'] .border-white\/10 { border-color: color-mix(in srgb, var(--text-primary) 18%, transparent) !important; }
-  [data-contrast='light'] .border-white\/20 { border-color: color-mix(in srgb, var(--text-primary) 28%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .bg-white\/5 { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .bg-white\/10 { background-color: color-mix(in srgb, var(--text-primary) 10%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .bg-white\/\[0\.02\] { background-color: color-mix(in srgb, var(--text-primary) 4%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .border-white\/5 { border-color: color-mix(in srgb, var(--text-primary) 12%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .border-white\/10 { border-color: color-mix(in srgb, var(--text-primary) 18%, transparent) !important; }
+  [data-contrast='light'] section:not(#hero) .border-white\/20 { border-color: color-mix(in srgb, var(--text-primary) 28%, transparent) !important; }
 
-  /* In light mode (Gundam), ensure #hero keeps white text and dynamic theme accent over the dark 3D sequence */
-  [data-contrast='light'] #hero .text-white {
+  /* ========================================================================
+     HERO TEXT CONTRAST ENFORCEMENT
+     The 3D WebGL sequence in #hero is ALWAYS a deep dark viewport.
+     All hero text, typography, and buttons must stay brilliant white with
+     high contrast, even in Light / Gundam theme!
+     ======================================================================== */
+  #hero,
+  [data-contrast='light'] #hero,
+  [data-theme='GUNDAM'] #hero {
     color: #FFFFFF !important;
   }
-  [data-contrast='light'] #hero .text-white\/90 {
-    color: rgba(255, 255, 255, 0.92) !important;
+
+  #hero h1,
+  #hero h1 *,
+  #hero .hero-headline,
+  #hero [class*="drop-shadow"],
+  [data-contrast='light'] #hero h1,
+  [data-contrast='light'] #hero h1 *,
+  [data-theme='GUNDAM'] #hero h1,
+  [data-theme='GUNDAM'] #hero h1 * {
+    color: #FFFFFF !important;
+    text-shadow: 0 4px 28px rgba(0, 0, 0, 0.95), 0 2px 10px rgba(0, 0, 0, 0.9) !important;
   }
-  [data-contrast='light'] #hero .text-accent {
+
+  /* Keep accented words in the dynamic theme accent */
+  #hero .text-accent,
+  #hero .text-accent *,
+  [data-contrast='light'] #hero .text-accent,
+  [data-contrast='light'] #hero .text-accent *,
+  [data-theme='GUNDAM'] #hero .text-accent {
     color: var(--accent) !important;
+    text-shadow: 0 0 25px var(--accent), 0 0 50px rgba(var(--accent-rgb), 0.5) !important;
+  }
+
+  /* Right column and subtitles */
+  #hero h3,
+  #hero p,
+  [data-contrast='light'] #hero h3,
+  [data-contrast='light'] #hero p,
+  [data-theme='GUNDAM'] #hero h3,
+  [data-theme='GUNDAM'] #hero p {
+    color: rgba(255, 255, 255, 0.92) !important;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9) !important;
+  }
+
+  #hero .btn-outline,
+  [data-contrast='light'] #hero .btn-outline {
+    border-color: rgba(255, 255, 255, 0.85) !important;
+    color: #FFFFFF !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  #hero .btn-outline:hover,
+  [data-contrast='light'] #hero .btn-outline:hover {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    text-shadow: none !important;
   }
 
   .nav-hero-text {

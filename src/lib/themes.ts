@@ -266,7 +266,25 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   const root = document.documentElement;
   const isLight = getContrastYIQ(theme.bgPrimary) === 'black';
   root.setAttribute('data-contrast', isLight ? 'light' : 'dark');
+  root.setAttribute('data-theme', theme.id);
   document.body.setAttribute('data-contrast', isLight ? 'light' : 'dark');
+  document.body.setAttribute('data-theme', theme.id);
+
+  if (theme.id === 'GUNDAM') {
+    // White / neutral monochrome tint for Hero instead of crimson red
+    root.style.setProperty('--hero-tint', '#FFFFFF');
+    root.style.setProperty('--hero-tint-blend', 'color');
+    root.style.setProperty('--hero-tint-opacity', '0.5');
+    root.style.setProperty('--hero-bg', '#030305');
+    root.style.setProperty('--hero-bottom-fade', 'rgba(3, 3, 5, 0.95)');
+  } else {
+    root.style.setProperty('--hero-tint', theme.accent);
+    root.style.setProperty('--hero-tint-blend', 'color');
+    root.style.setProperty('--hero-tint-opacity', '0.35');
+    root.style.setProperty('--hero-bg', theme.bgPrimary);
+    root.style.setProperty('--hero-bottom-fade', theme.bgPrimary);
+  }
+
   root.style.setProperty('--bg-primary', theme.bgPrimary);
   root.style.setProperty('--bg-secondary', theme.bgSecondary);
   root.style.setProperty('--bg-gradient', theme.bgGradient);

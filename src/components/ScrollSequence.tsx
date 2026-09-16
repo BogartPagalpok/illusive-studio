@@ -150,18 +150,22 @@ export default function ScrollSequence({
 
   return (
     <div ref={containerRef} className="relative w-full z-0">
-      <div ref={innerRef} className="h-screen w-full overflow-hidden relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div ref={innerRef} className="h-screen w-full overflow-hidden relative" style={{ backgroundColor: 'var(--hero-bg, #030305)' }}>
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0" />
         
         <div 
           className="absolute inset-0 pointer-events-none transition-colors duration-500 z-[1]" 
-          style={{ backgroundColor: 'var(--accent)', mixBlendMode: 'color', opacity: 0.35 }} 
+          style={{ 
+            backgroundColor: 'var(--hero-tint, var(--accent))', 
+            mixBlendMode: 'var(--hero-tint-blend, color)' as any, 
+            opacity: 'var(--hero-tint-opacity, 0.35)' as any,
+          }} 
         />
         
         <div 
-          className="absolute inset-x-0 bottom-0 h-48 md:h-64 pointer-events-none z-[2]" 
+          className="absolute inset-x-0 bottom-0 h-36 md:h-52 pointer-events-none z-[2]" 
           style={{ 
-            background: 'linear-gradient(to top, var(--bg-primary, var(--background, #000000)) 0%, transparent 100%)' 
+            background: 'linear-gradient(to top, var(--hero-bottom-fade, transparent) 0%, transparent 100%)' 
           }} 
         /> 
         
