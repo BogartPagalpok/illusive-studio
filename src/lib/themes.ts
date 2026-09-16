@@ -271,18 +271,24 @@ export async function applyTheme(theme: ThemePreset, syncToCloud = true) {
   document.body.setAttribute('data-theme', theme.id);
 
   if (theme.id === 'GUNDAM') {
-    // White / neutral monochrome tint for Hero instead of crimson red
-    root.style.setProperty('--hero-tint', '#FFFFFF');
+    // Signature Gundam RX-78-2 Cobalt / Mecha Blue instead of black/red
+    root.style.setProperty('--hero-tint', '#1E40AF');
     root.style.setProperty('--hero-tint-blend', 'color');
-    root.style.setProperty('--hero-tint-opacity', '0.5');
-    root.style.setProperty('--hero-bg', '#030305');
-    root.style.setProperty('--hero-bottom-fade', 'rgba(3, 3, 5, 0.95)');
+    root.style.setProperty('--hero-tint-opacity', '0.45');
+    root.style.setProperty('--hero-bg', '#0B132B');
+    root.style.setProperty('--hero-bottom-fade', 'rgba(11, 19, 43, 0.95)');
+    root.style.setProperty('--frame-bg', '#0B132B');
+    root.style.setProperty('--frame-border', '#1E40AF');
+    root.style.setProperty('--frame-header', '#101B3B');
   } else {
     root.style.setProperty('--hero-tint', theme.accent);
     root.style.setProperty('--hero-tint-blend', 'color');
     root.style.setProperty('--hero-tint-opacity', '0.35');
     root.style.setProperty('--hero-bg', theme.bgPrimary);
     root.style.setProperty('--hero-bottom-fade', theme.bgPrimary);
+    root.style.setProperty('--frame-bg', '#101114');
+    root.style.setProperty('--frame-border', '#27292e');
+    root.style.setProperty('--frame-header', '#18191e');
   }
 
   root.style.setProperty('--bg-primary', theme.bgPrimary);

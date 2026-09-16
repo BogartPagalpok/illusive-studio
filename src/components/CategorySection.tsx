@@ -144,14 +144,25 @@ function getVertical(entry: any): boolean {
 function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative w-full flex justify-center items-center py-2">
-      <div className="phone-card group">
+      <div 
+        className="phone-card group"
+        style={{
+          backgroundColor: 'var(--frame-bg, #000000)',
+          borderColor: 'var(--frame-border, rgb(40, 40, 40))',
+        }}
+      >
         {/* Hardware side buttons */}
         <div className="phone-btn1" />
         <div className="phone-btn2" />
         <div className="phone-btn3" />
 
         {/* Notch / Dynamic Island */}
-        <div className="phone-top">
+        <div 
+          className="phone-top"
+          style={{
+            backgroundColor: 'var(--frame-bg, #000000)',
+          }}
+        >
           <div className="phone-speaker" />
           <div className="phone-camera">
             <div className="phone-int" />
@@ -176,9 +187,21 @@ function BrowserFrame({ children, title }: { children: React.ReactNode; title?: 
   const timecode = `01:${minutes}:${seconds}:${frames}`;
 
   return (
-    <div className="davinci-monitor-frame relative w-full group rounded-xl overflow-hidden bg-[#101114] border border-[#27292e] shadow-[0_12px_36px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-accent/50 hover:shadow-[0_0_30px_rgba(var(--accent-rgb),0.18)]">
+    <div 
+      className="davinci-monitor-frame relative w-full group rounded-xl overflow-hidden border shadow-[0_12px_36px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-accent/50 hover:shadow-[0_0_30px_rgba(var(--accent-rgb),0.18)]"
+      style={{
+        backgroundColor: 'var(--frame-bg, #101114)',
+        borderColor: 'var(--frame-border, #27292e)',
+      }}
+    >
       {/* DaVinci Resolve Source Monitor Header */}
-      <div className="h-7 px-3 flex items-center justify-between bg-[#18191e] border-b border-[#26282f] select-none text-[10px] font-mono tracking-wider">
+      <div 
+        className="h-7 px-3 flex items-center justify-between border-b select-none text-[10px] font-mono tracking-wider"
+        style={{
+          backgroundColor: 'var(--frame-header, #18191e)',
+          borderBottomColor: 'var(--frame-border, #26282f)',
+        }}
+      >
         {/* Left: DaVinci Resolve Color Tag & Clip Name */}
         <div className="flex items-center gap-2 min-w-0">
           <div className="flex items-center gap-1 shrink-0">
@@ -228,7 +251,13 @@ function BrowserFrame({ children, title }: { children: React.ReactNode; title?: 
       </div>
 
       {/* DaVinci Transport / Timeline Scrubber Footer */}
-      <div className="h-6 px-3 flex items-center justify-between bg-[#15161a] border-t border-[#23252b] select-none text-[9px] font-mono text-white/50">
+      <div 
+        className="h-6 px-3 flex items-center justify-between border-t select-none text-[9px] font-mono text-white/50"
+        style={{
+          backgroundColor: 'var(--frame-header, #15161a)',
+          borderTopColor: 'var(--frame-border, #23252b)',
+        }}
+      >
         {/* Left: Transport buttons */}
         <div className="flex items-center gap-2 text-white/60">
           <span className="hover:text-accent cursor-default transition-colors text-[8px]">◀◀</span>
