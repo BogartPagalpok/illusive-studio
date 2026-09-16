@@ -11,6 +11,7 @@ import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ErrorBoundary from './components/ErrorBoundary';
+import { heroSequenceCache } from './lib/heroSequenceCache';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -49,7 +50,8 @@ function AtmosphereGradient() {
   );
 }
 
-function BrandLoader({ isFading = false }: { isFading?: boolean }) {
+function BrandLoader({ progress = 0, isFading = false }: { progress?: number; isFading?: boolean }) {
+  const percent = Math.min(100, Math.max(0, Math.round(progress * 100)));
   return (
     <div className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black transition-opacity duration-700 ${isFading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <style dangerouslySetInnerHTML={{ __html: `
@@ -140,7 +142,7 @@ function BrandLoader({ isFading = false }: { isFading?: boolean }) {
         }
       `}} />
 
-      <div className="relative flex items-center justify-center w-full max-w-2xl px-4 min-h-[300px]">
+      <div className="relative flex flex-col items-center justify-center w-full max-w-2xl px-4 min-h-[300px]">
         {/* Full unmasked scanning circular radar beam */}
         <div className="loader-scanner" />
 
@@ -156,6 +158,19 @@ function BrandLoader({ isFading = false }: { isFading?: boolean }) {
             </span>
           ))}
         </div>
+
+        {/* Subtle Progress Bar & Percentage */}
+        <div className="relative z-10 flex flex-col items-center gap-2 mt-2">
+          <div className="w-48 sm:w-64 h-[2px] bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-accent transition-all duration-300 ease-out rounded-full"
+              style={{ width: `${Math.max(5, percent)}%`, boxShadow: '0 0 10px var(--accent)' }}
+            />
+          </div>
+          <span className="text-white/40 font-mono text-[10px] sm:text-xs tracking-[0.25em] uppercase font-bold">
+            {percent}%
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -169,6 +184,7 @@ function App() {
   });
   const [showLoader, setShowLoader] = useState(true);
   const [loaderFading, setLoaderFading] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
   // Tracks the current accent color so LiquidEther re-mounts (rebuilding its
   // WebGL palette) when the user / admin switches theme.
   const [accentKey, setAccentKey] = useState<string>(() => {
@@ -312,25 +328,42 @@ function App() {
     };
   }, []);
 
-  // Display the custom BrandLoader during initial load
-  // with a guaranteed unmount timer so it can NEVER get stuck on any device.
+  // Preload hero sequence frames during BrandLoader so initial scroll never gets stuck on frame 0
   useEffect(() => {
-    const fadeTimer = setTimeout(() => {
-      setLoaderFading(true);
-      window.scrollTo(0, 0);
-      const removeTimer = setTimeout(() => {
-        setShowLoader(false);
-      }, 700);
-      return () => clearTimeout(removeTimer);
-    }, 1900);
+    heroSequenceCache.startPreload();
 
+    let finished = false;
+    let fadeTimer: any;
+    let removeTimer: any;
+
+    const finishLoading = () => {
+      if (finished) return;
+      finished = true;
+      fadeTimer = setTimeout(() => {
+        setLoaderFading(true);
+        window.scrollTo(0, 0);
+        removeTimer = setTimeout(() => {
+          setShowLoader(false);
+        }, 700);
+      }, 350);
+    };
+
+    const unsubscribe = heroSequenceCache.subscribe((progress, ready) => {
+      setLoadProgress(progress);
+      if (ready) {
+        finishLoading();
+      }
+    });
+
+    // Safety fallback timer: guarantees unmount even if user is offline or connection times out
     const safetyTimer = setTimeout(() => {
-      setLoaderFading(true);
-      setShowLoader(false);
-    }, 3200);
+      finishLoading();
+    }, 4500);
 
     return () => {
+      unsubscribe();
       clearTimeout(fadeTimer);
+      clearTimeout(removeTimer);
       clearTimeout(safetyTimer);
     };
   }, []);
@@ -356,9 +389,9 @@ function App() {
   if (isAdmin) {
     return (
       <main className="min-h-screen relative">
-        {showLoader && <BrandLoader isFading={loaderFading} />}
+        {showLoader && <BrandLoader progress={loadProgress} isFading={loaderFading} />}
         <AtmosphereGradient />
-        <Suspense fallback={<BrandLoader isFading={false} />}>
+        <Suspense fallback={<BrandLoader progress={1} isFading={false} />}>
           <AdminDashboard
             onExit={() => setIsAdmin(false)}
             onLogout={async () => {
@@ -375,7 +408,7 @@ function App() {
 
   return (
     <main className="min-h-screen relative overflow-x-hidden">
-      {showLoader && <BrandLoader isFading={loaderFading} />}
+      {showLoader && <BrandLoader progress={loadProgress} isFading={loaderFading} />}
       <ErrorBoundary componentName="LiquidEtherBackground" fallback={<AtmosphereGradient />}>
         <LiquidEtherBackground
           key={accentKey}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, ReactNode } from 'react';
-import { supabase, isSupabaseConfigured, SCROLL_SEQUENCE_BUCKET } from '../lib/supabase';
+import { heroSequenceCache, TOTAL_FRAMES } from '../lib/heroSequenceCache';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -14,18 +14,15 @@ interface ScrollSequenceProps {
 }
 
 export default function ScrollSequence({
-  frameCount = 288,
-  filePrefix = 'frame_',
-  fileExtension = 'webp',
+  frameCount = TOTAL_FRAMES,
   scrollLength = 4,
   children,
 }: ScrollSequenceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
-  const imagesRef = useRef<HTMLImageElement[]>([]);
   const lastDrawnFrameRef = useRef<number>(0);
-  const firstFrameDrawnRef = useRef<boolean>(false);
+  const currentProgressRef = useRef<number>(0);
 
   const drawFrame = useCallback((index: number) => {
     const canvas = canvasRef.current;
@@ -33,11 +30,13 @@ export default function ScrollSequence({
     const ctx = canvas.getContext('2d');
     if (!ctx) return false;
 
-    const img = imagesRef.current[index];
+    const img = heroSequenceCache.images[index];
     if (!img || !img.complete || img.naturalWidth === 0) return false;
 
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    if (canvas.width !== img.naturalWidth || canvas.height !== img.naturalHeight) {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0);
     
@@ -45,72 +44,33 @@ export default function ScrollSequence({
     return true;
   }, []);
 
+  // Connect to the shared preloaded frame cache so frames load instantly without network stalls
   useEffect(() => {
-    let cancelled = false;
+    heroSequenceCache.startPreload();
 
-    const loadFrame = (i: number) => {
-      return new Promise<boolean>((resolve) => {
-        const frameIndex = String(i).padStart(3, '0');
-        const { data: urlData } = supabase.storage
-          .from(SCROLL_SEQUENCE_BUCKET)
-          .getPublicUrl(`${filePrefix}${frameIndex}.${fileExtension}`);
-
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = urlData.publicUrl;
-        img.onload = () => {
-          if (cancelled) return resolve(false);
-          if (!firstFrameDrawnRef.current) {
-            drawFrame(i);
-            firstFrameDrawnRef.current = true;
-          }
-          resolve(true);
-        };
-        img.onerror = () => resolve(false);
-        imagesRef.current[i] = img;
-      });
+    const checkAndDraw = () => {
+      const target = Math.round(currentProgressRef.current * (frameCount - 1));
+      const nearest = heroSequenceCache.getNearestFrame(target, lastDrawnFrameRef.current);
+      drawFrame(nearest);
     };
 
-    const loadAll = async () => {
-      if (!isSupabaseConfigured) return;
+    // Draw initial frame immediately
+    checkAndDraw();
 
-      // 1. Await the first frame so the initial canvas paints instantly
-      const firstFrameOk = await loadFrame(0);
-      if (cancelled || !firstFrameOk) return;
+    const unsubscribe = heroSequenceCache.subscribe(() => {
+      checkAndDraw();
+    });
 
-      // 2. Preload initial 15 frames eagerly for smooth initial scroll
-      const initialBatch = Math.min(15, frameCount);
-      const initialPromises: Promise<boolean>[] = [];
-      for (let i = 1; i < initialBatch; i++) {
-        initialPromises.push(loadFrame(i));
-      }
-      await Promise.all(initialPromises);
-      if (cancelled) return;
-
-      // 3. Stream remaining frames in small batches of 4 so we don't saturate network
-      const BATCH_SIZE = 4;
-      for (let i = initialBatch; i < frameCount; i += BATCH_SIZE) {
-        if (cancelled) break;
-        const batch: Promise<boolean>[] = [];
-        for (let j = i; j < Math.min(i + BATCH_SIZE, frameCount); j++) {
-          batch.push(loadFrame(j));
-        }
-        await Promise.all(batch);
-        await new Promise((r) => setTimeout(r, 60));
-      }
+    return () => {
+      unsubscribe();
     };
-
-    loadAll();
-    return () => { cancelled = true; };
-  }, [frameCount, filePrefix, fileExtension, drawFrame]);
+  }, [frameCount, drawFrame]);
 
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
     const inner = innerRef.current;
     if (!container || !inner) return;
-
-    const frameObj = { frame: 0 };
 
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
@@ -121,11 +81,10 @@ export default function ScrollSequence({
         pin: true,
         anticipatePin: 1,
         onUpdate: (self) => {
+          currentProgressRef.current = self.progress;
           const target = Math.round(self.progress * (frameCount - 1));
-          frameObj.frame = target;
-          if (!drawFrame(target)) {
-            drawFrame(lastDrawnFrameRef.current);
-          }
+          const frameToDraw = heroSequenceCache.getNearestFrame(target, lastDrawnFrameRef.current);
+          drawFrame(frameToDraw);
           
           const fadeStart = 0.75;
           const fadeProgress = Math.max(0, Math.min(1, (self.progress - fadeStart) / (1 - fadeStart)));
