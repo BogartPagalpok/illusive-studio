@@ -143,10 +143,23 @@ function getVertical(entry: any): boolean {
 
 function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative w-full" style={{ aspectRatio: '9/16', maxWidth: '320px', margin: '0 auto' }}>
-      <div className="relative w-full h-full bg-zinc-900 rounded-[2rem] p-2 shadow-2xl border-2 border-zinc-700">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/4 h-5 bg-zinc-900 rounded-b-xl z-10" />
-        <div className="w-full h-full rounded-[1.8rem] overflow-hidden bg-black">
+    <div className="relative w-full flex justify-center items-center py-2">
+      <div className="phone-card group">
+        {/* Hardware side buttons */}
+        <div className="phone-btn1" />
+        <div className="phone-btn2" />
+        <div className="phone-btn3" />
+
+        {/* Notch / Dynamic Island */}
+        <div className="phone-top">
+          <div className="phone-speaker" />
+          <div className="phone-camera">
+            <div className="phone-int" />
+          </div>
+        </div>
+
+        {/* Inner Screen */}
+        <div className="phone-card-int">
           {children}
         </div>
       </div>

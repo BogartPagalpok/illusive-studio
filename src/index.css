@@ -253,3 +253,119 @@
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9) !important;
   }
 }
+
+/* ==========================================================================
+   VERTICAL IFRAME PHONE MOCKUP
+   ========================================================================== */
+.phone-card {
+  width: 210px;
+  height: 400px;
+  background: black;
+  border-radius: 35px;
+  border: 2px solid rgb(40, 40, 40);
+  padding: 7px;
+  position: relative;
+  box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.486);
+  margin: 0 auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (min-width: 640px) {
+  .phone-card {
+    width: 220px;
+    height: 420px;
+  }
+}
+
+.phone-card-int {
+  background-image: linear-gradient(to right bottom, #ff0000, #ff0045, #ff0078, #ea00aa, #b81cd7, #8a3ad6, #5746cf, #004ac2, #003d94, #002e66, #001d3a, #020812);
+  background-size: 200% 200%;
+  background-position: 0% 0%;
+  height: 100%;
+  width: 100%;
+  border-radius: 25px;
+  transition: all 0.6s ease-out;
+  overflow: hidden;
+  position: relative;
+  background-color: #000;
+}
+
+.phone-card:hover .phone-card-int {
+  background-position: 100% 100%;
+}
+
+.phone-top {
+  position: absolute;
+  top: 0px;
+  right: 50%;
+  transform: translate(50%, 0%);
+  width: 35%;
+  height: 18px;
+  background-color: black;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.phone-speaker {
+  position: absolute;
+  top: 2px;
+  right: 50%;
+  transform: translate(50%, 0%);
+  width: 40%;
+  height: 2px;
+  border-radius: 2px;
+  background-color: rgb(20, 20, 20);
+}
+
+.phone-camera {
+  position: absolute;
+  top: 6px;
+  right: 84%;
+  transform: translate(50%, 0%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.048);
+}
+
+.phone-int {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  top: 50%;
+  right: 50%;
+  transform: translate(50%, -50%);
+  background-color: rgba(0, 0, 255, 0.212);
+}
+
+.phone-btn1, .phone-btn2, .phone-btn3 {
+  position: absolute;
+  width: 2px;
+  pointer-events: none;
+}
+
+.phone-btn1 {
+  height: 45px;
+  top: 30%;
+  right: -4px;
+  background-image: linear-gradient(to right, #111111, #222222, #333333, #464646, #595959);
+}
+
+.phone-btn2, .phone-btn3 {
+  transform: scale(-1);
+  left: -4px;
+  height: 30px;
+  background-image: linear-gradient(to right, #111111, #222222, #333333, #464646, #595959);
+}
+
+.phone-btn2 {
+  top: 26%;
+}
+
+.phone-btn3 {
+  top: 36%;
+}
+
